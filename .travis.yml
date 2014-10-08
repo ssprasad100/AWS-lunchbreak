@@ -5,3 +5,6 @@ install: "pip install -r requirements.txt"
 script: "python manage.py test"
 notifications:
     email: false
+    slack:
+        rooms:
+            - cloock:SXLRwJ3UHzH4R4sZwycCnt9J#lunchbreak-api
