@@ -2,6 +2,9 @@ language: python
 python:
     - "2.7"
 install: "pip install -r requirements.txt"
+before_script:
+    - mysql -e "CREATE USER 'lunchbreak'@'localhost' IDENTIFIED BY 'lunchbreak';"
+    - mysql -e "GRANT ALL PRIVILEGES ON * . * TO 'lunchbreak'@'localhost';"
 script: "python manage.py test"
 notifications:
     email: false
