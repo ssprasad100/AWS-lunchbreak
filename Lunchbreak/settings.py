@@ -41,7 +41,7 @@ INSTALLED_APPS = (
     'rest_framework',
 
     # Lunchbreak
-    'ordering',
+    'lunch',
 )
 
 MIDDLEWARE_CLASSES = (
