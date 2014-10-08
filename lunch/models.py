@@ -42,6 +42,10 @@ class LocationManager(models.Manager):
             )
 
 
+class Category(models.Model):
+    name = models.CharField(max_length=50)
+
+
 class Store(models.Model):
     name = models.CharField(max_length=256)
 
@@ -55,6 +59,8 @@ class Store(models.Model):
     objects = LocationManager()
     latitude = models.FloatField()
     longitude = models.FloatField()
+
+    categories = models.ManyToManyField(Category)
 
     def __unicode__(self):
         return self.name
