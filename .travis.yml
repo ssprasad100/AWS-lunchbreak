@@ -6,8 +6,8 @@ before_script:
     - pwd
     - ls Lunchbreak
     - cp Lunchbreak/settings.py Lunchbreak/settings_backup.py
-    - "sed -i '' \"s/'USER': 'lunchbreak'/'USER': 'root'/g\" Lunchbreak/settings.py"
-    - "sed -i '' \"s/'PASSWORD': 'lunchbreak'/'PASSWORD': ''/g\" Lunchbreak/settings.py"
+    - "sed -i \"s/'USER': 'lunchbreak'/'USER': 'root'/g\" Lunchbreak/settings.py"
+    - "sed -i \"s/'PASSWORD': 'lunchbreak'/'PASSWORD': ''/g\" Lunchbreak/settings.py"
 script: "python manage.py test"
 after_script:
     - mv Lunchbreak/settings_backup.py Lunchbreak/settings.py
