@@ -39,6 +39,7 @@ INSTALLED_APPS = (
 
     # Plugins
     'rest_framework',
+    'rest_framework_swagger',
 
     # Lunchbreak
     'lunch',
@@ -92,3 +93,11 @@ USE_TZ = True
 
 STATIC_ROOT = '/home/lunchbreak/public_html/lunchbreak/static/'
 STATIC_URL = '/static/'
+
+
+# Disable the browsable API
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    )
+}

@@ -86,13 +86,13 @@ class IngredientGroupName(models.Model):
 
 
 class IngredientGroup(models.Model):
-    groupName = models.ForeignKey(IngredientGroupName)
+    name = models.ForeignKey(IngredientGroupName)
     maximum = models.IntegerField(default=0)
 
     ingredients = models.ManyToManyField(Ingredient)
 
     def __unicode__(self):
-        return self.groupName
+        return self.name
 
 
 class Food(models.Model):
