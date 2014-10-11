@@ -45,6 +45,9 @@ class LocationManager(models.Manager):
 class Category(models.Model):
     name = models.CharField(max_length=50)
 
+    class Meta:
+        verbose_name_plural = 'Categories'
+
 
 class Store(models.Model):
     name = models.CharField(max_length=256)
@@ -57,8 +60,8 @@ class Store(models.Model):
     number = models.IntegerField()
 
     objects = LocationManager()
-    latitude = models.FloatField()
-    longitude = models.FloatField()
+    latitude = models.DecimalField(blank=True, decimal_places=7, max_digits=10)
+    longitude = models.DecimalField(blank=True, decimal_places=7, max_digits=10)
 
     categories = models.ManyToManyField(Category)
 
