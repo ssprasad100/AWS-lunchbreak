@@ -1,4 +1,6 @@
 .idea
+static
+
 *.sublime-project
 *.sublime-workspace
 *.pyc

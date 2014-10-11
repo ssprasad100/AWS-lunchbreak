@@ -72,6 +72,9 @@ class Store(models.Model):
 
 
 class Ingredient(models.Model):
+    '''
+    An ingredient is quite self-explanatory.
+    '''
     name = models.CharField(max_length=256)
 
     def __unicode__(self):
@@ -79,6 +82,9 @@ class Ingredient(models.Model):
 
 
 class IngredientGroupName(models.Model):
+    '''
+    The available names that a group of ingredients can have. This will be displayed in the app.
+    '''
     name = models.CharField(max_length=256)
 
     def __unicode__(self):
@@ -86,6 +92,9 @@ class IngredientGroupName(models.Model):
 
 
 class IngredientGroup(models.Model):
+    '''
+    An ingredient belongs to a group and when making your own sandwich for example you are limited to only 1 type of bread, 2 sauces, etc. This Model allows for those limitations to be set.
+    '''
     name = models.ForeignKey(IngredientGroupName)
     maximum = models.IntegerField(default=0)
 
@@ -96,8 +105,11 @@ class IngredientGroup(models.Model):
 
 
 class Food(models.Model):
+    '''
+    A food can consist of multiple ingredient groups. If this is the case, the customer can change the ingredients for his/her order. Once a custom food is made, it will look for the food that resembles the custom one as much as possible and use that price.
+    '''
     name = models.CharField(max_length=256)
-    cost = models.DecimalField(decimal_places=2, max_digits=5)
+    cost = models.DecimalField(blank=True, decimal_places=2, max_digits=5)
 
     store = models.ForeignKey(Store)
 

@@ -24,7 +24,7 @@ class StoreListView(generics.ListAPIView):
 
 class StoreCreateView(generics.CreateAPIView, StoreListView):
     '''
-    Create or list Stores.
+    Create or list stores.
     '''
     serializer_class = StoreSerializer
 
