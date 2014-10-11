@@ -5,8 +5,7 @@ class LocationManager(models.Manager):
 
     def nearby(self, latitude, longitude, proximity):
         # Haversine formule is het beste om te gebruiken bij korte afstanden.
-        # d = 2asin( sqrt( sin^2( ( lat2-lat1 ) / 2 ) +
-        # cos(lat1)*cos(lat2)*sin^2( (lon2-lon1) / 2 ) ) )
+        # d = 2 * r * asin( sqrt( sin^2( ( lat2-lat1 ) / 2 ) + cos(lat1)*cos(lat2)*sin^2( (lon2-lon1) / 2 ) ) )
         haversine = '''
         (
             (2*6371)
@@ -42,11 +41,14 @@ class LocationManager(models.Manager):
             )
 
 
-class Category(models.Model):
+class StoreCategory(models.Model):
     name = models.CharField(max_length=50)
 
     class Meta:
-        verbose_name_plural = 'Categories'
+        verbose_name_plural = 'Store Categories'
+
+    def __unicode__(self):
+        return self.name
 
 
 class Store(models.Model):
@@ -63,7 +65,43 @@ class Store(models.Model):
     latitude = models.DecimalField(blank=True, decimal_places=7, max_digits=10)
     longitude = models.DecimalField(blank=True, decimal_places=7, max_digits=10)
 
-    categories = models.ManyToManyField(Category)
+    categories = models.ManyToManyField(StoreCategory)
+
+    def __unicode__(self):
+        return self.name
+
+
+class Ingredient(models.Model):
+    name = models.CharField(max_length=256)
+
+    def __unicode__(self):
+        return self.name
+
+
+class IngredientGroupName(models.Model):
+    name = models.CharField(max_length=256)
+
+    def __unicode__(self):
+        return self.name
+
+
+class IngredientGroup(models.Model):
+    groupName = models.ForeignKey(IngredientGroupName)
+    maximum = models.IntegerField(default=0)
+
+    ingredients = models.ManyToManyField(Ingredient)
+
+    def __unicode__(self):
+        return self.groupName
+
+
+class Food(models.Model):
+    name = models.CharField(max_length=256)
+    cost = models.DecimalField(decimal_places=2, max_digits=5)
+
+    store = models.ForeignKey(Store)
+
+    ingredientGroups = models.ManyToManyField(IngredientGroup)
 
     def __unicode__(self):
         return self.name
