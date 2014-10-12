@@ -15,8 +15,9 @@ class StoreListView(generics.ListAPIView):
     serializer_class = StoreSerializer
 
     def get_queryset(self):
+        proximity = self.kwargs['proximity'] if 'proximity' in self.kwargs else 5
         if 'latitude' in self.kwargs is not None and 'longitude' in self.kwargs is not None:
-            return Store.objects.nearby(self.kwargs['latitude'], self.kwargs['longitude'], 5)
+            return Store.objects.nearby(self.kwargs['latitude'], self.kwargs['longitude'], proximity)
         if 'id' in self.kwargs is not None:
             return Store.objects.filter(id=self.kwargs['id'])
         return Store.objects.all()
