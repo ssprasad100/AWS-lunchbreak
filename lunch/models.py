@@ -1,5 +1,9 @@
 from django.db import models
 
+from lunch.exceptions import AddressNotFound
+
+import requests
+
 
 class LocationManager(models.Manager):
 
@@ -66,6 +70,23 @@ class Store(models.Model):
     longitude = models.DecimalField(blank=True, decimal_places=7, max_digits=10)
 
     categories = models.ManyToManyField(StoreCategory)
+
+    GEOCODING_URL = 'https://maps.googleapis.com/maps/api/geocode/json'
+    GEOCODING_KEY = 'AIzaSyD7jRgPzUxQ4fdghdwoyTnD5hB6EOtpDhE'
+    ADDRESS_FORMAT = '%s,+%s,+%s+%s,+%s+%s'
+
+    def save(self, *args, **kwargs):
+        address = self.ADDRESS_FORMAT % (self.country, self.province, self.street, self.number, self.code, self.city,)
+        response = requests.get(self.GEOCODING_URL, params={'address': address, 'key': self.GEOCODING_KEY})
+        result = response.json()
+
+        if not result['results']:
+            raise AddressNotFound('The addres given could not be found.')
+
+        self.latitude = result['results'][0]['geometry']['location']['lat']
+        self.longitude = result['results'][0]['geometry']['location']['lng']
+
+        super(Store, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return self.name

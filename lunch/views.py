@@ -1,10 +1,10 @@
 from rest_framework import generics
 from rest_framework.exceptions import APIException
 
-import requests
-
 from lunch.models import Store, Food
 from lunch.serializers import StoreSerializer, FoodSerializer
+
+import requests
 
 
 class StoreListView(generics.ListAPIView):
@@ -28,36 +28,6 @@ class StoreCreateView(generics.CreateAPIView, StoreListView):
     Create or list stores.
     '''
     serializer_class = StoreSerializer
-
-    GEOCODING_URL = 'https://maps.googleapis.com/maps/api/geocode/json'
-    GEOCODING_KEY = 'AIzaSyD7jRgPzUxQ4fdghdwoyTnD5hB6EOtpDhE'
-    ADDRESS_FORMAT = '%s,+%s,+%s+%s,+%s+%s'
-
-    def post(self, request):
-        country = request.DATA.get('country')
-        province = request.DATA.get('province')
-        city = request.DATA.get('city')
-        code = request.DATA.get('code')
-        street = request.DATA.get('street')
-        number = request.DATA.get('number')
-
-        if not country or not province or not city or not code or not street or not number:
-            raise APIException('The full address needs to be given.')
-
-        address = self.ADDRESS_FORMAT % (country, province, street, number, code, city,)
-        response = requests.get(self.GEOCODING_URL, params={'address': address, 'key': self.GEOCODING_KEY})
-        result = response.json()
-
-        if not result['results']:
-            raise APIException('Address not found.')
-
-        latitude = result['results'][0]['geometry']['location']['lat']
-        longitude = result['results'][0]['geometry']['location']['lng']
-
-        request.DATA.appendlist('latitude', latitude)
-        request.DATA.appendlist('longitude', longitude)
-
-        return super(StoreCreateView, self).post(request)
 
 
 class FoodListView(generics.ListAPIView):
