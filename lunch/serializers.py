@@ -5,10 +5,11 @@ from rest_framework import serializers
 
 class StoreSerializer(serializers.ModelSerializer):
     categories = serializers.RelatedField(many=True)
+    food = serializers.RelatedField(many=True, source='food')
 
     class Meta:
         model = Store
-        fields = ('id', 'name', 'country', 'province', 'city', 'code', 'street', 'number', 'latitude', 'longitude', 'categories')
+        fields = ('id', 'name', 'country', 'province', 'city', 'code', 'street', 'number', 'latitude', 'longitude', 'categories', 'food')
 
 
 class StoreCategorySerializer(serializers.ModelSerializer):

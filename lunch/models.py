@@ -81,7 +81,7 @@ class Store(models.Model):
         result = response.json()
 
         if not result['results']:
-            raise AddressNotFound('The addres given could not be found.')
+            raise AddressNotFound('The address given could not be found.')
 
         self.latitude = result['results'][0]['geometry']['location']['lat']
         self.longitude = result['results'][0]['geometry']['location']['lng']
@@ -92,49 +92,27 @@ class Store(models.Model):
         return self.name
 
 
-class Ingredient(models.Model):
-    '''
-    An ingredient is quite self-explanatory.
-    '''
-    name = models.CharField(max_length=256)
-
-    def __unicode__(self):
-        return self.name
-
-
-class IngredientGroupName(models.Model):
-    '''
-    The available names that a group of ingredients can have. This will be displayed in the app.
-    '''
-    name = models.CharField(max_length=256)
-
-    def __unicode__(self):
-        return self.name
-
-
 class IngredientGroup(models.Model):
-    '''
-    An ingredient belongs to a group and when making your own sandwich for example you are limited to only 1 type of bread, 2 sauces, etc. This Model allows for those limitations to be set.
-    '''
-    name = models.ForeignKey(IngredientGroupName)
+    name = models.CharField(max_length=256)
     maximum = models.IntegerField(default=0)
 
-    ingredients = models.ManyToManyField(Ingredient)
 
-    def __unicode__(self):
-        return self.name
-
-
-class Food(models.Model):
-    '''
-    A food can consist of multiple ingredient groups. If this is the case, the customer can change the ingredients for his/her order. Once a custom food is made, it will look for the food that resembles the custom one as much as possible and use that price.
-    '''
+class DefaultIngredient(models.Model):
     name = models.CharField(max_length=256)
-    cost = models.DecimalField(blank=True, decimal_places=2, max_digits=5)
+    cost = models.DecimalField(decimal_places=2, max_digits=5)
+    group = models.ForeignKey(IngredientGroup)
 
+
+class Ingredient(DefaultIngredient):
     store = models.ForeignKey(Store)
 
-    ingredientGroups = models.ManyToManyField(IngredientGroup)
 
-    def __unicode__(self):
-        return self.name
+class DefaultFood(models.Model):
+    name = models.CharField(max_length=256)
+    cost = models.DecimalField(decimal_places=2, max_digits=5)
+    ingredientGroups = models.ManyToManyField(IngredientGroup)
+    defaultIngredients = models.ManyToManyField(DefaultIngredient)
+
+
+class Food(DefaultFood):
+    store = models.ForeignKey(Store)
