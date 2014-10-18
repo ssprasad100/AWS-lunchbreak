@@ -1,15 +1,6 @@
-from lunch.models import Store, Food, StoreCategory, Ingredient, IngredientGroup
+from lunch.models import Store, DefaultFood, Food, StoreCategory, DefaultIngredient, Ingredient, IngredientGroup
 
 from rest_framework import serializers
-
-
-class StoreSerializer(serializers.ModelSerializer):
-    categories = serializers.RelatedField(many=True)
-    food = serializers.RelatedField(many=True, source='food')
-
-    class Meta:
-        model = Store
-        fields = ('id', 'name', 'country', 'province', 'city', 'code', 'street', 'number', 'latitude', 'longitude', 'categories', 'food')
 
 
 class StoreCategorySerializer(serializers.ModelSerializer):
@@ -19,22 +10,44 @@ class StoreCategorySerializer(serializers.ModelSerializer):
         fields = ('id', 'name')
 
 
-class FoodSerializer(serializers.ModelSerializer):
+class StoreSerializer(serializers.ModelSerializer):
+    categories = serializers.RelatedField(many=True)
 
     class Meta:
-        model = Food
-        fields = ('id', 'name', 'cost', 'store', 'ingredientGroups')
-
-
-class IngredientSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Ingredient
-        fields = ('id', 'name')
+        model = Store
+        fields = ('id', 'name', 'country', 'province', 'city', 'code', 'street', 'number', 'latitude', 'longitude', 'categories')
 
 
 class IngredientGroupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = IngredientGroup
-        fields = ('id', 'name', 'maximum', 'ingredients')
+        fields = ('id', 'name', 'maximum')
+
+
+class DefaultIngredientSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = DefaultIngredient
+        fields = ('id', 'name')
+
+
+class IngredientSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Ingredient
+        fields = ('id', 'name', 'store')
+
+
+class DefaultFoodSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = DefaultFood
+        fields = ('id', 'name', 'cost', 'ingredientGroups', 'defaultIngredients')
+
+
+class FoodSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Food
+        fields = ('id', 'name', 'cost', 'ingredientGroups', 'defaultIngredients', 'store')
