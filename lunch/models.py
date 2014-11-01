@@ -135,11 +135,8 @@ class BaseFood(models.Model):
     @cached_property
     def ingredientGroups(self):
         result = []
-        print 'Getting ingredients'
         for ingredient in self.ingredients.all():
-            print str(ingredient)
             if ingredient.group not in result:
-                print 'Tzit er ni in'
                 result.append(ingredient.group)
         return result
 
