@@ -18,11 +18,18 @@ class StoreSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'country', 'province', 'city', 'code', 'street', 'number', 'latitude', 'longitude', 'categories')
 
 
-class IngredientGroupSerializer(serializers.ModelSerializer):
+class IngredientSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = IngredientGroup
-        fields = ('id', 'name', 'maximum')
+        model = Ingredient
+        fields = ('id', 'name', 'store')
+
+
+class ShortIngredientSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Ingredient
+        fields = ('id', 'name')
 
 
 class DefaultIngredientSerializer(serializers.ModelSerializer):
@@ -32,22 +39,25 @@ class DefaultIngredientSerializer(serializers.ModelSerializer):
         fields = ('id', 'name')
 
 
-class IngredientSerializer(serializers.ModelSerializer):
+class IngredientGroupSerializer(serializers.ModelSerializer):
+    ingredients = ShortIngredientSerializer(many=True)
 
     class Meta:
-        model = Ingredient
-        fields = ('id', 'name', 'store')
+        model = IngredientGroup
+        fields = ('id', 'name', 'maximum', 'ingredients')
 
 
 class DefaultFoodSerializer(serializers.ModelSerializer):
+    ingredientGroups = IngredientGroupSerializer(many=True)
 
     class Meta:
         model = DefaultFood
-        fields = ('id', 'name', 'cost', 'ingredientGroups', 'defaultIngredients')
+        fields = ('id', 'name', 'cost', 'ingredientGroups', 'ingredients')
 
 
 class FoodSerializer(serializers.ModelSerializer):
+    ingredientGroups = IngredientGroupSerializer(many=True)
 
     class Meta:
         model = Food
-        fields = ('id', 'name', 'cost', 'ingredientGroups', 'defaultIngredients', 'store')
+        fields = ('id', 'name', 'cost', 'ingredientGroups', 'ingredients', 'store')

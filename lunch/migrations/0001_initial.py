@@ -18,6 +18,7 @@ class Migration(migrations.Migration):
                 ('cost', models.DecimalField(max_digits=5, decimal_places=2)),
             ],
             options={
+                'abstract': False,
             },
             bases=(models.Model,),
         ),
@@ -26,29 +27,36 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=256)),
-                ('cost', models.DecimalField(max_digits=5, decimal_places=2)),
+                ('cost', models.DecimalField(default=0, max_digits=5, decimal_places=2)),
             ],
             options={
+                'abstract': False,
             },
             bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='Food',
             fields=[
-                ('defaultfood_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='lunch.DefaultFood')),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('name', models.CharField(max_length=256)),
+                ('cost', models.DecimalField(max_digits=5, decimal_places=2)),
             ],
             options={
+                'abstract': False,
             },
-            bases=('lunch.defaultfood',),
+            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='Ingredient',
             fields=[
-                ('defaultingredient_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='lunch.DefaultIngredient')),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('name', models.CharField(max_length=256)),
+                ('cost', models.DecimalField(default=0, max_digits=5, decimal_places=2)),
             ],
             options={
+                'abstract': False,
             },
-            bases=('lunch.defaultingredient',),
+            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='IngredientGroup',
@@ -98,8 +106,20 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='ingredient',
+            name='group',
+            field=models.ForeignKey(to='lunch.IngredientGroup'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='ingredient',
             name='store',
             field=models.ForeignKey(to='lunch.Store'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='food',
+            name='ingredients',
+            field=models.ManyToManyField(to='lunch.Ingredient'),
             preserve_default=True,
         ),
         migrations.AddField(
@@ -116,14 +136,8 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='defaultfood',
-            name='defaultIngredients',
+            name='ingredients',
             field=models.ManyToManyField(to='lunch.DefaultIngredient'),
-            preserve_default=True,
-        ),
-        migrations.AddField(
-            model_name='defaultfood',
-            name='ingredientGroups',
-            field=models.ManyToManyField(to='lunch.IngredientGroup'),
             preserve_default=True,
         ),
     ]

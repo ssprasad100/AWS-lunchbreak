@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.functional import cached_property
 
 from lunch.exceptions import AddressNotFound
 
@@ -89,30 +90,67 @@ class Store(models.Model):
         super(Store, self).save(*args, **kwargs)
 
     def __unicode__(self):
-        return self.name
+        return self.name + ', ' + self.city
 
 
 class IngredientGroup(models.Model):
     name = models.CharField(max_length=256)
     maximum = models.IntegerField(default=0)
 
+    @cached_property
+    def ingredients(self):
+        return self.ingredient_set.all()
 
-class DefaultIngredient(models.Model):
+    def __unicode__(self):
+        return self.name
+
+
+class BaseIngredient(models.Model):
     name = models.CharField(max_length=256)
-    cost = models.DecimalField(decimal_places=2, max_digits=5)
+    cost = models.DecimalField(decimal_places=2, max_digits=5, default=0)
     group = models.ForeignKey(IngredientGroup)
 
+    class Meta:
+        abstract = True
 
-class Ingredient(DefaultIngredient):
+    def __unicode__(self):
+        return self.name
+
+
+class DefaultIngredient(BaseIngredient):
+    pass
+
+
+class Ingredient(BaseIngredient):
     store = models.ForeignKey(Store)
 
 
-class DefaultFood(models.Model):
+class BaseFood(models.Model):
     name = models.CharField(max_length=256)
     cost = models.DecimalField(decimal_places=2, max_digits=5)
-    ingredientGroups = models.ManyToManyField(IngredientGroup)
-    defaultIngredients = models.ManyToManyField(DefaultIngredient)
+
+    class Meta:
+        abstract = True
+
+    @cached_property
+    def ingredientGroups(self):
+        result = []
+        print 'Getting ingredients'
+        for ingredient in self.ingredients.all():
+            print str(ingredient)
+            if ingredient.group not in result:
+                print 'Tzit er ni in'
+                result.append(ingredient.group)
+        return result
+
+    def __unicode__(self):
+        return self.name
 
 
-class Food(DefaultFood):
+class DefaultFood(BaseFood):
+    ingredients = models.ManyToManyField(DefaultIngredient)
+
+
+class Food(BaseFood):
+    ingredients = models.ManyToManyField(Ingredient)
     store = models.ForeignKey(Store)
