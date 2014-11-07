@@ -2,7 +2,7 @@ from django.conf.urls import patterns, url
 from lunch import views
 
 urlpatterns = patterns('',
-    url(r'stores/nearby/(?P<latitude>\d+)/(?P<longitude>\d+)/(?P<proximity>\d+)/$', views.StoreListView.as_view()),
+    url(r'stores/nearby/(?P<latitude>.+)/(?P<longitude>.+)/(?P<proximity>.+)/$', views.StoreListView.as_view()),
     url(r'stores/nearby/(?P<latitude>.+)/(?P<longitude>.+)/$', views.StoreListView.as_view()),
     url(r'stores/(?P<id>.+)/$', views.StoreListView.as_view()),
 
