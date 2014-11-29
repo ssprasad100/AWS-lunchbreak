@@ -4,6 +4,10 @@ from django.utils.functional import cached_property
 from lunch.exceptions import AddressNotFound
 
 import requests
+import random
+
+IDENTIFIER_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWabcdefghijklmnopqrstuvwxyz0123456789'
+IDENTIFIER_LENGTH = 64
 
 
 class LocationManager(models.Manager):
@@ -82,7 +86,7 @@ class Store(models.Model):
         result = response.json()
 
         if not result['results']:
-            raise AddressNotFound('The address given could not be found.')
+            raise AddressNotFound()
 
         self.latitude = result['results'][0]['geometry']['location']['lat']
         self.longitude = result['results'][0]['geometry']['location']['lng']
@@ -151,3 +155,23 @@ class DefaultFood(BaseFood):
 class Food(BaseFood):
     ingredients = models.ManyToManyField(Ingredient)
     store = models.ForeignKey(Store)
+
+
+class User(models.Model):
+    name = models.CharField(max_length=128)
+    digitsId = models.CharField(max_length=10, unique=True)
+    # Maximum european length (with +) is +XXX and 13 numbers -> 17
+    phone = models.CharField(max_length=17, primary_key=True)
+    # auto_now only changes when updating this user. The user never gets updated after confirmation and is therefore set to the confirmation date.
+    createdAt = models.DateField(auto_now=True)
+    confirmed = models.BooleanField(default=False)
+
+
+def tokenGenerator():
+    return ''.join(random.choice(IDENTIFIER_CHARS) for a in xrange(IDENTIFIER_LENGTH))
+
+
+class Token(models.Model):
+    identifier = models.CharField(max_length=IDENTIFIER_LENGTH, default=tokenGenerator)
+    device = models.CharField(max_length=128)
+    digitsId = models.ForeignKey(User, db_column='digitsId')

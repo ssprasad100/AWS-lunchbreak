@@ -9,4 +9,9 @@ urlpatterns = patterns('',
     url(r'food/store/(?P<store_id>.+)/$', views.FoodListView.as_view()),
     # This might needs to be removed later on.
     url(r'food/(?P<id>.+)/$', views.FoodListView.as_view()),
+
+    url(r'token/$', views.TokenView.as_view()),
+
+    url(r'user/signin/$', views.UserRegistrationView.as_view()),
+    url(r'user/confirm/$', views.UserConfirmationView.as_view())
 )
