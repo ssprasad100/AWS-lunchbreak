@@ -3,6 +3,8 @@ import base64
 import urllib
 import json
 
+from lunch.exceptions import DigitsException
+
 
 class Digits:
 	CONSUMER_KEY = 'EF63FOnX3hZ1Ry7lRUXhJtAkr'
@@ -19,7 +21,15 @@ class Digits:
 	LEGACY_ERROR = 0
 	APP_AUTH_ERROR_CODE = 89
 	GUEST_AUTH_ERROR_CODE = 239
+	PIN_CODE_INCORRECT = 236
 	ALREADY_REGISTERED_ERROR_CODE = 285
+	EXCEPTION_MESSAGES = {
+		LEGACY_ERROR: 'Legacy error occurred.',
+		APP_AUTH_ERROR_CODE: 'Application auth code incorrect, report this to the system administrator.',
+		GUEST_AUTH_ERROR_CODE: 'Guest auth code incorrect, report this to the system administrator.',
+		PIN_CODE_INCORRECT: 'Incorrect pin code.',
+		ALREADY_REGISTERED_ERROR_CODE: 'User already registered.'
+	}
 
 	def getBearerHeader(self):
 		return 'Bearer ' + self.requestAppToken()
@@ -39,7 +49,9 @@ class Digits:
 		content = json.loads(appTokenRequest.text)
 
 		if appTokenRequest.status_code != 200:
-			raise Exception('Status code != 200')
+			if 'errors' in content and 'code' in content['errors'] and content['errors']['code'] in Digits.EXCEPTION_MESSAGES:
+				raise DigitsException(Digits.EXCEPTION_MESSAGES[content['errors']['code']])
+			raise DigitsException(json.dumps(content, indent=4))
 
 		return content
 
@@ -119,7 +131,7 @@ class Digits:
 
 		return content
 
-	def confirmRegistration(self, phoneNumber, pin, userId=None):
+	def confirmRegistration(self, phoneNumber, pin):
 		'''Check whether the sent pin is correct.
 
 		Return example:
@@ -178,7 +190,17 @@ class Digits:
 		return content
 
 	def confirmSignin(self, requestId, userId, pin):
-		'''Confirm that the pin the user sent is correct.'''
+		'''Confirm that the pin the user sent is correct.
+
+		Return example:
+		{
+			'oauth_token_secret': 'nBeRqRbZXeiqPq5px8c7bH2To2g9BUC6c6bt25GFacQNU',
+			'user_id': 2866750414,
+			'x_auth_expires': 0,
+			'oauth_token': '2866750414-Hb5OdbmPwQWfU2LYtqKKY4t1rdhmj1xVjuAxEvv',
+			'screen_name': ''
+		}
+		'''
 
 		params = {
 			'login_verification_request_id': requestId,

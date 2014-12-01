@@ -12,6 +12,5 @@ urlpatterns = patterns('',
 
     url(r'token/$', views.TokenView.as_view()),
 
-    url(r'user/signin/$', views.UserRegistrationView.as_view()),
-    url(r'user/confirm/$', views.UserConfirmationView.as_view())
+    url(r'user/$', views.UserView.as_view())
 )

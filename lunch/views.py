@@ -1,9 +1,9 @@
-from rest_framework import generics, status
+from rest_framework import generics
 from rest_framework.response import Response
 
-from lunch.models import Store, Food, User
-from lunch.serializers import StoreSerializer, FoodSerializer, TokenSerializer, UserSerializer, UserConfirmationSerializer
-from lunch.exceptions import DigitsException, InvalidRequest, DoesNotExist
+from lunch.models import Store, Food, User, Token
+from lunch.serializers import StoreSerializer, FoodSerializer, TokenSerializer, UserSerializer
+from lunch.exceptions import DigitsException, InvalidRequest
 from lunch.authentication import LunchbreakAuthentication
 from lunch.digits import Digits
 
@@ -46,84 +46,98 @@ class TokenView(generics.ListCreateAPIView, generics.DestroyAPIView):
 
     serializer_class = TokenSerializer
 
-    def get_queryset(self):
-        pass
 
-
-class UserConfirmationView(generics.UpdateAPIView):
-    '''
-    Sign a user in and return a token.
-    '''
-
-    serializer_class = UserConfirmationSerializer
-
-    def get_queryset(self):
-        return
-
-    def update(self, request, *args, **kwargs):
-        print request.DATA
-        return
-        queryset = self.get_queryset()
-        if not queryset:
-            raise DoesNotExist('User does not exist.')
-
-        digits = Digits()
-        userId = self.kwargs['id']
-        print userId
-
-
-          # print 'FIRST'
-        # print request.DATA
-        # userSerializer = UserSerializer(data=request.DATA)
-        # if userSerializer.is_valid():
-        #     print 'SECOND'
-        #     print request.DATA
-        #     user = userSerializer.save()
-        #     tokenSerializer = TokenSerializer(data=request.DATA)
-        #     if tokenSerializer.is_valid():
-        #         tokenSerializer.save()
-        #         return Response(tokenSerializer.data)
-        #     # If the token generation failed, delete the user
-        #     user.delete()
-        #     return Response(tokenSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        # return Response(userSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class UserRegistrationView(generics.CreateAPIView):
-    '''
-    Register a user.
-    '''
+class UserView(generics.CreateAPIView):
 
     serializer_class = UserSerializer
 
-    def get_queryset(self):
-        return User.objects.filter(phone=self.kwargs['phone'])
+    # For all these methods a try-except is not needed since a DigitsException is generated
+    # which will provide everything
+    def register(self, digits, phone):
+        try:
+            digits.register(phone)
+            return True
+        except:
+            return self.signIn(digits, phone)
+
+    def signIn(self, digits, phone):
+        content = digits.signin(phone)
+        return {
+            'userId': content['login_verification_user_id'],
+            'requestId': content['login_verification_request_id']
+        }
+
+    def confirmRegistration(self, digits, phone, pin):
+        content = digits.confirmRegistration(phone, pin)
+        return content['id']
+
+    def confirmSignin(self, digits, requestId, userId, pin):
+        digits.confirmSignin(requestId, userId, pin)
+        return True
 
     def create(self, request, *args, **kwargs):
-        userSerializer = UserSerializer(data=request.DATA)
+        userSerializer = UserSerializer(data=request.data)
         if userSerializer.is_valid():
-            phone = request.DATA.__getitem__('phone')
+            phone = request.data.__getitem__('phone')
+            print phone
             queryset = User.objects.filter(phone=phone)
+            print queryset
+            digits = Digits()
             if not queryset:
-                # The user isn't in the database, we want to register them.
-                digits = Digits()
-                try:
-                    content = digits.register(phone)
-                    userSerializer.save()
-                    return Response(userSerializer.data)
-                except:  # Will go here if the user is in the Digits database
-                    try:
-                        content = digits.signin(phone)
-                        userSerializer.save()
-                        data = {
-                            'userId': content['login_verification_user_id'],
-                            'requestId': content['login_verification_request_id']
-                        }
-                        return Response(data)
-                    except Exception as e:
-                        raise e
-                        raise DigitsException()
-            # (ELSE) The user is in the database -> Invalid Request
-            raise InvalidRequest('User already exists, please use the signin API request instead.')
-        # Invalid
+                print 'User is not in the database yet'
+                result = self.register(digits, phone)
+                if result:
+                    user = User(phone=phone, name=request.data.__getitem__('name'))
+                    if type(result) is dict:
+                        print '    User is in the Digits Database'
+                        user.userId = result['userId']
+                        user.requestId = result['requestId']
+                    user.save()
+                    return Response()
+                raise DigitsException()
+            else:
+                print 'User is in the database'
+                pin = request.data.get('pin', False)
+                user = queryset[0]
+                if not pin:
+                    print '    No pin was given'
+                    if user.confirmed:
+                        print '        User is confirmed'
+                        result = self.signIn(digits, phone)
+                        if result:
+                            user.userId = result['userId']
+                            user.requestId = result['requestId']
+                            user.save()
+                            return Response()
+                    else:
+                        print '        User is not confirmed'
+                        result = self.register(digits, phone)
+                        if result:
+                            if type(result) is dict:
+                                user.userId = result['userId']
+                                user.requestId = result['requestId']
+                            user.save()
+                            return Response()
+                    raise DigitsException()
+                else:
+                    print '    A pin was given'
+                    success = False
+                    if not user.requestId and not user.userId:
+                        # The user already got a message, but just got added to the Digits database
+                        userId = self.confirmRegistration(digits, phone, pin)
+                        user.userId = userId
+                        user.save()
+                        success = True
+                    else:
+                        # The user already was in the Digits database and got a request and user id
+                        userId = self.confirmSignin(digits, user.requestId, user.userId, pin)
+                        success = True
+
+                    if success:
+                        device = request.data.get('device', 'Unknown')
+                        token = Token(device=device, user=user)
+                        token.save()
+                        tokenSerializer = TokenSerializer(token)
+                        return Response(tokenSerializer.data)
+
         raise InvalidRequest()

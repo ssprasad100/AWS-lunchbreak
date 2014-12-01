@@ -11,7 +11,7 @@ class StoreCategorySerializer(serializers.ModelSerializer):
 
 
 class StoreSerializer(serializers.ModelSerializer):
-    categories = serializers.RelatedField(many=True)
+    categories = serializers.RelatedField(many=True, read_only=True)
 
     class Meta:
         model = Store
@@ -67,23 +67,37 @@ class TokenSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Token
-        fields = ('id', 'identifier', 'device', 'digitsId')
-        write_only_fields = ('device', 'digitsId')
+        fields = ('id', 'identifier', 'device', 'user')
+        write_only_fields = ('device', 'user')
+        read_only_fields = ('id', 'identifier')
 
 
 class UserSerializer(serializers.ModelSerializer):
-    device = serializers.CharField('device', label='device', write_only=True, required=True)
+    pin = serializers.CharField()
+
+    def to_internal_value(self, data):
+        name = data.get('name')
+        phone = data.get('phone')
+
+        if not name:
+            raise serializers.ValidationError({
+                'name': 'This field is required'
+            })
+
+        if not phone:
+            raise serializers.ValidationError({
+                'phone': 'This field is required'
+            })
+
+        print name
+        print phone
+        # TODO Check whether the phone number is a valid phone number
+        return {
+            'name': name,
+            'phone': phone
+        }
 
     class Meta:
         model = User
-        fields = ('name', 'phone', 'device')
+        fields = ('name', 'phone', 'pin')
         write_only_fields = ('name', 'phone')
-
-
-class UserConfirmationSerializer(serializers.ModelSerializer):
-    requestId = serializers.CharField('requestId', label='requestId', write_only=True, required=True)
-    pin = serializers.CharField('pin', label='pin', write_only=True, required=True)
-
-    class Meta:
-        model = User
-        fields = ('digitsId', 'requestId', 'pin')

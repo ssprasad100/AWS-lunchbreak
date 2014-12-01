@@ -158,13 +158,14 @@ class Food(BaseFood):
 
 
 class User(models.Model):
-    name = models.CharField(max_length=128)
-    digitsId = models.CharField(max_length=10, unique=True)
     # Maximum european length (with +) is +XXX and 13 numbers -> 17
     phone = models.CharField(max_length=17, primary_key=True)
-    # auto_now only changes when updating this user. The user never gets updated after confirmation and is therefore set to the confirmation date.
-    createdAt = models.DateField(auto_now=True)
+    name = models.CharField(max_length=128)
+    userId = models.CharField(max_length=10, blank=True, null=True)
+    requestId = models.CharField(max_length=32, blank=True, null=True)
+
     confirmed = models.BooleanField(default=False)
+    confirmedAt = models.DateField(blank=True, null=True)
 
 
 def tokenGenerator():
@@ -174,4 +175,4 @@ def tokenGenerator():
 class Token(models.Model):
     identifier = models.CharField(max_length=IDENTIFIER_LENGTH, default=tokenGenerator)
     device = models.CharField(max_length=128)
-    digitsId = models.ForeignKey(User, db_column='digitsId')
+    user = models.ForeignKey(User, db_column='phone')

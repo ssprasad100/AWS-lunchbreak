@@ -8,7 +8,7 @@ class ServiceUnavailable(APIException):
 
 
 class DigitsException(APIException):
-    status_code = status.HTTP_503_SERVICE_UNAVAILABLE
+    status_code = status.HTTP_400_BAD_REQUEST
     default_detail = 'Messaging service temporarily unavailable, please try again later.'
 
 
