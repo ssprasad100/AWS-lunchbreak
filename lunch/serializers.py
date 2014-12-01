@@ -95,9 +95,25 @@ class UserSerializer(serializers.ModelSerializer):
         write_only_fields = ('name', 'phone', 'pin', 'device')
 
 
+class TokenUserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ('userId')
+
+
 class TokenSerializer(serializers.ModelSerializer):
+    user = TokenUserSerializer()
+
+    def to_representation(self, obj):
+        return {
+            'id': obj.id,
+            'identifier': obj.identifier,
+            'device': obj.device,
+            'user': obj.user.userId,
+        }
 
     class Meta:
         model = Token
-        fields = ('id', 'identifier', 'device')
-        read_only_fields = ('id', 'identifier')
+        fields = ('id', 'identifier', 'device', 'user')
+        read_only_fields = ('id', 'identifier', 'user')

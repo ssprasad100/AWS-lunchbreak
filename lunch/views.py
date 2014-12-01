@@ -88,30 +88,23 @@ class UserView(generics.CreateAPIView):
         userSerializer = UserSerializer(data=request.data)
         if userSerializer.is_valid():
             phone = request.data.__getitem__('phone')
-            print phone
             queryset = User.objects.filter(phone=phone)
-            print queryset
             digits = Digits()
             if not queryset:
-                print 'User is not in the database yet'
                 result = self.register(digits, phone)
                 if result:
                     user = User(phone=phone, name=request.data.__getitem__('name'))
                     if type(result) is dict:
-                        print '    User is in the Digits Database'
                         user.userId = result['userId']
                         user.requestId = result['requestId']
                     user.save()
                     return Response()
                 raise DigitsException()
             else:
-                print 'User is in the database'
                 pin = request.data.get('pin', False)
                 user = queryset[0]
                 if not pin:
-                    print '    No pin was given'
                     if user.confirmed:
-                        print '        User is confirmed'
                         result = self.signIn(digits, phone)
                         if result:
                             user.userId = result['userId']
@@ -119,7 +112,6 @@ class UserView(generics.CreateAPIView):
                             user.save()
                             return Response()
                     else:
-                        print '        User is not confirmed'
                         result = self.register(digits, phone)
                         if result:
                             if type(result) is dict:
@@ -129,7 +121,6 @@ class UserView(generics.CreateAPIView):
                             return Response()
                     raise DigitsException()
                 else:
-                    print '    A pin was given'
                     device = request.data.get('device', False)
                     success = False
                     if device:
