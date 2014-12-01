@@ -7,6 +7,8 @@ from lunch.exceptions import DigitsException, InvalidRequest
 from lunch.authentication import LunchbreakAuthentication
 from lunch.digits import Digits
 
+from datetime import datetime
+
 
 class StoreListView(generics.ListAPIView):
     '''
@@ -135,6 +137,7 @@ class UserView(generics.CreateAPIView):
                             # The user already got a message, but just got added to the Digits database
                             userId = self.confirmRegistration(digits, phone, pin)
                             user.userId = userId
+                            user.confirmedAt = datetime.now()
                             user.save()
                             success = True
                         else:
