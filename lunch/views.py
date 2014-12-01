@@ -39,12 +39,19 @@ class FoodListView(generics.ListAPIView):
             return Food.objects.filter(id=self.kwargs['id'])
 
 
-class TokenView(generics.ListCreateAPIView, generics.DestroyAPIView):
+class TokenView(generics.ListAPIView):
     '''
-    Tokens can be created, listed (only the device names and ids) and destroyed.
+    Tokens can only be listed (for now).
     '''
 
+    authentication_classes = (LunchbreakAuthentication,)
     serializer_class = TokenSerializer
+
+    def get_queryset(self):
+        '''
+        Return all of the Tokens for the authenticated user.
+        '''
+        return Token.objects.filter(user=self.request.user)
 
 
 class UserView(generics.CreateAPIView):
@@ -121,23 +128,24 @@ class UserView(generics.CreateAPIView):
                     raise DigitsException()
                 else:
                     print '    A pin was given'
+                    device = request.data.get('device', False)
                     success = False
-                    if not user.requestId and not user.userId:
-                        # The user already got a message, but just got added to the Digits database
-                        userId = self.confirmRegistration(digits, phone, pin)
-                        user.userId = userId
-                        user.save()
-                        success = True
-                    else:
-                        # The user already was in the Digits database and got a request and user id
-                        userId = self.confirmSignin(digits, user.requestId, user.userId, pin)
-                        success = True
+                    if device:
+                        if not user.requestId and not user.userId:
+                            # The user already got a message, but just got added to the Digits database
+                            userId = self.confirmRegistration(digits, phone, pin)
+                            user.userId = userId
+                            user.save()
+                            success = True
+                        else:
+                            # The user already was in the Digits database and got a request and user id
+                            userId = self.confirmSignin(digits, user.requestId, user.userId, pin)
+                            success = True
 
-                    if success:
-                        device = request.data.get('device', 'Unknown')
-                        token = Token(device=device, user=user)
-                        token.save()
-                        tokenSerializer = TokenSerializer(token)
-                        return Response(tokenSerializer.data)
+                        if success:
+                            token = Token(device=device, user=user)
+                            token.save()
+                            tokenSerializer = TokenSerializer(token)
+                            return Response(tokenSerializer.data)
 
         raise InvalidRequest()

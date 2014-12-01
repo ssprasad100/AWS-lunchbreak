@@ -63,17 +63,9 @@ class FoodSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'cost', 'ingredientGroups', 'ingredients', 'store')
 
 
-class TokenSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Token
-        fields = ('id', 'identifier', 'device', 'user')
-        write_only_fields = ('device', 'user')
-        read_only_fields = ('id', 'identifier')
-
-
 class UserSerializer(serializers.ModelSerializer):
     pin = serializers.CharField()
+    device = serializers.CharField()
 
     def to_internal_value(self, data):
         name = data.get('name')
@@ -99,5 +91,13 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('name', 'phone', 'pin')
-        write_only_fields = ('name', 'phone')
+        fields = ('name', 'phone', 'pin', 'device')
+        write_only_fields = ('name', 'phone', 'pin', 'device')
+
+
+class TokenSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Token
+        fields = ('id', 'identifier', 'device')
+        read_only_fields = ('id', 'identifier')
