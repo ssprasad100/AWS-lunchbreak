@@ -93,7 +93,7 @@ class UserView(generics.CreateAPIView):
 			if not queryset:
 				result = self.register(digits, phone)
 				if result:
-					user = User(phone=phone, name=request.data.__getitem__('name'))
+					user = User(phone=phone, name=request.data.get('name', ''))
 					if type(result) is dict:
 						user.userId = result['userId']
 						user.requestId = result['requestId']
@@ -103,7 +103,9 @@ class UserView(generics.CreateAPIView):
 			else:
 				pin = request.data.get('pin', False)
 				user = queryset[0]
+				name = user.name if user else request.data.get('name', False)
 				if not pin:
+					# The user is in the database, but isn't sending a pin code so he's trying to signin/register
 					if user.confirmed:
 						result = self.signIn(digits, phone)
 						if result:
@@ -120,8 +122,9 @@ class UserView(generics.CreateAPIView):
 							user.save()
 							return Response()
 					raise DigitsException()
-				else:
+				elif name:
 					device = request.data.get('device', False)
+					user.name = name
 					success = False
 					if device:
 						if not user.requestId and not user.userId:

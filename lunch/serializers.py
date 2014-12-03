@@ -68,24 +68,16 @@ class UserSerializer(serializers.ModelSerializer):
 	device = serializers.CharField()
 
 	def to_internal_value(self, data):
-		name = data.get('name')
 		phone = data.get('phone')
-
-		if not name:
-			raise serializers.ValidationError({
-				'name': 'This field is required'
-			})
 
 		if not phone:
 			raise serializers.ValidationError({
 				'phone': 'This field is required'
 			})
 
-		print name
 		print phone
 		# TODO Check whether the phone number is a valid phone number
 		return {
-			'name': name,
 			'phone': phone
 		}
 
