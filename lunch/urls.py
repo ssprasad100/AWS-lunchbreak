@@ -12,5 +12,6 @@ urlpatterns = patterns('',
 
 	url(r'token/$', views.TokenView.as_view()),
 
-	url(r'user/$', views.UserView.as_view())
+	url(r'user/$', views.UserView.as_view()),
+	url(r'user/(?P<phone>.+)/$', views.UserView.as_view())
 )

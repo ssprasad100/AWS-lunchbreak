@@ -56,9 +56,22 @@ class TokenView(generics.ListAPIView):
 		return Token.objects.filter(user=self.request.user)
 
 
-class UserView(generics.CreateAPIView):
+class UserView(generics.CreateAPIView, generics.ListAPIView):
 
 	serializer_class = UserSerializer
+
+	def get_queryset(self):
+		if 'phone' in self.kwargs:
+			return User.objects.get(phone=self.kwargs['phone'])
+
+	def get(self, request, *args, **kwargs):
+		try:
+			user = self.get_queryset()
+			if user.name:
+				return Response(status=status.HTTP_302_FOUND)
+		except:
+			pass
+		return Response(status=status.HTTP_404_NOT_FOUND)
 
 	# For all these methods a try-except is not needed since a DigitsException is generated
 	# which will provide everything
