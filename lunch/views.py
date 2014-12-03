@@ -1,4 +1,4 @@
-from rest_framework import generics
+from rest_framework import generics, status
 from rest_framework.response import Response
 
 from lunch.models import Store, Food, User, Token
@@ -98,7 +98,7 @@ class UserView(generics.CreateAPIView):
 						user.userId = result['userId']
 						user.requestId = result['requestId']
 					user.save()
-					return Response()
+					return Response(status=status.HTTP_201_CREATED)
 				raise DigitsException()
 			else:
 				pin = request.data.get('pin', False)
@@ -112,7 +112,7 @@ class UserView(generics.CreateAPIView):
 							user.userId = result['userId']
 							user.requestId = result['requestId']
 							user.save()
-							return Response()
+							return Response(status=status.HTTP_200_OK)
 					else:
 						result = self.register(digits, phone)
 						if result:
@@ -120,7 +120,7 @@ class UserView(generics.CreateAPIView):
 								user.userId = result['userId']
 								user.requestId = result['requestId']
 							user.save()
-							return Response()
+							return Response(status=status.HTTP_200_OK)
 					raise DigitsException()
 				elif name:
 					device = request.data.get('device', False)
@@ -143,6 +143,6 @@ class UserView(generics.CreateAPIView):
 							token = Token(device=device, user=user)
 							token.save()
 							tokenSerializer = TokenSerializer(token)
-							return Response(tokenSerializer.data)
+							return Response(tokenSerializer.data, status=status.HTTP_200_OK)
 
 		raise InvalidRequest()
