@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils.functional import cached_property
 
-from lunch.exceptions import AddressNotFound
+import lunch.exceptions as exceptions
 
 import requests
 import random
@@ -86,7 +86,7 @@ class Store(models.Model):
 		result = response.json()
 
 		if not result['results']:
-			raise AddressNotFound()
+			raise exceptions.LunchbreakException(exceptions.LUNCH_ADDRESS_NOT_FOUND)
 
 		self.latitude = result['results'][0]['geometry']['location']['lat']
 		self.longitude = result['results'][0]['geometry']['location']['lng']

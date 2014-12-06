@@ -94,9 +94,12 @@ USE_TZ = True
 STATIC_ROOT = '/home/lunchbreak/public_html/lunchbreak/static/'
 STATIC_URL = '/static/'
 
+APPEND_SLASH = False
 
 # Disable the browsable API when it's not in debug mode
-REST_FRAMEWORK = {}
+REST_FRAMEWORK = {
+	'EXCEPTION_HANDLER': 'lunch.exceptions.lunchbreakExceptionHandler'
+}
 
 if not DEBUG:
 	REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES'] = ('rest_framework.renderers.JSONRenderer',)

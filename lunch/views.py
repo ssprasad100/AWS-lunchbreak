@@ -3,7 +3,7 @@ from rest_framework.response import Response
 
 from lunch.models import Store, Food, User, Token
 from lunch.serializers import StoreSerializer, FoodSerializer, TokenSerializer, UserSerializer
-from lunch.exceptions import DigitsException, InvalidRequest
+from lunch.exceptions import DigitsException, BadRequest
 from lunch.authentication import LunchbreakAuthentication
 from lunch.digits import Digits
 
@@ -99,7 +99,6 @@ class UserView(generics.CreateAPIView):
 						user.requestId = result['requestId']
 					user.save()
 					return Response(status=status.HTTP_201_CREATED)
-				raise DigitsException()
 			else:
 				pin = request.data.get('pin', False)
 				user = queryset[0]
@@ -126,7 +125,6 @@ class UserView(generics.CreateAPIView):
 							if hasName:
 								return Response(status=status.HTTP_200_OK)
 							return Response(status=status.HTTP_201_CREATED)
-					raise DigitsException()
 				elif name:
 					device = request.data.get('device', False)
 					user.name = name
@@ -150,4 +148,4 @@ class UserView(generics.CreateAPIView):
 							tokenSerializer = TokenSerializer(token)
 							return Response(tokenSerializer.data, status=status.HTTP_200_OK)
 
-		raise InvalidRequest()
+		raise BadRequest('At least a phone number needs to be given.')
