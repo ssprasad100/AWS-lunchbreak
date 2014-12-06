@@ -40,6 +40,7 @@ INSTALLED_APPS = (
 	# Plugins
 	'rest_framework',
 	'rest_framework_swagger',
+	"opbeat.contrib.django",
 
 	# Lunchbreak
 	'lunch',
@@ -95,8 +96,16 @@ STATIC_ROOT = '/home/lunchbreak/public_html/lunchbreak/static/'
 STATIC_URL = '/static/'
 
 
-# Disable the browsable API
+# Disable the browsable API when it's not in debug mode
 REST_FRAMEWORK = {}
 
 if not DEBUG:
 	REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES'] = ('rest_framework.renderers.JSONRenderer',)
+
+
+# Opbeat settings
+OPBEAT = {
+	"ORGANIZATION_ID": "308fe549a8c042429061395a87bb662a",
+	"APP_ID": "a475a69ed8",
+	"SECRET_TOKEN": "e2e3be25fe41c9323f8f4384549d7c22f8c2422e"
+}
