@@ -56,22 +56,9 @@ class TokenView(generics.ListAPIView):
 		return Token.objects.filter(user=self.request.user)
 
 
-class UserView(generics.CreateAPIView, generics.ListAPIView):
+class UserView(generics.CreateAPIView):
 
 	serializer_class = UserSerializer
-
-	def get_queryset(self):
-		if 'phone' in self.kwargs:
-			return User.objects.get(phone=self.kwargs['phone'])
-
-	def get(self, request, *args, **kwargs):
-		try:
-			user = self.get_queryset()
-			if user.name:
-				return Response(status=status.HTTP_302_FOUND)
-		except:
-			pass
-		return Response(status=status.HTTP_404_NOT_FOUND)
 
 	# For all these methods a try-except is not needed since a DigitsException is generated
 	# which will provide everything
@@ -106,7 +93,7 @@ class UserView(generics.CreateAPIView, generics.ListAPIView):
 			if not queryset:
 				result = self.register(digits, phone)
 				if result:
-					user = User(phone=phone, name=request.data.get('name', ''))
+					user = User(phone=phone)
 					if type(result) is dict:
 						user.userId = result['userId']
 						user.requestId = result['requestId']
@@ -116,7 +103,8 @@ class UserView(generics.CreateAPIView, generics.ListAPIView):
 			else:
 				pin = request.data.get('pin', False)
 				user = queryset[0]
-				name = user.name if user else request.data.get('name', False)
+				hasName = hasattr(user, 'name')
+				name = user.name if hasName else request.data.get('name', False)
 				if not pin:
 					# The user is in the database, but isn't sending a pin code so he's trying to signin/register
 					if user.confirmed:
@@ -125,7 +113,9 @@ class UserView(generics.CreateAPIView, generics.ListAPIView):
 							user.userId = result['userId']
 							user.requestId = result['requestId']
 							user.save()
-							return Response(status=status.HTTP_200_OK)
+							if hasName:
+								return Response(status=status.HTTP_200_OK)
+							return Response(status=status.HTTP_201_CREATED)
 					else:
 						result = self.register(digits, phone)
 						if result:
@@ -133,7 +123,9 @@ class UserView(generics.CreateAPIView, generics.ListAPIView):
 								user.userId = result['userId']
 								user.requestId = result['requestId']
 							user.save()
-							return Response(status=status.HTTP_200_OK)
+							if hasName:
+								return Response(status=status.HTTP_200_OK)
+							return Response(status=status.HTTP_201_CREATED)
 					raise DigitsException()
 				elif name:
 					device = request.data.get('device', False)
