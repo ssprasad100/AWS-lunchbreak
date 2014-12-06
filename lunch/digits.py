@@ -3,7 +3,7 @@ import base64
 import urllib
 import json
 
-from lunch.exceptions import DigitsException
+from lunch.exceptions import DigitsException, LunchbreakException
 
 
 class Digits:
@@ -17,19 +17,6 @@ class Digits:
 	XAUTH_CHALLENGE_URL = BASE_URL + 'auth/1/xauth_challenge.json'
 	GUEST_TOKEN_URL = BASE_URL + '1.1/guest/activate.json'
 	ACCESS_TOKEN_URL = BASE_URL + 'oauth2/token'
-
-	LEGACY_ERROR = 0
-	APP_AUTH_ERROR_CODE = 89
-	GUEST_AUTH_ERROR_CODE = 239
-	PIN_CODE_INCORRECT = 236
-	ALREADY_REGISTERED_ERROR_CODE = 285
-	EXCEPTION_MESSAGES = {
-		LEGACY_ERROR: 'Legacy error occurred.',
-		APP_AUTH_ERROR_CODE: 'Application auth code incorrect, report this to the system administrator.',
-		GUEST_AUTH_ERROR_CODE: 'Guest auth code incorrect, report this to the system administrator.',
-		PIN_CODE_INCORRECT: 'Incorrect pin code.',
-		ALREADY_REGISTERED_ERROR_CODE: 'User already registered.'
-	}
 
 	def getBearerHeader(self):
 		return 'Bearer ' + self.requestAppToken()
@@ -49,9 +36,9 @@ class Digits:
 		content = json.loads(appTokenRequest.text)
 
 		if appTokenRequest.status_code != 200:
-			if 'errors' in content and 'code' in content['errors'] and content['errors']['code'] in Digits.EXCEPTION_MESSAGES:
-				raise DigitsException(Digits.EXCEPTION_MESSAGES[content['errors']['code']])
-			raise DigitsException(json.dumps(content, indent=4))
+			if 'errors' in content and 'code' in content['errors']:
+				raise DigitsException(content['errors']['code'])
+			raise LunchbreakException(json.dumps(content, indent=4))
 
 		return content
 

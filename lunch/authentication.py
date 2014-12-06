@@ -1,6 +1,7 @@
-from rest_framework import authentication, exceptions
+from rest_framework import authentication
 
 from lunch.models import User
+from lunch.exceptions import AuthenticationFailed
 
 
 class LunchbreakAuthentication(authentication.BaseAuthentication):
@@ -10,12 +11,12 @@ class LunchbreakAuthentication(authentication.BaseAuthentication):
 		device = request.META.get('HTTP_DEVICE')
 
 		if not identifier or not userId or not device:
-			raise exceptions.AuthenticationFailed('User authentication failed: Invalid headers provided')
+			raise AuthenticationFailed('Not all of the headers were provided.')
 
 		try:
 			user = User.objects.get(userId=userId)
 			user.token_set.get(identifier=identifier, device=device)
 		except:
-			raise exceptions.AuthenticationFailed('User authentication failed: invalid headers')
+			raise AuthenticationFailed('User not found.')
 
 		return (user, None)
