@@ -39,8 +39,7 @@ INSTALLED_APPS = (
 
 	# Plugins
 	'rest_framework',
-	'rest_framework_swagger',
-	"opbeat.contrib.django",
+	'opbeat.contrib.django',
 
 	# Lunchbreak
 	'lunch',
@@ -105,7 +104,7 @@ if not DEBUG:
 
 # Opbeat settings
 OPBEAT = {
-	"ORGANIZATION_ID": "308fe549a8c042429061395a87bb662a",
-	"APP_ID": "a475a69ed8",
-	"SECRET_TOKEN": "e2e3be25fe41c9323f8f4384549d7c22f8c2422e"
+	'ORGANIZATION_ID': '308fe549a8c042429061395a87bb662a',
+	'APP_ID': 'a475a69ed8',
+	'SECRET_TOKEN': 'e2e3be25fe41c9323f8f4384549d7c22f8c2422e'
 }
