@@ -10,7 +10,7 @@ class LunchbreakAuthentication(authentication.BaseAuthentication):
 		device = request.META.get('HTTP_DEVICE')
 
 		if not identifier or not userId or not device:
-			raise exceptions.AuthenticationFailed('User authentication failed: No headers provided')
+			raise exceptions.AuthenticationFailed('User authentication failed: Invalid headers provided')
 
 		try:
 			user = User.objects.get(userId=userId)
