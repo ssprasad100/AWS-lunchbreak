@@ -103,7 +103,7 @@ class UserView(generics.CreateAPIView):
 			else:
 				pin = request.data.get('pin', False)
 				user = queryset[0]
-				hasName = hasattr(user, 'name')
+				hasName = user.name != ''
 				name = user.name if hasName else request.data.get('name', False)
 				if not pin:
 					# The user is in the database, but isn't sending a pin code so he's trying to signin/register
