@@ -1,4 +1,4 @@
-from fabric.api import abort, env, run, sudo
+from fabric.api import abort, env, run, sudo, lcd, local
 from fabric.context_managers import cd, prefix
 
 import os
@@ -33,3 +33,15 @@ def deploy():
 				abort('Something went wrong when collecting the static files.')
 
 	sudo('service apache2 start')
+	registerDeployment('.')
+
+
+def registerDeployment(git_path):
+	with(lcd(git_path)):
+		local("""
+			curl https://opbeat.com/api/v1/organizations/308fe549a8c042429061395a87bb662a/apps/a475a69ed8/releases/ \
+				-H "Authorization: Bearer e2e3be25fe41c9323f8f4384549d7c22f8c2422e" \
+				-d rev=`git log -n 1 --pretty=format:%H` \
+				-d branch=`git rev-parse --abbrev-ref HEAD` \
+				-d status=completed
+		""")
