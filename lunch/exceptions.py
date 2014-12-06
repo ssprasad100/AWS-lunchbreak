@@ -26,6 +26,7 @@ DIGITS_MESSAGES = {
 	DIGITS_ALREADY_REGISTERED_ERROR: 'User already in the Digits database.'
 }
 
+
 def lunchbreakExceptionHandler(exception):
 	response = Response()
 	response.data = {'error': {}}

@@ -3,7 +3,7 @@ from rest_framework.response import Response
 
 from lunch.models import Store, Food, User, Token
 from lunch.serializers import StoreSerializer, FoodSerializer, TokenSerializer, UserSerializer
-from lunch.exceptions import DigitsException, BadRequest
+from lunch.exceptions import BadRequest
 from lunch.authentication import LunchbreakAuthentication
 from lunch.digits import Digits
 
@@ -130,11 +130,14 @@ class UserView(generics.CreateAPIView):
 					user.name = name
 					success = False
 					if device:
+						if not user.confirmed:
+							user.confirmed = True
+							user.confirmedAt = datetime.now()
+
 						if not user.requestId and not user.userId:
 							# The user already got a message, but just got added to the Digits database
 							userId = self.confirmRegistration(digits, phone, pin)
 							user.userId = userId
-							user.confirmedAt = datetime.now()
 							user.save()
 							success = True
 						else:
