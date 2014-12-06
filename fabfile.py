@@ -20,7 +20,7 @@ def deploy():
 	sudo('service apache2 graceful-stop')
 
 	with cd(REMOTE_PATH):
-		run('git pull')
+		run('git pull --no-edit')
 		with prefix('workon lunchbreak'):
 			pipInstall = run('pip install -r "' + REMOTE_PATH + '/requirements.txt"')
 			if pipInstall.failed:
