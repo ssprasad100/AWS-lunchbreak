@@ -103,7 +103,8 @@ class UserView(generics.CreateAPIView):
 				pin = request.data.get('pin', False)
 				user = queryset[0]
 				hasName = user.name != ''
-				name = user.name if hasName else request.data.get('name', False)
+				givenName = request.data.get('name', False)
+				name = givenName if givenName else user.name
 				if not pin:
 					# The user is in the database, but isn't sending a pin code so he's trying to signin/register
 					if user.confirmed:
@@ -143,6 +144,7 @@ class UserView(generics.CreateAPIView):
 						else:
 							# The user already was in the Digits database and got a request and user id
 							userId = self.confirmSignin(digits, user.requestId, user.userId, pin)
+							user.save()
 							success = True
 
 						if success:
