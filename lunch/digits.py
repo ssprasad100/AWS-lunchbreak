@@ -36,9 +36,9 @@ class Digits:
 		content = json.loads(appTokenRequest.text)
 
 		if appTokenRequest.status_code != 200:
-			if 'errors' in content and 'code' in content['errors']:
-				raise DigitsException(content['errors']['code'])
-			raise LunchbreakException(json.dumps(content, indent=4))
+			if 'errors' in content and 'code' in content['errors'][0]:
+				raise DigitsException(content['errors'][0]['code'])
+			raise LunchbreakException(content)
 
 		return content
 
