@@ -50,7 +50,6 @@ class LocationManager(models.Manager):
 			)
 
 
-
 class Icon(models.Model):
 	iconId = models.IntegerField(primary_key=True)
 	description = models.CharField(max_length=64, blank=True)
@@ -196,12 +195,15 @@ class Food(BaseFood):
 class User(models.Model):
 	# Maximum european length (with +) is +XXX and 13 numbers -> 17
 	phone = models.CharField(max_length=17, primary_key=True)
-	name = models.CharField(max_length=128)
+	name = models.CharField(max_length=128, blank=True)
 	userId = models.CharField(max_length=10, blank=True, null=True)
 	requestId = models.CharField(max_length=32, blank=True, null=True)
 
 	confirmed = models.BooleanField(default=False)
 	confirmedAt = models.DateField(blank=True, null=True)
+
+	def __unicode__(self):
+		return self.name if self.name else self.phone
 
 
 def tokenGenerator():
