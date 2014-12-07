@@ -41,6 +41,9 @@ def lunchbreakExceptionHandler(exception):
 			response.data['error']['detail'] = exception.detail
 	elif hasDetail:
 		response.data['error']['information'] = exception.detail
+	else:
+		# DEBUG ONLY
+		raise exception
 
 	response.status_code = exception.status_code if hasattr(exception, 'status_code') else status.HTTP_400_BAD_REQUEST
 	return response
