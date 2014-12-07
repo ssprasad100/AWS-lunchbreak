@@ -129,6 +129,24 @@ class Ingredient(BaseIngredient):
 	store = models.ForeignKey(Store)
 
 
+class BaseFoodCategory(models.Model):
+	name = models.CharField(max_length=128)
+
+	class Meta:
+		abstract = True
+
+	def __unicode__(self):
+		return self.name
+
+
+class DefaultFoodCategory(BaseFoodCategory):
+	pass
+
+
+class FoodCategory(BaseFoodCategory):
+	store = models.ForeignKey(Store)
+
+
 class BaseFood(models.Model):
 	name = models.CharField(max_length=256)
 	cost = models.DecimalField(decimal_places=2, max_digits=5)
@@ -149,10 +167,12 @@ class BaseFood(models.Model):
 
 
 class DefaultFood(BaseFood):
+	category = models.ForeignKey(DefaultFoodCategory, null=True)
 	ingredients = models.ManyToManyField(DefaultIngredient)
 
 
 class Food(BaseFood):
+	category = models.ForeignKey(FoodCategory, null=True)
 	ingredients = models.ManyToManyField(Ingredient)
 	store = models.ForeignKey(Store)
 
