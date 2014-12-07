@@ -1,6 +1,13 @@
-from lunch.models import Store, DefaultFood, Food, StoreCategory, DefaultIngredient, Ingredient, IngredientGroup, User, Token, DefaultFoodCategory, FoodCategory
+from lunch.models import Store, DefaultFood, Food, StoreCategory, DefaultIngredient, Ingredient, IngredientGroup, User, Token, DefaultFoodCategory, FoodCategory, Icon
 
 from rest_framework import serializers
+
+
+class IconSerializer(serializers.ModelSerializer):
+
+	class Meta:
+		model = Icon
+		fields = ('iconId',)
 
 
 class StoreCategorySerializer(serializers.ModelSerializer):
@@ -18,13 +25,6 @@ class StoreSerializer(serializers.ModelSerializer):
 		fields = ('id', 'name', 'country', 'province', 'city', 'code', 'street', 'number', 'latitude', 'longitude', 'categories',)
 
 
-class IngredientSerializer(serializers.ModelSerializer):
-
-	class Meta:
-		model = Ingredient
-		fields = ('id', 'name', 'store',)
-
-
 class ShortIngredientSerializer(serializers.ModelSerializer):
 
 	class Meta:
@@ -33,10 +33,19 @@ class ShortIngredientSerializer(serializers.ModelSerializer):
 
 
 class DefaultIngredientSerializer(serializers.ModelSerializer):
+	icon = IconSerializer(many=False)
 
 	class Meta:
 		model = DefaultIngredient
-		fields = ('id', 'name', 'cost',)
+		fields = ('id', 'name', 'cost', 'icon',)
+
+
+class IngredientSerializer(serializers.ModelSerializer):
+	icon = IconSerializer(many=False)
+
+	class Meta:
+		model = Ingredient
+		fields = ('id', 'name', 'store', 'icon',)
 
 
 class IngredientGroupSerializer(serializers.ModelSerializer):
@@ -65,19 +74,21 @@ class FoodCategorySerializer(serializers.ModelSerializer):
 class DefaultFoodSerializer(serializers.ModelSerializer):
 	ingredientGroups = IngredientGroupSerializer(many=True)
 	category = DefaultFoodCategorySerializer(many=False)
+	icon = IconSerializer(many=False)
 
 	class Meta:
 		model = DefaultFood
-		fields = ('id', 'name', 'cost', 'ingredientGroups', 'ingredients', 'category',)
+		fields = ('id', 'name', 'cost', 'ingredientGroups', 'ingredients', 'category', 'icon',)
 
 
 class FoodSerializer(serializers.ModelSerializer):
 	ingredientGroups = IngredientGroupSerializer(many=True)
 	category = FoodCategorySerializer(many=False)
+	icon = IconSerializer(many=False)
 
 	class Meta:
 		model = Food
-		fields = ('id', 'name', 'cost', 'ingredientGroups', 'ingredients', 'store', 'category',)
+		fields = ('id', 'name', 'cost', 'ingredientGroups', 'ingredients', 'store', 'category', 'icon',)
 
 
 class UserSerializer(serializers.ModelSerializer):

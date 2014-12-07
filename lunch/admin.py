@@ -1,8 +1,14 @@
 from django.contrib import admin
-from lunch.models import Store, StoreCategory, DefaultFood, Food, DefaultIngredient, Ingredient, IngredientGroup, Token, User, DefaultFoodCategory, FoodCategory
+from lunch.models import Store, StoreCategory, DefaultFood, Food, DefaultIngredient, Ingredient, IngredientGroup, Token, User, DefaultFoodCategory, FoodCategory, Icon
 
 
 admin.site.register(StoreCategory)
+
+
+@admin.register(Icon)
+class IconAdmin(admin.ModelAdmin):
+	list_display = ('iconId', 'description',)
+	fields = ('iconId', 'description',)
 
 
 @admin.register(Store)
@@ -25,26 +31,26 @@ class FoodCategoryAdmin(DefaultFoodCategoryAdmin):
 @admin.register(DefaultFood)
 class DefaultFoodAdmin(admin.ModelAdmin):
 	list_display = ('name', 'cost', 'category',)
-	fields = ('name', 'cost', 'ingredients', 'category',)
+	fields = ('name', 'cost', 'ingredients', 'category', 'icon',)
 	filter_horizontal = ('ingredients',)
 
 
 @admin.register(Food)
 class FoodAdmin(DefaultFoodAdmin):
 	list_display = ('name', 'cost', 'store', 'category',)
-	fields = ('name', 'cost', 'ingredients', 'store', 'category',)
+	fields = ('name', 'cost', 'ingredients', 'store', 'category', 'icon',)
 
 
 @admin.register(DefaultIngredient)
 class DefaultIngredientAdmin(admin.ModelAdmin):
 	list_display = ('name', 'cost', 'group',)
-	fields = ('name', 'cost', 'group',)
+	fields = ('name', 'cost', 'group', 'icon',)
 
 
 @admin.register(Ingredient)
 class IngredientAdmin(DefaultIngredientAdmin):
-	list_display = ('name', 'cost', 'group', 'store')
-	fields = ('name', 'cost', 'group', 'store')
+	list_display = ('name', 'cost', 'group', 'store',)
+	fields = ('name', 'cost', 'group', 'store', 'icon',)
 
 
 @admin.register(IngredientGroup)
