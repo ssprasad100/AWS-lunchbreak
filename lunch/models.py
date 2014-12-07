@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils.functional import cached_property
 
-import lunch.exceptions as exceptions
+from lunch.exceptions import AddressNotFound
 
 import requests
 import random
@@ -50,11 +50,20 @@ class LocationManager(models.Manager):
 			)
 
 
+
+class Icon(models.Model):
+	iconId = models.IntegerField(primary_key=True)
+	description = models.CharField(max_length=64, blank=True)
+
+	def __unicode__(self):
+		return str(self.iconId) + '. ' + self.description
+
+
 class StoreCategory(models.Model):
-	name = models.CharField(max_length=50)
+	name = models.CharField(max_length=64)
 
 	class Meta:
-		verbose_name_plural = 'Store Categories'
+		verbose_name_plural = 'Store categories'
 
 	def __unicode__(self):
 		return self.name
@@ -86,7 +95,7 @@ class Store(models.Model):
 		result = response.json()
 
 		if not result['results']:
-			raise exceptions.LunchbreakException(exceptions.LUNCH_ADDRESS_NOT_FOUND)
+			raise AddressNotFound
 
 		self.latitude = result['results'][0]['geometry']['location']['lat']
 		self.longitude = result['results'][0]['geometry']['location']['lng']
@@ -113,6 +122,7 @@ class BaseIngredient(models.Model):
 	name = models.CharField(max_length=256)
 	cost = models.DecimalField(decimal_places=2, max_digits=5, default=0)
 	group = models.ForeignKey(IngredientGroup)
+	icon = models.ForeignKey(Icon, null=True)
 
 	class Meta:
 		abstract = True
@@ -140,16 +150,22 @@ class BaseFoodCategory(models.Model):
 
 
 class DefaultFoodCategory(BaseFoodCategory):
-	pass
+
+	class Meta:
+		verbose_name_plural = 'Default food categories'
 
 
 class FoodCategory(BaseFoodCategory):
 	store = models.ForeignKey(Store)
 
+	class Meta:
+		verbose_name_plural = 'Food categories'
+
 
 class BaseFood(models.Model):
 	name = models.CharField(max_length=256)
 	cost = models.DecimalField(decimal_places=2, max_digits=5)
+	icon = models.ForeignKey(Icon, null=True)
 
 	class Meta:
 		abstract = True
