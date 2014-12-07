@@ -109,5 +109,48 @@ if not DEBUG:
 OPBEAT = {
 	'ORGANIZATION_ID': '308fe549a8c042429061395a87bb662a',
 	'APP_ID': 'a475a69ed8',
-	'SECRET_TOKEN': 'e2e3be25fe41c9323f8f4384549d7c22f8c2422e'
+	'SECRET_TOKEN': 'e2e3be25fe41c9323f8f4384549d7c22f8c2422e',
+	'DEBUG': True
+}
+
+LOGGING = {
+	'version': 1,
+	'disable_existing_loggers': True,
+	'root': {
+		'level': 'WARNING',
+		'handlers': ['opbeat'],
+	},
+	'formatters': {
+		'verbose': {
+			'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+		},
+	},
+	'handlers': {
+		'opbeat': {
+			'level': 'ERROR',
+			'class': 'opbeat.contrib.django.handlers.OpbeatHandler',
+		},
+		'console': {
+			'level': 'DEBUG',
+			'class': 'logging.StreamHandler',
+			'formatter': 'verbose'
+		}
+	},
+	'loggers': {
+		'django.db.backends': {
+			'level': 'ERROR',
+			'handlers': ['console'],
+			'propagate': False,
+		},
+		'opbeat': {
+			'level': 'DEBUG',
+			'handlers': ['console'],
+			'propagate': False,
+		},
+		'opbeat.errors': {
+			'level': 'DEBUG',
+			'handlers': ['console'],
+			'propagate': False,
+		},
+	},
 }

@@ -11,7 +11,7 @@ class StoreCategorySerializer(serializers.ModelSerializer):
 
 
 class StoreSerializer(serializers.ModelSerializer):
-	categories = serializers.RelatedField(many=True, read_only=True)
+	categories = StoreCategorySerializer(many=True, read_only=True)
 
 	class Meta:
 		model = Store
@@ -75,7 +75,6 @@ class UserSerializer(serializers.ModelSerializer):
 				'phone': 'This field is required'
 			})
 
-		print phone
 		# TODO Check whether the phone number is a valid phone number
 		return {
 			'phone': phone
