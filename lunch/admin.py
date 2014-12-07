@@ -1,5 +1,5 @@
 from django.contrib import admin
-from lunch.models import Store, StoreCategory, DefaultFood, Food, DefaultIngredient, Ingredient, IngredientGroup, Token, User
+from lunch.models import Store, StoreCategory, DefaultFood, Food, DefaultIngredient, Ingredient, IngredientGroup, Token, User, DefaultFoodCategory, FoodCategory
 
 
 admin.site.register(StoreCategory)
@@ -10,17 +10,29 @@ class StoreAdmin(admin.ModelAdmin):
 	readonly_fields = ('latitude', 'longitude',)
 
 
+@admin.register(DefaultFoodCategory)
+class DefaultFoodCategoryAdmin(admin.ModelAdmin):
+	list_display = ('name',)
+	fields = ('name',)
+
+
+@admin.register(FoodCategory)
+class FoodCategoryAdmin(DefaultFoodCategoryAdmin):
+	list_display = ('name', 'store',)
+	fields = ('name', 'store',)
+
+
 @admin.register(DefaultFood)
 class DefaultFoodAdmin(admin.ModelAdmin):
-	list_display = ('name', 'cost',)
-	fields = ('name', 'cost', 'ingredients',)
+	list_display = ('name', 'cost', 'category',)
+	fields = ('name', 'cost', 'ingredients', 'category',)
 	filter_horizontal = ('ingredients',)
 
 
 @admin.register(Food)
 class FoodAdmin(DefaultFoodAdmin):
-	list_display = ('name', 'cost', 'store',)
-	fields = ('name', 'cost', 'ingredients', 'store',)
+	list_display = ('name', 'cost', 'store', 'category',)
+	fields = ('name', 'cost', 'ingredients', 'store', 'category',)
 
 
 @admin.register(DefaultIngredient)
