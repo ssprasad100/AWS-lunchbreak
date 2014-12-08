@@ -84,6 +84,11 @@ class UserView(generics.CreateAPIView):
 		digits.confirmSignin(requestId, userId, pin)
 		return True
 
+	def getRegistrationResponse(self, hasName=False, name=None):
+		if hasName:
+			return Response(status=status.HTTP_200_OK, data={'name': name})
+		return Response(status=status.HTTP_201_CREATED)
+
 	def create(self, request, *args, **kwargs):
 		userSerializer = UserSerializer(data=request.data)
 		if userSerializer.is_valid():
@@ -98,7 +103,7 @@ class UserView(generics.CreateAPIView):
 						user.userId = result['userId']
 						user.requestId = result['requestId']
 					user.save()
-					return Response(status=status.HTTP_201_CREATED)
+					return self.getRegistrationResponse()
 			else:
 				pin = request.data.get('pin', False)
 				user = queryset[0]
@@ -113,9 +118,7 @@ class UserView(generics.CreateAPIView):
 							user.userId = result['userId']
 							user.requestId = result['requestId']
 							user.save()
-							if hasName:
-								return Response(status=status.HTTP_200_OK)
-							return Response(status=status.HTTP_201_CREATED)
+							return self.getRegistrationResponse(hasName, name)
 					else:
 						result = self.register(digits, phone)
 						if result:
@@ -123,9 +126,7 @@ class UserView(generics.CreateAPIView):
 								user.userId = result['userId']
 								user.requestId = result['requestId']
 							user.save()
-							if hasName:
-								return Response(status=status.HTTP_200_OK)
-							return Response(status=status.HTTP_201_CREATED)
+							return self.getRegistrationResponse(hasName, name)
 				elif name:
 					device = request.data.get('device', False)
 					user.name = name
