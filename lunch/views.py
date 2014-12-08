@@ -84,9 +84,9 @@ class UserView(generics.CreateAPIView):
 		digits.confirmSignin(requestId, userId, pin)
 		return True
 
-	def getRegistrationResponse(self, hasName=False, name=None):
+	def getRegistrationResponse(self, hasName=False):
 		if hasName:
-			return Response(status=status.HTTP_200_OK, data={'name': name})
+			return Response(status=status.HTTP_200_OK)
 		return Response(status=status.HTTP_201_CREATED)
 
 	def create(self, request, *args, **kwargs):
@@ -118,7 +118,7 @@ class UserView(generics.CreateAPIView):
 							user.userId = result['userId']
 							user.requestId = result['requestId']
 							user.save()
-							return self.getRegistrationResponse(hasName, name)
+							return self.getRegistrationResponse(hasName)
 					else:
 						result = self.register(digits, phone)
 						if result:
@@ -126,7 +126,7 @@ class UserView(generics.CreateAPIView):
 								user.userId = result['userId']
 								user.requestId = result['requestId']
 							user.save()
-							return self.getRegistrationResponse(hasName, name)
+							return self.getRegistrationResponse(hasName)
 				elif name:
 					device = request.data.get('device', False)
 					user.name = name
@@ -152,6 +152,8 @@ class UserView(generics.CreateAPIView):
 							token = Token(device=device, user=user)
 							token.save()
 							tokenSerializer = TokenSerializer(token)
-							return Response(tokenSerializer.data, status=status.HTTP_200_OK)
+							data = dict(tokenSerializer.data)
+							data['name'] = name
+							return Response(data, status=status.HTTP_200_OK)
 
 		raise BadRequest('At least a phone number needs to be given.')
