@@ -164,7 +164,7 @@ class FoodCategory(BaseFoodCategory):
 class BaseFood(models.Model):
 	name = models.CharField(max_length=256)
 	cost = models.DecimalField(decimal_places=2, max_digits=5)
-	icon = models.ForeignKey(Icon, null=True)
+	icon = models.ForeignKey(Icon, null=True, blank=True)
 
 	class Meta:
 		abstract = True
@@ -182,12 +182,12 @@ class BaseFood(models.Model):
 
 
 class DefaultFood(BaseFood):
-	category = models.ForeignKey(DefaultFoodCategory, null=True)
+	category = models.ForeignKey(DefaultFoodCategory, null=True, blank=True)
 	ingredients = models.ManyToManyField(DefaultIngredient)
 
 
 class Food(BaseFood):
-	category = models.ForeignKey(FoodCategory, null=True)
+	category = models.ForeignKey(FoodCategory, null=True, blank=True)
 	ingredients = models.ManyToManyField(Ingredient)
 	store = models.ForeignKey(Store)
 
