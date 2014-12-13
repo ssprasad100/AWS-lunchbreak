@@ -122,13 +122,14 @@ LOGGING = {
 	},
 	'formatters': {
 		'verbose': {
-			'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+			'format': '%(levelname)s %(asctime)s %(module)s %(message)s'
 		},
 	},
 	'handlers': {
 		'opbeat': {
 			'level': 'ERROR',
 			'class': 'opbeat.contrib.django.handlers.OpbeatHandler',
+			'formatter': 'verbose'
 		},
 		'console': {
 			'level': 'DEBUG',
@@ -143,8 +144,8 @@ LOGGING = {
 			'propagate': False,
 		},
 		'opbeat': {
-			'level': 'DEBUG',
-			'handlers': ['console'],
+			'level': 'WARNING',
+			'handlers': ['opbeat'],
 			'propagate': False,
 		},
 		'opbeat.errors': {
