@@ -112,7 +112,7 @@ class UserView(generics.CreateAPIView):
 				name = givenName if givenName else user.name
 				if not pin:
 					# The user is in the database, but isn't sending a pin code so he's trying to signin/register
-					if user.confirmed:
+					if user.confirmedAt:
 						result = self.signIn(digits, phone)
 						if result:
 							user.userId = result['userId']
@@ -132,8 +132,7 @@ class UserView(generics.CreateAPIView):
 					user.name = name
 					success = False
 					if device:
-						if not user.confirmed:
-							user.confirmed = True
+						if not user.confirmedAt:
 							user.confirmedAt = datetime.now()
 
 						if not user.requestId and not user.userId:

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from lunch.models import Store, StoreCategory, DefaultFood, Food, DefaultIngredient, Ingredient, IngredientGroup, Token, User, DefaultFoodCategory, FoodCategory, Icon
+from lunch.models import Store, StoreCategory, DefaultFood, Food, DefaultIngredient, Ingredient, IngredientGroup, Token, User, DefaultFoodCategory, FoodCategory, Icon, Order, OrderedFood
 
 
 admin.site.register(StoreCategory)
@@ -13,6 +13,7 @@ class IconAdmin(admin.ModelAdmin):
 
 @admin.register(Store)
 class StoreAdmin(admin.ModelAdmin):
+	list_display = ('name', 'city', 'country',)
 	readonly_fields = ('latitude', 'longitude',)
 
 
@@ -41,6 +42,11 @@ class FoodAdmin(DefaultFoodAdmin):
 	fields = ('name', 'cost', 'ingredients', 'store', 'category', 'icon',)
 
 
+@admin.register(OrderedFood)
+class OrderedFoodAdmin(FoodAdmin):
+	pass
+
+
 @admin.register(DefaultIngredient)
 class DefaultIngredientAdmin(admin.ModelAdmin):
 	list_display = ('name', 'cost', 'group',)
@@ -61,8 +67,15 @@ class IngredientGroupAdmin(admin.ModelAdmin):
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
-	list_display = ('phone', 'name', 'userId', 'requestId', 'confirmed', 'confirmedAt',)
-	fields = ('phone', 'name', 'userId', 'requestId', 'confirmed', 'confirmedAt',)
+	list_display = ('phone', 'name', 'userId', 'requestId', 'confirmedAt',)
+	fields = ('phone', 'name', 'userId', 'requestId', 'confirmedAt',)
+
+
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+	list_display = ('user', 'store', 'orderedTime', 'pickupTime', 'status', 'paid',)
+	fields = ('user', 'store', 'pickupTime', 'status', 'paid', 'food',)
+	readonly_fields = ('orderedTime',)
 
 
 @admin.register(Token)

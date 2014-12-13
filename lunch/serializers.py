@@ -96,7 +96,7 @@ class UserSerializer(serializers.ModelSerializer):
 	device = serializers.CharField()
 
 	def to_internal_value(self, data):
-		phone = data.get('phone',)
+		phone = data.get('phone')
 
 		if not phone:
 			raise serializers.ValidationError({

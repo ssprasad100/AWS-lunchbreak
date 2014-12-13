@@ -107,7 +107,7 @@ class Store(models.Model):
 
 class IngredientGroup(models.Model):
 	name = models.CharField(max_length=256)
-	maximum = models.IntegerField(default=0)
+	maximum = models.IntegerField(default=0, verbose_name='Maximum amount')
 
 	@cached_property
 	def ingredients(self):
@@ -127,7 +127,7 @@ class BaseIngredient(models.Model):
 		abstract = True
 
 	def __unicode__(self):
-		return self.name
+		return self.name + ' (' + unicode(self.group) + ')'
 
 
 class DefaultIngredient(BaseIngredient):
@@ -161,6 +161,19 @@ class FoodCategory(BaseFoodCategory):
 		verbose_name_plural = 'Food categories'
 
 
+class User(models.Model):
+	# Maximum european length (with +) is +XXX and 13 numbers -> 17
+	phone = models.CharField(max_length=17, primary_key=True)
+	name = models.CharField(max_length=128, blank=True)
+	userId = models.CharField(max_length=10, blank=True, null=True, verbose_name='User ID')
+	requestId = models.CharField(max_length=32, blank=True, null=True, verbose_name='Request ID')
+
+	confirmedAt = models.DateField(blank=True, null=True)
+
+	def __unicode__(self):
+		return self.name if self.name else self.phone
+
+
 class BaseFood(models.Model):
 	name = models.CharField(max_length=256)
 	cost = models.DecimalField(decimal_places=2, max_digits=5)
@@ -183,27 +196,37 @@ class BaseFood(models.Model):
 
 class DefaultFood(BaseFood):
 	category = models.ForeignKey(DefaultFoodCategory, null=True, blank=True)
-	ingredients = models.ManyToManyField(DefaultIngredient)
+	ingredients = models.ManyToManyField(DefaultIngredient, null=True, blank=True)
 
 
 class Food(BaseFood):
 	category = models.ForeignKey(FoodCategory, null=True, blank=True)
-	ingredients = models.ManyToManyField(Ingredient)
+	ingredients = models.ManyToManyField(Ingredient, null=True, blank=True)
 	store = models.ForeignKey(Store)
 
 
-class User(models.Model):
-	# Maximum european length (with +) is +XXX and 13 numbers -> 17
-	phone = models.CharField(max_length=17, primary_key=True)
-	name = models.CharField(max_length=128, blank=True)
-	userId = models.CharField(max_length=10, blank=True, null=True)
-	requestId = models.CharField(max_length=32, blank=True, null=True)
+class OrderedFood(Food):
+	pass
 
-	confirmed = models.BooleanField(default=False)
-	confirmedAt = models.DateField(blank=True, null=True)
 
-	def __unicode__(self):
-		return self.name if self.name else self.phone
+STATUS_CHOICES = (
+	(0, 'Placed'),
+	(1, 'Denied'),
+	(2, 'Accepted'),
+	(3, 'Started'),
+	(4, 'Waiting'),
+	(5, 'Completed')
+)
+
+
+class Order(models.Model):
+	user = models.ForeignKey(User)
+	store = models.ForeignKey(Store)
+	orderedTime = models.DateTimeField(auto_now_add=True, verbose_name='Time of order')
+	pickupTime = models.DateTimeField(verbose_name='Time of pickup')
+	status = models.IntegerField(choices=STATUS_CHOICES, default=0)
+	paid = models.BooleanField(default=False)
+	food = models.ManyToManyField(OrderedFood)
 
 
 def tokenGenerator():
