@@ -2,6 +2,8 @@ from rest_framework.exceptions import APIException
 from rest_framework.response import Response
 from rest_framework import status
 
+from opbeat.contrib.django.models import logger
+
 
 LUNCH_MESSAGING_UNAVAILABLE = 501
 LUNCH_SERVICE_UNAVAILABLE = 503
@@ -18,11 +20,11 @@ DIGITS_GUEST_AUTH_ERROR = 239
 DIGITS_PIN_INCORRECT = 236
 DIGITS_ALREADY_REGISTERED_ERROR = 285
 
-DIGITS_MESSAGES = {
+DIGITS_EXCEPTIONS = {
 	DIGITS_LEGACY_ERROR: 'Digits legacy error.',
 	DIGITS_APP_AUTH_ERROR: 'Digits app authorization failed.',
 	DIGITS_GUEST_AUTH_ERROR: 'Digits guest authorization failed.',
-	DIGITS_PIN_INCORRECT: 'Incorrect pin.',
+	DIGITS_PIN_INCORRECT: ['Incorrect pin.', status.HTTP_400_BAD_REQUEST],
 	DIGITS_ALREADY_REGISTERED_ERROR: 'User already in the Digits database.'
 }
 
@@ -43,7 +45,7 @@ def lunchbreakExceptionHandler(exception):
 		response.data['error']['information'] = exception.detail
 	else:
 		# DEBUG ONLY
-		raise exception
+		raise
 
 	response.status_code = exception.status_code if hasattr(exception, 'status_code') else status.HTTP_400_BAD_REQUEST
 	return response
@@ -55,6 +57,9 @@ class LunchbreakException(APIException):
 		if detail is None:
 			super(LunchbreakException, self).__init__()
 			self.detail = None
+		elif not isinstance(detail, basestring):
+			super(LunchbreakException, self).__init__()
+			self.detail = detail
 		else:
 			super(LunchbreakException, self).__init__(detail)
 
@@ -70,8 +75,18 @@ class DigitsException(LunchbreakException):
 	code = LUNCH_MESSAGING_UNAVAILABLE
 	information = 'Messaging service temporarily unavailable.'
 
-	def __init__(self, code=None):
-		detail = DIGITS_MESSAGES[code] if code in DIGITS_MESSAGES else None
+	def __init__(self, code, content):
+		if code in DIGITS_EXCEPTIONS:
+			info = DIGITS_EXCEPTIONS[code]
+			if type(info) is dict:
+				detail = info[0]
+				self.status_code = info[1]
+			else:
+				detail = info
+
+		else:
+			logger.exception('Undocumented Digits exception: %s' % content)
+		detail = DIGITS_EXCEPTIONS[code] if code in DIGITS_EXCEPTIONS else None
 		self.code = code
 		super(DigitsException, self).__init__(detail)
 

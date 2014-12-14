@@ -205,8 +205,10 @@ class Food(BaseFood):
 	store = models.ForeignKey(Store)
 
 
-class OrderedFood(Food):
-	pass
+class OrderedFood(BaseFood):
+	category = models.ForeignKey(FoodCategory, null=True, blank=True)
+	ingredients = models.ManyToManyField(Ingredient, null=True, blank=True)
+	store = models.ForeignKey(Store)
 
 
 STATUS_CHOICES = (

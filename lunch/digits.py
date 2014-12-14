@@ -37,7 +37,7 @@ class Digits:
 
 		if appTokenRequest.status_code != 200:
 			if 'errors' in content and 'code' in content['errors'][0]:
-				raise DigitsException(content['errors'][0]['code'])
+				raise DigitsException(content['errors'][0]['code'], content)
 			raise LunchbreakException(content)
 
 		return content
