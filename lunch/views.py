@@ -1,8 +1,8 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
 
-from lunch.models import Store, Food, User, Token
-from lunch.serializers import StoreSerializer, FoodSerializer, TokenSerializer, UserSerializer
+from lunch.models import Store, Food, User, Token, Order
+from lunch.serializers import StoreSerializer, FoodSerializer, TokenSerializer, UserSerializer, OrderSerializer
 from lunch.exceptions import BadRequest
 from lunch.authentication import LunchbreakAuthentication
 from lunch.digits import Digits
@@ -39,6 +39,28 @@ class FoodListView(generics.ListAPIView):
 			return Food.objects.filter(store_id=self.kwargs['store_id'])
 		elif 'id' in self.kwargs:
 			return Food.objects.filter(id=self.kwargs['id'])
+
+
+class OrderView(generics.ListCreateAPIView):
+	'''
+	Order food.
+	'''
+
+	authentication_classes = (LunchbreakAuthentication,)
+	serializer_class = OrderSerializer
+
+	def get_queryset(self):
+		'''
+		Return all of the Orders for the authenticated user.
+		'''
+		return Order.objects.filter(user=self.request.user)
+
+	def create(self, request, *args, **kwargs):
+		orderSerializer = OrderSerializer(data=request.data, context={'user': request.user})
+		if orderSerializer.is_valid():
+			orderSerializer.save()
+			return Response(data=orderSerializer.data, status=status.HTTP_201_CREATED)
+		raise BadRequest(orderSerializer.errors)
 
 
 class TokenView(generics.ListAPIView):

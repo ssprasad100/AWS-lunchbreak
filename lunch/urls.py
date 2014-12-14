@@ -10,6 +10,10 @@ urlpatterns = patterns('',
 	# This might needs to be removed later on.
 	url(r'food/(?P<id>.+)/$', views.FoodListView.as_view()),
 
+	url(r'order/paid/(?P<id>.+)/$', views.OrderView.as_view()),
+	url(r'order/update/(?P<id>.+)/(?P<status>.+)/$', views.OrderView.as_view()),
+	url(r'order/$', views.OrderView.as_view()),
+
 	url(r'token/$', views.TokenView.as_view()),
 
 	url(r'user/$', views.UserView.as_view())

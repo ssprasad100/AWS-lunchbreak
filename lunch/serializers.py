@@ -1,13 +1,8 @@
-from lunch.models import Store, DefaultFood, Food, StoreCategory, DefaultIngredient, Ingredient, IngredientGroup, User, Token, DefaultFoodCategory, FoodCategory, Icon
+from lunch.models import Store, DefaultFood, Food, StoreCategory, DefaultIngredient, Ingredient, IngredientGroup, User, Token, DefaultFoodCategory, FoodCategory, Order, OrderedFood
+from lunch.exceptions import DoesNotExist, BadRequest
 
 from rest_framework import serializers
-
-
-class IconSerializer(serializers.ModelSerializer):
-
-	class Meta:
-		model = Icon
-		fields = ('iconId',)
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class StoreCategorySerializer(serializers.ModelSerializer):
@@ -33,7 +28,6 @@ class ShortIngredientSerializer(serializers.ModelSerializer):
 
 
 class DefaultIngredientSerializer(serializers.ModelSerializer):
-	icon = IconSerializer(many=False)
 
 	class Meta:
 		model = DefaultIngredient
@@ -41,7 +35,6 @@ class DefaultIngredientSerializer(serializers.ModelSerializer):
 
 
 class IngredientSerializer(serializers.ModelSerializer):
-	icon = IconSerializer(many=False)
 
 	class Meta:
 		model = Ingredient
@@ -64,7 +57,6 @@ class DefaultFoodCategorySerializer(serializers.ModelSerializer):
 
 
 class FoodCategorySerializer(serializers.ModelSerializer):
-	store = StoreSerializer(many=False)
 
 	class Meta:
 		model = FoodCategory
@@ -74,7 +66,6 @@ class FoodCategorySerializer(serializers.ModelSerializer):
 class DefaultFoodSerializer(serializers.ModelSerializer):
 	ingredientGroups = IngredientGroupSerializer(many=True)
 	category = DefaultFoodCategorySerializer(many=False)
-	icon = IconSerializer(many=False)
 
 	class Meta:
 		model = DefaultFood
@@ -82,13 +73,26 @@ class DefaultFoodSerializer(serializers.ModelSerializer):
 
 
 class FoodSerializer(serializers.ModelSerializer):
-	ingredientGroups = IngredientGroupSerializer(many=True)
+	ingredientGroups = IngredientGroupSerializer(many=True, read_only=True)
 	category = FoodCategorySerializer(many=False)
-	icon = IconSerializer(many=False)
+
+	def create(self, validated_data):
+		print 'foodSerializer create'
+		ingredients = Ingredient.objects.filter(id__in=validated_data['ingredients'])
+		return Food(name=validated_data['name'], cost=validated_data['cost'], ingredients=ingredients, store=validated_data['store'], category=validated_data['category'], icon=validated_data['icon'])
 
 	class Meta:
 		model = Food
 		fields = ('id', 'name', 'cost', 'ingredientGroups', 'ingredients', 'store', 'category', 'icon',)
+		read_only_fields = ('id', 'ingredientGroups',)
+
+
+class OrderedFoodSerializer(FoodSerializer):
+	category = FoodCategorySerializer(many=False, read_only=True)
+
+	class Meta:
+		model = OrderedFood
+		read_only_fields = ('id', 'cost', 'ingredientGroups', 'store', 'category', 'icon',)
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -112,6 +116,51 @@ class UserSerializer(serializers.ModelSerializer):
 		model = User
 		fields = ('name', 'phone', 'pin', 'device',)
 		write_only_fields = ('name', 'phone', 'pin', 'device',)
+
+
+class OrderSerializer(serializers.ModelSerializer):
+	store = StoreSerializer(read_only=True)
+	storeId = serializers.IntegerField(write_only=True)
+	food = OrderedFoodSerializer(many=True)
+
+	def create(self, validated_data):
+		try:
+			user = self.context['user']
+			store = Store.objects.get(id=validated_data['storeId'])
+
+			food = []
+			for f in validated_data['food']:
+				print 'Creating orderedFood'
+				orderedFood = OrderedFood(name=f['name'], store=store)
+				# DEBUGGING PURPOSES ONLY
+				orderedFood.cost = 0
+				orderedFood.save()
+				print 'Setting ingredients'
+				orderedFood.ingredients = f['ingredients']
+				orderedFood.save()
+				food.append(orderedFood)
+				print orderedFood
+
+			order = Order(user=user, store=store, pickupTime=validated_data['pickupTime'])
+			order.save()
+			order.food = food
+			order.save()
+
+			return order
+
+			# food = []
+			# for f in givenFood.iteritems():
+			# 	o = OrderedFood(name=f['name'], ingredients=())
+			# 	food.append()
+		except ObjectDoesNotExist:
+			raise DoesNotExist('Store does not exist')
+
+
+	class Meta:
+		model = Order
+		fields = ('store', 'storeId', 'orderedTime', 'pickupTime', 'status', 'paid', 'food',)
+		read_only_fields = ('store', 'orderedTime', 'status', 'paid',)
+		write_only_fields = ('storeId',)
 
 
 class TokenUserSerializer(serializers.ModelSerializer):

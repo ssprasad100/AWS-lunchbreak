@@ -15,9 +15,9 @@ class Migration(migrations.Migration):
             name='Order',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('orderedTime', models.DateTimeField(auto_now_add=True)),
-                ('pickupTime', models.DateTimeField()),
-                ('status', models.IntegerField(choices=[(0, b'Placed'), (1, b'Denied'), (2, b'Accepted'), (3, b'Started'), (4, b'Waiting'), (5, b'Completed')])),
+                ('orderedTime', models.DateTimeField(auto_now_add=True, verbose_name=b'Time of order')),
+                ('pickupTime', models.DateTimeField(verbose_name=b'Time of pickup')),
+                ('status', models.IntegerField(default=0, choices=[(0, b'Placed'), (1, b'Denied'), (2, b'Accepted'), (3, b'Started'), (4, b'Waiting'), (5, b'Completed')])),
                 ('paid', models.BooleanField(default=False)),
             ],
             options={
@@ -27,12 +27,18 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='OrderedFood',
             fields=[
-                ('food_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='lunch.Food')),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('name', models.CharField(max_length=256)),
+                ('cost', models.DecimalField(max_digits=5, decimal_places=2)),
+                ('category', models.ForeignKey(blank=True, to='lunch.FoodCategory', null=True)),
+                ('icon', models.ForeignKey(blank=True, to='lunch.Icon', null=True)),
+                ('ingredients', models.ManyToManyField(to='lunch.Ingredient', null=True, blank=True)),
+                ('store', models.ForeignKey(to='lunch.Store')),
             ],
             options={
                 'abstract': False,
             },
-            bases=('lunch.food',),
+            bases=(models.Model,),
         ),
         migrations.AddField(
             model_name='order',
@@ -67,6 +73,11 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(blank=True, to='lunch.Icon', null=True),
         ),
         migrations.AlterField(
+            model_name='defaultfood',
+            name='ingredients',
+            field=models.ManyToManyField(to=b'lunch.DefaultIngredient', null=True, blank=True),
+        ),
+        migrations.AlterField(
             model_name='food',
             name='category',
             field=models.ForeignKey(blank=True, to='lunch.FoodCategory', null=True),
@@ -77,8 +88,28 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(blank=True, to='lunch.Icon', null=True),
         ),
         migrations.AlterField(
+            model_name='food',
+            name='ingredients',
+            field=models.ManyToManyField(to=b'lunch.Ingredient', null=True, blank=True),
+        ),
+        migrations.AlterField(
+            model_name='ingredientgroup',
+            name='maximum',
+            field=models.IntegerField(default=0, verbose_name=b'Maximum amount'),
+        ),
+        migrations.AlterField(
             model_name='user',
             name='name',
             field=models.CharField(max_length=128, blank=True),
+        ),
+        migrations.AlterField(
+            model_name='user',
+            name='requestId',
+            field=models.CharField(max_length=32, null=True, verbose_name=b'Request ID', blank=True),
+        ),
+        migrations.AlterField(
+            model_name='user',
+            name='userId',
+            field=models.CharField(max_length=10, null=True, verbose_name=b'User ID', blank=True),
         ),
     ]
