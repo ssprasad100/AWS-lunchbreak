@@ -44,7 +44,8 @@ class FoodAdmin(DefaultFoodAdmin):
 
 @admin.register(OrderedFood)
 class OrderedFoodAdmin(FoodAdmin):
-	pass
+	list_display = FoodAdmin.list_display + ('amount',)
+	fields = FoodAdmin.fields + ('amount',)
 
 
 @admin.register(DefaultIngredient)
