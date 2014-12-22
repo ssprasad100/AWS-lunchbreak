@@ -10,7 +10,7 @@ IDENTIFIER_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWabcdefghijklmnopqrstuvwxyz0123456789'
 IDENTIFIER_LENGTH = 64
 
 
-class LocationManager(models.Manager):
+class LunchbreakManager(models.Manager):
 
 	def nearby(self, latitude, longitude, proximity):
 		# Haversine formule is het beste om te gebruiken bij korte afstanden.
@@ -78,7 +78,7 @@ class Store(models.Model):
 	street = models.CharField(max_length=256)
 	number = models.IntegerField()
 
-	objects = LocationManager()
+	objects = LunchbreakManager()
 	latitude = models.DecimalField(blank=True, decimal_places=7, max_digits=10)
 	longitude = models.DecimalField(blank=True, decimal_places=7, max_digits=10)
 
