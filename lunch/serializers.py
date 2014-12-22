@@ -1,5 +1,5 @@
 from lunch.models import Store, DefaultFood, Food, StoreCategory, DefaultIngredient, Ingredient, IngredientGroup, User, Token, DefaultFoodCategory, FoodCategory, Order, OrderedFood
-from lunch.exceptions import DoesNotExist, BadRequest
+from lunch.exceptions import DoesNotExist
 
 from rest_framework import serializers
 from django.core.exceptions import ObjectDoesNotExist
@@ -77,7 +77,6 @@ class FoodSerializer(serializers.ModelSerializer):
 	category = FoodCategorySerializer(many=False)
 
 	def create(self, validated_data):
-		print 'foodSerializer create'
 		ingredients = Ingredient.objects.filter(id__in=validated_data['ingredients'])
 		return Food(name=validated_data['name'], cost=validated_data['cost'], ingredients=ingredients, store=validated_data['store'], category=validated_data['category'], icon=validated_data['icon'])
 
@@ -89,10 +88,40 @@ class FoodSerializer(serializers.ModelSerializer):
 
 class OrderedFoodSerializer(FoodSerializer):
 	category = FoodCategorySerializer(many=False, read_only=True)
+	referenceId = serializers.IntegerField(write_only=True, required=False)
+
+	def to_internal_value(self, data):
+		# Name is temporary
+		name = data.get('name')
+		ingredients = data.get('ingredients')
+		referenceId = data.get('referenceId')
+
+		if not ingredients and not referenceId:
+			raise serializers.ValidationError({
+				'ingredients, referenceId': 'One of these fields is required.'
+			})
+
+		if not name:
+			raise serializers.ValidationError({
+				'name': 'This field is required.'
+			})
+
+		result = {
+			'name': name
+		}
+
+		if ingredients:
+			result['ingredients'] = ingredients
+
+		if referenceId:
+			result['referenceId'] = referenceId
+
+		return result
 
 	class Meta:
 		model = OrderedFood
 		read_only_fields = ('id', 'cost', 'ingredientGroups', 'store', 'category', 'icon',)
+		write_only_fields = ('referenceId',)
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -104,7 +133,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 		if not phone:
 			raise serializers.ValidationError({
-				'phone': 'This field is required'
+				'phone': 'This field is required.'
 			})
 
 		# TODO Check whether the phone number is a valid phone number
@@ -131,12 +160,20 @@ class OrderSerializer(serializers.ModelSerializer):
 			food = []
 			for f in validated_data['food']:
 				print 'Creating orderedFood'
-				orderedFood = OrderedFood(name=f['name'], store=store)
-				# DEBUGGING PURPOSES ONLY
-				orderedFood.cost = 0
-				orderedFood.save()
-				print 'Setting ingredients'
-				orderedFood.ingredients = f['ingredients']
+				orderedFood = OrderedFood()
+				if 'referenceId' in f:
+					referenceFood = Food.objects.filter(id=f['referenceId'])
+					if len(referenceFood) == 0:
+						raise DoesNotExist('Referenced food does not exist')
+					orderedFood = OrderedFood(**referenceFood.values()[0])
+				else:
+					orderedFood.store = store
+					orderedFood.name = f['name']
+					# DEBUGGING PURPOSES ONLY
+					orderedFood.cost = 0
+					orderedFood.save()
+					print 'Setting ingredients'
+					orderedFood.ingredients = f['ingredients']
 				orderedFood.save()
 				food.append(orderedFood)
 				print orderedFood
@@ -147,14 +184,8 @@ class OrderSerializer(serializers.ModelSerializer):
 			order.save()
 
 			return order
-
-			# food = []
-			# for f in givenFood.iteritems():
-			# 	o = OrderedFood(name=f['name'], ingredients=())
-			# 	food.append()
 		except ObjectDoesNotExist:
 			raise DoesNotExist('Store does not exist')
-
 
 	class Meta:
 		model = Order
