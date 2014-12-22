@@ -175,5 +175,4 @@ class UserView(generics.CreateAPIView):
 							data = dict(tokenSerializer.data)
 							data['name'] = name
 							return Response(data, status=status.HTTP_200_OK)
-
-		raise BadRequest('At least a phone number needs to be given.')
+		raise BadRequest(userSerializer.errors)

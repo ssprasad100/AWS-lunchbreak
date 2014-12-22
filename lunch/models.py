@@ -164,7 +164,7 @@ class FoodCategory(BaseFoodCategory):
 
 
 class User(models.Model):
-	phone = PhoneNumberField(unique=True)
+	phone = PhoneNumberField()
 	name = models.CharField(max_length=128, blank=True)
 	digitsId = models.CharField(unique=True, max_length=10, blank=True, null=True, verbose_name='Digits ID')
 	requestId = models.CharField(max_length=32, blank=True, null=True, verbose_name='Digits Request ID')
