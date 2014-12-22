@@ -199,16 +199,21 @@ class DefaultFood(BaseFood):
 	ingredients = models.ManyToManyField(DefaultIngredient, null=True, blank=True)
 
 
-class Food(BaseFood):
+class BaseStoreFood(BaseFood):
 	category = models.ForeignKey(FoodCategory, null=True, blank=True)
 	ingredients = models.ManyToManyField(Ingredient, null=True, blank=True)
 	store = models.ForeignKey(Store)
 
+	class Meta:
+		abstract = True
 
-class OrderedFood(BaseFood):
-	category = models.ForeignKey(FoodCategory, null=True, blank=True)
-	ingredients = models.ManyToManyField(Ingredient, null=True, blank=True)
-	store = models.ForeignKey(Store)
+
+class Food(BaseStoreFood):
+	pass
+
+
+class OrderedFood(BaseStoreFood):
+	amount = models.IntegerField(default=1)
 
 
 STATUS_CHOICES = (

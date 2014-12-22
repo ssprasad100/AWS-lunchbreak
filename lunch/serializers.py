@@ -89,37 +89,16 @@ class FoodSerializer(serializers.ModelSerializer):
 class OrderedFoodSerializer(FoodSerializer):
 	category = FoodCategorySerializer(many=False, read_only=True)
 	referenceId = serializers.IntegerField(write_only=True, required=False)
+	amount = serializers.IntegerField(required=False)
 
 	def to_internal_value(self, data):
-		# Name is temporary
-		name = data.get('name')
-		ingredients = data.get('ingredients')
-		referenceId = data.get('referenceId')
-
-		if not ingredients and not referenceId:
-			raise serializers.ValidationError({
-				'ingredients, referenceId': 'One of these fields is required.'
-			})
-
-		if not name:
-			raise serializers.ValidationError({
-				'name': 'This field is required.'
-			})
-
-		result = {
-			'name': name
-		}
-
-		if ingredients:
-			result['ingredients'] = ingredients
-
-		if referenceId:
-			result['referenceId'] = referenceId
-
-		return result
+		if 'referenceId' not in data and 'ingredients' not in data:
+			raise serializers.ValidationError({'referenceId, ingredients': 'One of these fields is required.'})
+		return super(OrderedFoodSerializer, self).to_internal_value(data)
 
 	class Meta:
 		model = OrderedFood
+		fields = FoodSerializer.Meta.fields + ('referenceId', 'amount',)
 		read_only_fields = ('id', 'cost', 'ingredientGroups', 'store', 'category', 'icon',)
 		write_only_fields = ('referenceId',)
 
@@ -159,21 +138,22 @@ class OrderSerializer(serializers.ModelSerializer):
 
 			food = []
 			for f in validated_data['food']:
-				print 'Creating orderedFood'
 				orderedFood = OrderedFood()
 				if 'referenceId' in f:
 					referenceFood = Food.objects.filter(id=f['referenceId'])
 					if len(referenceFood) == 0:
 						raise DoesNotExist('Referenced food does not exist')
 					orderedFood = OrderedFood(**referenceFood.values()[0])
+					orderedFood.pk = None
 				else:
 					orderedFood.store = store
 					orderedFood.name = f['name']
 					# DEBUGGING PURPOSES ONLY
 					orderedFood.cost = 0
 					orderedFood.save()
-					print 'Setting ingredients'
 					orderedFood.ingredients = f['ingredients']
+
+				orderedFood.amount = f['amount'] if 'amount' in f else 1
 				orderedFood.save()
 				food.append(orderedFood)
 				print orderedFood
