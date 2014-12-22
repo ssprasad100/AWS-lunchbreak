@@ -14,7 +14,7 @@ class LunchbreakAuthentication(authentication.BaseAuthentication):
 			raise AuthenticationFailed('Not all of the headers were provided.')
 
 		try:
-			user = User.objects.get(userId=userId)
+			user = User.objects.get(id=userId)
 			user.token_set.get(identifier=identifier, device=device)
 		except:
 			raise AuthenticationFailed('User not found.')
