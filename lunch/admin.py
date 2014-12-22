@@ -68,14 +68,15 @@ class IngredientGroupAdmin(admin.ModelAdmin):
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
-	list_display = ('phone', 'name', 'userId', 'requestId', 'confirmedAt',)
-	fields = ('phone', 'name', 'userId', 'requestId', 'confirmedAt',)
+	list_display = ('name', 'phone', 'confirmedAt',)
+	fields = ('phone', 'name', 'digitsId', 'requestId', 'confirmedAt',)
+	readonly_fields = ('digitsId', 'requestId', 'confirmedAt',)
 
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
 	list_display = ('user', 'store', 'orderedTime', 'pickupTime', 'status', 'paid',)
-	fields = ('user', 'store', 'pickupTime', 'status', 'paid', 'food',)
+	fields = ('user', 'store', 'pickupTime', 'status', 'paid', 'food', 'orderedTime',)
 	readonly_fields = ('orderedTime',)
 
 

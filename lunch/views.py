@@ -94,7 +94,7 @@ class UserView(generics.CreateAPIView):
 	def signIn(self, digits, phone):
 		content = digits.signin(phone)
 		return {
-			'userId': content['login_verification_user_id'],
+			'digitsId': content['login_verification_user_id'],
 			'requestId': content['login_verification_request_id']
 		}
 
@@ -102,8 +102,8 @@ class UserView(generics.CreateAPIView):
 		content = digits.confirmRegistration(phone, pin)
 		return content['id']
 
-	def confirmSignin(self, digits, requestId, userId, pin):
-		digits.confirmSignin(requestId, userId, pin)
+	def confirmSignin(self, digits, requestId, digitsId, pin):
+		digits.confirmSignin(requestId, digitsId, pin)
 		return True
 
 	def getRegistrationResponse(self, hasName=False):
@@ -122,7 +122,7 @@ class UserView(generics.CreateAPIView):
 				if result:
 					user = User(phone=phone)
 					if type(result) is dict:
-						user.userId = result['userId']
+						user.digitsId = result['digitsId']
 						user.requestId = result['requestId']
 					user.save()
 					return self.getRegistrationResponse()
@@ -137,7 +137,7 @@ class UserView(generics.CreateAPIView):
 					if user.confirmedAt:
 						result = self.signIn(digits, phone)
 						if result:
-							user.userId = result['userId']
+							user.digitsId = result['digitsId']
 							user.requestId = result['requestId']
 							user.save()
 							return self.getRegistrationResponse(hasName)
@@ -145,7 +145,7 @@ class UserView(generics.CreateAPIView):
 						result = self.register(digits, phone)
 						if result:
 							if type(result) is dict:
-								user.userId = result['userId']
+								user.digitsId = result['digitsId']
 								user.requestId = result['requestId']
 							user.save()
 							return self.getRegistrationResponse(hasName)
@@ -157,15 +157,14 @@ class UserView(generics.CreateAPIView):
 						if not user.confirmedAt:
 							user.confirmedAt = datetime.now()
 
-						if not user.requestId and not user.userId:
+						if not user.requestId and not user.digitsId:
 							# The user already got a message, but just got added to the Digits database
-							userId = self.confirmRegistration(digits, phone, pin)
-							user.userId = userId
+							user.digitsId = self.confirmRegistration(digits, phone, pin)
 							user.save()
 							success = True
 						else:
 							# The user already was in the Digits database and got a request and user id
-							userId = self.confirmSignin(digits, user.requestId, user.userId, pin)
+							self.confirmSignin(digits, user.requestId, user.digitsId, pin)
 							user.save()
 							success = True
 

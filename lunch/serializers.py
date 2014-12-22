@@ -178,7 +178,7 @@ class TokenUserSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = User
-		fields = ('userId',)
+		fields = ('id',)
 
 
 class TokenSerializer(serializers.ModelSerializer):
@@ -189,7 +189,7 @@ class TokenSerializer(serializers.ModelSerializer):
 			'id': obj.id,
 			'identifier': obj.identifier,
 			'device': obj.device,
-			'user': obj.user.userId,
+			'user': obj.user.id,
 		}
 
 	class Meta:

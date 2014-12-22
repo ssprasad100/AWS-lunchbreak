@@ -1,6 +1,8 @@
 from django.db import models
 from django.utils.functional import cached_property
 
+from phonenumber_field.modelfields import PhoneNumberField
+
 from lunch.exceptions import AddressNotFound
 
 import requests
@@ -162,11 +164,10 @@ class FoodCategory(BaseFoodCategory):
 
 
 class User(models.Model):
-	# Maximum european length (with +) is +XXX and 13 numbers -> 17
-	phone = models.CharField(max_length=17, primary_key=True)
+	phone = PhoneNumberField(unique=True)
 	name = models.CharField(max_length=128, blank=True)
-	userId = models.CharField(max_length=10, blank=True, null=True, verbose_name='User ID')
-	requestId = models.CharField(max_length=32, blank=True, null=True, verbose_name='Request ID')
+	digitsId = models.CharField(unique=True, max_length=10, blank=True, null=True, verbose_name='Digits ID')
+	requestId = models.CharField(max_length=32, blank=True, null=True, verbose_name='Digits Request ID')
 
 	confirmedAt = models.DateField(blank=True, null=True)
 
@@ -243,4 +244,4 @@ def tokenGenerator():
 class Token(models.Model):
 	identifier = models.CharField(max_length=IDENTIFIER_LENGTH, default=tokenGenerator)
 	device = models.CharField(max_length=128)
-	user = models.ForeignKey(User, db_column='phone')
+	user = models.ForeignKey(User)
