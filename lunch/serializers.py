@@ -104,21 +104,8 @@ class OrderedFoodSerializer(FoodSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-	pin = serializers.CharField()
-	device = serializers.CharField()
-
-	def to_internal_value(self, data):
-		phone = data.get('phone')
-
-		if not phone:
-			raise serializers.ValidationError({
-				'phone': 'This field is required.'
-			})
-
-		# TODO Check whether the phone number is a valid phone number
-		return {
-			'phone': phone
-		}
+	pin = serializers.CharField(required=False)
+	device = serializers.CharField(required=False)
 
 	class Meta:
 		model = User
