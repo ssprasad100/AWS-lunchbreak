@@ -110,7 +110,7 @@ class UserSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = User
 		fields = ('id', 'name', 'phone', 'pin', 'device',)
-		write_only_fields = ('id', 'name', 'phone', 'pin', 'device',)
+		write_only_fields = ('name', 'phone', 'pin', 'device',)
 
 
 class OrderSerializer(serializers.ModelSerializer):
