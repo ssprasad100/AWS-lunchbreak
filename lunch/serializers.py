@@ -109,8 +109,8 @@ class UserSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = User
-		fields = ('name', 'phone', 'pin', 'device',)
-		write_only_fields = ('name', 'phone', 'pin', 'device',)
+		fields = ('id', 'name', 'phone', 'pin', 'device',)
+		write_only_fields = ('id', 'name', 'phone', 'pin', 'device',)
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -156,8 +156,8 @@ class OrderSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = Order
-		fields = ('store', 'storeId', 'orderedTime', 'pickupTime', 'status', 'paid', 'food',)
-		read_only_fields = ('store', 'orderedTime', 'status', 'paid',)
+		fields = ('id', 'store', 'storeId', 'orderedTime', 'pickupTime', 'status', 'paid', 'food',)
+		read_only_fields = ('id', 'store', 'orderedTime', 'status', 'paid',)
 		write_only_fields = ('storeId',)
 
 
