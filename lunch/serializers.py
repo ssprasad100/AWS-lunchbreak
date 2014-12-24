@@ -136,7 +136,7 @@ class OrderSerializer(serializers.ModelSerializer):
 					orderedFood.store = store
 					orderedFood.name = f['name']
 					# DEBUGGING PURPOSES ONLY
-					orderedFood.cost = 0
+					orderedFood.cost = 1
 					orderedFood.save()
 					orderedFood.ingredients = f['ingredients']
 
@@ -156,8 +156,8 @@ class OrderSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = Order
-		fields = ('id', 'store', 'storeId', 'orderedTime', 'pickupTime', 'status', 'paid', 'food',)
-		read_only_fields = ('id', 'store', 'orderedTime', 'status', 'paid',)
+		fields = ('id', 'store', 'storeId', 'orderedTime', 'pickupTime', 'status', 'paid', 'food', 'total',)
+		read_only_fields = ('id', 'store', 'orderedTime', 'status', 'paid', 'total',)
 		write_only_fields = ('storeId',)
 
 

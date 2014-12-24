@@ -235,6 +235,15 @@ class Order(models.Model):
 	status = models.IntegerField(choices=STATUS_CHOICES, default=0)
 	paid = models.BooleanField(default=False)
 	food = models.ManyToManyField(OrderedFood)
+	total = models.DecimalField(decimal_places=2, max_digits=5, default=0)
+
+	def save(self, *args, **kwargs):
+		if self.pk is None:
+			super(Order, self).save(*args, **kwargs)
+		self.total = 0
+		for f in self.food.all():
+			self.total += f.cost * f.amount
+		super(Order, self).save(*args, **kwargs)
 
 
 def tokenGenerator():
