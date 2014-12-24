@@ -53,7 +53,10 @@ class OrderView(generics.ListCreateAPIView):
 		'''
 		Return all of the Orders for the authenticated user.
 		'''
-		return Order.objects.filter(user=self.request.user)
+		queryset = Order.objects.filter(user=self.request.user)
+		if 'id' in self.kwargs:
+			return queryset.filter(id=self.kwargs['id'])
+		return queryset
 
 	def create(self, request, *args, **kwargs):
 		orderSerializer = OrderSerializer(data=request.data, context={'user': request.user})
