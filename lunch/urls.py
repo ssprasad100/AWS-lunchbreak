@@ -12,6 +12,7 @@ urlpatterns = patterns('',
 
 	url(r'order/paid/(?P<id>.+)/$', views.OrderView.as_view()),
 	url(r'order/update/(?P<id>.+)/(?P<status>.+)/$', views.OrderView.as_view()),
+	url(r'order/(?P<id>.+)/$', views.OrderView.as_view()),
 	url(r'order/$', views.OrderView.as_view()),
 
 	url(r'token/$', views.TokenView.as_view()),
