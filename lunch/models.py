@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.functional import cached_property
+from django.db.models import Count
 
 from phonenumber_field.modelfields import PhoneNumberField
 
@@ -50,6 +51,35 @@ class LunchbreakManager(models.Manager):
 				params=[latitude, latitude, longitude, proximity],
 				order_by=['distance']
 			)
+
+	def closestFood(self, orderedFood):
+		food = Food.objects.annotate(count=Count('ingredients')).filter(count=len(orderedFood.ingredients.all())).filter(store=orderedFood.store)
+		for _id in orderedFood.ingredients.values_list('id', flat=True):
+			food = food.filter(ingredients__id=_id)
+		if(len(food) > 0):
+			return food
+		else:
+			return Food.objects.raw('''
+		SELECT
+		    lunch_food.id,
+		    lunch_food.name,
+		    lunch_food.cost,
+		    SUM(lunch_ingredient.cost) AS difference
+		FROM `lunch_food`
+		    INNER JOIN `lunch_food_ingredients` ON lunch_food.id = lunch_food_ingredients.food_id
+		    INNER JOIN `lunch_ingredient` ON lunch_food_ingredients.ingredient_id = lunch_ingredient.id
+		WHERE lunch_ingredient.id NOT IN (
+		    SELECT
+		        lunch_food_ingredients.ingredient_id
+		    FROM `lunch_food`
+		        INNER JOIN `lunch_food_ingredients` ON lunch_food.id = lunch_food_ingredients.food_id
+		        LEFT JOIN `lunch_orderedfood_ingredients` ON lunch_food_ingredients.ingredient_id = lunch_orderedfood_ingredients.ingredient_id
+		        INNER JOIN `lunch_orderedfood` ON lunch_orderedfood_ingredients.orderedfood_id = lunch_orderedfood.id
+		    WHERE lunch_orderedfood.id = %s AND lunch_orderedfood.store_id = %s
+		)
+		GROUP BY lunch_food.id
+		ORDER BY difference ASC, cost DESC;
+		''', [orderedFood.id, orderedFood.store_id])[0]
 
 
 class Icon(models.Model):
@@ -179,6 +209,8 @@ class BaseFood(models.Model):
 	name = models.CharField(max_length=256)
 	cost = models.DecimalField(decimal_places=2, max_digits=5)
 	icon = models.ForeignKey(Icon, null=True, blank=True)
+
+	objects = LunchbreakManager()
 
 	class Meta:
 		abstract = True
