@@ -1,8 +1,8 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
 
-from lunch.models import Store, Food, User, Token, Order
-from lunch.serializers import StoreSerializer, FoodSerializer, TokenSerializer, UserSerializer, OrderSerializer
+from lunch.models import Store, Food, User, Token, Order, OrderedFood, Ingredient
+from lunch.serializers import StoreSerializer, FoodSerializer, TokenSerializer, UserSerializer, OrderSerializer, OrderedFoodPriceSerializer
 from lunch.exceptions import BadRequest
 from lunch.authentication import LunchbreakAuthentication
 from lunch.digits import Digits
@@ -63,6 +63,26 @@ class OrderView(generics.ListCreateAPIView):
 			orderSerializer.save()
 			return Response(data=orderSerializer.data, status=status.HTTP_201_CREATED)
 		raise BadRequest(orderSerializer.errors)
+
+
+class OrderPriceView(generics.CreateAPIView):
+	authentication_classes = (LunchbreakAuthentication,)
+	serializer_class = OrderedFoodPriceSerializer
+
+	def post(self, request, format=None):
+		'''
+		Return the price of the food.
+		'''
+		priceSerializer = OrderedFoodPriceSerializer(data=request.data)
+		if priceSerializer.is_valid():
+			exact, closestFood = OrderedFood.objects.closestFood(orderedFood=None, ingredients=priceSerializer.validated_data['ingredients'], storeId=priceSerializer.validated_data['store'])
+			if not exact:
+				orderedIngredients = Ingredient.objects.filter(id__in=priceSerializer.validated_data['ingredients'], store_id=priceSerializer.validated_data['store'])
+				cost = OrderedFood.calculateCost(orderedIngredients, closestFood)
+			else:
+				cost = closestFood.cost
+			return Response(data={'cost': cost})
+		raise BadRequest(priceSerializer.errors)
 
 
 class TokenView(generics.ListAPIView):

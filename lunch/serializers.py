@@ -2,6 +2,8 @@ from lunch.models import Store, DefaultFood, Food, StoreCategory, DefaultIngredi
 from lunch.exceptions import DoesNotExist
 
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
+
 from django.core.exceptions import ObjectDoesNotExist
 
 
@@ -103,6 +105,48 @@ class OrderedFoodSerializer(FoodSerializer):
 		write_only_fields = ('referenceId',)
 
 
+class OrderedFoodPriceSerializer(serializers.BaseSerializer):
+	ingredients = serializers.ListField(child=serializers.IntegerField())
+	store = serializers.IntegerField()
+
+	def to_internal_value(self, data):
+		store = data.get('store')
+		ingredients = data.get('ingredients')
+
+		# Perform the data validation.
+		if not store:
+			raise ValidationError({
+				'store': 'This field is required.'
+			})
+		elif len(Store.objects.filter(id=store)) == 0:
+			raise ValidationError({
+				'store': 'Store id does not exist.'
+			})
+
+		if not ingredients:
+			raise ValidationError({
+				'ingredients': 'This field is required.'
+			})
+		if type(ingredients) is not list:
+			raise ValidationError({
+				'ingredients': 'This field is needs to be a list of integers.'
+			})
+
+		return {
+			'store': int(store),
+			'ingredients': [int(i) for i in ingredients]
+		}
+
+	def to_representation(self, obj):
+		return {
+			'store': obj.store,
+			'ingredients': obj.ingredients
+		}
+
+	class Meta:
+		fields = ('ingredients', 'store',)
+
+
 class UserSerializer(serializers.ModelSerializer):
 	pin = serializers.CharField(required=False)
 	device = serializers.CharField(required=False)
@@ -135,15 +179,15 @@ class OrderSerializer(serializers.ModelSerializer):
 				else:
 					orderedFood.store = store
 					orderedFood.name = f['name']
-					# DEBUGGING PURPOSES ONLY
-					orderedFood.cost = 1
+					ingredientIds = [ingredient.id for ingredient in f['ingredients']]
+					exact, closestFood = OrderedFood.objects.closestFood(orderedFood, ingredientIds)
+					orderedFood.cost = closestFood.cost if exact else OrderedFood.calculateCost(Ingredient.objects.filter(id__in=ingredientIds, store_id=store), closestFood)
 					orderedFood.save()
 					orderedFood.ingredients = f['ingredients']
 
 				orderedFood.amount = f['amount'] if 'amount' in f else 1
 				orderedFood.save()
 				food.append(orderedFood)
-				print orderedFood
 
 			order = Order(user=user, store=store, pickupTime=validated_data['pickupTime'])
 			order.save()
