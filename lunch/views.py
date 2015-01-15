@@ -73,15 +73,18 @@ class OrderPriceView(generics.CreateAPIView):
 		'''
 		Return the price of the food.
 		'''
-		priceSerializer = OrderedFoodPriceSerializer(data=request.data)
+		priceSerializer = OrderedFoodPriceSerializer(data=request.data, many=True)
 		if priceSerializer.is_valid():
-			exact, closestFood = OrderedFood.objects.closestFood(orderedFood=None, ingredients=priceSerializer.validated_data['ingredients'], storeId=priceSerializer.validated_data['store'])
-			if not exact:
-				orderedIngredients = Ingredient.objects.filter(id__in=priceSerializer.validated_data['ingredients'], store_id=priceSerializer.validated_data['store'])
-				cost = OrderedFood.calculateCost(orderedIngredients, closestFood)
-			else:
-				cost = closestFood.cost
-			return Response(data={'cost': cost})
+			costList = []
+			for priceCheck in priceSerializer.validated_data:
+				exact, closestFood = OrderedFood.objects.closestFood(orderedFood=None, ingredients=priceCheck['ingredients'], storeId=priceCheck['store'])
+				if not exact:
+					orderedIngredients = Ingredient.objects.filter(id__in=priceCheck['ingredients'], store_id=priceCheck['store'])
+					cost = OrderedFood.calculateCost(orderedIngredients, closestFood)
+				else:
+					cost = closestFood.cost
+				costList.append(cost)
+			return Response(data=costList)
 		raise BadRequest(priceSerializer.errors)
 
 
