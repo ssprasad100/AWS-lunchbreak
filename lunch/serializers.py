@@ -157,10 +157,9 @@ class UserSerializer(serializers.ModelSerializer):
 		write_only_fields = ('name', 'phone', 'pin', 'device',)
 
 
-class OrderSerializer(serializers.ModelSerializer):
-	store = StoreSerializer(read_only=True)
+class ShortOrderSerializer(serializers.ModelSerializer):
 	storeId = serializers.IntegerField(write_only=True)
-	food = OrderedFoodSerializer(many=True)
+	food = OrderedFoodSerializer(many=True, write_only=True)
 	costCheck = serializers.DecimalField(decimal_places=2, max_digits=5, write_only=True)
 
 	def create(self, validated_data):
@@ -206,9 +205,21 @@ class OrderSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = Order
-		fields = ('id', 'store', 'storeId', 'orderedTime', 'pickupTime', 'status', 'paid', 'food', 'total', 'costCheck')
-		read_only_fields = ('id', 'store', 'orderedTime', 'status', 'paid', 'total',)
+		fields = ('id', 'storeId', 'orderedTime', 'pickupTime', 'status', 'paid', 'food', 'total', 'costCheck')
+		read_only_fields = ('id', 'orderedTime', 'status', 'paid', 'total',)
+		write_only_fields = ('storeId', 'costCheck', 'food',)
+
+
+class OrderSerializer(ShortOrderSerializer):
+	store = StoreSerializer(read_only=True)
+	food = OrderedFoodSerializer(many=True, read_only=True)
+
+	class Meta:
+		model = Order
+		fields = ShortOrderSerializer.Meta.fields + ('store',)
+		read_only_fields = ShortOrderSerializer.Meta.read_only_fields + ('store', 'food')
 		write_only_fields = ('storeId', 'costCheck')
+
 
 
 class TokenUserSerializer(serializers.ModelSerializer):

@@ -2,7 +2,7 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 
 from lunch.models import Store, Food, User, Token, Order, OrderedFood, Ingredient
-from lunch.serializers import StoreSerializer, FoodSerializer, TokenSerializer, UserSerializer, OrderSerializer, OrderedFoodPriceSerializer
+from lunch.serializers import StoreSerializer, FoodSerializer, TokenSerializer, UserSerializer, OrderSerializer, OrderedFoodPriceSerializer, ShortOrderSerializer
 from lunch.exceptions import BadRequest
 from lunch.authentication import LunchbreakAuthentication
 from lunch.digits import Digits
@@ -58,7 +58,7 @@ class OrderView(generics.ListCreateAPIView):
 		return Order.objects.filter(user=self.request.user)
 
 	def create(self, request, *args, **kwargs):
-		orderSerializer = OrderSerializer(data=request.data, context={'user': request.user})
+		orderSerializer = ShortOrderSerializer(data=request.data, context={'user': request.user})
 		if orderSerializer.is_valid():
 			orderSerializer.save()
 			return Response(data=orderSerializer.data, status=status.HTTP_201_CREATED)
