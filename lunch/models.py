@@ -306,10 +306,11 @@ class Order(models.Model):
 	def save(self, *args, **kwargs):
 		if self.pk is None:
 			super(Order, self).save(*args, **kwargs)
-		self.total = 0
-		for f in self.food.all():
-			self.total += f.cost * f.amount
-		super(Order, self).save(*args, **kwargs)
+		else:
+			self.total = 0
+			for f in self.food.all():
+				self.total += f.cost * f.amount
+			super(Order, self).save(*args, **kwargs)
 
 
 def tokenGenerator():
