@@ -1,8 +1,8 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
 
-from lunch.models import Store, Food, User, Token, Order
-from lunch.serializers import StoreSerializer, FoodSerializer, TokenSerializer, UserSerializer, OrderSerializer
+from lunch.models import Store, Food, User, Token, Order, OrderedFood, Ingredient
+from lunch.serializers import StoreSerializer, FoodSerializer, TokenSerializer, UserSerializer, OrderSerializer, OrderedFoodPriceSerializer, ShortOrderSerializer
 from lunch.exceptions import BadRequest
 from lunch.authentication import LunchbreakAuthentication
 from lunch.digits import Digits
@@ -58,11 +58,34 @@ class OrderView(generics.ListCreateAPIView):
 		return Order.objects.filter(user=self.request.user)
 
 	def create(self, request, *args, **kwargs):
-		orderSerializer = OrderSerializer(data=request.data, context={'user': request.user})
+		orderSerializer = ShortOrderSerializer(data=request.data, context={'user': request.user})
 		if orderSerializer.is_valid():
 			orderSerializer.save()
 			return Response(data=orderSerializer.data, status=status.HTTP_201_CREATED)
 		raise BadRequest(orderSerializer.errors)
+
+
+class OrderPriceView(generics.CreateAPIView):
+	authentication_classes = (LunchbreakAuthentication,)
+	serializer_class = OrderedFoodPriceSerializer
+
+	def post(self, request, format=None):
+		'''
+		Return the price of the food.
+		'''
+		priceSerializer = OrderedFoodPriceSerializer(data=request.data, many=True)
+		if priceSerializer.is_valid():
+			costList = []
+			for priceCheck in priceSerializer.validated_data:
+				exact, closestFood = OrderedFood.objects.closestFood(orderedFood=None, ingredients=priceCheck['ingredients'], storeId=priceCheck['store'])
+				if not exact:
+					orderedIngredients = Ingredient.objects.filter(id__in=priceCheck['ingredients'], store_id=priceCheck['store'])
+					cost = OrderedFood.calculateCost(orderedIngredients, closestFood)
+				else:
+					cost = closestFood.cost
+				costList.append(cost)
+			return Response(data=costList, status=status.HTTP_200_OK)
+		raise BadRequest(priceSerializer.errors)
 
 
 class TokenView(generics.ListAPIView):

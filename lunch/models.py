@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.functional import cached_property
+from django.db.models import Count, Sum
 
 from phonenumber_field.modelfields import PhoneNumberField
 
@@ -50,6 +51,57 @@ class LunchbreakManager(models.Manager):
 				params=[latitude, latitude, longitude, proximity],
 				order_by=['distance']
 			)
+
+	def closestFood(self, orderedFood=False, ingredients=None, storeId=None):
+		ingredients = ingredients if ingredients else orderedFood.ingredients.all()
+		storeId = storeId if storeId else orderedFood.store_id
+
+		food = Food.objects.annotate(count=Count('ingredients')).filter(count=len(ingredients)).filter(store_id=storeId)
+		ids = orderedFood.ingredients.values_list('id', flat=True) if orderedFood and ingredients is None else ingredients
+		for _id in ids:
+			food = food.filter(ingredients__id=_id)
+		if(len(food) > 0):
+			return (True, food[0],)
+		else:
+			if ingredients is None:
+				return (False, Food.objects.raw('''
+				SELECT
+					lunch_food.id,
+					lunch_food.name,
+					lunch_food.cost,
+					SUM(lunch_ingredient.cost) AS difference
+				FROM `lunch_food`
+					INNER JOIN `lunch_food_ingredients` ON lunch_food.id = lunch_food_ingredients.food_id
+					INNER JOIN `lunch_ingredient` ON lunch_food_ingredients.ingredient_id = lunch_ingredient.id
+				WHERE lunch_ingredient.id NOT IN (
+					SELECT
+						lunch_food_ingredients.ingredient_id
+					FROM `lunch_food`
+						INNER JOIN `lunch_food_ingredients` ON lunch_food.id = lunch_food_ingredients.food_id
+						LEFT JOIN `lunch_orderedfood_ingredients` ON lunch_food_ingredients.ingredient_id = lunch_orderedfood_ingredients.ingredient_id
+						INNER JOIN `lunch_orderedfood` ON lunch_orderedfood_ingredients.orderedfood_id = lunch_orderedfood.id
+					WHERE lunch_orderedfood.id = %s AND lunch_orderedfood.store_id = %s
+				)
+				GROUP BY lunch_food.id
+				ORDER BY difference ASC, cost DESC;
+				''', [orderedFood.id, orderedFood.store_id])[0],)
+			else:
+				#
+				return (False, Food.objects.raw('''
+				SELECT
+					lunch_food.id,
+					lunch_food.name,
+					lunch_food.cost,
+					SUM(lunch_ingredient.cost) AS difference
+				FROM `lunch_food`
+					INNER JOIN `lunch_food_ingredients` ON lunch_food.id = lunch_food_ingredients.food_id
+					INNER JOIN `lunch_ingredient` ON lunch_food_ingredients.ingredient_id = lunch_ingredient.id
+				WHERE lunch_ingredient.id NOT IN (
+					''' + ','.join([str(i) for i in ingredients]) + '''
+				)
+				GROUP BY lunch_food.id
+				ORDER BY difference ASC, cost DESC;
+				''')[0],)
 
 
 class Icon(models.Model):
@@ -180,6 +232,8 @@ class BaseFood(models.Model):
 	cost = models.DecimalField(decimal_places=2, max_digits=5)
 	icon = models.ForeignKey(Icon, null=True, blank=True)
 
+	objects = LunchbreakManager()
+
 	class Meta:
 		abstract = True
 
@@ -216,6 +270,18 @@ class Food(BaseStoreFood):
 class OrderedFood(BaseStoreFood):
 	amount = models.IntegerField(default=1)
 
+	@staticmethod
+	def calculateCost(orderedIngredients, food):
+		foodIngredients = food.ingredients.all()
+		cost = food.cost
+		for ingredient in orderedIngredients:
+			if ingredient not in foodIngredients:
+				cost += ingredient.cost
+		for ingredient in foodIngredients:
+			if ingredient not in orderedIngredients:
+				cost -= ingredient.cost
+		return cost
+
 
 STATUS_CHOICES = (
 	(0, 'Placed'),
@@ -240,10 +306,11 @@ class Order(models.Model):
 	def save(self, *args, **kwargs):
 		if self.pk is None:
 			super(Order, self).save(*args, **kwargs)
-		self.total = 0
-		for f in self.food.all():
-			self.total += f.cost * f.amount
-		super(Order, self).save(*args, **kwargs)
+		else:
+			self.total = 0
+			for f in self.food.all():
+				self.total += f.cost * f.amount
+			super(Order, self).save(*args, **kwargs)
 
 
 def tokenGenerator():

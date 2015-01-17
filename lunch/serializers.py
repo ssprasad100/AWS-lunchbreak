@@ -1,7 +1,9 @@
 from lunch.models import Store, DefaultFood, Food, StoreCategory, DefaultIngredient, Ingredient, IngredientGroup, User, Token, DefaultFoodCategory, FoodCategory, Order, OrderedFood
-from lunch.exceptions import DoesNotExist
+from lunch.exceptions import DoesNotExist, CostCheckFailed
 
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
+
 from django.core.exceptions import ObjectDoesNotExist
 
 
@@ -103,6 +105,48 @@ class OrderedFoodSerializer(FoodSerializer):
 		write_only_fields = ('referenceId',)
 
 
+class OrderedFoodPriceSerializer(serializers.BaseSerializer):
+	ingredients = serializers.ListField(child=serializers.IntegerField())
+	store = serializers.IntegerField()
+
+	def to_internal_value(self, data):
+		store = data.get('store')
+		ingredients = data.get('ingredients')
+
+		# Perform the data validation.
+		if not store:
+			raise ValidationError({
+				'store': 'This field is required.'
+			})
+		elif len(Store.objects.filter(id=store)) == 0:
+			raise ValidationError({
+				'store': 'Store id does not exist.'
+			})
+
+		if not ingredients:
+			raise ValidationError({
+				'ingredients': 'This field is required.'
+			})
+		if type(ingredients) is not list:
+			raise ValidationError({
+				'ingredients': 'This field is needs to be a list of integers.'
+			})
+
+		return {
+			'store': int(store),
+			'ingredients': [int(i) for i in ingredients]
+		}
+
+	def to_representation(self, obj):
+		return {
+			'store': obj.store,
+			'ingredients': obj.ingredients
+		}
+
+	class Meta:
+		fields = ('ingredients', 'store',)
+
+
 class UserSerializer(serializers.ModelSerializer):
 	pin = serializers.CharField(required=False)
 	device = serializers.CharField(required=False)
@@ -110,18 +154,19 @@ class UserSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = User
 		fields = ('id', 'name', 'phone', 'pin', 'device',)
-		write_only_fields = ('id', 'name', 'phone', 'pin', 'device',)
+		write_only_fields = ('name', 'phone', 'pin', 'device',)
 
 
-class OrderSerializer(serializers.ModelSerializer):
-	store = StoreSerializer(read_only=True)
+class ShortOrderSerializer(serializers.ModelSerializer):
 	storeId = serializers.IntegerField(write_only=True)
-	food = OrderedFoodSerializer(many=True)
+	food = OrderedFoodSerializer(many=True, write_only=True, read_only=False)
+	costCheck = serializers.DecimalField(decimal_places=2, max_digits=5, write_only=True)
 
 	def create(self, validated_data):
 		try:
 			user = self.context['user']
 			store = Store.objects.get(id=validated_data['storeId'])
+			costCheck = validated_data['costCheck']
 
 			food = []
 			for f in validated_data['food']:
@@ -135,20 +180,24 @@ class OrderSerializer(serializers.ModelSerializer):
 				else:
 					orderedFood.store = store
 					orderedFood.name = f['name']
-					# DEBUGGING PURPOSES ONLY
-					orderedFood.cost = 1
+					ingredientIds = [ingredient.id for ingredient in f['ingredients']]
+					exact, closestFood = OrderedFood.objects.closestFood(orderedFood, ingredientIds)
+					orderedFood.cost = closestFood.cost if exact else OrderedFood.calculateCost(Ingredient.objects.filter(id__in=ingredientIds, store_id=store), closestFood)
 					orderedFood.save()
 					orderedFood.ingredients = f['ingredients']
 
 				orderedFood.amount = f['amount'] if 'amount' in f else 1
 				orderedFood.save()
 				food.append(orderedFood)
-				print orderedFood
 
 			order = Order(user=user, store=store, pickupTime=validated_data['pickupTime'])
 			order.save()
 			order.food = food
 			order.save()
+
+			if order.total != costCheck:
+				order.delete()
+				raise CostCheckFailed()
 
 			return order
 		except ObjectDoesNotExist:
@@ -156,9 +205,20 @@ class OrderSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = Order
-		fields = ('id', 'store', 'storeId', 'orderedTime', 'pickupTime', 'status', 'paid', 'food', 'total',)
-		read_only_fields = ('id', 'store', 'orderedTime', 'status', 'paid', 'total',)
-		write_only_fields = ('storeId',)
+		fields = ('id', 'storeId', 'pickupTime', 'paid', 'food', 'costCheck')
+		read_only_fields = ('id', 'paid',)
+		write_only_fields = ('storeId', 'costCheck', 'food', 'pickupTime',)
+
+
+class OrderSerializer(ShortOrderSerializer):
+	store = StoreSerializer(read_only=True)
+	food = OrderedFoodSerializer(many=True, read_only=True, write_only=False)
+
+	class Meta:
+		model = Order
+		fields = ShortOrderSerializer.Meta.fields + ('store', 'total', 'status', 'orderedTime',)
+		read_only_fields = ShortOrderSerializer.Meta.read_only_fields + ('store', 'food', 'total', 'status', 'orderedTime',)
+		write_only_fields = ('storeId', 'costCheck')
 
 
 class TokenUserSerializer(serializers.ModelSerializer):

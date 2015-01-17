@@ -40,6 +40,7 @@ class DefaultFoodAdmin(admin.ModelAdmin):
 class FoodAdmin(DefaultFoodAdmin):
 	list_display = ('name', 'cost', 'store', 'category',)
 	fields = ('name', 'cost', 'ingredients', 'store', 'category', 'icon',)
+	readonly_fields = ('cost',)
 
 
 @admin.register(OrderedFood)
