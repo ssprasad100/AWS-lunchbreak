@@ -84,7 +84,7 @@ class OrderPriceView(generics.CreateAPIView):
 				else:
 					cost = closestFood.cost
 				costList.append(cost)
-			return Response(data=costList)
+			return Response(data=costList, status=status.HTTP_200_OK)
 		raise BadRequest(priceSerializer.errors)
 
 

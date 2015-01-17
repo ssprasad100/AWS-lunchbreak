@@ -11,6 +11,7 @@ LUNCH_SERVICE_UNAVAILABLE = 503
 LUNCH_BAD_REQUEST = 400
 LUNCH_ADDRESS_NOT_FOUND = 401
 LUNCH_DOES_NOT_EXIST = 402
+LUNCH_COSTCHECK_FAILED = 403
 
 LUNCH_AUTHENTICATION_FAILED = 300
 
@@ -114,3 +115,9 @@ class AuthenticationFailed(LunchbreakException):
 	status_code = status.HTTP_401_UNAUTHORIZED
 	code = LUNCH_AUTHENTICATION_FAILED
 	information = 'User authentication failed.'
+
+
+class CostCheckFailed(LunchbreakException):
+	status_code = status.HTTP_409_CONFLICT
+	code = LUNCH_COSTCHECK_FAILED
+	information = 'Cost check failed.'

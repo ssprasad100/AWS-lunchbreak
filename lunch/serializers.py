@@ -1,5 +1,5 @@
 from lunch.models import Store, DefaultFood, Food, StoreCategory, DefaultIngredient, Ingredient, IngredientGroup, User, Token, DefaultFoodCategory, FoodCategory, Order, OrderedFood
-from lunch.exceptions import DoesNotExist
+from lunch.exceptions import DoesNotExist, CostCheckFailed
 
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -161,11 +161,13 @@ class OrderSerializer(serializers.ModelSerializer):
 	store = StoreSerializer(read_only=True)
 	storeId = serializers.IntegerField(write_only=True)
 	food = OrderedFoodSerializer(many=True)
+	costCheck = serializers.DecimalField(decimal_places=2, max_digits=5, write_only=True)
 
 	def create(self, validated_data):
 		try:
 			user = self.context['user']
 			store = Store.objects.get(id=validated_data['storeId'])
+			costCheck = validated_data['costCheck']
 
 			food = []
 			for f in validated_data['food']:
@@ -194,15 +196,19 @@ class OrderSerializer(serializers.ModelSerializer):
 			order.food = food
 			order.save()
 
+			if order.total != costCheck:
+				order.delete()
+				raise CostCheckFailed()
+
 			return order
 		except ObjectDoesNotExist:
 			raise DoesNotExist('Store does not exist')
 
 	class Meta:
 		model = Order
-		fields = ('id', 'store', 'storeId', 'orderedTime', 'pickupTime', 'status', 'paid', 'food', 'total',)
+		fields = ('id', 'store', 'storeId', 'orderedTime', 'pickupTime', 'status', 'paid', 'food', 'total', 'costCheck')
 		read_only_fields = ('id', 'store', 'orderedTime', 'status', 'paid', 'total',)
-		write_only_fields = ('storeId',)
+		write_only_fields = ('storeId', 'costCheck')
 
 
 class TokenUserSerializer(serializers.ModelSerializer):
