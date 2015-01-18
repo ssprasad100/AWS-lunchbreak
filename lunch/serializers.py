@@ -71,7 +71,7 @@ class DefaultFoodSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = DefaultFood
-		fields = ('id', 'name', 'cost', 'ingredientGroups', 'ingredients', 'category', 'icon',)
+		fields = ('id', 'name', 'cost', 'ingredientGroups', 'ingredients', 'category', 'icon', 'foodType',)
 
 
 class FoodSerializer(serializers.ModelSerializer):
@@ -84,7 +84,7 @@ class FoodSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = Food
-		fields = ('id', 'name', 'cost', 'ingredientGroups', 'ingredients', 'store', 'category', 'icon',)
+		fields = ('id', 'name', 'cost', 'ingredientGroups', 'ingredients', 'store', 'category', 'icon', 'foodType',)
 		read_only_fields = ('id', 'ingredientGroups',)
 
 
@@ -101,7 +101,7 @@ class OrderedFoodSerializer(FoodSerializer):
 	class Meta:
 		model = OrderedFood
 		fields = FoodSerializer.Meta.fields + ('referenceId', 'amount',)
-		read_only_fields = ('id', 'cost', 'ingredientGroups', 'store', 'category', 'icon',)
+		read_only_fields = ('id', 'cost', 'ingredientGroups', 'store', 'category', 'icon', 'foodType',)
 		write_only_fields = ('referenceId',)
 
 
