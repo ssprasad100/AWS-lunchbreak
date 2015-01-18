@@ -104,12 +104,24 @@ class LunchbreakManager(models.Manager):
 				''')[0],)
 
 
-class Icon(models.Model):
-	iconId = models.IntegerField(primary_key=True)
-	description = models.CharField(max_length=64, blank=True)
+ICONS = (
+	(0, 'Icoontje 0'),
+	(1, 'Icoontje 1'),
+	(2, 'Icoontje 2'),
+	(3, 'Icoontje 3'),
+	(4, 'Icoontje 4'),
+	(5, 'Icoontje 5')
+)
 
-	def __unicode__(self):
-		return str(self.iconId) + '. ' + self.description
+
+STATUS_CHOICES = (
+	(0, 'Placed'),
+	(1, 'Denied'),
+	(2, 'Accepted'),
+	(3, 'Started'),
+	(4, 'Waiting'),
+	(5, 'Completed')
+)
 
 
 class StoreCategory(models.Model):
@@ -128,7 +140,7 @@ class Store(models.Model):
 	country = models.CharField(max_length=256)
 	province = models.CharField(max_length=256)
 	city = models.CharField(max_length=256)
-	code = models.CharField(max_length=20, verbose_name="Postal code")
+	code = models.CharField(max_length=20, verbose_name='Postal code')
 	street = models.CharField(max_length=256)
 	number = models.IntegerField()
 
@@ -175,7 +187,7 @@ class BaseIngredient(models.Model):
 	name = models.CharField(max_length=256)
 	cost = models.DecimalField(decimal_places=2, max_digits=5, default=0)
 	group = models.ForeignKey(IngredientGroup)
-	icon = models.ForeignKey(Icon, null=True)
+	icon = models.IntegerField(choices=ICONS, default=0)
 
 	class Meta:
 		abstract = True
@@ -227,10 +239,18 @@ class User(models.Model):
 		return self.name if self.name else self.phone
 
 
+class FoodType(models.Model):
+	name = models.CharField(max_length=64)
+	icon = models.IntegerField(choices=ICONS, default=0)
+
+	def __unicode__(self):
+		return self.name
+
+
 class BaseFood(models.Model):
 	name = models.CharField(max_length=256)
 	cost = models.DecimalField(decimal_places=2, max_digits=5)
-	icon = models.ForeignKey(Icon, null=True, blank=True)
+	foodType = models.ForeignKey(FoodType, null=True)
 
 	objects = LunchbreakManager()
 
@@ -281,16 +301,6 @@ class OrderedFood(BaseStoreFood):
 			if ingredient not in orderedIngredients:
 				cost -= ingredient.cost
 		return cost
-
-
-STATUS_CHOICES = (
-	(0, 'Placed'),
-	(1, 'Denied'),
-	(2, 'Accepted'),
-	(3, 'Started'),
-	(4, 'Waiting'),
-	(5, 'Completed')
-)
 
 
 class Order(models.Model):
