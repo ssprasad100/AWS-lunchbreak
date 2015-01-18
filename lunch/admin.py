@@ -13,20 +13,20 @@ class StoreAdmin(admin.ModelAdmin):
 
 @admin.register(DefaultFoodCategory)
 class DefaultFoodCategoryAdmin(admin.ModelAdmin):
-	list_display = ('name',)
-	fields = ('name',)
+	list_display = ('name', 'priority',)
+	fields = ('name', 'priority',)
 
 
 @admin.register(FoodCategory)
 class FoodCategoryAdmin(DefaultFoodCategoryAdmin):
-	list_display = ('name', 'store',)
-	fields = ('name', 'store',)
+	list_display = DefaultFoodCategoryAdmin.list_display + ('store',)
+	fields = DefaultFoodCategoryAdmin.fields + ('store',)
 
 
 @admin.register(FoodType)
 class FoodTypeAdmin(admin.ModelAdmin):
 	list_display = ('name', 'icon',)
-	list_display = ('name', 'icon',)
+	fields = ('name', 'icon',)
 
 
 @admin.register(DefaultFood)

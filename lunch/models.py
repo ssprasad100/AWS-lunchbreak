@@ -206,6 +206,7 @@ class Ingredient(BaseIngredient):
 
 class BaseFoodCategory(models.Model):
 	name = models.CharField(max_length=128)
+	priority = models.PositiveIntegerField(default=0)
 
 	class Meta:
 		abstract = True
