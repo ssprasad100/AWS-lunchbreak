@@ -62,7 +62,7 @@ class FoodCategorySerializer(DefaultFoodCategorySerializer):
 
 	class Meta:
 		model = FoodCategory
-		fields = DefaultFoodCategorySerializer.fields + ('store',)
+		fields = DefaultFoodCategorySerializer.Meta.fields + ('store',)
 
 
 class DefaultFoodSerializer(serializers.ModelSerializer):
