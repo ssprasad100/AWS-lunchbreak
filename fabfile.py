@@ -25,7 +25,7 @@ def deploy():
 			pipInstall = run('pip install -r "' + REMOTE_PATH + '/requirements.txt"')
 			if pipInstall.failed:
 				abort('Could not install requirements.')
-			migration = run('python manage.py migrate lunch')
+			migration = run('python manage.py migrate lunch --noinput')
 			if migration.failed:
 				abort('Something went wrong when migrating the database.')
 			static = run('python manage.py collectstatic --noinput -c')
