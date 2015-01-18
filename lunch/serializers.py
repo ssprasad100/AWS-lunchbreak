@@ -55,14 +55,14 @@ class DefaultFoodCategorySerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = DefaultFoodCategory
-		fields = ('id', 'name',)
+		fields = ('id', 'name', 'priority',)
 
 
-class FoodCategorySerializer(serializers.ModelSerializer):
+class FoodCategorySerializer(DefaultFoodCategorySerializer):
 
 	class Meta:
 		model = FoodCategory
-		fields = ('id', 'name', 'store',)
+		fields = DefaultFoodCategorySerializer.fields + ('store',)
 
 
 class DefaultFoodSerializer(serializers.ModelSerializer):
