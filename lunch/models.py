@@ -237,7 +237,7 @@ class User(models.Model):
 	confirmedAt = models.DateField(blank=True, null=True)
 
 	def __unicode__(self):
-		return self.name if self.name else self.phone
+		return self.name if self.name else unicode(self.phone)
 
 
 class FoodType(models.Model):
