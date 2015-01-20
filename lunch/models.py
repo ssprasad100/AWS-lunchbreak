@@ -142,7 +142,7 @@ class Store(models.Model):
 	city = models.CharField(max_length=256)
 	code = models.CharField(max_length=20, verbose_name='Postal code')
 	street = models.CharField(max_length=256)
-	number = models.IntegerField()
+	number = models.PositiveIntegerField()
 
 	objects = LunchbreakManager()
 	latitude = models.DecimalField(blank=True, decimal_places=7, max_digits=10)
