@@ -1,7 +1,7 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
 
-from lunch.models import Store, Food, User, Token, Order, OrderedFood, Ingredient
+from lunch.models import Store, Food, User, Token, Order, OrderedFood, Ingredient, tokenGenerator
 from lunch.serializers import StoreSerializer, FoodSerializer, TokenSerializer, UserSerializer, OrderSerializer, OrderedFoodPriceSerializer, ShortOrderSerializer
 from lunch.exceptions import BadRequest
 from lunch.authentication import LunchbreakAuthentication
@@ -194,10 +194,12 @@ class UserView(generics.CreateAPIView):
 							success = True
 
 						if success:
-							token = Token(device=device, user=user)
+							token, created = Token.onjects.get_or_create(device=device, user=user)
+							if not created:
+								token.identifier = tokenGenerator()
 							token.save()
 							tokenSerializer = TokenSerializer(token)
 							data = dict(tokenSerializer.data)
 							data['name'] = name
-							return Response(data, status=status.HTTP_200_OK)
+							return Response(data, status=(status.HTTP_201_CREATED if created else status.HTTP_200_OK))
 		raise BadRequest(userSerializer.errors)

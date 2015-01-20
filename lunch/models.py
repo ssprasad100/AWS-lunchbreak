@@ -1,6 +1,6 @@
 from django.db import models
 from django.utils.functional import cached_property
-from django.db.models import Count, Sum
+from django.db.models import Count
 
 from phonenumber_field.modelfields import PhoneNumberField
 
