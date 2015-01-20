@@ -1,5 +1,5 @@
 from django.contrib import admin
-from lunch.models import Store, StoreCategory, DefaultFood, Food, DefaultIngredient, Ingredient, IngredientGroup, Token, User, DefaultFoodCategory, FoodCategory, Order, OrderedFood, FoodType
+from lunch.models import Store, StoreCategory, DefaultFood, Food, DefaultIngredient, Ingredient, IngredientGroup, Token, User, DefaultFoodCategory, FoodCategory, Order, OrderedFood, FoodType, OpeningHours, HolidayPeriod
 
 
 admin.site.register(StoreCategory)
@@ -9,6 +9,18 @@ admin.site.register(StoreCategory)
 class StoreAdmin(admin.ModelAdmin):
 	list_display = ('name', 'city', 'country',)
 	readonly_fields = ('latitude', 'longitude',)
+
+
+@admin.register(OpeningHours)
+class OpeningHoursAdmin(admin.ModelAdmin):
+	list_display = ('store', 'day', 'opening', 'closing',)
+	fields = ('store', 'day', 'opening', 'closing',)
+
+
+@admin.register(HolidayPeriod)
+class HolidayPeriodAdmin(admin.ModelAdmin):
+	list_display = ('store', 'description', 'start', 'end', 'closed',)
+	fields = ('store', 'description', 'start', 'end', 'closed',)
 
 
 @admin.register(DefaultFoodCategory)

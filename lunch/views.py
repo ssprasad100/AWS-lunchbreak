@@ -1,13 +1,15 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
 
-from lunch.models import Store, Food, User, Token, Order, OrderedFood, Ingredient, tokenGenerator
-from lunch.serializers import StoreSerializer, FoodSerializer, TokenSerializer, UserSerializer, OrderSerializer, OrderedFoodPriceSerializer, ShortOrderSerializer
+from lunch.models import Store, Food, User, Token, Order, OrderedFood, Ingredient, tokenGenerator, OpeningHours, HolidayPeriod
+from lunch.serializers import StoreSerializer, FoodSerializer, TokenSerializer, UserSerializer, OrderSerializer, OrderedFoodPriceSerializer, ShortOrderSerializer, OpeningHoursSerializer, HolidayPeriodSerializer
 from lunch.exceptions import BadRequest
 from lunch.authentication import LunchbreakAuthentication
 from lunch.digits import Digits
 
-from datetime import datetime
+from django.utils import timezone
+
+import datetime
 
 
 class StoreListView(generics.ListAPIView):
@@ -24,6 +26,30 @@ class StoreListView(generics.ListAPIView):
 			return Store.objects.nearby(self.kwargs['latitude'], self.kwargs['longitude'], proximity)
 		elif 'id' in self.kwargs:
 			return Store.objects.filter(id=self.kwargs['id'])
+
+
+class OpeningHoursListView(generics.ListAPIView):
+	'''
+	List the opening hours of a store.
+	'''
+
+	authentication_classes = (LunchbreakAuthentication,)
+	serializer_class = OpeningHoursSerializer
+
+	def get_queryset(self):
+		return OpeningHours.objects.filter(store_id=self.kwargs['store_id']).order_by('day', 'opening')
+
+
+class HolidayPeriodListView(generics.ListAPIView):
+	'''
+	List the opening hours of a store.
+	'''
+
+	authentication_classes = (LunchbreakAuthentication,)
+	serializer_class = HolidayPeriodSerializer
+
+	def get_queryset(self):
+		return HolidayPeriod.objects.filter(store_id=1, start__lte=timezone.now() + datetime.timedelta(days=7), end__gte=timezone.now())
 
 
 class FoodListView(generics.ListAPIView):

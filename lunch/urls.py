@@ -4,6 +4,8 @@ from lunch import views
 urlpatterns = patterns('',
 	url(r'stores/nearby/(?P<latitude>.+)/(?P<longitude>.+)/(?P<proximity>.+)/$', views.StoreListView.as_view()),
 	url(r'stores/nearby/(?P<latitude>.+)/(?P<longitude>.+)/$', views.StoreListView.as_view()),
+	url(r'stores/hours/(?P<store_id>.+)/$', views.OpeningHoursListView.as_view()),
+	url(r'stores/holiday/(?P<store_id>.+)/$', views.HolidayPeriodListView.as_view()),
 	url(r'stores/(?P<id>.+)/$', views.StoreListView.as_view()),
 
 	url(r'food/store/(?P<store_id>.+)/$', views.FoodListView.as_view()),

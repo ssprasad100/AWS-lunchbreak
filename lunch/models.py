@@ -124,6 +124,17 @@ STATUS_CHOICES = (
 )
 
 
+DAYS = (
+	(0, 'Maandag'),
+	(1, 'Dinsdag'),
+	(2, 'Woensdag'),
+	(3, 'Donderdeg'),
+	(4, 'Vrijdag'),
+	(5, 'Zaterdag'),
+	(6, 'Zondag')
+)
+
+
 class StoreCategory(models.Model):
 	name = models.CharField(max_length=64)
 
@@ -169,6 +180,30 @@ class Store(models.Model):
 
 	def __unicode__(self):
 		return self.name + ', ' + self.city
+
+
+class OpeningHours(models.Model):
+	store = models.ForeignKey(Store)
+	day = models.IntegerField(choices=DAYS)
+
+	opening = models.TimeField()
+	closing = models.TimeField()
+
+	class Meta:
+		verbose_name_plural = 'Opening hours'
+
+	def __unicode__(self):
+		return '%s. %s - %s' % (self.day, self.opening, self.closing,)
+
+
+class HolidayPeriod(models.Model):
+	store = models.ForeignKey(Store)
+	description = models.CharField(max_length=128)
+
+	start = models.DateTimeField()
+	end = models.DateTimeField()
+
+	closed = models.BooleanField(default=True)
 
 
 class IngredientGroup(models.Model):

@@ -1,4 +1,4 @@
-from lunch.models import Store, DefaultFood, Food, StoreCategory, DefaultIngredient, Ingredient, IngredientGroup, User, Token, DefaultFoodCategory, FoodCategory, Order, OrderedFood
+from lunch.models import Store, DefaultFood, Food, StoreCategory, DefaultIngredient, Ingredient, IngredientGroup, User, Token, DefaultFoodCategory, FoodCategory, Order, OrderedFood, OpeningHours, HolidayPeriod
 from lunch.exceptions import DoesNotExist, CostCheckFailed
 
 from rest_framework import serializers
@@ -20,6 +20,20 @@ class StoreSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Store
 		fields = ('id', 'name', 'country', 'province', 'city', 'code', 'street', 'number', 'latitude', 'longitude', 'categories',)
+
+
+class OpeningHoursSerializer(serializers.ModelSerializer):
+
+	class Meta:
+		model = OpeningHours
+		fields = ('id', 'day', 'opening', 'closing',)
+
+
+class HolidayPeriodSerializer(serializers.ModelSerializer):
+
+	class Meta:
+		model = HolidayPeriod
+		fields = ('id', 'description', 'start', 'end', 'closed',)
 
 
 class ShortIngredientSerializer(serializers.ModelSerializer):
