@@ -33,7 +33,7 @@ def deploy():
 				abort('Something went wrong when collecting the static files.')
 
 	sudo('service apache2 start')
-	registerDeployment(REMOTE_PATH)
+	registerDeployment('.')
 
 
 def registerDeployment(git_path):
