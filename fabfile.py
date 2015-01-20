@@ -1,4 +1,4 @@
-from fabric.api import abort, env, run, sudo, lcd, local
+from fabric.api import abort, env, run, sudo, local
 from fabric.context_managers import cd, prefix
 
 import os

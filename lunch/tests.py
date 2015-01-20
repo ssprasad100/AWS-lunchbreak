@@ -11,10 +11,14 @@ class LunchbreakTests(APITestCase):
 
     def testAddressNotFound(self):
         ''' Test for the AddressNotFound exception. '''
-        store = Store(name='test', country='nonexisting', province='nonexisting', city='nonexisting', code='nonexisting', street='nonexisting', number=5)
+        invalidStore = Store(name='test', country='nonexisting', province='nonexisting', city='nonexisting', code='nonexisting', street='nonexisting', number=5)
+        validStore = Store(name='valid', country='Belgie', province='Oost-Vlaanderen', city='Wetteren', code='9230', street='Dendermondesteenweg', number=10)
         try:
-            store.save()
+            invalidStore.save()
         except AddressNotFound:
-            pass
+            try:
+                validStore.save()
+            except AddressNotFound:
+                self.fail()
         else:
             self.fail()
