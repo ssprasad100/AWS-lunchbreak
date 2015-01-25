@@ -220,7 +220,7 @@ class UserView(generics.CreateAPIView):
 							success = True
 
 						if success:
-							token, created = Token.onjects.get_or_create(device=device, user=user)
+							token, created = Token.objects.get_or_create(device=device, user=user)
 							if not created:
 								token.identifier = tokenGenerator()
 							token.save()
