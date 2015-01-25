@@ -12,6 +12,8 @@ LUNCH_BAD_REQUEST = 400
 LUNCH_ADDRESS_NOT_FOUND = 401
 LUNCH_DOES_NOT_EXIST = 402
 LUNCH_COSTCHECK_FAILED = 403
+LUNCH_MINTIME_EXCEEDED = 404
+LUNCH_PASTORDER_DENIED = 405
 
 LUNCH_AUTHENTICATION_FAILED = 300
 
@@ -118,6 +120,18 @@ class AuthenticationFailed(LunchbreakException):
 
 
 class CostCheckFailed(LunchbreakException):
-	status_code = status.HTTP_409_CONFLICT
+	status_code = status.HTTP_400_BAD_REQUEST
 	code = LUNCH_COSTCHECK_FAILED
 	information = 'Cost check failed.'
+
+
+class MinTimeExceeded(LunchbreakException):
+	status_code = status.HTTP_400_BAD_REQUEST
+	code = LUNCH_MINTIME_EXCEEDED
+	information = 'An order must be placed later.'
+
+
+class PastOrderDenied(LunchbreakException):
+	status_code = status.HTTP_400_BAD_REQUEST
+	code = LUNCH_PASTORDER_DENIED
+	information = 'An order must be placed in the future.'

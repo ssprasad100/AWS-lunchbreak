@@ -161,6 +161,8 @@ class Store(models.Model):
 
 	categories = models.ManyToManyField(StoreCategory)
 
+	minTime = models.PositiveIntegerField(default=0)
+
 	GEOCODING_URL = 'https://maps.googleapis.com/maps/api/geocode/json'
 	GEOCODING_KEY = 'AIzaSyD7jRgPzUxQ4fdghdwoyTnD5hB6EOtpDhE'
 	ADDRESS_FORMAT = '%s,+%s,+%s+%s,+%s+%s'
@@ -208,7 +210,7 @@ class HolidayPeriod(models.Model):
 
 class IngredientGroup(models.Model):
 	name = models.CharField(max_length=256)
-	maximum = models.IntegerField(default=0, verbose_name='Maximum amount')
+	maximum = models.PositiveIntegerField(default=0, verbose_name='Maximum amount')
 
 	@cached_property
 	def ingredients(self):

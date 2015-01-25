@@ -1,10 +1,13 @@
 from lunch.models import Store, DefaultFood, Food, StoreCategory, DefaultIngredient, Ingredient, IngredientGroup, User, Token, DefaultFoodCategory, FoodCategory, Order, OrderedFood, OpeningHours, HolidayPeriod
-from lunch.exceptions import DoesNotExist, CostCheckFailed
+from lunch.exceptions import DoesNotExist, CostCheckFailed, MinTimeExceeded, PastOrderDenied
 
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils import timezone
+
+from datetime import timedelta
 
 
 class StoreCategorySerializer(serializers.ModelSerializer):
@@ -178,8 +181,17 @@ class ShortOrderSerializer(serializers.ModelSerializer):
 
 	def create(self, validated_data):
 		try:
-			user = self.context['user']
+			pickupTime = validated_data['pickupTime']
+
+			if pickupTime < timezone.now():
+				raise PastOrderDenied()
+
 			store = Store.objects.get(id=validated_data['storeId'])
+
+			if pickupTime - timezone.now() < timedelta(minutes=store.minTime):
+				raise MinTimeExceeded()
+
+			user = self.context['user']
 			costCheck = validated_data['costCheck']
 
 			food = []
@@ -188,7 +200,7 @@ class ShortOrderSerializer(serializers.ModelSerializer):
 				if 'referenceId' in f:
 					referenceFood = Food.objects.filter(id=f['referenceId'])
 					if len(referenceFood) == 0:
-						raise DoesNotExist('Referenced food does not exist')
+						raise DoesNotExist('Referenced food does not exist.')
 					orderedFood = OrderedFood(**referenceFood.values()[0])
 					orderedFood.pk = None
 				else:
@@ -204,7 +216,7 @@ class ShortOrderSerializer(serializers.ModelSerializer):
 				orderedFood.save()
 				food.append(orderedFood)
 
-			order = Order(user=user, store=store, pickupTime=validated_data['pickupTime'])
+			order = Order(user=user, store=store, pickupTime=pickupTime)
 			order.save()
 			order.food = food
 			order.save()
