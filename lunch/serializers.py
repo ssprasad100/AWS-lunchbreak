@@ -192,7 +192,6 @@ class ShortOrderSerializer(serializers.ModelSerializer):
 				raise MinTimeExceeded()
 
 			user = self.context['user']
-			costCheck = validated_data['costCheck']
 
 			food = []
 			for f in validated_data['food']:
@@ -220,10 +219,6 @@ class ShortOrderSerializer(serializers.ModelSerializer):
 			order.save()
 			order.food = food
 			order.save()
-
-			if order.total != costCheck:
-				order.delete()
-				raise CostCheckFailed()
 
 			return order
 		except ObjectDoesNotExist:
