@@ -15,3 +15,6 @@ notifications:
     slack:
         rooms:
             - cloock:SXLRwJ3UHzH4R4sZwycCnt9J#lunchbreak-api
+branches:
+    only:
+        - staging
