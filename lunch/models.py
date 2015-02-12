@@ -134,6 +134,11 @@ DAYS = (
 	(6, 'Zondag')
 )
 
+INPUT_TYPES = (
+	(0, 'Aantal'),
+	(1, 'Gewicht')
+)
+
 
 class StoreCategory(models.Model):
 	name = models.CharField(max_length=64)
@@ -186,7 +191,7 @@ class Store(models.Model):
 
 class OpeningHours(models.Model):
 	store = models.ForeignKey(Store)
-	day = models.IntegerField(choices=DAYS)
+	day = models.PositiveIntegerField(choices=DAYS)
 
 	opening = models.TimeField()
 	closing = models.TimeField()
@@ -224,7 +229,7 @@ class BaseIngredient(models.Model):
 	name = models.CharField(max_length=256)
 	cost = models.DecimalField(decimal_places=2, max_digits=5, default=0)
 	group = models.ForeignKey(IngredientGroup)
-	icon = models.IntegerField(choices=ICONS, default=0)
+	icon = models.PositiveIntegerField(choices=ICONS, default=0)
 
 	class Meta:
 		abstract = True
@@ -279,7 +284,9 @@ class User(models.Model):
 
 class FoodType(models.Model):
 	name = models.CharField(max_length=64)
-	icon = models.IntegerField(choices=ICONS, default=0)
+	icon = models.PositiveIntegerField(choices=ICONS, default=0)
+	quantifier = models.CharField(max_length=64)
+	inputType = models.PositiveIntegerField(choices=INPUT_TYPES, default=0)
 
 	def __unicode__(self):
 		return self.name
@@ -346,7 +353,7 @@ class Order(models.Model):
 	store = models.ForeignKey(Store)
 	orderedTime = models.DateTimeField(auto_now_add=True, verbose_name='Time of order')
 	pickupTime = models.DateTimeField(verbose_name='Time of pickup')
-	status = models.IntegerField(choices=STATUS_CHOICES, default=0)
+	status = models.PositiveIntegerField(choices=STATUS_CHOICES, default=0)
 	paid = models.BooleanField(default=False)
 	food = models.ManyToManyField(OrderedFood)
 	total = models.DecimalField(decimal_places=2, max_digits=5, default=0)

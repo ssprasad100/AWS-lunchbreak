@@ -1,5 +1,5 @@
-from lunch.models import Store, DefaultFood, Food, StoreCategory, DefaultIngredient, Ingredient, IngredientGroup, User, Token, DefaultFoodCategory, FoodCategory, Order, OrderedFood, OpeningHours, HolidayPeriod
-from lunch.exceptions import DoesNotExist, CostCheckFailed, MinTimeExceeded, PastOrderDenied
+from lunch.models import Store, DefaultFood, Food, StoreCategory, DefaultIngredient, Ingredient, IngredientGroup, User, Token, DefaultFoodCategory, FoodCategory, Order, OrderedFood, OpeningHours, HolidayPeriod, FoodType
+from lunch.exceptions import DoesNotExist, MinTimeExceeded, PastOrderDenied
 
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -82,9 +82,17 @@ class FoodCategorySerializer(DefaultFoodCategorySerializer):
 		fields = DefaultFoodCategorySerializer.Meta.fields + ('store',)
 
 
+class FoodTypeSerializer(serializers.ModelSerializer):
+
+	class Meta:
+		model = FoodType
+		fields = ('name', 'icon', 'quantifier', 'inputType',)
+
+
 class DefaultFoodSerializer(serializers.ModelSerializer):
 	ingredientGroups = IngredientGroupSerializer(many=True)
 	category = DefaultFoodCategorySerializer(many=False)
+	foodType = FoodTypeSerializer(many=False)
 
 	class Meta:
 		model = DefaultFood
@@ -94,6 +102,7 @@ class DefaultFoodSerializer(serializers.ModelSerializer):
 class FoodSerializer(serializers.ModelSerializer):
 	ingredientGroups = IngredientGroupSerializer(many=True, read_only=True)
 	category = FoodCategorySerializer(many=False)
+	foodType = FoodTypeSerializer(many=False)
 
 	def create(self, validated_data):
 		ingredients = Ingredient.objects.filter(id__in=validated_data['ingredients'])

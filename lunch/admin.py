@@ -37,8 +37,8 @@ class FoodCategoryAdmin(DefaultFoodCategoryAdmin):
 
 @admin.register(FoodType)
 class FoodTypeAdmin(admin.ModelAdmin):
-	list_display = ('name', 'icon',)
-	fields = ('name', 'icon',)
+	list_display = ('name', 'icon', 'quantifier', 'inputType',)
+	fields = ('name', 'icon', 'quantifier', 'inputType',)
 
 
 @admin.register(DefaultFood)

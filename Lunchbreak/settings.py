@@ -94,7 +94,7 @@ USE_TZ = True
 STATIC_ROOT = '/home/lunchbreak/public_html/lunchbreak/static/'
 STATIC_URL = '/static/'
 
-APPEND_SLASH = False
+APPEND_SLASH = True
 
 # Disable the browsable API when it's not in debug mode
 REST_FRAMEWORK = {
