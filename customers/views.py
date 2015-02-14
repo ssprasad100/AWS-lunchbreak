@@ -6,7 +6,7 @@ from customers.serializers import (OrderedFoodPriceSerializer, OrderSerializer,
 									ShortOrderSerializer, TokenSerializer,
 									UserSerializer)
 from django.utils import timezone
-from lunch.digits import Digits
+from customers.digits import Digits
 from lunch.exceptions import BadRequest
 from lunch.models import Food, HolidayPeriod, Ingredient, OpeningHours, Store
 from lunch.serializers import (FoodSerializer, HolidayPeriodSerializer,
