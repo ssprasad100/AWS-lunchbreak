@@ -1,5 +1,5 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import include, patterns, url
 
 urlpatterns = patterns('',
-	url(r'^customers/', include('customers.urls')),
+    url(r'^customers/', include('customers.urls')),
 )
