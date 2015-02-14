@@ -3,7 +3,8 @@ import base64
 import urllib
 import json
 
-from lunch.exceptions import DigitsException, LunchbreakException
+from lunch.exceptions import LunchbreakException
+from customers.exceptions import DigitsException
 
 
 class Digits:

@@ -1,12 +1,13 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
 
-from lunch.models import Store, Food, Ingredient, OpeningHours, HolidayPeriod
-from customers.models import User, Token, Order, OrderedFood, tokenGenerator
 
+from customers.models import User, Token, Order, OrderedFood, tokenGenerator
+from customers.authentication import LunchbreakAuthentication
 from customers.serializers import StoreSerializer, FoodSerializer, TokenSerializer, UserSerializer, OrderSerializer, OrderedFoodPriceSerializer, ShortOrderSerializer, OpeningHoursSerializer, HolidayPeriodSerializer
+
+from lunch.models import Store, Food, Ingredient, OpeningHours, HolidayPeriod
 from lunch.exceptions import BadRequest
-from lunch.authentication import LunchbreakAuthentication
 from lunch.digits import Digits
 
 from django.utils import timezone
