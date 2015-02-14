@@ -1,9 +1,6 @@
-from rest_framework import status
-
 from lunch.exceptions import LunchbreakException
-
 from opbeat.contrib.django.models import logger
-
+from rest_framework import status
 
 AUTHENTICATION_FAILED = 700
 COSTCHECK_FAILED = 701
@@ -70,4 +67,3 @@ class PastOrderDenied(LunchbreakException):
 	status_code = status.HTTP_400_BAD_REQUEST
 	code = PASTORDER_DENIED
 	information = 'An order must be placed in the future.'
-

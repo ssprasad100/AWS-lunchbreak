@@ -1,7 +1,6 @@
+from customers.exceptions import AuthenticationFailed
+from customers.models import User
 from rest_framework import authentication
-
-from lunch.models import User
-from lunch.exceptions import AuthenticationFailed
 
 
 class LunchbreakAuthentication(authentication.BaseAuthentication):

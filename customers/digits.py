@@ -1,10 +1,10 @@
-import requests
 import base64
-import urllib
 import json
+import urllib
 
-from lunch.exceptions import LunchbreakException
+import requests
 from customers.exceptions import DigitsException
+from lunch.exceptions import LunchbreakException
 
 
 class Digits:

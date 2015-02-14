@@ -1,8 +1,6 @@
+from customers.models import Order, OrderedFood, Token, User
 from django.contrib import admin
-
 from lunch.admin import FoodAdmin
-
-from customers.models import OrderedFood, User, Order, Token
 
 
 @admin.register(OrderedFood)

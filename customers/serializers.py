@@ -1,16 +1,15 @@
-from customers.models import Order, OrderedFood, User, Token
+from datetime import timedelta
 
-from lunch.models import Store, Food, Ingredient
-from lunch.exceptions import DoesNotExist, MinTimeExceeded, PastOrderDenied
-from lunch.serializers import FoodSerializer, FoodCategorySerializer, StoreSerializer
-
-from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
-
+from customers.exceptions import MinTimeExceeded, PastOrderDenied
+from customers.models import Order, OrderedFood, Token, User
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
-
-from datetime import timedelta
+from lunch.exceptions import DoesNotExist
+from lunch.models import Food, Ingredient, Store
+from lunch.serializers import (FoodCategorySerializer, FoodSerializer,
+								StoreSerializer)
+from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 
 class OrderedFoodSerializer(FoodSerializer):
