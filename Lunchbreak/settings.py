@@ -42,6 +42,8 @@ INSTALLED_APPS = (
 	'opbeat.contrib.django',
 
 	# Lunchbreak
+	'business',
+	'customers',
 	'lunch',
 )
 
@@ -129,7 +131,6 @@ LOGGING = {
 		'opbeat': {
 			'level': 'ERROR',
 			'class': 'opbeat.contrib.django.handlers.OpbeatHandler',
-			'formatter': 'verbose'
 		},
 		'console': {
 			'level': 'DEBUG',
@@ -144,8 +145,8 @@ LOGGING = {
 			'propagate': False,
 		},
 		'opbeat': {
-			'level': 'WARNING',
-			'handlers': ['opbeat'],
+			'level': 'DEBUG',
+			'handlers': ['console'],
 			'propagate': False,
 		},
 		'opbeat.errors': {
@@ -155,3 +156,14 @@ LOGGING = {
 		},
 	},
 }
+
+
+PASSWORD_HASHERS = (
+	'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
+	'django.contrib.auth.hashers.BCryptPasswordHasher',
+	'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+	'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
+	'django.contrib.auth.hashers.SHA1PasswordHasher',
+	'django.contrib.auth.hashers.MD5PasswordHasher',
+	'django.contrib.auth.hashers.CryptPasswordHasher',
+)

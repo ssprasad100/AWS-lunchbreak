@@ -1,5 +1,5 @@
 from django.contrib import admin
-from lunch.models import Store, StoreCategory, DefaultFood, Food, DefaultIngredient, Ingredient, IngredientGroup, Token, User, DefaultFoodCategory, FoodCategory, Order, OrderedFood, FoodType, OpeningHours, HolidayPeriod
+from lunch.models import Store, StoreCategory, DefaultFood, Food, DefaultIngredient, Ingredient, IngredientGroup, DefaultFoodCategory, FoodCategory, FoodType, OpeningHours, HolidayPeriod
 
 
 admin.site.register(StoreCategory)
@@ -54,13 +54,6 @@ class FoodAdmin(DefaultFoodAdmin):
 	fields = ('name', 'cost', 'ingredients', 'store', 'category', 'foodType',)
 
 
-@admin.register(OrderedFood)
-class OrderedFoodAdmin(FoodAdmin):
-	list_display = FoodAdmin.list_display + ('amount',)
-	fields = FoodAdmin.fields + ('amount',)
-	readonly_fields = ('cost',)
-
-
 @admin.register(DefaultIngredient)
 class DefaultIngredientAdmin(admin.ModelAdmin):
 	list_display = ('name', 'cost', 'group',)
@@ -77,23 +70,3 @@ class IngredientAdmin(DefaultIngredientAdmin):
 class IngredientGroupAdmin(admin.ModelAdmin):
 	list_display = ('name', 'maximum',)
 	fields = ('name', 'maximum',)
-
-
-@admin.register(User)
-class UserAdmin(admin.ModelAdmin):
-	list_display = ('name', 'phone', 'confirmedAt',)
-	fields = ('phone', 'name', 'digitsId', 'requestId', 'confirmedAt',)
-	readonly_fields = ('digitsId', 'requestId', 'confirmedAt',)
-
-
-@admin.register(Order)
-class OrderAdmin(admin.ModelAdmin):
-	list_display = ('user', 'store', 'orderedTime', 'pickupTime', 'status', 'paid',)
-	fields = ('user', 'store', 'pickupTime', 'status', 'paid', 'food', 'orderedTime',)
-	readonly_fields = ('orderedTime',)
-
-
-@admin.register(Token)
-class TokenAdmin(admin.ModelAdmin):
-	list_display = ('identifier', 'device', 'user',)
-	fields = ('identifier', 'device', 'user',)
