@@ -1,3 +1,5 @@
+import random
+
 import requests
 from django.db import models
 from django.db.models import Count
@@ -300,3 +302,19 @@ class BaseStoreFood(BaseFood):
 
 class Food(BaseStoreFood):
     pass
+
+
+IDENTIFIER_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWabcdefghijklmnopqrstuvwxyz0123456789'
+IDENTIFIER_LENGTH = 64
+
+
+def tokenGenerator():
+    return ''.join(random.choice(IDENTIFIER_CHARS) for a in xrange(IDENTIFIER_LENGTH))
+
+
+class BaseToken(models.Model):
+    identifier = models.CharField(max_length=IDENTIFIER_LENGTH, default=tokenGenerator)
+    device = models.CharField(max_length=128)
+
+    class Meta:
+        abstract = True

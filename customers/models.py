@@ -1,7 +1,5 @@
-import random
-
 from django.db import models
-from lunch.models import BaseStoreFood, Store
+from lunch.models import BaseStoreFood, Store, BaseToken
 from phonenumber_field.modelfields import PhoneNumberField
 
 ORDER_STATUS = (
@@ -62,15 +60,5 @@ class Order(models.Model):
             super(Order, self).save(*args, **kwargs)
 
 
-IDENTIFIER_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWabcdefghijklmnopqrstuvwxyz0123456789'
-IDENTIFIER_LENGTH = 64
-
-
-def tokenGenerator():
-    return ''.join(random.choice(IDENTIFIER_CHARS) for a in xrange(IDENTIFIER_LENGTH))
-
-
-class Token(models.Model):
-    identifier = models.CharField(max_length=IDENTIFIER_LENGTH, default=tokenGenerator)
-    device = models.CharField(max_length=128)
+class UserToken(BaseToken):
     user = models.ForeignKey(User)

@@ -2,13 +2,13 @@ import datetime
 
 from customers.authentication import LunchbreakAuthentication
 from customers.digits import Digits
-from customers.models import Order, OrderedFood, Token, tokenGenerator, User
+from customers.models import Order, OrderedFood, User, UserToken
 from customers.serializers import (OrderedFoodPriceSerializer, OrderSerializer,
-                                   ShortOrderSerializer, TokenSerializer,
-                                   UserSerializer)
+                                   ShortOrderSerializer, UserSerializer,
+                                   UserTokenSerializer)
 from django.utils import timezone
 from lunch.exceptions import BadRequest
-from lunch.models import Food, HolidayPeriod, Ingredient, OpeningHours, Store
+from lunch.models import Food, HolidayPeriod, Ingredient, OpeningHours, Store, tokenGenerator
 from lunch.serializers import (FoodSerializer, HolidayPeriodSerializer,
                                OpeningHoursSerializer, StoreSerializer)
 from rest_framework import generics, status
@@ -117,19 +117,19 @@ class OrderPriceView(generics.CreateAPIView):
         raise BadRequest(priceSerializer.errors)
 
 
-class TokenView(generics.ListAPIView):
+class UserTokenView(generics.ListAPIView):
     '''
     Tokens can only be listed (for now).
     '''
 
     authentication_classes = (LunchbreakAuthentication,)
-    serializer_class = TokenSerializer
+    serializer_class = UserTokenSerializer
 
     def get_queryset(self):
         '''
         Return all of the Tokens for the authenticated user.
         '''
-        return Token.objects.filter(user=self.request.user)
+        return UserToken.objects.filter(user=self.request.user)
 
 
 class UserView(generics.CreateAPIView):
@@ -223,11 +223,11 @@ class UserView(generics.CreateAPIView):
                             success = True
 
                         if success:
-                            token, created = Token.objects.get_or_create(device=device, user=user)
+                            token, created = UserToken.objects.get_or_create(device=device, user=user)
                             if not created:
                                 token.identifier = tokenGenerator()
                             token.save()
-                            tokenSerializer = TokenSerializer(token)
+                            tokenSerializer = UserTokenSerializer(token)
                             data = dict(tokenSerializer.data)
                             data['name'] = name
                             return Response(data, status=(status.HTTP_201_CREATED if created else status.HTTP_200_OK))

@@ -1,7 +1,7 @@
 from datetime import timedelta
 
 from customers.exceptions import MinTimeExceeded, PastOrderDenied
-from customers.models import Order, OrderedFood, Token, User
+from customers.models import Order, OrderedFood, UserToken, User
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 from lunch.exceptions import DoesNotExist
@@ -148,25 +148,17 @@ class UserSerializer(serializers.ModelSerializer):
         write_only_fields = ('name', 'phone', 'pin', 'device',)
 
 
-class TokenUserSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = User
-        fields = ('id',)
-
-
-class TokenSerializer(serializers.ModelSerializer):
-    user = TokenUserSerializer()
+class UserTokenSerializer(serializers.ModelSerializer):
 
     def to_representation(self, obj):
         return {
             'id': obj.id,
             'identifier': obj.identifier,
             'device': obj.device,
-            'user': obj.user.id,
+            'user_id': obj.user_id,
         }
 
     class Meta:
-        model = Token
-        fields = ('id', 'identifier', 'device', 'user',)
-        read_only_fields = ('id', 'identifier', 'user',)
+        model = UserToken
+        fields = ('id', 'identifier', 'device', 'user_id',)
+        read_only_fields = ('id', 'identifier', 'user_id',)

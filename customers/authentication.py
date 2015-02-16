@@ -14,7 +14,7 @@ class LunchbreakAuthentication(authentication.BaseAuthentication):
 
         try:
             user = User.objects.get(id=userId)
-            user.token_set.get(identifier=identifier, device=device)
+            user.usertoken_set.get(identifier=identifier, device=device)
         except:
             raise AuthenticationFailed('User not found.')
 

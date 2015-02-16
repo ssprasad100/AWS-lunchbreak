@@ -1,4 +1,4 @@
-from customers.models import Order, OrderedFood, Token, User
+from customers.models import Order, OrderedFood, UserToken, User
 from django.contrib import admin
 from lunch.admin import FoodAdmin
 
@@ -24,7 +24,7 @@ class OrderAdmin(admin.ModelAdmin):
     readonly_fields = ('orderedTime',)
 
 
-@admin.register(Token)
-class TokenAdmin(admin.ModelAdmin):
+@admin.register(UserToken)
+class UserTokenAdmin(admin.ModelAdmin):
     list_display = ('identifier', 'device', 'user',)
     fields = ('identifier', 'device', 'user',)

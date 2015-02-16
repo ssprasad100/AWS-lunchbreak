@@ -17,7 +17,7 @@ urlpatterns = patterns('',
     url(r'order/(?P<id>.+)/$', views.OrderView.as_view(), name='order_specific'),
     url(r'order/$', views.OrderView.as_view(), name='order'),
 
-    url(r'token/$', views.TokenView.as_view(), name='token'),
+    url(r'token/$', views.UserTokenView.as_view(), name='token'),
 
     url(r'user/$', views.UserView.as_view(), name='user')
 )

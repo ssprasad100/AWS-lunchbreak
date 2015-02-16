@@ -1,7 +1,7 @@
-from fabric.api import abort, env, run, sudo, local
-from fabric.context_managers import cd, prefix
-
 import os
+
+from fabric.api import abort, env, local, run, sudo
+from fabric.context_managers import cd, prefix
 
 REMOTE_PATH_VAR = 'LUNCHBREAK_PATH'
 HOST_STRING_VAR = 'LUNCHBREAK_HOST_STRING'
