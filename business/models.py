@@ -1,6 +1,6 @@
 from django.contrib.auth.hashers import check_password, make_password
 from django.db import models
-from lunch.models import Store
+from lunch.models import Store, BaseToken
 
 
 class Staff(models.Model):
@@ -17,6 +17,10 @@ class Staff(models.Model):
         return check_password(rawPassword, self.password)
 
 
+class StaffToken(BaseToken):
+    employee = models.ForeignKey(Staff)
+
+
 class Employee(models.Model):
     name = models.CharField(max_length=128)
     staff = models.ForeignKey(Staff)
@@ -27,3 +31,7 @@ class Employee(models.Model):
 
     def checkPin(self, rawPin):
         return check_password(rawPin, self.pin)
+
+
+class EmployeeToken(BaseToken):
+    employee = models.ForeignKey(Employee)
