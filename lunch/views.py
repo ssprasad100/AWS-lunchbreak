@@ -206,7 +206,7 @@ class UserView(generics.CreateAPIView):
 					success = False
 					if device:
 						if not user.confirmedAt:
-							user.confirmedAt = datetime.now()
+							user.confirmedAt = timezone.now()
 
 						if not user.requestId and not user.digitsId:
 							# The user already got a message, but just got added to the Digits database
