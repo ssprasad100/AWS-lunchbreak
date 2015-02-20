@@ -1,6 +1,6 @@
 import datetime
 
-from customers.authentication import LunchbreakAuthentication
+from customers.authentication import CustomerAuthentication
 from customers.digits import Digits
 from customers.models import Order, OrderedFood, User, UserToken
 from customers.serializers import (OrderedFoodPriceSerializer, OrderSerializer,
@@ -20,7 +20,7 @@ class StoreListView(generics.ListAPIView):
     List the stores.
     '''
 
-    authentication_classes = (LunchbreakAuthentication,)
+    authentication_classes = (CustomerAuthentication,)
     serializer_class = StoreSerializer
 
     def get_queryset(self):
@@ -36,7 +36,7 @@ class OpeningHoursListView(generics.ListAPIView):
     List the opening hours of a store.
     '''
 
-    authentication_classes = (LunchbreakAuthentication,)
+    authentication_classes = (CustomerAuthentication,)
     serializer_class = OpeningHoursSerializer
 
     def get_queryset(self):
@@ -48,7 +48,7 @@ class HolidayPeriodListView(generics.ListAPIView):
     List the opening hours of a store.
     '''
 
-    authentication_classes = (LunchbreakAuthentication,)
+    authentication_classes = (CustomerAuthentication,)
     serializer_class = HolidayPeriodSerializer
 
     def get_queryset(self):
@@ -60,7 +60,7 @@ class FoodListView(generics.ListAPIView):
     List the available food.
     '''
 
-    authentication_classes = (LunchbreakAuthentication,)
+    authentication_classes = (CustomerAuthentication,)
     serializer_class = FoodSerializer
 
     def get_queryset(self):
@@ -75,7 +75,7 @@ class OrderView(generics.ListCreateAPIView):
     Order food.
     '''
 
-    authentication_classes = (LunchbreakAuthentication,)
+    authentication_classes = (CustomerAuthentication,)
     serializer_class = OrderSerializer
 
     def get_queryset(self):
@@ -95,7 +95,7 @@ class OrderView(generics.ListCreateAPIView):
 
 
 class OrderPriceView(generics.CreateAPIView):
-    authentication_classes = (LunchbreakAuthentication,)
+    authentication_classes = (CustomerAuthentication,)
     serializer_class = OrderedFoodPriceSerializer
 
     def post(self, request, format=None):
@@ -122,7 +122,7 @@ class UserTokenView(generics.ListAPIView):
     Tokens can only be listed (for now).
     '''
 
-    authentication_classes = (LunchbreakAuthentication,)
+    authentication_classes = (CustomerAuthentication,)
     serializer_class = UserTokenSerializer
 
     def get_queryset(self):

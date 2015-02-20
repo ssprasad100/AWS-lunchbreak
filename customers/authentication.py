@@ -1,9 +1,9 @@
 from customers.exceptions import AuthenticationFailed
-from customers.models import User
+from customers.models import UserToken
 from rest_framework import authentication
 
 
-class LunchbreakAuthentication(authentication.BaseAuthentication):
+class CustomerAuthentication(authentication.BaseAuthentication):
     def authenticate(self, request):
         identifier = request.META.get('HTTP_IDENTIFIER')
         userId = request.META.get('HTTP_USER')
@@ -13,9 +13,8 @@ class LunchbreakAuthentication(authentication.BaseAuthentication):
             raise AuthenticationFailed('Not all of the headers were provided.')
 
         try:
-            user = User.objects.get(id=userId)
-            user.usertoken_set.get(identifier=identifier, device=device)
+            userToken = UserToken.objects.get(user_id=userId, identifier=identifier, device=device)
         except:
-            raise AuthenticationFailed('User not found.')
+            raise AuthenticationFailed('UserToken not found.')
 
-        return (user, None)
+        return (userToken.user, None)
