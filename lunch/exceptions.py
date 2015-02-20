@@ -2,8 +2,9 @@ from rest_framework import status
 from rest_framework.exceptions import APIException
 from rest_framework.response import Response
 
-LUNCH_ADDRESS_NOT_FOUND = 600
-LUNCH_DOES_NOT_EXIST = 601
+AUTHENTICATION_FAILED = 600
+ADDRESS_NOT_FOUND = 601
+DOES_NOT_EXIST = 602
 
 
 def lunchbreakExceptionHandler(exception):
@@ -41,6 +42,12 @@ class LunchbreakException(APIException):
             super(LunchbreakException, self).__init__(detail)
 
 
+class AuthenticationFailed(LunchbreakException):
+    status_code = status.HTTP_401_UNAUTHORIZED
+    code = AUTHENTICATION_FAILED
+    information = 'Token authentication failed.'
+
+
 class BadRequest(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
     code = status.HTTP_400_BAD_REQUEST
@@ -49,11 +56,11 @@ class BadRequest(LunchbreakException):
 
 class AddressNotFound(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
-    code = LUNCH_ADDRESS_NOT_FOUND
+    code = ADDRESS_NOT_FOUND
     information = 'The address given could not be found.'
 
 
 class DoesNotExist(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
-    code = LUNCH_DOES_NOT_EXIST
+    code = DOES_NOT_EXIST
     information = 'Object does not exist.'

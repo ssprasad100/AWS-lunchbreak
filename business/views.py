@@ -1,5 +1,6 @@
-from business.models import Staff, Employee
-from business.serializers import StaffSerializer, EmployeeSerializer
+from business.authentication import StaffAuthentication
+from business.models import Employee, Staff
+from business.serializers import EmployeeSerializer, StaffSerializer
 from rest_framework import generics
 
 
@@ -21,9 +22,10 @@ class EmployeeListView(generics.ListAPIView):
     List the employees.
     '''
 
+    authentication_classes = (StaffAuthentication,)
     serializer_class = EmployeeSerializer
 
     def get_queryset(self):
         if 'id' in self.kwargs:
-            return Employee.objects.filter(id=self.kwargs['id'])
-        return Employee.objects.all()
+            return Employee.objects.filter(id=self.kwargs['id'], staff=self.request.user)
+        return Employee.objects.filter(staff=self.request.user)

@@ -2,11 +2,10 @@ from lunch.exceptions import LunchbreakException
 from opbeat.contrib.django.models import logger
 from rest_framework import status
 
-AUTHENTICATION_FAILED = 700
-COSTCHECK_FAILED = 701
-MINTIME_EXCEEDED = 702
-PASTORDER_DENIED = 703
-DIGITS_UNAVAILABLE = 704
+COSTCHECK_FAILED = 700
+MINTIME_EXCEEDED = 701
+PASTORDER_DENIED = 702
+DIGITS_UNAVAILABLE = 703
 
 DIGITS_LEGACY_ERROR = 0
 DIGITS_INVALID_PHONE = 32
@@ -43,12 +42,6 @@ class DigitsException(LunchbreakException):
             logger.exception('Undocumented Digits exception: %s' % content)
         self.code = code
         super(DigitsException, self).__init__(detail)
-
-
-class AuthenticationFailed(LunchbreakException):
-    status_code = status.HTTP_401_UNAUTHORIZED
-    code = AUTHENTICATION_FAILED
-    information = 'User authentication failed.'
 
 
 class CostCheckFailed(LunchbreakException):

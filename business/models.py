@@ -18,7 +18,7 @@ class Staff(models.Model):
 
 
 class StaffToken(BaseToken):
-    employee = models.ForeignKey(Staff)
+    staff = models.ForeignKey(Staff)
 
 
 class Employee(models.Model):
