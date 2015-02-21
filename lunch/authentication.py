@@ -4,9 +4,9 @@ from rest_framework import authentication
 
 class TokenAuthentication(authentication.BaseAuthentication):
     def authenticate(self, request):
-        identifier = request.META.get('HTTP_IDENTIFIER')
-        modelId = request.META.get('HTTP_' + self.FOREIGN_KEY_ATTRIBUTE.upper())
-        device = request.META.get('HTTP_DEVICE')
+        identifier = request.META.get('HTTP_X_IDENTIFIER')
+        modelId = request.META.get('HTTP_X_' + self.FOREIGN_KEY_ATTRIBUTE.upper())
+        device = request.META.get('HTTP_X_DEVICE')
 
         if not identifier or not modelId or not device:
             raise AuthenticationFailed('Not all of the headers were provided.')
