@@ -17,7 +17,7 @@ class StoreSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Store
-        fields = ('id', 'name', 'country', 'province', 'city', 'code', 'street', 'number', 'latitude', 'longitude', 'categories', 'minTime',)
+        fields = ('id', 'name', 'country', 'province', 'city', 'postcode', 'street', 'number', 'latitude', 'longitude', 'categories', 'minTime',)
 
 
 class OpeningHoursSerializer(serializers.ModelSerializer):

@@ -140,7 +140,7 @@ class Store(models.Model):
     country = models.CharField(max_length=256)
     province = models.CharField(max_length=256)
     city = models.CharField(max_length=256)
-    code = models.CharField(max_length=20, verbose_name='Postal code')
+    postcode = models.CharField(max_length=20, verbose_name='Postal code')
     street = models.CharField(max_length=256)
     number = models.PositiveIntegerField()
 
@@ -157,7 +157,7 @@ class Store(models.Model):
     ADDRESS_FORMAT = '%s,+%s,+%s+%s,+%s+%s'
 
     def save(self, *args, **kwargs):
-        address = self.ADDRESS_FORMAT % (self.country, self.province, self.street, self.number, self.code, self.city,)
+        address = self.ADDRESS_FORMAT % (self.country, self.province, self.street, self.number, self.postcode, self.city,)
         response = requests.get(self.GEOCODING_URL, params={'address': address, 'key': self.GEOCODING_KEY})
         result = response.json()
 
