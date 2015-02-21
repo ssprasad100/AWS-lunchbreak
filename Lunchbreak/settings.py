@@ -100,7 +100,8 @@ APPEND_SLASH = True
 
 # Disable the browsable API when it's not in debug mode
 REST_FRAMEWORK = {
-    'EXCEPTION_HANDLER': 'lunch.exceptions.lunchbreakExceptionHandler'
+    'EXCEPTION_HANDLER': 'lunch.exceptions.lunchbreakExceptionHandler',
+    'COERCE_DECIMAL_TO_STRING': False
 }
 
 if not DEBUG:
