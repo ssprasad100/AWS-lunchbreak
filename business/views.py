@@ -1,11 +1,12 @@
 from business.authentication import StaffAuthentication
-from business.exceptions import InvalidEmail
-from business.models import Employee, Staff
-from business.serializers import EmployeeSerializer, StaffSerializer
+from business.exceptions import IncorrectPassword, InvalidEmail
+from business.models import Employee, Staff, StaffToken
+from business.serializers import (EmployeeSerializer, StaffSerializer,
+                                  StaffTokenSerializer)
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.mail import BadHeaderError, send_mail
 from django.core.validators import validate_email
-from lunch.exceptions import BadRequest
+from lunch.exceptions import BadRequest, DoesNotExist
 from lunch.models import Store, tokenGenerator
 from rest_framework import generics, status
 from rest_framework.response import Response
@@ -27,6 +28,29 @@ class StaffListView(generics.ListAPIView):
         if 'id' in self.kwargs:
             return Staff.objects.filter(id=self.kwargs['id'])
         return Staff.objects.all()
+
+    def post(self, request, format=None):
+        if 'password' not in request.data or 'staffId' not in request.data or 'device' not in request.data:
+            raise BadRequest()
+
+        rawPassword = request.data['password']
+        staffId = request.data['staffId']
+        device = request.data['device']
+
+        try:
+            staff = Staff.objects.get(id=staffId)
+        except ObjectDoesNotExist:
+            raise DoesNotExist('Staff does not exist.')
+
+        if staff.checkPassword(rawPassword):
+            token, created = StaffToken.objects.get_or_create(device=device, staff=staff)
+            if not created:
+                token.identifier = tokenGenerator()
+            token.save()
+            tokenSerializer = StaffTokenSerializer(token)
+            data = dict(tokenSerializer.data)
+            return Response(data, status=(status.HTTP_201_CREATED if created else status.HTTP_200_OK))
+        raise IncorrectPassword()
 
 
 class StaffRequestReset(APIView):
