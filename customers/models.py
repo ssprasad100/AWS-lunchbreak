@@ -5,7 +5,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 ORDER_STATUS = (
     (0, 'Placed'),
     (1, 'Denied'),
-    (2, 'Accepted'),
+    (2, 'Received'),
     (3, 'Started'),
     (4, 'Waiting'),
     (5, 'Completed')

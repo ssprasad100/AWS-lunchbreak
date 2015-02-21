@@ -3,13 +3,13 @@ from business.exceptions import InvalidEmail
 from business.models import Employee, Staff
 from business.serializers import EmployeeSerializer, StaffSerializer
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from django.core.mail import send_mail, BadHeaderError
+from django.core.mail import BadHeaderError, send_mail
 from django.core.validators import validate_email
-from lunch.models import tokenGenerator
-from rest_framework import generics, status
-from rest_framework.views import APIView
-from rest_framework.response import Response
 from lunch.exceptions import BadRequest
+from lunch.models import Store, tokenGenerator
+from rest_framework import generics, status
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 
 class StaffListView(generics.ListAPIView):
@@ -20,6 +20,10 @@ class StaffListView(generics.ListAPIView):
     serializer_class = StaffSerializer
 
     def get_queryset(self):
+        proximity = self.kwargs['proximity'] if 'proximity' in self.kwargs else 5
+        if 'latitude' in self.kwargs and 'longitude' in self.kwargs:
+            stores = Store.objects.nearby(self.kwargs['latitude'], self.kwargs['longitude'], proximity)
+            return Staff.objects.filter(store__in=stores)
         if 'id' in self.kwargs:
             return Staff.objects.filter(id=self.kwargs['id'])
         return Staff.objects.all()
