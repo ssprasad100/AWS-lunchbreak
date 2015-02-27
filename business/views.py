@@ -78,7 +78,7 @@ class StaffRequestReset(APIView):
 Please visit %s or ignore this email if you did not request this.
         ''' % url
         try:
-            send_mail('Lunchbreak password reset', message, 'hello@cloock.be', [email], fail_silently=False)
+            send_mail('Lunchbreak password reset', message, 'noreply@lunchbreakapp.be', [email], fail_silently=False)
         except BadHeaderError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_200_OK)
