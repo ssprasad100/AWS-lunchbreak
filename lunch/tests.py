@@ -1,7 +1,6 @@
-from rest_framework.test import APITestCase
-
-from lunch.models import Store
 from lunch.exceptions import AddressNotFound
+from lunch.models import Store
+from rest_framework.test import APITestCase
 
 
 class LunchbreakTests(APITestCase):

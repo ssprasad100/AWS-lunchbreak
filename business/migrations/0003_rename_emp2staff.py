@@ -7,13 +7,13 @@ from django.db import models, migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('lunch', '0005_foodcat_priority'),
+        ('business', '0002_staff_emp_tokens'),
     ]
 
     operations = [
-        migrations.AlterField(
-            model_name='store',
-            name='number',
-            field=models.PositiveIntegerField(),
+        migrations.RenameField(
+            model_name='stafftoken',
+            old_name='employee',
+            new_name='staff',
         ),
     ]

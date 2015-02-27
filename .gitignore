@@ -4,3 +4,4 @@ static
 *.sublime-project
 *.sublime-workspace
 *.pyc
+_build
