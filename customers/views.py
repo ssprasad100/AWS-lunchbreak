@@ -196,7 +196,7 @@ class UserView(generics.CreateAPIView):
                             user.save()
                             return self.getRegistrationResponse(hasName)
                     else:
-                        if user.name == 'demo' and user.requestId == 'demo' and user.digitsId == 'demo':
+                        if user.name == 'demo' and user.digitsId == 'demo':
                             return Response(status=status.HTTP_200_OK)
                         result = self.register(digits, phone)
                         if result:
@@ -211,7 +211,7 @@ class UserView(generics.CreateAPIView):
                     success = False
                     if device:
                         if not user.confirmedAt:
-                            if user.name == 'demo' and user.requestId == 'demo' and user.digitsId == 'demo':
+                            if user.name == 'demo' and user.digitsId == 'demo' and user.requestId == pin:
                                 success = True
                             else:
                                 user.confirmedAt = datetime.now()
