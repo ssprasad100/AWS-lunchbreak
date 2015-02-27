@@ -196,6 +196,8 @@ class UserView(generics.CreateAPIView):
                             user.save()
                             return self.getRegistrationResponse(hasName)
                     else:
+                        if user.name == 'demo' and user.requestId == 'demo' and user.digitsId == 'demo':
+                            return Response(status=status.HTTP_200_OK)
                         result = self.register(digits, phone)
                         if result:
                             if type(result) is dict:
@@ -209,18 +211,22 @@ class UserView(generics.CreateAPIView):
                     success = False
                     if device:
                         if not user.confirmedAt:
-                            user.confirmedAt = datetime.now()
+                            if user.name == 'demo' and user.requestId == 'demo' and user.digitsId == 'demo':
+                                success = True
+                            else:
+                                user.confirmedAt = datetime.now()
 
-                        if not user.requestId and not user.digitsId:
-                            # The user already got a message, but just got added to the Digits database
-                            user.digitsId = self.confirmRegistration(digits, phone, pin)
-                            user.save()
-                            success = True
-                        else:
-                            # The user already was in the Digits database and got a request and user id
-                            self.confirmSignin(digits, user.requestId, user.digitsId, pin)
-                            user.save()
-                            success = True
+                        if not success:
+                            if not user.requestId and not user.digitsId:
+                                # The user already got a message, but just got added to the Digits database
+                                user.digitsId = self.confirmRegistration(digits, phone, pin)
+                                user.save()
+                                success = True
+                            else:
+                                # The user already was in the Digits database and got a request and user id
+                                self.confirmSignin(digits, user.requestId, user.digitsId, pin)
+                                user.save()
+                                success = True
 
                         if success:
                             token, created = UserToken.objects.get_or_create(device=device, user=user)
