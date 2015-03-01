@@ -6,9 +6,11 @@ from customers.models import Order, OrderedFood, User, UserToken
 from customers.serializers import (OrderedFoodPriceSerializer, OrderSerializer,
                                    ShortOrderSerializer, UserSerializer,
                                    UserTokenSerializer)
+from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 from lunch.exceptions import BadRequest
-from lunch.models import Food, HolidayPeriod, Ingredient, OpeningHours, Store, tokenGenerator
+from lunch.models import (Food, HolidayPeriod, Ingredient, OpeningHours, Store,
+                          tokenGenerator)
 from lunch.serializers import (FoodSerializer, HolidayPeriodSerializer,
                                OpeningHoursSerializer, StoreSerializer)
 from rest_framework import generics, status
@@ -165,6 +167,16 @@ class UserView(generics.CreateAPIView):
             return Response(status=status.HTTP_200_OK)
         return Response(status=status.HTTP_201_CREATED)
 
+    def createGetToken(self, user, device, name):
+        token, created = UserToken.objects.get_or_create(device=device, user=user)
+        if not created:
+            token.identifier = tokenGenerator()
+        token.save()
+        tokenSerializer = UserTokenSerializer(token)
+        data = dict(tokenSerializer.data)
+        data['name'] = name
+        return Response(data, status=(status.HTTP_201_CREATED if created else status.HTTP_200_OK))
+
     def create(self, request, *args, **kwargs):
         userSerializer = UserSerializer(data=request.data)
         if userSerializer.is_valid():
@@ -196,8 +208,6 @@ class UserView(generics.CreateAPIView):
                             user.save()
                             return self.getRegistrationResponse(hasName)
                     else:
-                        if user.name == 'demo' and user.digitsId == 'demo':
-                            return Response(status=status.HTTP_200_OK)
                         result = self.register(digits, phone)
                         if result:
                             if type(result) is dict:
@@ -211,30 +221,30 @@ class UserView(generics.CreateAPIView):
                     success = False
                     if device:
                         if not user.confirmedAt:
-                            if user.name == 'demo' and user.digitsId == 'demo' and user.requestId == pin:
-                                success = True
-                            else:
-                                user.confirmedAt = datetime.now()
+                            user.confirmedAt = datetime.now()
 
-                        if not success:
-                            if not user.requestId and not user.digitsId:
-                                # The user already got a message, but just got added to the Digits database
-                                user.digitsId = self.confirmRegistration(digits, phone, pin)
-                                user.save()
-                                success = True
-                            else:
-                                # The user already was in the Digits database and got a request and user id
-                                self.confirmSignin(digits, user.requestId, user.digitsId, pin)
-                                user.save()
-                                success = True
+                        if not user.requestId and not user.digitsId:
+                            # The user already got a message, but just got added to the Digits database
+                            user.digitsId = self.confirmRegistration(digits, phone, pin)
+                            user.save()
+                            success = True
+                        else:
+                            # The user already was in the Digits database and got a request and user id
+                            self.confirmSignin(digits, user.requestId, user.digitsId, pin)
+                            user.save()
+                            success = True
 
                         if success:
-                            token, created = UserToken.objects.get_or_create(device=device, user=user)
-                            if not created:
-                                token.identifier = tokenGenerator()
-                            token.save()
-                            tokenSerializer = UserTokenSerializer(token)
-                            data = dict(tokenSerializer.data)
-                            data['name'] = name
-                            return Response(data, status=(status.HTTP_201_CREATED if created else status.HTTP_200_OK))
+                            return self.createGetToken(user, device, name)
+        elif request.data.get('name', False) == 'demo' and 'phone' in request.data:
+            if 'pin' not in request.data:
+                return Response(status=status.HTTP_201_CREATED)
+
+            if 'device' in request.data and 'pin' in request.data:
+                try:
+                    demoUser = User.objects.get(phone=request.data['phone'], requestId=request.data['pin'], digitsId='demo', )
+                except ObjectDoesNotExist:
+                    pass
+                else:
+                    return self.createGetToken(demoUser, request.data['device'], 'demo')
         raise BadRequest(userSerializer.errors)
