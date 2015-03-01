@@ -236,11 +236,11 @@ class UserView(generics.CreateAPIView):
 
                         if success:
                             return self.createGetToken(user, device, name)
-        elif request.data.get('name', False) == 'demo' and 'phone' in request.data:
+        elif request.data.get('phone', False) == '+32411111111':
             if 'pin' not in request.data:
-                return Response(status=status.HTTP_201_CREATED)
+                return Response(status=status.HTTP_200_OK)
 
-            if 'device' in request.data and 'pin' in request.data:
+            if 'device' in request.data:
                 try:
                     demoUser = User.objects.get(phone=request.data['phone'], requestId=request.data['pin'], digitsId='demo', )
                 except ObjectDoesNotExist:
