@@ -9,30 +9,30 @@ Nearby stores
 
     Stores within a proximity.
 
+    :reqheader X-Identifier: Identifier token of the UserToken
+    :reqheader X-User: ID of the user
+    :reqheader X-Device: Name of the device
+
     :query double latitude: latitude coordinate
     :query double longitude: longitude coordinate
     :query number proximity: proximity, default is 5 km
 
-    :>jsonarr int id: store ID
-    :>jsonarr string name: store name
-    :>jsonarr string country: store country
-    :>jsonarr string province: store province
-    :>jsonarr string city: store city
-    :>jsonarr string postcode: store postal code
-    :>jsonarr string street: store street
-    :>jsonarr int number: store street number
-    :>jsonarr double latitude: store latitude coordinate
-    :>jsonarr double longitude: store longitude coordinate
-    :>jsonarr string-array categories: store categorie names
-
-    :>header X-Identifier: Identifier token of the UserToken
-    :>header X-User: ID of the user
-    :>header X-Device: Name of the device
-
-    :<header Content-Type: application/json
+    :resheader Content-Type: application/json
 
     :statuscode 200: no error
     :statuscode 401: user authentication failed
+
+    :resjsonarr int id: store ID
+    :resjsonarr string name: store name
+    :resjsonarr string country: store country
+    :resjsonarr string province: store province
+    :resjsonarr string city: store city
+    :resjsonarr string postcode: store postal code
+    :resjsonarr string street: store street
+    :resjsonarr int number: store street number
+    :resjsonarr double latitude: store latitude coordinate
+    :resjsonarr double longitude: store longitude coordinate
+    :resjsonarr string-array categories: store categorie names
 
 
 Specific store
@@ -42,25 +42,25 @@ Specific store
 
     Store with the given ID.
 
+    :reqheader X-Identifier: Identifier token of the UserToken
+    :reqheader X-User: ID of the user
+    :reqheader X-Device: Name of the device
+
     :query int store_id: ID of the store
 
-    :>jsonarr int id: store ID
-    :>jsonarr string name: store name
-    :>jsonarr string country: store country
-    :>jsonarr string province: store province
-    :>jsonarr string city: store city
-    :>jsonarr string postcode: store postal code
-    :>jsonarr string street: store street
-    :>jsonarr int number: store street number
-    :>jsonarr double latitude: store latitude coordinate
-    :>jsonarr double longitude: store longitude coordinate
-    :>jsonarr string-array categories: store categorie names
-
-    :>header X-Identifier: Identifier token of the UserToken
-    :>header X-User: ID of the user
-    :>header X-Device: Name of the device
-
-    :<header Content-Type: application/json
+    :resheader Content-Type: application/json
 
     :statuscode 200: no error
     :statuscode 401: user authentication failed
+
+    :resjsonarr int id: store ID
+    :resjsonarr string name: store name
+    :resjsonarr string country: store country
+    :resjsonarr string province: store province
+    :resjsonarr string city: store city
+    :resjsonarr string postcode: store postal code
+    :resjsonarr string street: store street
+    :resjsonarr int number: store street number
+    :resjsonarr double latitude: store latitude coordinate
+    :resjsonarr double longitude: store longitude coordinate
+    :resjsonarr string-array categories: store categorie names

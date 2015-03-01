@@ -9,12 +9,21 @@ Specific food
 
     Food with the given ID.
 
+    :reqheader X-Identifier: Identifier token of the UserToken
+    :reqheader X-User: ID of the user
+    :reqheader X-Device: Name of the device
+
     :query int id: ID of the food
 
-    :>jsonarr int id: food ID
-    :>jsonarr string name: food name
-    :>jsonarr double cost: cost per item
-    :>jsonarr list ingredientGroups: groups of the ingredients
+    :resheader Content-Type: application/json
+
+    :statuscode 200: no error
+    :statuscode 401: user authentication failed
+
+    :resjsonarr int id: food ID
+    :resjsonarr string name: food name
+    :resjsonarr double cost: cost per item
+    :resjsonarr list ingredientGroups: groups of the ingredients
 
         - (*dict*)
             - **id** (*int*) - ingredientGroup ID
@@ -25,27 +34,18 @@ Specific food
                     - **id** (*int*) - ingredient ID
                     - **name** (*string*) - name
                     - **cost** (*double*) - cost
-    :>jsonarr list ingredients: ingredient IDs
-    :>jsonarr int store: store ID
-    :>jsonarr dict category:
+    :resjsonarr list ingredients: ingredient IDs
+    :resjsonarr int store: store ID
+    :resjsonarr dict category:
         - **id** (*int*) - category ID
         - **name** (*string*) - category name
         - **priority** (*int*) - priority
         - **store** (*int*) - store ID
-    :>jsonarr dict foodType:
+    :resjsonarr dict foodType:
         - **name** (*string*) - foodType name
         - **icon** (*int*) - icon ID
         - **quantifier** (*string*) - quantifier
         - **inputType** (*int*) - inputType ID
-
-    :>header X-Identifier: Identifier token of the UserToken
-    :>header X-User: ID of the user
-    :>header X-Device: Name of the device
-
-    :<header Content-Type: application/json
-
-    :statuscode 200: no error
-    :statuscode 401: user authentication failed
 
 
 
@@ -56,12 +56,21 @@ Specific store
 
     Food with the given store ID.
 
+    :reqheader X-Identifier: Identifier token of the UserToken
+    :reqheader X-User: ID of the user
+    :reqheader X-Device: Name of the device
+
     :query int store_id: ID of the store
 
-    :>jsonarr int id: food ID
-    :>jsonarr string name: food name
-    :>jsonarr double cost: cost per item
-    :>jsonarr list ingredientGroups: groups of the ingredients
+    :resheader Content-Type: application/json
+
+    :statuscode 200: no error
+    :statuscode 401: user authentication failed
+
+    :resjsonarr int id: food ID
+    :resjsonarr string name: food name
+    :resjsonarr double cost: cost per item
+    :resjsonarr list ingredientGroups: groups of the ingredients
 
         - (*dict*)
             - **id** (*int*) - ingredientGroup ID
@@ -72,24 +81,15 @@ Specific store
                     - **id** (*int*) - ingredient ID
                     - **name** (*string*) - name
                     - **cost** (*double*) - cost
-    :>jsonarr list ingredients: ingredient IDs
-    :>jsonarr int store: store ID
-    :>jsonarr dict category:
+    :resjsonarr list ingredients: ingredient IDs
+    :resjsonarr int store: store ID
+    :resjsonarr dict category:
         - **id** (*int*) - category ID
         - **name** (*string*) - category name
         - **priority** (*int*) - priority
         - **store** (*int*) - store ID
-    :>jsonarr dict foodType:
+    :resjsonarr dict foodType:
         - **name** (*string*) - foodType name
         - **icon** (*int*) - icon ID
         - **quantifier** (*string*) - quantifier
         - **inputType** (*int*) - inputType ID
-
-    :>header X-Identifier: Identifier token of the UserToken
-    :>header X-User: ID of the user
-    :>header X-Device: Name of the device
-
-    :<header Content-Type: application/json
-
-    :statuscode 200: no error
-    :statuscode 401: user authentication failed

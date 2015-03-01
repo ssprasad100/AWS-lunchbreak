@@ -9,12 +9,21 @@ Specific order
 
     Order with the given ID.
 
+    :reqheader X-Identifier: Identifier token of the UserToken
+    :reqheader X-User: ID of the user
+    :reqheader X-Device: Name of the device
+
     :query int id: ID of the order
 
-    :>jsonarr int id: order ID
-    :>jsonarr string pickupTime: time of pickup in the format 'YYYY-DD-MMTHH:MM:SSZ'
-    :>jsonarr boolean paid: paid or not
-    :>jsonarr list food: ordered food
+    :resheader Content-Type: application/json
+
+    :statuscode 200: no error
+    :statuscode 401: user authentication failed
+
+    :resjsonarr int id: order ID
+    :resjsonarr string pickupTime: time of pickup in the format 'YYYY-DD-MMTHH:MM:SSZ'
+    :resjsonarr boolean paid: paid or not
+    :resjsonarr list food: ordered food
 
         - (*dict*)
             - **id** (*int*) - food ID
@@ -30,28 +39,19 @@ Specific order
                             - **id** (*int*) - ingredient ID
                             - **name** (*string*) - name
                             - **cost** (*double*) - cost
-    :>jsonarr list ingredients: ingredient IDs
-    :>jsonarr int store: store ID
-    :>jsonarr dict category:
+    :resjsonarr list ingredients: ingredient IDs
+    :resjsonarr int store: store ID
+    :resjsonarr dict category:
         - **id** (*int*) - category ID
         - **name** (*string*) - category name
         - **priority** (*int*) - priority
         - **store** (*int*) - store ID
-    :>jsonarr dict foodType:
+    :resjsonarr dict foodType:
         - **name** (*string*) - foodType name
         - **icon** (*int*) - icon ID
         - **quantifier** (*string*) - quantifier
         - **inputType** (*int*) - inputType ID
-    :>jsonarr int amount: amount ordered
-
-    :>header X-Identifier: Identifier token of the UserToken
-    :>header X-User: ID of the user
-    :>header X-Device: Name of the device
-
-    :<header Content-Type: application/json
-
-    :statuscode 200: no error
-    :statuscode 401: user authentication failed
+    :resjsonarr int amount: amount ordered
 
 
 User's orders
@@ -61,10 +61,19 @@ User's orders
 
     All of the authenticated user's orders.
 
-    :>jsonarr int id: order ID
-    :>jsonarr string pickupTime: time of pickup in the format 'YYYY-DD-MMTHH:MM:SSZ'
-    :>jsonarr boolean paid: paid or not
-    :>jsonarr list food: ordered food
+    :reqheader X-Identifier: Identifier token of the UserToken
+    :reqheader X-User: ID of the user
+    :reqheader X-Device: Name of the device
+
+    :resheader Content-Type: application/json
+
+    :statuscode 200: no error
+    :statuscode 401: user authentication failed
+
+    :resjsonarr int id: order ID
+    :resjsonarr string pickupTime: time of pickup in the format 'YYYY-DD-MMTHH:MM:SSZ'
+    :resjsonarr boolean paid: paid or not
+    :resjsonarr list food: ordered food
 
         - (*dict*)
             - **id** (*int*) - food ID
@@ -80,28 +89,19 @@ User's orders
                             - **id** (*int*) - ingredient ID
                             - **name** (*string*) - name
                             - **cost** (*double*) - cost
-    :>jsonarr list ingredients: ingredient IDs
-    :>jsonarr int store: store ID
-    :>jsonarr dict category:
+    :resjsonarr list ingredients: ingredient IDs
+    :resjsonarr int store: store ID
+    :resjsonarr dict category:
         - **id** (*int*) - category ID
         - **name** (*string*) - category name
         - **priority** (*int*) - priority
         - **store** (*int*) - store ID
-    :>jsonarr dict foodType:
+    :resjsonarr dict foodType:
         - **name** (*string*) - foodType name
         - **icon** (*int*) - icon ID
         - **quantifier** (*string*) - quantifier
         - **inputType** (*int*) - inputType ID
-    :>jsonarr int amount: amount ordered
-
-    :>header X-Identifier: Identifier token of the UserToken
-    :>header X-User: ID of the user
-    :>header X-Device: Name of the device
-
-    :<header Content-Type: application/json
-
-    :statuscode 200: no error
-    :statuscode 401: user authentication failed
+    :resjsonarr int amount: amount ordered
 
 
 Place order
@@ -111,7 +111,12 @@ Place order
 
     All of the authenticated user's orders.
 
-    :<json list food: ordered food
+    :reqheader X-Identifier: Identifier token of the UserToken
+    :reqheader X-User: ID of the user
+    :reqheader X-Device: Name of the device
+    :reqheader Content-Type: application/json
+
+    :reqjson list food: ordered food
 
         - (*dict*) option 1
             - **name** (*string*) - name (temporary)
@@ -121,20 +126,16 @@ Place order
             - **name** (*string*) - name (temporary)
             - **referenceId** (*int*) - referenceId
             - **amount** (*int*) - amount (default 1)
-    :<json int storeId: store ID
-    :<json string pickupTime: time of pickup in the format 'YYYY-DD-MMTHH:MM:SSZ'
+    :reqjson int storeId: store ID
+    :reqjson string pickupTime: time of pickup in the format 'YYYY-DD-MMTHH:MM:SSZ'
 
-    :>json int id: order ID
-    :>json boolean paid: paid or not
-
-    :>header X-Identifier: Identifier token of the UserToken
-    :>header X-User: ID of the user
-    :>header X-Device: Name of the device
-
-    :<header Content-Type: application/json
+    :resheader Content-Type: application/json
 
     :statuscode 200: no error
     :statuscode 401: user authentication failed
+
+    :resjson int id: order ID
+    :resjson boolean paid: paid or not
 
 
 Request price
@@ -144,20 +145,21 @@ Request price
 
     Request the price of an order.
 
-    :<jsonarr list: ordered food
+    :reqheader X-Identifier: Identifier token of the UserToken
+    :reqheader X-User: ID of the user
+    :reqheader X-Device: Name of the device
+    :reqheader Content-Type: application/json
+
+    :reqjsonarr list: ordered food
 
         - (*dict*)
             - **name** (*string*) - name (temporary)
             - **ingredients** (*list*) - ingredient IDs
 
-    :>json int: price
-
-    :>header X-Identifier: Identifier token of the UserToken
-    :>header X-User: ID of the user
-    :>header X-Device: Name of the device
-
-    :<header Content-Type: application/json
+    :resheader Content-Type: application/json
 
     :statuscode 200: no error
     :statuscode 401: user authentication failed
+
+    :resjson int: price
 

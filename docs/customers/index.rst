@@ -7,8 +7,8 @@ Customers
 .. toctree::
     :maxdepth: 10
 
-    user
-    token
-    store
     food
     order
+    store
+    token
+    user

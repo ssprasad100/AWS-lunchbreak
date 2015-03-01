@@ -9,11 +9,17 @@ Token list
 
     List token for authenticated user.
 
-    :>header X-Identifier: Identifier token of the UserToken
-    :>header X-User: ID of the user
-    :>header X-Device: Name of the device
+    :reqheader X-Identifier: Identifier token of the UserToken
+    :reqheader X-User: ID of the user
+    :reqheader X-Device: Name of the device
 
-    :<header Content-Type: application/json
+    :resheader Content-Type: application/json
 
     :statuscode 200: no error
     :statuscode 401: user authentication failed
+
+    :resjsonarr int id: token ID
+    :resjsonarr string device: device name
+    :resjsonarr string identifier: identifier used in headers
+    :resjsonarr string name: user's name
+    :resjsonarr int user_id: user ID
