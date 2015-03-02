@@ -2,13 +2,21 @@ from django.db import models
 from lunch.models import BaseStoreFood, Store, BaseToken
 from phonenumber_field.modelfields import PhoneNumberField
 
+
+ORDER_STATUS_PLACED = 0
+ORDER_STATUS_DENIED = 1
+ORDER_STATUS_RECEIVED = 2
+ORDER_STATUS_STARTED = 3
+ORDER_STATUS_WAITING = 4
+ORDER_STATUS_COMPLETED = 5
+
 ORDER_STATUS = (
-    (0, 'Placed'),
-    (1, 'Denied'),
-    (2, 'Received'),
-    (3, 'Started'),
-    (4, 'Waiting'),
-    (5, 'Completed')
+    (ORDER_STATUS_PLACED, 'Placed'),
+    (ORDER_STATUS_DENIED, 'Denied'),
+    (ORDER_STATUS_RECEIVED, 'Received'),
+    (ORDER_STATUS_STARTED, 'Started'),
+    (ORDER_STATUS_WAITING, 'Waiting'),
+    (ORDER_STATUS_COMPLETED, 'Completed')
 )
 
 

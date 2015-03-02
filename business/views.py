@@ -1,8 +1,9 @@
-from business.authentication import StaffAuthentication
+from business.authentication import EmployeeAuthentication, StaffAuthentication
 from business.exceptions import IncorrectPassword, InvalidEmail
 from business.models import Employee, Staff, StaffToken
-from business.serializers import (EmployeeSerializer, StaffSerializer,
-                                  StaffTokenSerializer)
+from business.serializers import (EmployeeSerializer, OrderSerializer,
+                                  StaffSerializer, StaffTokenSerializer)
+from customers.models import Order, ORDER_STATUS_PLACED, ORDER_STATUS_RECEIVED, ORDER_STATUS_STARTED, ORDER_STATUS_WAITING
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.mail import BadHeaderError, send_mail
 from django.core.validators import validate_email
@@ -122,3 +123,27 @@ class EmployeeListView(generics.ListAPIView):
         if 'id' in self.kwargs:
             return Employee.objects.filter(id=self.kwargs['id'], staff=self.request.user)
         return Employee.objects.filter(staff=self.request.user)
+
+
+class OrderListView(generics.ListAPIView):
+    '''
+    List the store's orders.
+    '''
+
+    authentication_classes = (EmployeeAuthentication,)
+    serializer_class = OrderSerializer
+
+    def get_queryset(self):
+        return Order.objects.filter(store_id=self.request.user.staff.store_id, status__in=[ORDER_STATUS_PLACED, ORDER_STATUS_RECEIVED, ORDER_STATUS_STARTED, ORDER_STATUS_WAITING])
+
+
+class OrderUpdateView(generics.UpdateAPIView):
+    '''
+    Update the status of an order.
+    '''
+
+    authentication_classes = (EmployeeAuthentication,)
+    serializer_class = OrderSerializer
+
+    def get_queryset(self):
+        return Order.objects.filter(store_id=self.request.user.staff.store_id, status__in=[ORDER_STATUS_PLACED, ORDER_STATUS_RECEIVED, ORDER_STATUS_STARTED, ORDER_STATUS_WAITING])

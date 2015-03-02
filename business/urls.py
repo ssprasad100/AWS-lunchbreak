@@ -11,4 +11,7 @@ urlpatterns = patterns('',
 
     url(r'employee/$', views.EmployeeListView.as_view()),
     url(r'employee/(?P<id>\d+)/$', views.EmployeeListView.as_view()),
+
+    url(r'order/$', views.OrderListView.as_view()),
+    url(r'order/(?P<pk>\d+)/$', views.OrderUpdateView.as_view()),
 )

@@ -1,4 +1,6 @@
-from business.models import Staff, Employee, StaffToken
+from business.models import Employee, Staff, StaffToken
+from customers.models import Order
+from customers.serializers import OrderedFoodSerializer
 from lunch.serializers import StoreSerializer
 from rest_framework import serializers
 
@@ -11,7 +13,6 @@ class StaffSerializer(serializers.ModelSerializer):
         fields = ('id', 'store', 'password',)
         read_only_fields = ('id',)
         write_only_fields = ('password',)
-
 
 
 class StaffTokenSerializer(serializers.ModelSerializer):
@@ -37,3 +38,13 @@ class EmployeeSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'pin',)
         read_only_fields = ('id',)
         write_only_fields = ('pin',)
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    store = StoreSerializer(read_only=True)
+    food = OrderedFoodSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Order
+        fields = ('id', 'user', 'store', 'orderedTime', 'pickupTime', 'status', 'paid', 'food', 'total',)
+        read_only_fields = ('id', 'user', 'store', 'orderedTime', 'pickupTime', 'paid', 'food', 'total',)
