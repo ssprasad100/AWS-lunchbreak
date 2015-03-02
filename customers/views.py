@@ -78,7 +78,7 @@ class OrderView(generics.ListCreateAPIView):
     '''
 
     authentication_classes = (CustomerAuthentication,)
-    serializer_class = OrderSerializer
+    serializer_class = ShortOrderSerializer
 
     def get_queryset(self):
         '''

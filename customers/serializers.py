@@ -7,7 +7,7 @@ from django.utils import timezone
 from lunch.exceptions import DoesNotExist
 from lunch.models import Food, Ingredient, Store
 from lunch.serializers import (FoodCategorySerializer, FoodSerializer,
-                               StoreSerializer)
+                               StoreSerializer, FoodTypeSerializer)
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -16,6 +16,7 @@ class OrderedFoodSerializer(FoodSerializer):
     category = FoodCategorySerializer(many=False, read_only=True)
     referenceId = serializers.IntegerField(write_only=True, required=False)
     amount = serializers.IntegerField(required=False)
+    foodType = FoodTypeSerializer(many=False, required=False)
 
     def to_internal_value(self, data):
         if 'referenceId' not in data and 'ingredients' not in data:
@@ -25,7 +26,7 @@ class OrderedFoodSerializer(FoodSerializer):
     class Meta:
         model = OrderedFood
         fields = FoodSerializer.Meta.fields + ('referenceId', 'amount',)
-        read_only_fields = ('id', 'cost', 'ingredientGroups', 'store', 'category', 'foodType',)
+        read_only_fields = ('id', 'cost', 'ingredientGroups', 'store', 'category',)
         write_only_fields = ('referenceId',)
 
 
@@ -104,6 +105,7 @@ class ShortOrderSerializer(serializers.ModelSerializer):
                     ingredientIds = [ingredient.id for ingredient in f['ingredients']]
                     exact, closestFood = OrderedFood.objects.closestFood(orderedFood, ingredientIds)
                     orderedFood.cost = closestFood.cost if exact else OrderedFood.calculateCost(Ingredient.objects.filter(id__in=ingredientIds, store_id=store), closestFood)
+                    orderedFood.foodType = closestFood.foodType
                     orderedFood.save()
                     orderedFood.ingredients = f['ingredients']
 
