@@ -21,3 +21,34 @@ class LunchbreakTests(APITestCase):
                 self.fail()
         else:
             self.fail()
+
+    def testNearbyStores(self):
+        ''' Test whether LunchbreakManager.nearby returns the right stores. '''
+        Store.objects.all().delete()
+
+        centerStore = Store(name='center', country='Belgie', province='Oost-Vlaanderen', city='Wetteren', postcode='9230', street='Dendermondesteenweg', number=10)
+        underTwoKmStore = Store(name='1,34km', country='Belgie', province='Oost-Vlaanderen', city='Wetteren', postcode='9230', street='Wegvoeringstraat', number=47)
+        underFiveKmStore = Store(name='4,79km', country='Belgie', province='Oost-Vlaanderen', city='Wetteren', postcode='9230', street='Wetterensteenweg', number=1)
+        underEightKmStore = Store(name='7,95km', country='Belgie', province='Oost-Vlaanderen', city='Melle', postcode='9090', street='Wellingstraat', number=1)
+
+        centerStore.save()
+        underTwoKmStore.save()
+        underFiveKmStore.save()
+        underEightKmStore.save()
+
+        lat = centerStore.latitude
+        lon = centerStore.longitude
+
+        self.assertInCount(Store.objects.nearby(lat, lon, 1), [centerStore])
+
+        self.assertInCount(Store.objects.nearby(lat, lon, 2), [centerStore, underTwoKmStore])
+
+        self.assertInCount(Store.objects.nearby(lat, lon, 5), [centerStore, underTwoKmStore, underFiveKmStore])
+
+        self.assertInCount(Store.objects.nearby(lat, lon, 8), [centerStore, underTwoKmStore, underFiveKmStore, underEightKmStore])
+
+    def assertInCount(self, haystack, needles):
+        self.assertEqual(len(haystack), len(needles))
+
+        for needle in needles:
+            self.assertIn(needle, haystack)

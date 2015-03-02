@@ -3,7 +3,7 @@ import datetime
 from customers.authentication import CustomerAuthentication
 from customers.digits import Digits
 from customers.models import Order, OrderedFood, User, UserToken
-from customers.serializers import (OrderedFoodPriceSerializer, OrderSerializer,
+from customers.serializers import (OrderedFoodPriceSerializer,
                                    ShortOrderSerializer, UserSerializer,
                                    UserTokenSerializer)
 from django.core.exceptions import ObjectDoesNotExist
