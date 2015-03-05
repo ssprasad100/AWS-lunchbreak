@@ -21,8 +21,10 @@ def deploy():
 
 	with cd(REMOTE_PATH):
 		run('git pull --no-edit')
+		run('sed -i "s/DEBUG = True/Debug = False/g" Lunchbreak/settings.py')
+
 		with prefix('workon lunchbreak'):
-			pipInstall = run('pip install -r "' + REMOTE_PATH + '/requirements.txt"')
+			pipInstall = run('pip install -r requirements.txt')
 			if pipInstall.failed:
 				abort('Could not install requirements.')
 			migration = run('python manage.py migrate lunch --noinput')

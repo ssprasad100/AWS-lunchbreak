@@ -26,6 +26,10 @@ TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = []
 
+ALLOWED_HOSTS = [
+    'api.lunchbreakapp.be'
+]
+
 
 # Application definition
 
@@ -113,7 +117,7 @@ OPBEAT = {
     'ORGANIZATION_ID': '308fe549a8c042429061395a87bb662a',
     'APP_ID': 'a475a69ed8',
     'SECRET_TOKEN': 'e2e3be25fe41c9323f8f4384549d7c22f8c2422e',
-    'DEBUG': True
+    'DEBUG': False
 }
 
 LOGGING = {
