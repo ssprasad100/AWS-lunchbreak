@@ -60,7 +60,7 @@ class IngredientGroupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = IngredientGroup
-        fields = ('id', 'name', 'maximum', 'ingredients',)
+        fields = ('id', 'name', 'maximum', 'ingredients', 'priority',)
 
 
 class DefaultFoodCategorySerializer(serializers.ModelSerializer):

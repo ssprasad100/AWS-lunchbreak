@@ -112,7 +112,7 @@ DAYS = (
     (0, 'Maandag'),
     (1, 'Dinsdag'),
     (2, 'Woensdag'),
-    (3, 'Donderdeg'),
+    (3, 'Donderdag'),
     (4, 'Vrijdag'),
     (5, 'Zaterdag'),
     (6, 'Zondag')
@@ -200,6 +200,7 @@ class HolidayPeriod(models.Model):
 class IngredientGroup(models.Model):
     name = models.CharField(max_length=256)
     maximum = models.PositiveIntegerField(default=0, verbose_name='Maximum amount')
+    priority = models.PositiveIntegerField(default=0)
 
     @cached_property
     def ingredients(self):
