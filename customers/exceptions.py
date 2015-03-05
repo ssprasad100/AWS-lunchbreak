@@ -1,5 +1,6 @@
+import logging
+
 from lunch.exceptions import LunchbreakException
-from opbeat.contrib.django.models import logger
 from rest_framework import status
 
 COSTCHECK_FAILED = 700
@@ -39,6 +40,7 @@ class DigitsException(LunchbreakException):
             else:
                 detail = info
         else:
+            logger = logging.getLogger(__name__)
             logger.exception('Undocumented Digits exception: %s' % content)
         self.code = code
         super(DigitsException, self).__init__(detail)
