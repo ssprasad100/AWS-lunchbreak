@@ -99,14 +99,13 @@ STATIC_URL = '/static/'
 
 APPEND_SLASH = True
 
-# Disable the browsable API when it's not in debug mode
 REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'lunch.exceptions.lunchbreakExceptionHandler',
     'COERCE_DECIMAL_TO_STRING': False
 }
 
-if not DEBUG:
-    REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES'] = ('rest_framework.renderers.JSONRenderer',)
+# Disable the browsable API
+REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES'] = ('rest_framework.renderers.JSONRenderer',)
 
 
 # Opbeat settings
