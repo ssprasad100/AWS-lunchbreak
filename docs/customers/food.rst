@@ -34,6 +34,7 @@ Specific food
                     - **id** (*int*) - ingredient ID
                     - **name** (*string*) - name
                     - **cost** (*double*) - cost
+            - **priority** (*int*) - priority, always positive
     :resjsonarr list ingredients: ingredient IDs
     :resjsonarr int store: store ID
     :resjsonarr dict category:
@@ -81,6 +82,7 @@ Specific store
                     - **id** (*int*) - ingredient ID
                     - **name** (*string*) - name
                     - **cost** (*double*) - cost
+            - **priority** (*int*) - priority, always positive
     :resjsonarr list ingredients: ingredient IDs
     :resjsonarr int store: store ID
     :resjsonarr dict category:

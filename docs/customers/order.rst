@@ -39,6 +39,7 @@ Specific order
                             - **id** (*int*) - ingredient ID
                             - **name** (*string*) - name
                             - **cost** (*double*) - cost
+            - **priority** (*int*) - priority, always positive
     :resjsonarr list ingredients: ingredient IDs
     :resjsonarr int store: store ID
     :resjsonarr dict category:
@@ -89,6 +90,7 @@ User's orders
                             - **id** (*int*) - ingredient ID
                             - **name** (*string*) - name
                             - **cost** (*double*) - cost
+            - **priority** (*int*) - priority, always positive
     :resjsonarr list ingredients: ingredient IDs
     :resjsonarr int store: store ID
     :resjsonarr dict category:
@@ -155,11 +157,13 @@ Request price
         - (*dict*)
             - **name** (*string*) - name (temporary)
             - **ingredients** (*list*) - ingredient IDs
+            - **store** (*int*) - store ID
 
     :resheader Content-Type: application/json
 
     :statuscode 200: no error
     :statuscode 401: user authentication failed
 
-    :resjson int: price
+    :resjsonarr int cost: cost
+    :resjsonarr int food_id: id of the food if an exact match was found
 

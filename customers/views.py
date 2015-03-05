@@ -74,7 +74,7 @@ class FoodListView(generics.ListAPIView):
 
 class OrderView(generics.ListCreateAPIView):
     '''
-    Order food.
+    Order food.,
     '''
 
     authentication_classes = (CustomerAuthentication,)
@@ -106,16 +106,18 @@ class OrderPriceView(generics.CreateAPIView):
         '''
         priceSerializer = OrderedFoodPriceSerializer(data=request.data, many=True)
         if priceSerializer.is_valid():
-            costList = []
+            result = []
             for priceCheck in priceSerializer.validated_data:
+                priceInfo = {}
                 exact, closestFood = OrderedFood.objects.closestFood(orderedFood=None, ingredients=priceCheck['ingredients'], storeId=priceCheck['store'])
                 if not exact:
                     orderedIngredients = Ingredient.objects.filter(id__in=priceCheck['ingredients'], store_id=priceCheck['store'])
-                    cost = OrderedFood.calculateCost(orderedIngredients, closestFood)
+                    priceInfo['cost'] = OrderedFood.calculateCost(orderedIngredients, closestFood)
                 else:
-                    cost = closestFood.cost
-                costList.append(cost)
-            return Response(data=costList, status=status.HTTP_200_OK)
+                    priceInfo['cost'] = closestFood.cost
+                    priceInfo['food_id'] = closestFood.id
+                result.append(priceInfo)
+            return Response(data=result, status=status.HTTP_200_OK)
         raise BadRequest(priceSerializer.errors)
 
 
