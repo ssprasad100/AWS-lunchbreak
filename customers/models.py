@@ -32,8 +32,25 @@ class User(models.Model):
         return self.name if self.name else unicode(self.phone)
 
 
+class Order(models.Model):
+    user = models.ForeignKey(User)
+    store = models.ForeignKey(Store)
+    orderedTime = models.DateTimeField(auto_now_add=True, verbose_name='Time of order')
+    pickupTime = models.DateTimeField(verbose_name='Time of pickup')
+    status = models.PositiveIntegerField(choices=ORDER_STATUS, default=0)
+    paid = models.BooleanField(default=False)
+    total = models.DecimalField(decimal_places=2, max_digits=5, default=0)
+
+    def save(self, *args, **kwargs):
+        self.total = 0
+        for f in self.food.all():
+            self.total += f.cost * f.amount
+        super(Order, self).save(*args, **kwargs)
+
+
 class OrderedFood(BaseStoreFood):
     amount = models.IntegerField(default=1)
+    order = models.ForeignKey(Order, related_name='food')
 
     @staticmethod
     def calculateCost(orderedIngredients, food):
@@ -46,26 +63,6 @@ class OrderedFood(BaseStoreFood):
             if ingredient not in orderedIngredients:
                 cost -= ingredient.cost
         return cost
-
-
-class Order(models.Model):
-    user = models.ForeignKey(User)
-    store = models.ForeignKey(Store)
-    orderedTime = models.DateTimeField(auto_now_add=True, verbose_name='Time of order')
-    pickupTime = models.DateTimeField(verbose_name='Time of pickup')
-    status = models.PositiveIntegerField(choices=ORDER_STATUS, default=0)
-    paid = models.BooleanField(default=False)
-    food = models.ManyToManyField(OrderedFood)
-    total = models.DecimalField(decimal_places=2, max_digits=5, default=0)
-
-    def save(self, *args, **kwargs):
-        if self.pk is None:
-            super(Order, self).save(*args, **kwargs)
-        else:
-            self.total = 0
-            for f in self.food.all():
-                self.total += f.cost * f.amount
-            super(Order, self).save(*args, **kwargs)
 
 
 class UserToken(BaseToken):

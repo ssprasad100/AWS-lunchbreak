@@ -41,7 +41,7 @@ class DigitsException(LunchbreakException):
                 detail = info
         else:
             logger = logging.getLogger(__name__)
-            logger.exception('Undocumented Digits exception: %s' % content)
+            logger.exception('Undocumented Digits exception code %d: %s' % (code, content,))
         self.code = code
         super(DigitsException, self).__init__(detail)
 

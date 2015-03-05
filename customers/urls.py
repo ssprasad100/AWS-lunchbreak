@@ -12,8 +12,6 @@ urlpatterns = patterns('',
     url(r'^food/(?P<id>\d+)/$', views.FoodListView.as_view()),
 
     url(r'^order/price/$', views.OrderPriceView.as_view()),
-    url(r'^order/paid/(?P<id>\d+)/$', views.OrderView.as_view()),
-    url(r'^order/update/(?P<id>\d+)/(?P<status>.+)/$', views.OrderView.as_view()),
     url(r'^order/(?P<id>\d+)/$', views.OrderView.as_view()),
     url(r'^order/$', views.OrderView.as_view()),
 

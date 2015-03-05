@@ -23,6 +23,7 @@ Specific order
     :resjsonarr int id: order ID
     :resjsonarr string pickupTime: time of pickup in the format 'YYYY-DD-MMTHH:MM:SSZ'
     :resjsonarr boolean paid: paid or not
+    :resjsonarr decimal total: total cost
     :resjsonarr list food: ordered food
 
         - (*dict*)
@@ -39,20 +40,20 @@ Specific order
                             - **id** (*int*) - ingredient ID
                             - **name** (*string*) - name
                             - **cost** (*double*) - cost
-            - **priority** (*int*) - priority, always positive
-    :resjsonarr list ingredients: ingredient IDs
-    :resjsonarr int store: store ID
-    :resjsonarr dict category:
-        - **id** (*int*) - category ID
-        - **name** (*string*) - category name
-        - **priority** (*int*) - priority
-        - **store** (*int*) - store ID
-    :resjsonarr dict foodType:
-        - **name** (*string*) - foodType name
-        - **icon** (*int*) - icon ID
-        - **quantifier** (*string*) - quantifier
-        - **inputType** (*int*) - inputType ID
-    :resjsonarr int amount: amount ordered
+                    - **priority** (*int*) - priority, always positive
+            - **ingredients** (*list*) - ingredient IDs
+            - **store** (*int*) - store ID
+            - **category** (*dict*) - store category
+                 - **id** (*int*) - category ID
+                - **name** (*string*) - category name
+                - **priority** (*int*) - priority
+                - **store** (*int*) - store ID
+            - **foodType** (*dict*) - food type
+                - **name** (*string*) - foodType name
+                - **icon** (*int*) - icon ID
+                - **quantifier** (*string*) - quantifier
+                - **inputType** (*int*) - inputType ID
+            - **amount** (*int) - amount ordered
 
 
 User's orders
@@ -74,6 +75,7 @@ User's orders
     :resjsonarr int id: order ID
     :resjsonarr string pickupTime: time of pickup in the format 'YYYY-DD-MMTHH:MM:SSZ'
     :resjsonarr boolean paid: paid or not
+    :resjsonarr decimal total: total cost
     :resjsonarr list food: ordered food
 
         - (*dict*)
@@ -90,20 +92,20 @@ User's orders
                             - **id** (*int*) - ingredient ID
                             - **name** (*string*) - name
                             - **cost** (*double*) - cost
-            - **priority** (*int*) - priority, always positive
-    :resjsonarr list ingredients: ingredient IDs
-    :resjsonarr int store: store ID
-    :resjsonarr dict category:
-        - **id** (*int*) - category ID
-        - **name** (*string*) - category name
-        - **priority** (*int*) - priority
-        - **store** (*int*) - store ID
-    :resjsonarr dict foodType:
-        - **name** (*string*) - foodType name
-        - **icon** (*int*) - icon ID
-        - **quantifier** (*string*) - quantifier
-        - **inputType** (*int*) - inputType ID
-    :resjsonarr int amount: amount ordered
+                    - **priority** (*int*) - priority, always positive
+            - **ingredients** (*list*) - ingredient IDs
+            - **store** (*int*) - store ID
+            - **category** (*dict*) - store category
+                 - **id** (*int*) - category ID
+                - **name** (*string*) - category name
+                - **priority** (*int*) - priority
+                - **store** (*int*) - store ID
+            - **foodType** (*dict*) - food type
+                - **name** (*string*) - foodType name
+                - **icon** (*int*) - icon ID
+                - **quantifier** (*string*) - quantifier
+                - **inputType** (*int*) - inputType ID
+            - **amount** (*int) - amount ordered
 
 
 Place order
@@ -138,6 +140,7 @@ Place order
 
     :resjson int id: order ID
     :resjson boolean paid: paid or not
+    :resjson double total: total cost
 
 
 Request price
@@ -155,7 +158,6 @@ Request price
     :reqjsonarr list: ordered food
 
         - (*dict*)
-            - **name** (*string*) - name (temporary)
             - **ingredients** (*list*) - ingredient IDs
             - **store** (*int*) - store ID
 

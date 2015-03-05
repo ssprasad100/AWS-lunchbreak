@@ -1,13 +1,14 @@
 from datetime import timedelta
 
-from customers.exceptions import MinTimeExceeded, PastOrderDenied
-from customers.models import Order, OrderedFood, UserToken, User
+from customers.exceptions import (CostCheckFailed, MinTimeExceeded,
+                                  PastOrderDenied)
+from customers.models import Order, OrderedFood, User, UserToken
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 from lunch.exceptions import DoesNotExist
 from lunch.models import Food, Ingredient, Store
 from lunch.serializers import (FoodCategorySerializer, FoodSerializer,
-                               StoreSerializer, FoodTypeSerializer)
+                               FoodTypeSerializer, StoreSerializer)
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -26,7 +27,7 @@ class OrderedFoodSerializer(FoodSerializer):
     class Meta:
         model = OrderedFood
         fields = FoodSerializer.Meta.fields + ('referenceId', 'amount',)
-        read_only_fields = ('id', 'cost', 'ingredientGroups', 'store', 'category',)
+        read_only_fields = ('id', 'ingredientGroups', 'store', 'category', 'name',)
         write_only_fields = ('referenceId',)
 
 
@@ -73,8 +74,16 @@ class OrderedFoodPriceSerializer(serializers.BaseSerializer):
 
 
 class ShortOrderSerializer(serializers.ModelSerializer):
-    storeId = serializers.IntegerField(write_only=True)
-    food = OrderedFoodSerializer(many=True, write_only=True, read_only=False)
+    '''
+    Used after placing an order for confirmation.
+    '''
+
+    food = OrderedFoodSerializer(many=True, write_only=True)
+
+    def costCheck(self, order, orderedFood, amount, cost):
+        if orderedFood.cost * amount != cost:
+            order.delete()
+            raise CostCheckFailed()
 
     def create(self, validated_data):
         try:
@@ -83,61 +92,72 @@ class ShortOrderSerializer(serializers.ModelSerializer):
             if pickupTime < timezone.now():
                 raise PastOrderDenied()
 
-            store = Store.objects.get(id=validated_data['storeId'])
+            store = validated_data['store']
 
             if pickupTime - timezone.now() < timedelta(minutes=store.minTime):
                 raise MinTimeExceeded()
 
             user = self.context['user']
 
-            food = []
+            order = Order(user=user, store=store, pickupTime=pickupTime)
+            order.save()
             for f in validated_data['food']:
                 orderedFood = OrderedFood()
+                amount = f['amount'] if 'amount' in f else 1
+
                 if 'referenceId' in f:
                     referenceFood = Food.objects.filter(id=f['referenceId'])
                     if len(referenceFood) == 0:
                         raise DoesNotExist('Referenced food does not exist.')
                     orderedFood = OrderedFood(**referenceFood.values()[0])
+
+                    self.costCheck(order, orderedFood, amount, f['cost'])
+
                     orderedFood.pk = None
+                    orderedFood.order = order
                 else:
                     orderedFood.store = store
-                    orderedFood.name = f['name']
+
                     ingredientIds = [ingredient.id for ingredient in f['ingredients']]
                     exact, closestFood = OrderedFood.objects.closestFood(orderedFood, ingredientIds)
                     orderedFood.cost = closestFood.cost if exact else OrderedFood.calculateCost(Ingredient.objects.filter(id__in=ingredientIds, store_id=store), closestFood)
+
+                    self.costCheck(order, orderedFood, amount, f['cost'])
+
+                    orderedFood.name = closestFood.name
                     orderedFood.foodType = closestFood.foodType
+                    orderedFood.order = order
+
                     orderedFood.save()
                     orderedFood.ingredients = f['ingredients']
 
-                orderedFood.amount = f['amount'] if 'amount' in f else 1
+                orderedFood.amount = amount
                 orderedFood.save()
-                food.append(orderedFood)
 
-            order = Order(user=user, store=store, pickupTime=pickupTime)
             order.save()
-            order.food = food
-            order.save()
-
             return order
         except ObjectDoesNotExist:
             raise DoesNotExist('Store does not exist')
 
     class Meta:
         model = Order
-        fields = ('id', 'storeId', 'pickupTime', 'paid', 'food', 'total',)
+        fields = ('id', 'store', 'pickupTime', 'paid', 'total', 'food',)
         read_only_fields = ('id', 'paid', 'total',)
-        write_only_fields = ('storeId', 'food', 'pickupTime',)
+        write_only_fields = ('store', 'pickupTime', 'food',)
 
 
-class OrderSerializer(ShortOrderSerializer):
+class OrderSerializer(serializers.ModelSerializer):
+    '''
+    Used for listing a specific or all orders.
+    '''
+
     store = StoreSerializer(read_only=True)
-    food = OrderedFoodSerializer(many=True, read_only=True, write_only=False)
+    food = OrderedFoodSerializer(many=True, read_only=True)
 
     class Meta:
         model = Order
-        fields = ShortOrderSerializer.Meta.fields + ('store', 'total', 'status', 'orderedTime',)
-        read_only_fields = ShortOrderSerializer.Meta.read_only_fields + ('store', 'food', 'total', 'status', 'orderedTime',)
-        write_only_fields = ('storeId',)
+        fields = ('store', 'orderedTime', 'pickupTime', 'status', 'paid', 'total', 'food',)
+        read_only_fields = ('store', 'orderedTime', 'pickupTime', 'status', 'paid', 'total', 'food',)
 
 
 class UserSerializer(serializers.ModelSerializer):

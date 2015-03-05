@@ -3,7 +3,7 @@ import datetime
 from customers.authentication import CustomerAuthentication
 from customers.digits import Digits
 from customers.models import Order, OrderedFood, User, UserToken
-from customers.serializers import (OrderedFoodPriceSerializer,
+from customers.serializers import (OrderedFoodPriceSerializer, OrderSerializer,
                                    ShortOrderSerializer, UserSerializer,
                                    UserTokenSerializer)
 from django.core.exceptions import ObjectDoesNotExist
@@ -74,11 +74,11 @@ class FoodListView(generics.ListAPIView):
 
 class OrderView(generics.ListCreateAPIView):
     '''
-    Order food.,
+    Place an order and list a specific or all of the user's orders.
     '''
 
     authentication_classes = (CustomerAuthentication,)
-    serializer_class = ShortOrderSerializer
+    serializer_class = OrderSerializer
 
     def get_queryset(self):
         '''
