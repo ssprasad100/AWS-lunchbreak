@@ -1,13 +1,15 @@
-====
+=====
 Order
-====
+=====
 
 Specific order
-=============
+==============
 
 .. http:get:: /v1/customers/order/(int:id)
 
     Order with the given ID.
+
+    Serializer: :doc:`/serializers/customers/order`
 
     :reqheader X-Identifier: Identifier token of the UserToken
     :reqheader X-User: ID of the user
@@ -20,41 +22,6 @@ Specific order
     :statuscode 200: no error
     :statuscode 401: user authentication failed
 
-    :resjsonarr int id: order ID
-    :resjsonarr string pickupTime: time of pickup in the format 'YYYY-DD-MMTHH:MM:SSZ'
-    :resjsonarr boolean paid: paid or not
-    :resjsonarr decimal total: total cost
-    :resjsonarr list food: ordered food
-
-        - (*dict*)
-            - **id** (*int*) - food ID
-            - **name** (*string*) - name
-            - **cost** (*double*) - cost
-            - **ingredientGroups** (*list*) - groups of the ingredients
-                - (*dict*)
-                    - **id** (*int*) - ingredientGroup ID
-                    - **name** (*string*) - name
-                    - **maximum** (*int*) - maximum amount of ingredients selected
-                    - **ingredients** (*list*) - ingredients
-                        - (*dict*)
-                            - **id** (*int*) - ingredient ID
-                            - **name** (*string*) - name
-                            - **cost** (*double*) - cost
-                    - **priority** (*int*) - priority, always positive
-            - **ingredients** (*list*) - ingredient IDs
-            - **store** (*int*) - store ID
-            - **category** (*dict*) - store category
-                 - **id** (*int*) - category ID
-                - **name** (*string*) - category name
-                - **priority** (*int*) - priority
-                - **store** (*int*) - store ID
-            - **foodType** (*dict*) - food type
-                - **name** (*string*) - foodType name
-                - **icon** (*int*) - icon ID
-                - **quantifier** (*string*) - quantifier
-                - **inputType** (*int*) - inputType ID
-            - **amount** (*int) - amount ordered
-
 
 User's orders
 =============
@@ -62,6 +29,8 @@ User's orders
 .. http:get:: /v1/customers/order/
 
     All of the authenticated user's orders.
+
+    Serializer: :doc:`/serializers/customers/shortOrder`
 
     :reqheader X-Identifier: Identifier token of the UserToken
     :reqheader X-User: ID of the user
@@ -71,41 +40,6 @@ User's orders
 
     :statuscode 200: no error
     :statuscode 401: user authentication failed
-
-    :resjsonarr int id: order ID
-    :resjsonarr string pickupTime: time of pickup in the format 'YYYY-DD-MMTHH:MM:SSZ'
-    :resjsonarr boolean paid: paid or not
-    :resjsonarr decimal total: total cost
-    :resjsonarr list food: ordered food
-
-        - (*dict*)
-            - **id** (*int*) - food ID
-            - **name** (*string*) - name
-            - **cost** (*double*) - cost
-            - **ingredientGroups** (*list*) - groups of the ingredients
-                - (*dict*)
-                    - **id** (*int*) - ingredientGroup ID
-                    - **name** (*string*) - name
-                    - **maximum** (*int*) - maximum amount of ingredients selected
-                    - **ingredients** (*list*) - ingredients
-                        - (*dict*)
-                            - **id** (*int*) - ingredient ID
-                            - **name** (*string*) - name
-                            - **cost** (*double*) - cost
-                    - **priority** (*int*) - priority, always positive
-            - **ingredients** (*list*) - ingredient IDs
-            - **store** (*int*) - store ID
-            - **category** (*dict*) - store category
-                 - **id** (*int*) - category ID
-                - **name** (*string*) - category name
-                - **priority** (*int*) - priority
-                - **store** (*int*) - store ID
-            - **foodType** (*dict*) - food type
-                - **name** (*string*) - foodType name
-                - **icon** (*int*) - icon ID
-                - **quantifier** (*string*) - quantifier
-                - **inputType** (*int*) - inputType ID
-            - **amount** (*int) - amount ordered
 
 
 Place order
@@ -115,32 +49,17 @@ Place order
 
     All of the authenticated user's orders.
 
+    Serializer: :doc:`/serializers/customers/shortOrder`
+
     :reqheader X-Identifier: Identifier token of the UserToken
     :reqheader X-User: ID of the user
     :reqheader X-Device: Name of the device
     :reqheader Content-Type: application/json
 
-    :reqjson list food: ordered food
-
-        - (*dict*) option 1
-            - **name** (*string*) - name (temporary)
-            - **ingredients** (*list*) - ingredient IDs
-            - **amount** (*int*) - amount (default 1)
-        - (*dict*) option 2
-            - **name** (*string*) - name (temporary)
-            - **referenceId** (*int*) - referenceId
-            - **amount** (*int*) - amount (default 1)
-    :reqjson int storeId: store ID
-    :reqjson string pickupTime: time of pickup in the format 'YYYY-DD-MMTHH:MM:SSZ'
-
     :resheader Content-Type: application/json
 
     :statuscode 200: no error
     :statuscode 401: user authentication failed
-
-    :resjson int id: order ID
-    :resjson boolean paid: paid or not
-    :resjson double total: total cost
 
 
 Request price
@@ -150,22 +69,15 @@ Request price
 
     Request the price of an order.
 
+    Serializer: :doc:`/serializers/customers/orderedFoodPrice`
+
     :reqheader X-Identifier: Identifier token of the UserToken
     :reqheader X-User: ID of the user
     :reqheader X-Device: Name of the device
     :reqheader Content-Type: application/json
 
-    :reqjsonarr list: ordered food
-
-        - (*dict*)
-            - **ingredients** (*list*) - ingredient IDs
-            - **store** (*int*) - store ID
-
     :resheader Content-Type: application/json
 
     :statuscode 200: no error
     :statuscode 401: user authentication failed
-
-    :resjsonarr int cost: cost
-    :resjsonarr int food_id: id of the food if an exact match was found
 

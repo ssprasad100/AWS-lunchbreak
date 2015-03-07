@@ -1,7 +1,7 @@
 from lunch.models import (DefaultFood, DefaultFoodCategory, DefaultIngredient,
                           Food, FoodCategory, FoodType, HolidayPeriod,
                           Ingredient, IngredientGroup, OpeningHours, Store,
-                          StoreCategory, Token)
+                          StoreCategory, BaseToken)
 from rest_framework import serializers
 
 
@@ -96,12 +96,12 @@ class FoodSerializer(DefaultFoodSerializer):
 
     class Meta:
         model = Food
-        fields = DefaultFoodSerializer.Meta.field + ('store',)
+        fields = DefaultFoodSerializer.Meta.fields + ('store',)
 
 
-class TokenSerializer(serializers.TokenSerializer):
+class TokenSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Token
+        model = BaseToken
         fields = ('id', 'identifier', 'device',)
         read_only_fields = ('id', 'identifier', 'device',)

@@ -162,26 +162,20 @@ class OrderSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    pin = serializers.CharField(required=False)
-    device = serializers.CharField(required=False)
+    pin = serializers.CharField(required=False, write_only=True)
+    device = serializers.CharField(required=False, write_only=True)
 
     class Meta:
         model = User
         fields = ('id', 'name', 'phone', 'pin', 'device',)
-        write_only_fields = ('name', 'phone', 'pin', 'device',)
+        read_only_fields = ('id',)
+        write_only_fields = ('phone', 'pin', 'device',)
 
 
 class UserTokenSerializer(TokenSerializer):
-
-    def to_representation(self, obj):
-        return {
-            'id': obj.id,
-            'identifier': obj.identifier,
-            'device': obj.device,
-            'user_id': obj.user_id,
-        }
+    user = UserSerializer()
 
     class Meta:
         model = UserToken
-        fields = TokenSerializer.Meta.fields + ('user_id',)
-        read_only_fields = TokenSerializer.Meta.read_only_fields + ('user_id',)
+        fields = TokenSerializer.Meta.fields + ('user',)
+        read_only_fields = TokenSerializer.Meta.read_only_fields + ('user',)

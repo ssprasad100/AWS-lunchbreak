@@ -9,6 +9,8 @@ Nearby stores
 
     Stores within a proximity.
 
+    Serializer: :doc:`/serializers/global/store`
+
     :reqheader X-Identifier: Identifier token of the UserToken
     :reqheader X-User: ID of the user
     :reqheader X-Device: Name of the device
@@ -22,18 +24,6 @@ Nearby stores
     :statuscode 200: no error
     :statuscode 401: user authentication failed
 
-    :resjsonarr int id: store ID
-    :resjsonarr string name: store name
-    :resjsonarr string country: store country
-    :resjsonarr string province: store province
-    :resjsonarr string city: store city
-    :resjsonarr string postcode: store postal code
-    :resjsonarr string street: store street
-    :resjsonarr int number: store street number
-    :resjsonarr double latitude: store latitude coordinate
-    :resjsonarr double longitude: store longitude coordinate
-    :resjsonarr string-array categories: store categorie names
-
 
 Specific store
 ==============
@@ -41,6 +31,8 @@ Specific store
 .. http:get:: /v1/customers/store/(int:store_id)
 
     Store with the given ID.
+
+    Serializer: :doc:`/serializers/global/store`
 
     :reqheader X-Identifier: Identifier token of the UserToken
     :reqheader X-User: ID of the user
@@ -53,14 +45,45 @@ Specific store
     :statuscode 200: no error
     :statuscode 401: user authentication failed
 
-    :resjsonarr int id: store ID
-    :resjsonarr string name: store name
-    :resjsonarr string country: store country
-    :resjsonarr string province: store province
-    :resjsonarr string city: store city
-    :resjsonarr string postcode: store postal code
-    :resjsonarr string street: store street
-    :resjsonarr int number: store street number
-    :resjsonarr double latitude: store latitude coordinate
-    :resjsonarr double longitude: store longitude coordinate
-    :resjsonarr string-array categories: store categorie names
+
+Opening hours
+=============
+
+.. http:get:: /v1/customers/store/hours/(int:store_id)
+
+    Show the opening hours of a specific store.
+
+    Serializer: :doc:`/serializers/global/openingHours`
+
+    :reqheader X-Identifier: Identifier token of the UserToken
+    :reqheader X-User: ID of the user
+    :reqheader X-Device: Name of the device
+
+    :query int store_id: ID of the store
+
+    :resheader Content-Type: application/json
+
+    :statuscode 200: no error
+    :statuscode 401: user authentication failed
+
+
+
+Holiday periods
+===============
+
+.. http:get:: /v1/customers/store/holiday/(int:store_id)
+
+    Show upcoming holiday periods of the store this week.
+
+    Serializer: :doc:`/serializers/global/holidayPeriod`
+
+    :reqheader X-Identifier: Identifier token of the UserToken
+    :reqheader X-User: ID of the user
+    :reqheader X-Device: Name of the device
+
+    :query int store_id: ID of the store
+
+    :resheader Content-Type: application/json
+
+    :statuscode 200: no error
+    :statuscode 401: user authentication failed

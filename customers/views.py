@@ -175,9 +175,7 @@ class UserView(generics.CreateAPIView):
             token.identifier = tokenGenerator()
         token.save()
         tokenSerializer = UserTokenSerializer(token)
-        data = dict(tokenSerializer.data)
-        data['name'] = name
-        return Response(data, status=(status.HTTP_201_CREATED if created else status.HTTP_200_OK))
+        return Response(tokenSerializer.data, status=(status.HTTP_201_CREATED if created else status.HTTP_200_OK))
 
     def create(self, request, *args, **kwargs):
         userSerializer = UserSerializer(data=request.data)

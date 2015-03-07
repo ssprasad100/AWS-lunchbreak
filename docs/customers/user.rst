@@ -9,6 +9,8 @@ Registration
 
     Register the user's phone number.
 
+    Serializer: :doc:`/serializers/customers/user`
+
     :reqheader Content-Type: application/json
 
     :form phone: user phone number
@@ -24,7 +26,11 @@ Confirmation
 
 .. http:post:: /v1/customers/user/
 
-    Confirm registration
+    Confirm a user's registration.
+
+    Request serializer: :doc:`/serializers/customers/user`
+
+    Response serializer: :doc:`/serializers/customers/userToken`
 
     :reqheader Content-Type: application/json
 
@@ -38,10 +44,3 @@ Confirmation
     :status 200: token with device exists, new identifier generated
     :status 201: token has been added
     :status 400: form parameters missing
-
-    :resjson int id: token ID
-    :resjson string device: device name
-    :resjson string identifier: identifier used in headers
-    :resjson string name: user's name
-    :resjson int user_id: user ID
-

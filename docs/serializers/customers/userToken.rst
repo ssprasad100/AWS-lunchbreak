@@ -2,7 +2,7 @@ UserToken
 =========
 
 * Fields extends :doc:`/serializers/global/token`
-    - **user_id** (*int*) - User ID
+    - **user** (:doc:`/serializers/customers/user`) - User
 
 * Read only fields
-    - user_id
+    - user
