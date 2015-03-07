@@ -1,5 +1,5 @@
 StoreCategory
-=====
+=============
 
 * Fields
     - **id** (*int*) - StoreCategory ID
