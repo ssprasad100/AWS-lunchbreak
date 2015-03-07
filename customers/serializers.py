@@ -8,7 +8,8 @@ from django.utils import timezone
 from lunch.exceptions import DoesNotExist
 from lunch.models import Food, Ingredient, Store
 from lunch.serializers import (FoodCategorySerializer, FoodSerializer,
-                               FoodTypeSerializer, StoreSerializer)
+                               FoodTypeSerializer, StoreSerializer,
+                               TokenSerializer)
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -156,8 +157,8 @@ class OrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ('store', 'orderedTime', 'pickupTime', 'status', 'paid', 'total', 'food',)
-        read_only_fields = ('store', 'orderedTime', 'pickupTime', 'status', 'paid', 'total', 'food',)
+        fields = ('id', 'store', 'orderedTime', 'pickupTime', 'status', 'paid', 'total', 'food',)
+        read_only_fields = ('id', 'store', 'orderedTime', 'pickupTime', 'status', 'paid', 'total', 'food',)
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -170,7 +171,7 @@ class UserSerializer(serializers.ModelSerializer):
         write_only_fields = ('name', 'phone', 'pin', 'device',)
 
 
-class UserTokenSerializer(serializers.ModelSerializer):
+class UserTokenSerializer(TokenSerializer):
 
     def to_representation(self, obj):
         return {
@@ -182,5 +183,5 @@ class UserTokenSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserToken
-        fields = ('id', 'identifier', 'device', 'user_id',)
-        read_only_fields = ('id', 'identifier', 'user_id',)
+        fields = TokenSerializer.Meta.fields + ('user_id',)
+        read_only_fields = TokenSerializer.Meta.read_only_fields + ('user_id',)

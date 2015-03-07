@@ -1,7 +1,7 @@
 from lunch.models import (DefaultFood, DefaultFoodCategory, DefaultIngredient,
                           Food, FoodCategory, FoodType, HolidayPeriod,
                           Ingredient, IngredientGroup, OpeningHours, Store,
-                          StoreCategory)
+                          StoreCategory, Token)
 from rest_framework import serializers
 
 
@@ -34,13 +34,6 @@ class HolidayPeriodSerializer(serializers.ModelSerializer):
         fields = ('id', 'description', 'start', 'end', 'closed',)
 
 
-class ShortIngredientSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Ingredient
-        fields = ('id', 'name', 'cost',)
-
-
 class DefaultIngredientSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -48,15 +41,15 @@ class DefaultIngredientSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'cost', 'icon',)
 
 
-class IngredientSerializer(serializers.ModelSerializer):
+class IngredientSerializer(DefaultIngredientSerializer):
 
     class Meta:
         model = Ingredient
-        fields = ('id', 'name', 'store', 'icon',)
+        fields = DefaultIngredientSerializer.Meta.fields + ('store',)
 
 
 class IngredientGroupSerializer(serializers.ModelSerializer):
-    ingredients = ShortIngredientSerializer(many=True)
+    ingredients = IngredientSerializer(many=True)
 
     class Meta:
         model = IngredientGroup
@@ -85,19 +78,17 @@ class FoodTypeSerializer(serializers.ModelSerializer):
 
 
 class DefaultFoodSerializer(serializers.ModelSerializer):
-    ingredientGroups = IngredientGroupSerializer(many=True)
+    ingredientGroups = IngredientGroupSerializer(many=True, read_only=True)
     category = DefaultFoodCategorySerializer(many=False)
     foodType = FoodTypeSerializer(many=False)
 
     class Meta:
         model = DefaultFood
         fields = ('id', 'name', 'cost', 'ingredientGroups', 'ingredients', 'category', 'foodType',)
+        read_only_fields = ('id', 'ingredientGroups',)
 
 
-class FoodSerializer(serializers.ModelSerializer):
-    ingredientGroups = IngredientGroupSerializer(many=True, read_only=True)
-    category = FoodCategorySerializer(many=False)
-    foodType = FoodTypeSerializer(many=False)
+class FoodSerializer(DefaultFoodSerializer):
 
     def create(self, validated_data):
         ingredients = Ingredient.objects.filter(id__in=validated_data['ingredients'])
@@ -105,5 +96,12 @@ class FoodSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Food
-        fields = ('id', 'name', 'cost', 'ingredientGroups', 'ingredients', 'store', 'category', 'foodType',)
-        read_only_fields = ('id', 'ingredientGroups',)
+        fields = DefaultFoodSerializer.Meta.field + ('store',)
+
+
+class TokenSerializer(serializers.TokenSerializer):
+
+    class Meta:
+        model = Token
+        fields = ('id', 'identifier', 'device',)
+        read_only_fields = ('id', 'identifier', 'device',)

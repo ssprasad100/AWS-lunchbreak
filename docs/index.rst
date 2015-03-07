@@ -5,7 +5,6 @@ Lunchbreak |release| documentation
 ===================================
 
 .. toctree::
-    :maxdepth: 10
-
     Customers <customers/index>
+    Serializers <serializers/index>
     error
