@@ -33,6 +33,38 @@ class StoreListView(generics.ListAPIView):
             return Store.objects.filter(id=self.kwargs['id'])
 
 
+def getOpeningHours(storeId):
+    return OpeningHours.objects.filter(store_id=storeId).order_by('day', 'opening')
+
+
+def getHolidayPeriods(storeId):
+    return HolidayPeriod.objects.filter(store_id=storeId, start__lte=timezone.now() + datetime.timedelta(days=7), end__gte=timezone.now())
+
+
+class StoreOpenView(generics.ListAPIView):
+    '''
+    List the opening hours and holiday periods of a store.
+    '''
+
+    authentication_classes = (CustomerAuthentication,)
+    serializer_class = OpeningHoursSerializer
+
+    def get_queryset(self):
+        return OpeningHours.objects.filter(store_id=self.kwargs['store_id']).order_by('day', 'opening')
+
+    def get(self, request, *args, **kwargs):
+        storeId = self.kwargs['store_id']
+        openingHours = OpeningHoursSerializer(getOpeningHours(storeId), many=True)
+        holidayPeriods = HolidayPeriodSerializer(getHolidayPeriods(storeId), many=True)
+
+        data = {
+            'openingHours': openingHours.data,
+            'holidayPeriods': holidayPeriods.data
+        }
+
+        return Response(data=data, status=status.HTTP_200_OK)
+
+
 class OpeningHoursListView(generics.ListAPIView):
     '''
     List the opening hours of a store.
@@ -42,19 +74,19 @@ class OpeningHoursListView(generics.ListAPIView):
     serializer_class = OpeningHoursSerializer
 
     def get_queryset(self):
-        return OpeningHours.objects.filter(store_id=self.kwargs['store_id']).order_by('day', 'opening')
+        return getOpeningHours(self.kwargs['store_id'])
 
 
 class HolidayPeriodListView(generics.ListAPIView):
     '''
-    List the opening hours of a store.
+    List the holiday periods of a store.
     '''
 
     authentication_classes = (CustomerAuthentication,)
     serializer_class = HolidayPeriodSerializer
 
     def get_queryset(self):
-        return HolidayPeriod.objects.filter(store_id=1, start__lte=timezone.now() + datetime.timedelta(days=7), end__gte=timezone.now())
+        return getHolidayPeriods(self.kwargs['store_id'])
 
 
 class FoodListView(generics.ListAPIView):

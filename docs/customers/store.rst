@@ -46,6 +46,28 @@ Specific store
     :statuscode 401: user authentication failed
 
 
+Opening hours and holiday periods
+=================================
+
+.. http:get:: /v1/customers/store/hours/(int:store_id)
+
+    Show the opening hours of a specific store.
+
+    :reqheader X-Identifier: Identifier token of the UserToken
+    :reqheader X-User: ID of the user
+    :reqheader X-Device: Name of the device
+
+    :query int store_id: ID of the store
+
+    :resheader Content-Type: application/json
+
+    :statuscode 200: no error
+    :statuscode 401: user authentication failed
+
+    :resjson objectarray holidayPeriods: :doc:`/serializers/global/holidayPeriod`
+    :resjson objectarray openingHours: :doc:`/serializers/global/openingHours`
+
+
 Opening hours
 =============
 

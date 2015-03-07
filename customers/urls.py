@@ -4,6 +4,7 @@ from customers import views
 urlpatterns = patterns('',
     url(r'^store/nearby/(?P<latitude>.+)/(?P<longitude>.+)/(?P<proximity>.+)/$', views.StoreListView.as_view()),
     url(r'^store/nearby/(?P<latitude>.+)/(?P<longitude>.+)/$', views.StoreListView.as_view()),
+    url(r'^store/open/(?P<store_id>\d+)/$', views.StoreOpenView.as_view()),
     url(r'^store/hours/(?P<store_id>\d+)/$', views.OpeningHoursListView.as_view()),
     url(r'^store/holiday/(?P<store_id>\d+)/$', views.HolidayPeriodListView.as_view()),
     url(r'^store/(?P<id>\d+)/$', views.StoreListView.as_view()),
