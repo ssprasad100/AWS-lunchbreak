@@ -105,11 +105,11 @@ APPEND_SLASH = True
 
 REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'lunch.exceptions.lunchbreakExceptionHandler',
-    'COERCE_DECIMAL_TO_STRING': False
+    'COERCE_DECIMAL_TO_STRING': False,
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+    ]
 }
-
-# Disable the browsable API
-REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES'] = ('rest_framework.renderers.JSONRenderer',)
 
 
 # Opbeat settings
