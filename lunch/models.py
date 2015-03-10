@@ -72,9 +72,9 @@ class LunchbreakManager(models.Manager):
                         lunch_food_ingredients.ingredient_id
                     FROM `lunch_food`
                         INNER JOIN `lunch_food_ingredients` ON lunch_food.id = lunch_food_ingredients.food_id
-                        LEFT JOIN `lunch_orderedfood_ingredients` ON lunch_food_ingredients.ingredient_id = lunch_orderedfood_ingredients.ingredient_id
-                        INNER JOIN `lunch_orderedfood` ON lunch_orderedfood_ingredients.orderedfood_id = lunch_orderedfood.id
-                    WHERE lunch_orderedfood.id = %s AND lunch_orderedfood.store_id = %s
+                        LEFT JOIN `customers_orderedfood_ingredients` ON lunch_food_ingredients.ingredient_id = customers_orderedfood_ingredients.ingredient_id
+                        INNER JOIN `customers_orderedfood` ON customers_orderedfood_ingredients.orderedfood_id = customers_orderedfood.id
+                    WHERE customers_orderedfood.id = %s AND customers_orderedfood.store_id = %s
                 )
                 GROUP BY lunch_food.id
                 ORDER BY difference ASC, cost DESC;
