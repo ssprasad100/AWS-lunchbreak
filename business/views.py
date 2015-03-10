@@ -1,22 +1,23 @@
 from business.authentication import EmployeeAuthentication, StaffAuthentication
-from business.exceptions import IncorrectPassword, InvalidEmail
-from business.models import Employee, Staff, StaffToken
+from business.exceptions import InvalidEmail
+from business.models import Employee, Staff
 from business.serializers import (EmployeeSerializer, OrderSerializer,
-                                  StaffSerializer, StaffTokenSerializer)
-from customers.models import Order, ORDER_STATUS_PLACED, ORDER_STATUS_RECEIVED, ORDER_STATUS_STARTED, ORDER_STATUS_WAITING
+                                  StaffSerializer)
+from customers.models import (Order, ORDER_STATUS_PLACED, ORDER_STATUS_RECEIVED,
+                              ORDER_STATUS_STARTED, ORDER_STATUS_WAITING)
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.mail import BadHeaderError, send_mail
 from django.core.validators import validate_email
-from lunch.exceptions import BadRequest, DoesNotExist
+from lunch.exceptions import BadRequest
 from lunch.models import Store, tokenGenerator
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 
-class StaffListView(generics.ListAPIView):
+class StaffView(generics.ListAPIView):
     '''
-    List the staff.
+    List the staff and login.
     '''
 
     serializer_class = StaffSerializer
@@ -31,27 +32,7 @@ class StaffListView(generics.ListAPIView):
         return Staff.objects.all()
 
     def post(self, request, format=None):
-        if 'password' not in request.data or 'staffId' not in request.data or 'device' not in request.data:
-            raise BadRequest()
-
-        rawPassword = request.data['password']
-        staffId = request.data['staffId']
-        device = request.data['device']
-
-        try:
-            staff = Staff.objects.get(id=staffId)
-        except ObjectDoesNotExist:
-            raise DoesNotExist('Staff does not exist.')
-
-        if staff.checkPassword(rawPassword):
-            token, created = StaffToken.objects.get_or_create(device=device, staff=staff)
-            if not created:
-                token.identifier = tokenGenerator()
-            token.save()
-            tokenSerializer = StaffTokenSerializer(token)
-            data = dict(tokenSerializer.data)
-            return Response(data, status=(status.HTTP_201_CREATED if created else status.HTTP_200_OK))
-        raise IncorrectPassword()
+        return StaffAuthentication.login(request)
 
 
 class StaffRequestReset(APIView):
@@ -111,9 +92,9 @@ class StaffResetView(APIView):
             return Response(status=status.HTTP_200_OK)
 
 
-class EmployeeListView(generics.ListAPIView):
+class EmployeeView(generics.ListAPIView):
     '''
-    List the employees.
+    List the employees and login.
     '''
 
     authentication_classes = (StaffAuthentication,)
@@ -123,6 +104,9 @@ class EmployeeListView(generics.ListAPIView):
         if 'id' in self.kwargs:
             return Employee.objects.filter(id=self.kwargs['id'], staff=self.request.user)
         return Employee.objects.filter(staff=self.request.user)
+
+    def post(self, request, format=None):
+        return EmployeeAuthentication.login(request)
 
 
 class OrderListView(generics.ListAPIView):

@@ -1,6 +1,7 @@
 from django.contrib import admin
 from business.models import Staff, Employee
 
+
 @admin.register(Staff)
 class StaffAdmin(admin.ModelAdmin):
     fieldsets = (
@@ -23,11 +24,11 @@ class StaffAdmin(admin.ModelAdmin):
 class EmployeeAdmin(admin.ModelAdmin):
     fieldsets = (
         (None, {
-                'fields': ('name', 'pin',)
+                'fields': ('name', 'password',)
             }),
         (None, {'fields': ('staff',)})
     )
-    readonly_fields = ('pin',)
+    readonly_fields = ('password',)
     list_display = ('name', 'staff',)
     list_filter = ('staff',)
     search_fields = ('name', 'staff',)
