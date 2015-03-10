@@ -21,7 +21,7 @@ def deploy():
 
 	with cd(REMOTE_PATH):
 		run('git fetch --all')
-		run('git reset --hard origin/master')
+		run('git reset --hard origin/staging')
 		run('sed -i "s/DEBUG = True/Debug = False/g" Lunchbreak/settings.py')
 
 		with prefix('workon lunchbreak'):
