@@ -20,7 +20,8 @@ def deploy():
 	sudo('service apache2 graceful-stop')
 
 	with cd(REMOTE_PATH):
-		run('git pull --no-edit')
+		run('git fetch --all')
+		run('git reset --hard origin/master')
 		run('sed -i "s/DEBUG = True/Debug = False/g" Lunchbreak/settings.py')
 
 		with prefix('workon lunchbreak'):
