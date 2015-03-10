@@ -22,7 +22,7 @@ def deploy():
 	with cd(REMOTE_PATH):
 		run('git fetch --all')
 		run('git reset --hard origin/staging')
-		run('sed -i "s/DEBUG = True/Debug = False/g" Lunchbreak/settings.py')
+		run('sed -i "s/DEBUG_API = True/Debug_API = False/g" Lunchbreak/settings.py')
 
 		with prefix('workon lunchbreak'):
 			pipInstall = run('pip install -r requirements.txt')

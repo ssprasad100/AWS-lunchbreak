@@ -1,3 +1,6 @@
+import logging
+
+from django.conf import settings
 from rest_framework import status
 from rest_framework.exceptions import APIException
 from rest_framework.response import Response
@@ -21,9 +24,11 @@ def lunchbreakExceptionHandler(exception):
             response.data['error']['detail'] = exception.detail
     elif hasDetail:
         response.data['error']['information'] = exception.detail
-    else:
-        # DEBUG ONLY
+    elif settings.DEBUG_API:
         raise
+    else:
+        logger = logging.getLogger(__name__)
+        logger.exception('Unhandled exception: %s' % (exception,))
 
     response.status_code = exception.status_code if hasattr(exception, 'status_code') else status.HTTP_400_BAD_REQUEST
     return response
