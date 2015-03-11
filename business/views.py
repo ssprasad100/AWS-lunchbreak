@@ -1,6 +1,6 @@
 from business.authentication import EmployeeAuthentication, StaffAuthentication
-from business.exceptions import InvalidEmail
 from business.models import Employee, Staff
+from business.responses import InvalidEmail
 from business.serializers import (EmployeeSerializer, OrderSerializer,
                                   StaffSerializer)
 from customers.models import (Order, ORDER_STATUS_PLACED, ORDER_STATUS_RECEIVED,
@@ -8,8 +8,8 @@ from customers.models import (Order, ORDER_STATUS_PLACED, ORDER_STATUS_RECEIVED,
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.mail import BadHeaderError, send_mail
 from django.core.validators import validate_email
-from lunch.exceptions import BadRequest
 from lunch.models import Store, tokenGenerator
+from lunch.responses import BadRequest
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -44,12 +44,12 @@ class StaffRequestReset(APIView):
         try:
             validate_email(email)
         except ValidationError:
-            raise InvalidEmail()
+            return InvalidEmail()
 
         try:
             staff = Staff.objects.get(email=email)
         except ObjectDoesNotExist:
-            raise InvalidEmail('Email address not found.')
+            return InvalidEmail('Email address not found.')
 
         staff.passwordReset = tokenGenerator()
         staff.save()
@@ -75,16 +75,16 @@ class StaffResetView(APIView):
             validate_email(email)
             staff = Staff.objects.get(email=email)
         except ValidationError:
-            raise InvalidEmail()
+            return InvalidEmail()
         except ObjectDoesNotExist:
-            raise InvalidEmail('Email address not found.')
+            return InvalidEmail('Email address not found.')
 
         if staff.passwordReset is None or 'password' not in request.data:
-            raise BadRequest()
+            return BadRequest()
         elif staff.passwordReset != passwordReset:
             staff.passwordReset = None
             staff.save()
-            raise BadRequest()
+            return BadRequest()
         else:
             staff.passwordReset = None
             staff.setPassword(request.data['password'])

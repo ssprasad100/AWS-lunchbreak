@@ -20,7 +20,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 SECRET_KEY = 'e2a86@j!uc5@z^yu=%n9)6^%w+-(pk8a6@^i!vnvxe^-w%!q8('
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 DEBUG_API = False
 
 TEMPLATE_DEBUG = True
@@ -28,7 +28,8 @@ TEMPLATE_DEBUG = True
 ALLOWED_HOSTS = []
 
 ALLOWED_HOSTS = [
-    'api.lunchbreakapp.be'
+    'api.lunchbreakapp.be',
+    'localhost'
 ]
 
 

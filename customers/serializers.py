@@ -1,12 +1,12 @@
 from datetime import timedelta
 
-from customers.exceptions import (CostCheckFailed, MinTimeExceeded,
-                                  PastOrderDenied)
 from customers.models import Order, OrderedFood, User, UserToken
+from customers.responses import (CostCheckFailed, MinTimeExceeded,
+                                 PastOrderDenied)
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
-from lunch.exceptions import DoesNotExist
 from lunch.models import Food, Ingredient, Store
+from lunch.responses import DoesNotExist
 from lunch.serializers import (FoodCategorySerializer, FoodSerializer,
                                FoodTypeSerializer, StoreSerializer,
                                TokenSerializer)
@@ -84,19 +84,20 @@ class ShortOrderSerializer(serializers.ModelSerializer):
     def costCheck(self, order, orderedFood, amount, cost):
         if orderedFood.cost * amount != cost:
             order.delete()
-            raise CostCheckFailed()
+            return False
+        return True
 
     def create(self, validated_data):
         try:
             pickupTime = validated_data['pickupTime']
 
             if pickupTime < timezone.now():
-                raise PastOrderDenied()
+                return PastOrderDenied()
 
             store = validated_data['store']
 
             if pickupTime - timezone.now() < timedelta(minutes=store.minTime):
-                raise MinTimeExceeded()
+                return MinTimeExceeded()
 
             user = self.context['user']
 
@@ -109,10 +110,11 @@ class ShortOrderSerializer(serializers.ModelSerializer):
                 if 'referenceId' in f:
                     referenceFood = Food.objects.filter(id=f['referenceId'])
                     if len(referenceFood) == 0:
-                        raise DoesNotExist('Referenced food does not exist.')
+                        return DoesNotExist('Referenced food does not exist.')
                     orderedFood = OrderedFood(**referenceFood.values()[0])
 
-                    self.costCheck(order, orderedFood, amount, f['cost'])
+                    if not self.costCheck(order, orderedFood, amount, f['cost']):
+                        return CostCheckFailed()
 
                     orderedFood.pk = None
                     orderedFood.order = order
@@ -123,7 +125,8 @@ class ShortOrderSerializer(serializers.ModelSerializer):
                     exact, closestFood = OrderedFood.objects.closestFood(orderedFood, ingredientIds)
                     orderedFood.cost = closestFood.cost if exact else OrderedFood.calculateCost(Ingredient.objects.filter(id__in=ingredientIds, store_id=store), closestFood)
 
-                    self.costCheck(order, orderedFood, amount, f['cost'])
+                    if not self.costCheck(order, orderedFood, amount, f['cost']):
+                        return CostCheckFailed()
 
                     orderedFood.name = closestFood.name
                     orderedFood.foodType = closestFood.foodType
@@ -138,7 +141,7 @@ class ShortOrderSerializer(serializers.ModelSerializer):
             order.save()
             return order
         except ObjectDoesNotExist:
-            raise DoesNotExist('Store does not exist')
+            return DoesNotExist('Store does not exist')
 
     class Meta:
         model = Order

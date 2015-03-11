@@ -8,9 +8,9 @@ from customers.serializers import (OrderedFoodPriceSerializer, OrderSerializer,
                                    UserTokenSerializer)
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
-from lunch.exceptions import BadRequest
 from lunch.models import (Food, HolidayPeriod, Ingredient, OpeningHours, Store,
                           tokenGenerator)
+from lunch.responses import BadRequest
 from lunch.serializers import (FoodSerializer, HolidayPeriodSerializer,
                                OpeningHoursSerializer, StoreSerializer)
 from rest_framework import generics, status
@@ -125,7 +125,7 @@ class OrderView(generics.ListCreateAPIView):
         if orderSerializer.is_valid():
             orderSerializer.save()
             return Response(data=orderSerializer.data, status=status.HTTP_201_CREATED)
-        raise BadRequest(orderSerializer.errors)
+        return BadRequest(orderSerializer.errors)
 
 
 class OrderPriceView(generics.CreateAPIView):
@@ -150,7 +150,7 @@ class OrderPriceView(generics.CreateAPIView):
                     priceInfo['food_id'] = closestFood.id
                 result.append(priceInfo)
             return Response(data=result, status=status.HTTP_200_OK)
-        raise BadRequest(priceSerializer.errors)
+        return BadRequest(priceSerializer.errors)
 
 
 class UserTokenView(generics.ListAPIView):
@@ -279,4 +279,4 @@ class UserView(generics.CreateAPIView):
                     pass
                 else:
                     return self.createGetToken(demoUser, request.data['device'], 'demo')
-        raise BadRequest(userSerializer.errors)
+        return BadRequest(userSerializer.errors)
