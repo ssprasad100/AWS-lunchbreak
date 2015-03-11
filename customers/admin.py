@@ -5,8 +5,8 @@ from lunch.admin import FoodAdmin
 
 @admin.register(OrderedFood)
 class OrderedFoodAdmin(FoodAdmin):
-    list_display = FoodAdmin.list_display + ('amount',)
-    fields = FoodAdmin.fields + ('amount',)
+    list_display = FoodAdmin.list_display + ('amount', 'order',)
+    fields = FoodAdmin.fields + ('amount', 'order',)
     readonly_fields = ('cost',)
 
 
@@ -20,7 +20,7 @@ class UserAdmin(admin.ModelAdmin):
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     list_display = ('user', 'store', 'orderedTime', 'pickupTime', 'status', 'paid',)
-    fields = ('user', 'store', 'pickupTime', 'status', 'paid', 'food', 'orderedTime',)
+    fields = ('user', 'store', 'pickupTime', 'status', 'paid', 'orderedTime',)
     readonly_fields = ('orderedTime',)
 
 
