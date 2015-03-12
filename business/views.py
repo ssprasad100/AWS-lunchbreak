@@ -41,29 +41,7 @@ class StaffRequestReset(APIView):
     '''
 
     def get(self, request, email, format=None):
-        try:
-            validate_email(email)
-        except ValidationError:
-            return InvalidEmail()
-
-        try:
-            staff = Staff.objects.get(email=email)
-        except ObjectDoesNotExist:
-            return InvalidEmail('Email address not found.')
-
-        staff.passwordReset = tokenGenerator()
-        staff.save()
-        url = 'http://api.lunchbreakapp.be/v1/business/reset/%s/%s' % (email, staff.passwordReset,)
-
-        message = '''A password reset has been requested for this staff account.
-
-Please visit %s or ignore this email if you did not request this.
-        ''' % url
-        try:
-            send_mail('Lunchbreak password reset', message, 'noreply@lunchbreakapp.be', [email], fail_silently=False)
-        except BadHeaderError:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        return Response(status=status.HTTP_200_OK)
+        return StaffAuthentication.requestPasswordReset(request, email)
 
 
 class StaffResetView(APIView):

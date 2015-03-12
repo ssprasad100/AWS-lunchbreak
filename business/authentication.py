@@ -1,7 +1,11 @@
 from business.models import Employee, EmployeeToken, Staff, StaffToken
-from business.responses import IncorrectPassword
+from business.responses import IncorrectPassword, InvalidEmail
 from business.serializers import EmployeeTokenSerializer, StaffTokenSerializer
-from django.core.exceptions import ObjectDoesNotExist
+from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.mail import BadHeaderError, EmailMultiAlternatives
+from django.core.validators import validate_email
+from django.template.loader import render_to_string
 from lunch.authentication import TokenAuthentication
 from lunch.models import tokenGenerator
 from lunch.responses import BadRequest, DoesNotExist
@@ -35,6 +39,39 @@ class BusinessAuthentication(TokenAuthentication):
             tokenSerializer = cls.TOKEN_SERIALIZER(token)
             return Response(tokenSerializer.data, status=(status.HTTP_201_CREATED if created else status.HTTP_200_OK))
         return IncorrectPassword()
+
+    @classmethod
+    def requestPasswordReset(cls, request, to_email):
+        try:
+            validate_email(to_email)
+        except ValidationError:
+            return InvalidEmail()
+
+        try:
+            model = cls.MODEL.objects.get(email=to_email)
+        except ObjectDoesNotExist:
+            return InvalidEmail('Email address not found.')
+
+        model.passwordReset = tokenGenerator()
+        model.save()
+        subject, from_email = 'Lunchbreak password reset', settings.EMAIL_FROM
+        url = 'http://%s/v1/business/reset/%s/%s/%s' % (settings.HOST, cls.MODEL_NAME, to_email, model.passwordReset,)
+
+        templateArguments = {
+            'name': model.name,
+            'url': url
+        }
+        plaintext = render_to_string('requestReset.txt', templateArguments)
+        html = render_to_string('requestReset.html', templateArguments)
+
+        msg = EmailMultiAlternatives(subject, plaintext, from_email, [to_email])
+        msg.attach_alternative(html, 'text/html')
+
+        try:
+            msg.send()
+        except BadHeaderError:
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(status=status.HTTP_200_OK)
 
 
 class StaffAuthentication(BusinessAuthentication):

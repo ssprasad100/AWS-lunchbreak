@@ -1,6 +1,7 @@
 from django.contrib.auth.hashers import check_password, make_password
 from django.db import models
-from lunch.models import Store, BaseToken, IDENTIFIER_LENGTH
+from django.utils.functional import cached_property
+from lunch.models import BaseToken, IDENTIFIER_LENGTH, Store
 
 
 class PasswordModel(models.Model):
@@ -23,6 +24,10 @@ class Staff(PasswordModel):
 
     class Meta:
         verbose_name_plural = 'Staff'
+
+    @cached_property
+    def name(self):
+        return self.store.name
 
 
 class StaffToken(BaseToken):

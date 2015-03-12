@@ -10,8 +10,9 @@ class Base(Configuration):
 
     DEBUG = True
     TEMPLATE_DEBUG = True
+    HOST = 'api.lunchbreakapp.be'
     ALLOWED_HOSTS = [
-        'api.lunchbreakapp.be'
+        HOST
     ]
 
     INSTALLED_APPS = (
@@ -66,8 +67,11 @@ class Base(Configuration):
     USE_L10N = True
     USE_TZ = True
 
-    STATIC_ROOT = '/home/lunchbreak/public_html/lunchbreak/static/'
+    STATIC_ROOT = BASE_DIR + '/static/'
     STATIC_URL = '/static/'
+    TEMPLATE_DIRS = (
+        BASE_DIR + '/business/templates/',
+    )
 
     APPEND_SLASH = True
 
@@ -133,10 +137,12 @@ class Base(Configuration):
     EMAIL_HOST_PASSWORD = 'JmxxhBcM45A4Phth3SzMa0Lqfyd2qRgvT7a4aGnrHz8yTROmQL'
     EMAIL_PORT = 587
     EMAIL_USE_TLS = True
+    EMAIL_FROM = 'noreply@lunchbreakapp.be'
 
 
 class Development(Base):
     DEBUG = True
+    HOST = 'localhost:8000'
 
 
 class Travis(Development):
