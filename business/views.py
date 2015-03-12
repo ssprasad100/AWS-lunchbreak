@@ -35,7 +35,7 @@ class StaffView(generics.ListAPIView):
         return StaffAuthentication.login(request)
 
 
-class StaffRequestReset(APIView):
+class StaffRequestResetView(APIView):
     '''
     Send password reset mail.
     '''
@@ -85,6 +85,22 @@ class EmployeeView(generics.ListAPIView):
 
     def post(self, request, format=None):
         return EmployeeAuthentication.login(request)
+
+
+class EmployeeRequestResetView(APIView):
+    '''
+    Send a password reset mail to an employee.
+    '''
+
+    authentication_classes = (StaffAuthentication,)
+
+    def get(self, request, employee_id, format=None):
+        staff = request.user
+        try:
+            employee = Employee.objects.get(id=employee_id, staff=staff)
+        except ObjectDoesNotExist:
+            return BadRequest()
+        return EmployeeAuthentication.requestPasswordReset(request, staff.email, employee)
 
 
 class OrderListView(generics.ListAPIView):

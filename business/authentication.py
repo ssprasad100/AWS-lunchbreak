@@ -41,16 +41,19 @@ class BusinessAuthentication(TokenAuthentication):
         return IncorrectPassword()
 
     @classmethod
-    def requestPasswordReset(cls, request, to_email):
-        try:
-            validate_email(to_email)
-        except ValidationError:
-            return InvalidEmail()
+    def requestPasswordReset(cls, request, to_email=None, model=None):
+        if to_email is not None and model is None:
+            try:
+                validate_email(to_email)
+            except ValidationError:
+                return InvalidEmail()
 
-        try:
-            model = cls.MODEL.objects.get(email=to_email)
-        except ObjectDoesNotExist:
-            return InvalidEmail('Email address not found.')
+            try:
+                model = cls.MODEL.objects.get(email=to_email)
+            except ObjectDoesNotExist:
+                return InvalidEmail('Email address not found.')
+        elif model is None:
+            return BadRequest()
 
         model.passwordReset = tokenGenerator()
         model.save()
