@@ -3,7 +3,7 @@ ShortOrder
 
 * Fields
     - **id** (*int*) - Order ID
-    - **name** (*string*) - Name
+    - **name** (*String*) - Name
     - **store** (:doc:`/serializers/global/store`) - Store
     - **pickupTime** (*datetime*) - Datetime of pickup
     - **paid** (*boolean*) - Already paid or not

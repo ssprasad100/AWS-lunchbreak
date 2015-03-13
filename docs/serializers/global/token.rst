@@ -3,8 +3,8 @@ Token
 
 * Fields
     - **id** (*int*) - Token ID
-    - **identifier** (*string*) - Identifier
-    - **device** (*string*) - Device name
+    - **identifier** (*String*) - Identifier
+    - **device** (*String*) - Device name
 
 * Read only fields
     - id

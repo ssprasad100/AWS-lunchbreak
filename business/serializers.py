@@ -29,6 +29,7 @@ class StaffTokenSerializer(BusinessTokenSerializer):
     class Meta:
         model = StaffToken
         fields = BusinessTokenSerializer.Meta.fields + ('staff',)
+        read_only_fields = BusinessTokenSerializer.Meta.read_only_fields + ('staff',)
 
 
 class EmployeeSerializer(serializers.ModelSerializer):
@@ -45,13 +46,13 @@ class EmployeeTokenSerializer(BusinessTokenSerializer):
     class Meta:
         model = EmployeeToken
         fields = BusinessTokenSerializer.Meta.fields + ('employee',)
+        read_only_fields = BusinessTokenSerializer.Meta.read_only_fields + ('employee',)
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    store = StoreSerializer(read_only=True)
     food = OrderedFoodSerializer(many=True, read_only=True)
 
     class Meta:
         model = Order
-        fields = ('id', 'user', 'store', 'orderedTime', 'pickupTime', 'status', 'paid', 'food', 'total',)
-        read_only_fields = ('id', 'user', 'store', 'orderedTime', 'pickupTime', 'paid', 'food', 'total',)
+        fields = ('id', 'user', 'orderedTime', 'pickupTime', 'status', 'paid', 'food', 'total',)
+        read_only_fields = ('id', 'user', 'orderedTime', 'pickupTime', 'paid', 'food', 'total',)

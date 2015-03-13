@@ -5,22 +5,20 @@ Order
 Specific order
 ==============
 
-.. http:get:: /v1/customers/order/(int:id)
+.. http:get:: /v1/customers/order/(int:id)/
 
     Order with the given ID.
 
-    Serializer: :doc:`/serializers/customers/order`
+    Authentication: :doc:`/authentication/user`
 
-    :reqheader X-Identifier: Identifier token of the UserToken
-    :reqheader X-User: ID of the user
-    :reqheader X-Device: Name of the device
+    Serializer: :doc:`/serializers/customers/order`
 
     :query int id: ID of the order
 
     :resheader Content-Type: application/json
 
     :statuscode 200: no error
-    :statuscode 401: user authentication failed
+    :statuscode 401: authentication failed
 
 
 User's orders
@@ -30,16 +28,14 @@ User's orders
 
     All of the authenticated user's orders.
 
-    Serializer: :doc:`/serializers/customers/shortOrder`
+    Authentication: :doc:`/authentication/user`
 
-    :reqheader X-Identifier: Identifier token of the UserToken
-    :reqheader X-User: ID of the user
-    :reqheader X-Device: Name of the device
+    Serializer: :doc:`/serializers/customers/shortOrder`
 
     :resheader Content-Type: application/json
 
     :statuscode 200: no error
-    :statuscode 401: user authentication failed
+    :statuscode 401: authentication failed
 
 
 Place order
@@ -49,17 +45,15 @@ Place order
 
     All of the authenticated user's orders.
 
-    Serializer: :doc:`/serializers/customers/shortOrder`
+    Authentication: :doc:`/authentication/user`
 
-    :reqheader X-Identifier: Identifier token of the UserToken
-    :reqheader X-User: ID of the user
-    :reqheader X-Device: Name of the device
+    Serializer: :doc:`/serializers/customers/shortOrder`
     :reqheader Content-Type: application/json
 
     :resheader Content-Type: application/json
 
     :statuscode 200: no error
-    :statuscode 401: user authentication failed
+    :statuscode 401: authentication failed
 
 
 Request price
@@ -69,15 +63,13 @@ Request price
 
     Request the price of an order.
 
-    Serializer: :doc:`/serializers/customers/orderedFoodPrice`
+    Authentication: :doc:`/authentication/user`
 
-    :reqheader X-Identifier: Identifier token of the UserToken
-    :reqheader X-User: ID of the user
-    :reqheader X-Device: Name of the device
+    Serializer: :doc:`/serializers/customers/orderedFoodPrice`
     :reqheader Content-Type: application/json
 
     :resheader Content-Type: application/json
 
     :statuscode 200: no error
-    :statuscode 401: user authentication failed
+    :statuscode 401: authentication failed
 

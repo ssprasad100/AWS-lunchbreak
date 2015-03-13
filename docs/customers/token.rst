@@ -9,13 +9,11 @@ Token list
 
     List token for authenticated user.
 
-    Serializer: :doc:`/serializers/customers/userToken`
+    Authentication: :doc:`/authentication/user`
 
-    :reqheader X-Identifier: Identifier token of the UserToken
-    :reqheader X-User: ID of the user
-    :reqheader X-Device: Name of the device
+    Serializer: :doc:`/serializers/customers/userToken`
 
     :resheader Content-Type: application/json
 
     :statuscode 200: no error
-    :statuscode 401: user authentication failed
+    :statuscode 401: authentication failed

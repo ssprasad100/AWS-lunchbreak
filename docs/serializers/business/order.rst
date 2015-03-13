@@ -3,10 +3,9 @@ Order
 
 * Fields
     - **id** (*int*) - Order ID
-    - **name** (*String*) - Name
-    - **store** (:doc:`/serializers/global/store`) - Store
-    - **orderedTime** (*datetime*) - Datetime of order
-    - **pickupTime** (*datetime*) - Datetime of pickup
+    - **user** (*int*) - User ID
+    - **orderedTime** (*datetime*) - Time of order
+    - **pickupTime** (*datetime*) - Time of pickup
     - **status** (*int*) - Status number
         + **0** - *Placed*
         + **1** - *Denied*
@@ -14,16 +13,16 @@ Order
         + **3** - *Started*
         + **4** - *Waiting*
         + **5** - *Completed*
-    - **paid** (*boolean*) - Already paid or not
-    - **total** (*decimal*) - Total cost
+    - **paid** (*boolean*) - Paid or not
     - **food** (:doc:`/serializers/customers/orderedFood` array) - Ordered food
+    - **total** (*decimal*) - Total cost
+
 
 * Read only fields
     - id
-    - store
+    - user
     - orderedTime
     - pickupTime
-    - status
     - paid
-    - total
     - food
+    - total

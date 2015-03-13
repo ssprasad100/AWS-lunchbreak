@@ -3,7 +3,7 @@ DefaultFood
 
 * Fields
     - **id** (*int*) - (Default)Food ID
-    - **name** (*string*) - Name
+    - **name** (*String*) - Name
     - **cost** (*decimal*) - Cost
     - **ingredientGroups** (:doc:`/serializers/global/ingredientGroup` array) - Ingredient groups
     - **ingredients** (*list*) - Ingredients IDs

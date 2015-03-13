@@ -3,12 +3,12 @@ Store
 
 * Fields
     - **id** (*int*) - Store ID
-    - **name** (*string*) - Name
-    - **country** (*string*) - Country
-    - **province** (*string*) - Province
-    - **city** (*string*) - City
-    - **postcode** (*string*) - Postcode
-    - **street** (*string*) - Street
+    - **name** (*String*) - Name
+    - **country** (*String*) - Country
+    - **province** (*String*) - Province
+    - **city** (*String*) - City
+    - **postcode** (*String*) - Postcode
+    - **street** (*String*) - Street
     - **number** (*int*) - Street number
     - **latitude** (*decimal*) - Latitude coordinate
     - **longitude** (*decimal*) - Longitude coordinate

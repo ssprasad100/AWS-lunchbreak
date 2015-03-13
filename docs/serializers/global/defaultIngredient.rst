@@ -3,6 +3,6 @@ DefaultIngredient
 
 * Fields
     - **id** (*int*) - (Default)Ingredient ID
-    - **name** (*string*) - Name
+    - **name** (*String*) - Name
     - **cost** (*decimal*) - Cost
     - **icon** (*int*) - Icon ID

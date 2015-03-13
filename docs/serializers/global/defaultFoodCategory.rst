@@ -3,5 +3,5 @@ DefaultFoodCategory
 
 * Fields
     - **id** (*int*) - (Default)FoodCategory ID
-    - **name** (*string*) - Name
+    - **name** (*String*) - Name
     - **priority** (*int*) - Priority number

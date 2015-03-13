@@ -3,7 +3,7 @@ IngredientGroup
 
 * Fields
     - **id** (*int*) - FoodType ID
-    - **name** (*string*) - Name
+    - **name** (*String*) - Name
     - **icon** (*int*) - Icon ID
     - **maximum** (*int*) - Maximum amount of items selected, 0 means unlimited
     - **ingredients** (:doc:`/serializers/global/ingredient` array) - Ingredients

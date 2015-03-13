@@ -13,7 +13,7 @@ Registration
 
     :reqheader Content-Type: application/json
 
-    :form phone: user phone number
+    :reqjson phone: user phone number
 
     :resheader Content-Type: application/json
 
@@ -34,10 +34,10 @@ Confirmation
 
     :reqheader Content-Type: application/json
 
-    :form phone: user phone number
-    :form device: device name
-    :form pin: pin code received
-    :form name: optional name if user's name is not in database
+    :reqjson phone: user phone number
+    :reqjson device: device name
+    :reqjson pin: pin code received
+    :reqjson name: optional name if user's name is not in database
 
     :resheader Content-Type: application/json
 

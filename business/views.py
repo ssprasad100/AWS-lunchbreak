@@ -6,9 +6,8 @@ from business.serializers import (EmployeeSerializer, OrderSerializer,
 from customers.models import (Order, ORDER_STATUS_PLACED, ORDER_STATUS_RECEIVED,
                               ORDER_STATUS_STARTED, ORDER_STATUS_WAITING)
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from django.core.mail import BadHeaderError, send_mail
 from django.core.validators import validate_email
-from lunch.models import Store, tokenGenerator
+from lunch.models import Store
 from lunch.responses import BadRequest
 from rest_framework import generics, status
 from rest_framework.response import Response
@@ -48,6 +47,7 @@ class StaffResetView(APIView):
     '''
     Reset password.
     '''
+
     def post(self, request, email, passwordReset, format=None):
         try:
             validate_email(email)
