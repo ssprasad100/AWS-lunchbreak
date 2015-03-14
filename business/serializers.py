@@ -12,6 +12,7 @@ class BusinessTokenSerializer(TokenSerializer):
     class Meta:
         fields = TokenSerializer.Meta.fields + ('password', 'device',)
         write_only_fields = ('password', 'device',)
+        read_only_fields = ()
 
 
 class StaffSerializer(serializers.ModelSerializer):
