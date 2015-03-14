@@ -16,7 +16,7 @@ List
     :resheader Content-Type: application/json
 
     :statuscode 200: no error
-    :statuscode 401: authentication failed
+    :statuscode 403: authentication failed
 
 
 Update status
@@ -35,4 +35,4 @@ Update status
     :query int order_id: :doc:`/serializers/business/order` ID
 
     :statuscode 200: no error
-    :statuscode 401: authentication failed
+    :statuscode 403: authentication failed

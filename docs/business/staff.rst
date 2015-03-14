@@ -14,7 +14,7 @@ List
     :resheader Content-Type: application/json
 
     :statuscode 200: no error
-    :statuscode 401: authentication failed
+    :statuscode 403: authentication failed
 
 
 Login
@@ -31,7 +31,7 @@ Login
     :resheader Content-Type: application/json
 
     :statuscode 200: no error
-    :statuscode 401: authentication failed
+    :statuscode 403: authentication failed
 
 
 Specific
@@ -48,7 +48,7 @@ Specific
     :query int staff_id: :doc:`/serializers/business/staff` ID
 
     :statuscode 200: no error
-    :statuscode 401: authentication failed
+    :statuscode 403: authentication failed
 
 
 Nearby
@@ -67,7 +67,7 @@ Nearby
     :query decimal proximity: proximity in km, optional, default is 5 km
 
     :statuscode 200: no error
-    :statuscode 401: authentication failed
+    :statuscode 403: authentication failed
 
 
 Password reset request
@@ -82,4 +82,4 @@ Password reset request
     :query String staff_email: :doc:`/serializers/business/staff` email
 
     :statuscode 200: no error
-    :statuscode 401: authentication failed
+    :statuscode 403: authentication failed

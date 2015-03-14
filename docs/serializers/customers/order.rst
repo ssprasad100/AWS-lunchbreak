@@ -4,7 +4,7 @@ Order
 * Fields
     - **id** (*int*) - Order ID
     - **name** (*String*) - Name
-    - **store** (:doc:`/serializers/global/store`) - Store
+    - **store** (*int*) - :doc:`/serializers/global/store` ID
     - **orderedTime** (*datetime*) - Datetime of order
     - **pickupTime** (*datetime*) - Datetime of pickup
     - **status** (*int*) - Status number

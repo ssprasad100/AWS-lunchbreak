@@ -20,7 +20,7 @@ Nearby stores
     :resheader Content-Type: application/json
 
     :statuscode 200: no error
-    :statuscode 401: authentication failed
+    :statuscode 403: authentication failed
 
 
 Specific store
@@ -39,7 +39,7 @@ Specific store
     :resheader Content-Type: application/json
 
     :statuscode 200: no error
-    :statuscode 401: authentication failed
+    :statuscode 403: authentication failed
 
 
 Opening hours and holiday periods
@@ -56,7 +56,7 @@ Opening hours and holiday periods
     :resheader Content-Type: application/json
 
     :statuscode 200: no error
-    :statuscode 401: authentication failed
+    :statuscode 403: authentication failed
 
     :resjson objectarray holidayPeriods: :doc:`/serializers/global/holidayPeriod`
     :resjson objectarray openingHours: :doc:`/serializers/global/openingHours`
@@ -78,7 +78,7 @@ Opening hours
     :resheader Content-Type: application/json
 
     :statuscode 200: no error
-    :statuscode 401: authentication failed
+    :statuscode 403: authentication failed
 
 
 
@@ -98,4 +98,4 @@ Holiday periods
     :resheader Content-Type: application/json
 
     :statuscode 200: no error
-    :statuscode 401: authentication failed
+    :statuscode 403: authentication failed

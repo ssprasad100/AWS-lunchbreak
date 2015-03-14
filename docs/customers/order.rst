@@ -18,7 +18,7 @@ Specific order
     :resheader Content-Type: application/json
 
     :statuscode 200: no error
-    :statuscode 401: authentication failed
+    :statuscode 403: authentication failed
 
 
 User's orders
@@ -35,7 +35,7 @@ User's orders
     :resheader Content-Type: application/json
 
     :statuscode 200: no error
-    :statuscode 401: authentication failed
+    :statuscode 403: authentication failed
 
 
 Place order
@@ -48,12 +48,13 @@ Place order
     Authentication: :doc:`/authentication/user`
 
     Serializer: :doc:`/serializers/customers/shortOrder`
+
     :reqheader Content-Type: application/json
 
     :resheader Content-Type: application/json
 
     :statuscode 200: no error
-    :statuscode 401: authentication failed
+    :statuscode 403: authentication failed
 
 
 Request price
@@ -66,10 +67,11 @@ Request price
     Authentication: :doc:`/authentication/user`
 
     Serializer: :doc:`/serializers/customers/orderedFoodPrice`
+
     :reqheader Content-Type: application/json
 
     :resheader Content-Type: application/json
 
     :statuscode 200: no error
-    :statuscode 401: authentication failed
+    :statuscode 403: authentication failed
 

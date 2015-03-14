@@ -18,7 +18,7 @@ Specific food
     :resheader Content-Type: application/json
 
     :statuscode 200: no error
-    :statuscode 401: authentication failed
+    :statuscode 403: authentication failed
 
 
 Specific store
@@ -37,4 +37,4 @@ Specific store
     :resheader Content-Type: application/json
 
     :statuscode 200: no error
-    :statuscode 401: authentication failed
+    :statuscode 403: authentication failed

@@ -16,7 +16,7 @@ List
     :resheader Content-Type: application/json
 
     :statuscode 200: no error
-    :statuscode 401: authentication failed
+    :statuscode 403: authentication failed
 
 
 Login
@@ -35,7 +35,7 @@ Login
     :resheader Content-Type: application/json
 
     :statuscode 200: no error
-    :statuscode 401: authentication failed
+    :statuscode 403: authentication failed
 
 
 Specific
@@ -54,7 +54,7 @@ Specific
     :query int employee_id: :doc:`/serializers/business/employee` ID
 
     :statuscode 200: no error
-    :statuscode 401: authentication failed
+    :statuscode 403: authentication failed
 
 
 Password reset request
@@ -71,4 +71,4 @@ Password reset request
     :query int employee_id: :doc:`/serializers/business/employee` ID
 
     :statuscode 200: no error
-    :statuscode 401: authentication failed
+    :statuscode 403: authentication failed
