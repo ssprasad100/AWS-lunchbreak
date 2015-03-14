@@ -10,3 +10,4 @@ Lunchbreak |release| documentation
     Customers <customers/index>
     Serializers <serializers/index>
     error
+    other

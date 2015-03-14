@@ -139,6 +139,13 @@ class Base(Configuration):
     EMAIL_USE_TLS = True
     EMAIL_FROM = 'noreply@lunchbreakapp.be'
 
+    DATETIME_INPUT_FORMATS = (
+        '%Y-%m-%d %H:%M',
+    )
+    TIME_INPUT_FORMATS = (
+        '%H:%M',
+    )
+
 
 class Development(Base):
     DEBUG = True
