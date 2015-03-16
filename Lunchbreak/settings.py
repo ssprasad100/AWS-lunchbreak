@@ -8,7 +8,7 @@ class Base(Configuration):
 
     SECRET_KEY = 'e2a86@j!uc5@z^yu=%n9)6^%w+-(pk8a6@^i!vnvxe^-w%!q8('
 
-    DEBUG = True
+    DEBUG = False
     TEMPLATE_DEBUG = True
     HOST = 'api.lunchbreakapp.be'
     ALLOWED_HOSTS = [
@@ -80,7 +80,10 @@ class Base(Configuration):
         'COERCE_DECIMAL_TO_STRING': False,
         'DEFAULT_RENDERER_CLASSES': [
             'rest_framework.renderers.JSONRenderer',
-        ]
+        ],
+        'DEFAULT_PARSER_CLASSES': (
+            'rest_framework.parsers.JSONParser',
+        )
     }
 
     OPBEAT = {
