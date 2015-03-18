@@ -8,6 +8,7 @@ from customers.serializers import (OrderedFoodPriceSerializer, OrderSerializer,
                                    UserTokenSerializer)
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
+from lunch.exceptions import LunchbreakException
 from lunch.models import (Food, HolidayPeriod, Ingredient, OpeningHours, Store,
                           tokenGenerator)
 from lunch.responses import BadRequest
@@ -123,8 +124,12 @@ class OrderView(generics.ListCreateAPIView):
     def create(self, request, *args, **kwargs):
         orderSerializer = ShortOrderSerializer(data=request.data, context={'user': request.user})
         if orderSerializer.is_valid():
-            orderSerializer.save()
-            return Response(data=orderSerializer.data, status=status.HTTP_201_CREATED)
+            try:
+                orderSerializer.save()
+            except LunchbreakException as e:
+                return e.getResponse()
+            else:
+                return Response(data=orderSerializer.data, status=status.HTTP_201_CREATED)
         return BadRequest(orderSerializer.errors)
 
 

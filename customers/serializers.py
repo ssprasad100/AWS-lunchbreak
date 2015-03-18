@@ -1,17 +1,25 @@
 from datetime import timedelta
 
+from customers.exceptions import (CostCheckFailed, MinTimeExceeded,
+                                  PastOrderDenied, StoreClosed)
 from customers.models import Order, OrderedFood, User, UserToken
-from customers.responses import (CostCheckFailed, MinTimeExceeded,
-                                 PastOrderDenied)
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
-from lunch.models import Food, Ingredient, Store
-from lunch.responses import DoesNotExist
+from lunch.exceptions import DoesNotExist, BadRequest
+from lunch.models import Food, Ingredient, Store, OpeningHours
 from lunch.serializers import (FoodCategorySerializer, FoodSerializer,
                                FoodTypeSerializer, StoreSerializer,
                                TokenSerializer)
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
+
+
+class ShortStoreSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Store
+        fields = ('id', 'name',)
+        read_only_fields = ('name',)
 
 
 class OrderedFoodSerializer(FoodSerializer):
@@ -80,74 +88,90 @@ class ShortOrderSerializer(serializers.ModelSerializer):
     '''
 
     food = OrderedFoodSerializer(many=True, write_only=True)
+    store = ShortStoreSerializer(read_only=True)
+    storeId = serializers.IntegerField(write_only=True)
 
     def costCheck(self, order, orderedFood, amount, cost):
         if orderedFood.cost * amount != cost:
             order.delete()
-            return False
-        return True
+            raise CostCheckFailed()
 
     def create(self, validated_data):
+        pickupTime = validated_data['pickupTime']
+        food = validated_data['food']
+        storeId = validated_data['storeId']
+
+        if len(food) == 0:
+            raise BadRequest()
+
+        if pickupTime < timezone.now():
+            raise PastOrderDenied()
+
+        print storeId
         try:
-            pickupTime = validated_data['pickupTime']
-
-            if pickupTime < timezone.now():
-                return PastOrderDenied()
-
-            store = validated_data['store']
-
-            if pickupTime - timezone.now() < timedelta(minutes=store.minTime):
-                return MinTimeExceeded()
-
-            user = self.context['user']
-
-            order = Order(user=user, store=store, pickupTime=pickupTime)
-            order.save()
-            for f in validated_data['food']:
-                orderedFood = OrderedFood()
-                amount = f['amount'] if 'amount' in f else 1
-
-                if 'referenceId' in f:
-                    referenceFood = Food.objects.filter(id=f['referenceId'])
-                    if len(referenceFood) == 0:
-                        return DoesNotExist('Referenced food does not exist.')
-                    orderedFood = OrderedFood(**referenceFood.values()[0])
-
-                    if not self.costCheck(order, orderedFood, amount, f['cost']):
-                        return CostCheckFailed()
-
-                    orderedFood.pk = None
-                    orderedFood.order = order
-                else:
-                    orderedFood.store = store
-
-                    ingredientIds = [ingredient.id for ingredient in f['ingredients']]
-                    exact, closestFood = OrderedFood.objects.closestFood(orderedFood, ingredientIds)
-                    orderedFood.cost = closestFood.cost if exact else OrderedFood.calculateCost(Ingredient.objects.filter(id__in=ingredientIds, store_id=store), closestFood)
-
-                    if not self.costCheck(order, orderedFood, amount, f['cost']):
-                        return CostCheckFailed()
-
-                    orderedFood.name = closestFood.name
-                    orderedFood.foodType = closestFood.foodType
-                    orderedFood.order = order
-
-                    orderedFood.save()
-                    orderedFood.ingredients = f['ingredients']
-
-                orderedFood.amount = amount
-                orderedFood.save()
-
-            order.save()
-            return order
+            store = Store.objects.get(id=storeId)
         except ObjectDoesNotExist:
-            return DoesNotExist('Store does not exist')
+            raise DoesNotExist('Store does not exist')
+
+        if pickupTime - timezone.now() < timedelta(minutes=store.minTime):
+            raise MinTimeExceeded()
+
+        pickupDay = pickupTime.weekday()
+        openingHours = OpeningHours.objects.filter(store=store, day=pickupDay)
+        pTime = pickupTime.time()
+
+        for o in openingHours:
+            if o.opening <= pTime <= o.closing:
+                break
+        else:
+            # If the for loop is not stopped by the break, it means that the time of pickup is never when the store is open.
+            raise StoreClosed()
+
+        user = self.context['user']
+
+        order = Order(user=user, store=store, pickupTime=pickupTime)
+        order.save()
+        for f in food:
+            orderedFood = OrderedFood()
+            amount = f['amount'] if 'amount' in f else 1
+
+            if 'referenceId' in f:
+                referenceFood = Food.objects.filter(id=f['referenceId'])
+                if len(referenceFood) == 0:
+                    raise DoesNotExist('Referenced food does not exist.')
+                orderedFood = OrderedFood(**referenceFood.values()[0])
+
+                self.costCheck(order, orderedFood, amount, f['cost'])
+
+                orderedFood.pk = None
+                orderedFood.order = order
+            else:
+                orderedFood.store = store
+
+                ingredientIds = [ingredient.id for ingredient in f['ingredients']]
+                exact, closestFood = OrderedFood.objects.closestFood(orderedFood, ingredientIds)
+                orderedFood.cost = closestFood.cost if exact else OrderedFood.calculateCost(Ingredient.objects.filter(id__in=ingredientIds, store_id=store), closestFood)
+
+                self.costCheck(order, orderedFood, amount, f['cost'])
+
+                orderedFood.name = closestFood.name
+                orderedFood.foodType = closestFood.foodType
+                orderedFood.order = order
+
+                orderedFood.save()
+                orderedFood.ingredients = f['ingredients']
+
+            orderedFood.amount = amount
+            orderedFood.save()
+
+        order.save()
+        return order
 
     class Meta:
         model = Order
-        fields = ('id', 'store', 'pickupTime', 'paid', 'total', 'food',)
-        read_only_fields = ('id', 'paid', 'total',)
-        write_only_fields = ('store', 'pickupTime', 'food',)
+        fields = ('id', 'store', 'storeId', 'pickupTime', 'paid', 'total', 'food',)
+        read_only_fields = ('id', 'paid', 'total', 'store',)
+        write_only_fields = ('storeId', 'pickupTime', 'food',)
 
 
 class OrderSerializer(serializers.ModelSerializer):

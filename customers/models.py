@@ -1,7 +1,6 @@
 from django.db import models
-from lunch.models import BaseStoreFood, Store, BaseToken
+from lunch.models import BaseStoreFood, BaseToken, Store
 from phonenumber_field.modelfields import PhoneNumberField
-
 
 ORDER_STATUS_PLACED = 0
 ORDER_STATUS_DENIED = 1
