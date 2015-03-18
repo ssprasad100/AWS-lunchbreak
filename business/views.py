@@ -14,62 +14,6 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 
-class StaffView(generics.ListAPIView):
-    '''
-    List the staff and login.
-    '''
-
-    serializer_class = StaffSerializer
-
-    def get_queryset(self):
-        proximity = self.kwargs['proximity'] if 'proximity' in self.kwargs else 5
-        if 'latitude' in self.kwargs and 'longitude' in self.kwargs:
-            stores = Store.objects.nearby(self.kwargs['latitude'], self.kwargs['longitude'], proximity)
-            return Staff.objects.filter(store__in=stores)
-        if 'id' in self.kwargs:
-            return Staff.objects.filter(id=self.kwargs['id'])
-        return Staff.objects.all()
-
-    def post(self, request, format=None):
-        return StaffAuthentication.login(request)
-
-
-class StaffRequestResetView(APIView):
-    '''
-    Send password reset mail.
-    '''
-
-    def get(self, request, email, format=None):
-        return StaffAuthentication.requestPasswordReset(request, email)
-
-
-class StaffResetView(APIView):
-    '''
-    Reset password.
-    '''
-
-    def post(self, request, email, passwordReset, format=None):
-        try:
-            validate_email(email)
-            staff = Staff.objects.get(email=email)
-        except ValidationError:
-            return InvalidEmail()
-        except ObjectDoesNotExist:
-            return InvalidEmail('Email address not found.')
-
-        if staff.passwordReset is None or 'password' not in request.data:
-            return BadRequest()
-        elif staff.passwordReset != passwordReset:
-            staff.passwordReset = None
-            staff.save()
-            return BadRequest()
-        else:
-            staff.passwordReset = None
-            staff.setPassword(request.data['password'])
-            staff.save()
-            return Response(status=status.HTTP_200_OK)
-
-
 class EmployeeView(generics.ListAPIView):
     '''
     List the employees and login.
@@ -125,3 +69,59 @@ class OrderUpdateView(generics.UpdateAPIView):
 
     def get_queryset(self):
         return Order.objects.filter(store_id=self.request.user.staff.store_id, status__in=[ORDER_STATUS_PLACED, ORDER_STATUS_RECEIVED, ORDER_STATUS_STARTED, ORDER_STATUS_WAITING])
+
+
+class StaffView(generics.ListAPIView):
+    '''
+    List the staff and login.
+    '''
+
+    serializer_class = StaffSerializer
+
+    def get_queryset(self):
+        proximity = self.kwargs['proximity'] if 'proximity' in self.kwargs else 5
+        if 'latitude' in self.kwargs and 'longitude' in self.kwargs:
+            stores = Store.objects.nearby(self.kwargs['latitude'], self.kwargs['longitude'], proximity)
+            return Staff.objects.filter(store__in=stores)
+        if 'id' in self.kwargs:
+            return Staff.objects.filter(id=self.kwargs['id'])
+        return Staff.objects.all()
+
+    def post(self, request, format=None):
+        return StaffAuthentication.login(request)
+
+
+class StaffRequestResetView(APIView):
+    '''
+    Send password reset mail.
+    '''
+
+    def get(self, request, email, format=None):
+        return StaffAuthentication.requestPasswordReset(request, email)
+
+
+class StaffResetView(APIView):
+    '''
+    Reset password.
+    '''
+
+    def post(self, request, email, passwordReset, format=None):
+        try:
+            validate_email(email)
+            staff = Staff.objects.get(email=email)
+        except ValidationError:
+            return InvalidEmail()
+        except ObjectDoesNotExist:
+            return InvalidEmail('Email address not found.')
+
+        if staff.passwordReset is None or 'password' not in request.data:
+            return BadRequest()
+        elif staff.passwordReset != passwordReset:
+            staff.passwordReset = None
+            staff.save()
+            return BadRequest()
+        else:
+            staff.passwordReset = None
+            staff.setPassword(request.data['password'])
+            staff.save()
+            return Response(status=status.HTTP_200_OK)
