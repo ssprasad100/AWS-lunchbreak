@@ -7,5 +7,6 @@ Customers
     orderedFood
     orderedFoodPrice
     shortOrder
+    shortStore
     user
     userToken
