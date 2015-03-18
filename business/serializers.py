@@ -1,5 +1,5 @@
-from business.models import Employee, Staff, StaffToken, EmployeeToken
-from customers.models import Order
+from business.models import Employee, EmployeeToken, Staff, StaffToken
+from customers.models import Order, User
 from customers.serializers import OrderedFoodSerializer
 from lunch.serializers import StoreSerializer, TokenSerializer
 from rest_framework import serializers
@@ -50,8 +50,16 @@ class EmployeeTokenSerializer(BusinessTokenSerializer):
         read_only_fields = BusinessTokenSerializer.Meta.read_only_fields + ('employee',)
 
 
+class PrivateUserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ('id', 'name',)
+
+
 class OrderSerializer(serializers.ModelSerializer):
     food = OrderedFoodSerializer(many=True, read_only=True)
+    user = PrivateUserSerializer(read_only=True)
 
     class Meta:
         model = Order

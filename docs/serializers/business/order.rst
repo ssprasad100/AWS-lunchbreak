@@ -3,7 +3,7 @@ Order
 
 * Fields
     - **id** (*int*) - Order ID
-    - **user** (*int*) - User ID
+    - **user** (:doc:`/serializers/business/privateUser`) - User
     - **orderedTime** (*datetime*) - Time of order
     - **pickupTime** (*datetime*) - Time of pickup
     - **status** (*int*) - Status number
