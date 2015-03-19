@@ -56,7 +56,12 @@ class OrderListView(generics.ListAPIView):
     serializer_class = ShortOrderSerializer
 
     def get_queryset(self):
-        return Order.objects.filter(store_id=self.request.user.staff.store_id, status__in=[ORDER_STATUS_PLACED, ORDER_STATUS_RECEIVED, ORDER_STATUS_STARTED, ORDER_STATUS_WAITING]).order_by('-orderedTime')
+        result = Order.objects.filter(store_id=self.request.user.staff.store_id, status__in=[ORDER_STATUS_PLACED, ORDER_STATUS_RECEIVED, ORDER_STATUS_STARTED, ORDER_STATUS_WAITING])
+        if self.request.method == 'GET':
+            if 'option' in self.kwargs and self.kwargs['option'] == 'pickupTime':
+                return result.order_by('pickupTime')
+            return result.order_by('-orderedTime')
+        return result
 
 
 class OrderUpdateView(generics.RetrieveUpdateAPIView):
