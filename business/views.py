@@ -56,12 +56,12 @@ class OrderListView(generics.ListAPIView):
     serializer_class = ShortOrderSerializer
 
     def get_queryset(self):
-        return Order.objects.filter(store_id=self.request.user.staff.store_id, status__in=[ORDER_STATUS_PLACED, ORDER_STATUS_RECEIVED, ORDER_STATUS_STARTED, ORDER_STATUS_WAITING])
+        return Order.objects.filter(store_id=self.request.user.staff.store_id, status__in=[ORDER_STATUS_PLACED, ORDER_STATUS_RECEIVED, ORDER_STATUS_STARTED, ORDER_STATUS_WAITING]).order_by('-orderedTime')
 
 
-class OrderUpdateView(generics.UpdateAPIView):
+class OrderUpdateView(generics.RetrieveUpdateAPIView):
     '''
-    Update the status of an order.
+    Update the status of an order and receive specific information about an order.
     '''
 
     authentication_classes = (EmployeeAuthentication,)

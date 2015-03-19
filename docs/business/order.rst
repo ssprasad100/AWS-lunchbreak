@@ -19,8 +19,8 @@ List
     :statuscode 403: authentication failed
 
 
-Update status
-=============
+Specific
+========
 
 .. http:get:: /v1/business/order/(int:order_id)/
 
@@ -28,7 +28,26 @@ Update status
 
     Authentication: :doc:`/authentication/employee`
 
-    Serializer: :doc:`/serializers/business/staff`
+    Serializer: :doc:`/serializers/business/order`
+
+    :resheader Content-Type: application/json
+
+    :query int order_id: :doc:`/serializers/business/order` ID
+
+    :statuscode 200: no error
+    :statuscode 403: authentication failed
+
+
+Update status
+=============
+
+.. http:patch:: /v1/business/order/(int:order_id)/
+
+    Update the status of an order.
+
+    Authentication: :doc:`/authentication/employee`
+
+    Serializer: :doc:`/serializers/business/order`
 
     :resheader Content-Type: application/json
 

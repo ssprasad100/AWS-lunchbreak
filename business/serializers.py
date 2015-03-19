@@ -67,7 +67,7 @@ class ShortOrderSerializer(serializers.ModelSerializer):
 
 
 class OrderSerializer(ShortOrderSerializer):
-    food = OrderedFoodSerializer(read_only=True)
+    food = OrderedFoodSerializer(many=True, read_only=True)
 
     class Meta:
         model = Order
