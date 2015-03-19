@@ -2,7 +2,7 @@ from business.authentication import EmployeeAuthentication, StaffAuthentication
 from business.models import Employee, Staff
 from business.responses import InvalidEmail
 from business.serializers import (EmployeeSerializer, OrderSerializer,
-                                  StaffSerializer)
+                                  ShortOrderSerializer, StaffSerializer)
 from customers.models import (Order, ORDER_STATUS_PLACED, ORDER_STATUS_RECEIVED,
                               ORDER_STATUS_STARTED, ORDER_STATUS_WAITING)
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
@@ -53,7 +53,7 @@ class OrderListView(generics.ListAPIView):
     '''
 
     authentication_classes = (EmployeeAuthentication,)
-    serializer_class = OrderSerializer
+    serializer_class = ShortOrderSerializer
 
     def get_queryset(self):
         return Order.objects.filter(store_id=self.request.user.staff.store_id, status__in=[ORDER_STATUS_PLACED, ORDER_STATUS_RECEIVED, ORDER_STATUS_STARTED, ORDER_STATUS_WAITING])

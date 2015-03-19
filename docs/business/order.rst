@@ -11,7 +11,7 @@ List
 
     Authentication: :doc:`/authentication/employee`
 
-    Serializer: :doc:`/serializers/business/order`
+    Serializer: :doc:`/serializers/business/shortOrder`
 
     :resheader Content-Type: application/json
 

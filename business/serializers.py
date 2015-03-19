@@ -57,11 +57,19 @@ class PrivateUserSerializer(serializers.ModelSerializer):
         fields = ('id', 'name',)
 
 
-class OrderSerializer(serializers.ModelSerializer):
-    food = OrderedFoodSerializer(many=True, read_only=True)
+class ShortOrderSerializer(serializers.ModelSerializer):
     user = PrivateUserSerializer(read_only=True)
 
     class Meta:
         model = Order
-        fields = ('id', 'user', 'orderedTime', 'pickupTime', 'status', 'paid', 'food', 'total',)
-        read_only_fields = ('id', 'user', 'orderedTime', 'pickupTime', 'paid', 'food', 'total',)
+        fields = ('id', 'user', 'orderedTime', 'pickupTime', 'status', 'paid', 'total',)
+        read_only_fields = ('id', 'user', 'orderedTime', 'pickupTime', 'paid', 'total',)
+
+
+class OrderSerializer(ShortOrderSerializer):
+    food = OrderedFoodSerializer(read_only=True)
+
+    class Meta:
+        model = Order
+        fields = ShortOrderSerializer.Meta.fields + ('food',)
+        read_only_fields = ShortOrderSerializer.Meta.read_only_fields + ('food',)
