@@ -8,6 +8,8 @@ urlpatterns = patterns('',
 
     url(r'foodtype/$', views.FoodTypeListView.as_view()),
 
+    url(r'ingredientgroup/$', views.IngredientGroupListView.as_view()),
+
     url(r'order/(?P<option>pickupTime|orderedTime)?/?$', views.OrderListView.as_view()),
     url(r'order/(?P<pk>\d+)/$', views.OrderUpdateView.as_view()),
 

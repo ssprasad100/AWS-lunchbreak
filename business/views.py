@@ -2,12 +2,13 @@ from business.authentication import EmployeeAuthentication, StaffAuthentication
 from business.models import Employee, Staff
 from business.responses import InvalidEmail
 from business.serializers import (EmployeeSerializer, OrderSerializer,
+                                  ShortIngredientGroupSerializer,
                                   ShortOrderSerializer, StaffSerializer)
 from customers.models import (Order, ORDER_STATUS_PLACED, ORDER_STATUS_RECEIVED,
                               ORDER_STATUS_STARTED, ORDER_STATUS_WAITING)
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import validate_email
-from lunch.models import FoodType, Store
+from lunch.models import FoodType, IngredientGroup, Store
 from lunch.responses import BadRequest
 from lunch.serializers import FoodTypeSerializer
 from rest_framework import generics, status
@@ -58,6 +59,19 @@ class FoodTypeListView(generics.ListAPIView):
 
     def get_queryset(self):
         return FoodType.objects.all()
+
+
+class IngredientGroupListView(generics.ListAPIView):
+    '''
+    List the IngredientGroups.
+    '''
+
+    authentication_classes = (EmployeeAuthentication,)
+    serializer_class = ShortIngredientGroupSerializer
+    pagination_class = None
+
+    def get_queryset(self):
+        return IngredientGroup.objects.all()
 
 
 class OrderListView(generics.ListAPIView):

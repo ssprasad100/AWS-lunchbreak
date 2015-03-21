@@ -51,7 +51,7 @@ class StoreOpenView(generics.ListAPIView):
     serializer_class = OpeningHoursSerializer
 
     def get_queryset(self):
-        return OpeningHours.objects.filter(store_id=self.kwargs['store_id']).order_by('day', 'opening')
+        return getOpeningHours(self.kwargs['store_id'])
 
     def get(self, request, *args, **kwargs):
         storeId = self.kwargs['store_id']
