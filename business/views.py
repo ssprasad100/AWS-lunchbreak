@@ -2,15 +2,18 @@ from business.authentication import EmployeeAuthentication, StaffAuthentication
 from business.models import Employee, Staff
 from business.responses import InvalidEmail
 from business.serializers import (EmployeeSerializer, OrderSerializer,
+                                  ShortFoodSerializer,
                                   ShortIngredientGroupSerializer,
                                   ShortOrderSerializer, StaffSerializer)
 from customers.models import (Order, ORDER_STATUS_PLACED, ORDER_STATUS_RECEIVED,
                               ORDER_STATUS_STARTED, ORDER_STATUS_WAITING)
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import validate_email
-from lunch.models import FoodType, IngredientGroup, Store, FoodCategory
+from lunch.models import (DefaultFood, Food, FoodCategory, FoodType,
+                          IngredientGroup, Store)
 from lunch.responses import BadRequest, DoesNotExist
-from lunch.serializers import FoodTypeSerializer, DefaultFoodCategorySerializer
+from lunch.serializers import (DefaultFoodCategorySerializer,
+                               DefaultFoodSerializer, FoodTypeSerializer)
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -47,6 +50,37 @@ class EmployeeRequestResetView(APIView):
         except ObjectDoesNotExist:
             return DoesNotExist()
         return EmployeeAuthentication.requestPasswordReset(request, staff.email, employee)
+
+
+class FoodListView(generics.ListAPIView):
+    '''
+    List the food categories.
+    '''
+
+    authentication_classes = (EmployeeAuthentication,)
+    serializer_class = ShortFoodSerializer
+    pagination_class = None
+    queryset = Food.objects.all()
+
+
+class DefaultFoodListView(FoodListView):
+    queryset = DefaultFood.objects.all()
+
+
+class FoodRetrieveView(generics.RetrieveAPIView):
+    '''
+    Retrieve a (default) food.
+    '''
+
+    authentication_classes = (EmployeeAuthentication,)
+    serializer_class = DefaultFoodSerializer  # Default serializer doesn't return the store
+    pagination_class = None
+    queryset = Food.objects.all()
+
+
+class DefaultFoodRetrieveView(FoodRetrieveView):
+    queryset = DefaultFood.objects.all()
+
 
 
 class FoodCategoryListView(generics.ListAPIView):
