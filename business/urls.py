@@ -6,6 +6,8 @@ urlpatterns = patterns('',
     url(r'employee/(?P<id>\d+)/$', views.EmployeeView.as_view()),
     url(r'employee/reset/request/(?P<employee_id>\d+)/$', views.EmployeeRequestResetView.as_view()),
 
+    url(r'foodcategory/$', views.FoodCategoryListView.as_view()),
+
     url(r'foodtype/$', views.FoodTypeListView.as_view()),
 
     url(r'ingredientgroup/$', views.IngredientGroupListView.as_view()),

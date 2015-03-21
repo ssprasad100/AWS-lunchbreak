@@ -8,9 +8,9 @@ from customers.models import (Order, ORDER_STATUS_PLACED, ORDER_STATUS_RECEIVED,
                               ORDER_STATUS_STARTED, ORDER_STATUS_WAITING)
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import validate_email
-from lunch.models import FoodType, IngredientGroup, Store
-from lunch.responses import BadRequest
-from lunch.serializers import FoodTypeSerializer
+from lunch.models import FoodType, IngredientGroup, Store, FoodCategory
+from lunch.responses import BadRequest, DoesNotExist
+from lunch.serializers import FoodTypeSerializer, DefaultFoodCategorySerializer
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -45,17 +45,31 @@ class EmployeeRequestResetView(APIView):
         try:
             employee = Employee.objects.get(id=employee_id, staff=staff)
         except ObjectDoesNotExist:
-            return BadRequest()
+            return DoesNotExist()
         return EmployeeAuthentication.requestPasswordReset(request, staff.email, employee)
+
+
+class FoodCategoryListView(generics.ListAPIView):
+    '''
+    List the food categories.
+    '''
+
+    authentication_classes = (EmployeeAuthentication,)
+    serializer_class = DefaultFoodCategorySerializer
+    pagination_class = None
+
+    def get_queryset(self):
+        return FoodCategory.objects.filter(store_id=self.request.user.staff.store_id)
 
 
 class FoodTypeListView(generics.ListAPIView):
     '''
-    List the FoodTypes.
+    List the food types.
     '''
 
     authentication_classes = (EmployeeAuthentication,)
     serializer_class = FoodTypeSerializer
+    pagination_class = None
 
     def get_queryset(self):
         return FoodType.objects.all()
@@ -63,7 +77,7 @@ class FoodTypeListView(generics.ListAPIView):
 
 class IngredientGroupListView(generics.ListAPIView):
     '''
-    List the IngredientGroups.
+    List the ingredient groups.
     '''
 
     authentication_classes = (EmployeeAuthentication,)

@@ -1,19 +1,19 @@
-========
-FoodType
-========
+============
+FoodCategory
+============
 
 List
 ====
 
-.. http:get:: /v1/business/foodtype/
+.. http:get:: /v1/business/foodcategory/
 
     **Pagination disabled.**
 
-    List the food types.
+    List the food categories.
 
     Authentication: :doc:`/authentication/employee`
 
-    Serializer: :doc:`/serializers/global/foodType`
+    Serializer: :doc:`/serializers/global/defaultFoodCategory`
 
     :resheader Content-Type: application/json
 
