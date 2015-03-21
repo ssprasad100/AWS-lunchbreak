@@ -74,7 +74,7 @@ class FoodTypeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = FoodType
-        fields = ('name', 'icon', 'quantifier', 'inputType',)
+        fields = ('id', 'name', 'icon', 'quantifier', 'inputType',)
 
 
 class DefaultFoodSerializer(serializers.ModelSerializer):
