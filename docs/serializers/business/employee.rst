@@ -1,13 +1,18 @@
 Employee
 ========
 
-* Fields
+Fields
+------
     - **id** (*int*) - Employee ID
     - **name** (*String*) - Name
     - **password** (*String*) - Password
 
-* Read only fields
+Read only
+^^^^^^^^^
     - id
 
-* Write only fields
+
+Write only
+^^^^^^^^^^
     - password
+

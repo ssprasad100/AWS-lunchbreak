@@ -1,7 +1,8 @@
 HolidayPeriod
 =============
 
-* Fields
+Fields
+------
     - **id** (*int*) - HolidayPeriod ID
     - **description** (*String*) - Description
     - **start** (*datetime*) - Start of holiday period

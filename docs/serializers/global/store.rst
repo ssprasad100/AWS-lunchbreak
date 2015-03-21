@@ -1,7 +1,8 @@
 Store
 =====
 
-* Fields
+Fields
+------
     - **id** (*int*) - Store ID
     - **name** (*String*) - Name
     - **country** (*String*) - Country

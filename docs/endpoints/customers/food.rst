@@ -24,7 +24,7 @@ Specific food
 Specific store
 ==============
 
-.. http:get:: /v1/customers/food/store/(int:store_id)/
+.. http:get:: /v1/customers/food/store/(int:id)/
 
     Food with the given store ID.
 
@@ -32,7 +32,7 @@ Specific store
 
     Serializer: :doc:`/serializers/global/food`
 
-    :query int store_id: ID of the store
+    :query int id: ID of the store
 
     :resheader Content-Type: application/json
 

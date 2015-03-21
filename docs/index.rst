@@ -6,8 +6,7 @@ Lunchbreak |release| documentation
 
 .. toctree::
     Authentication <authentication/index>
-    Business <business/index>
-    Customers <customers/index>
+    Endpoints <endpoints/index>
     Serializers <serializers/index>
     error
     other

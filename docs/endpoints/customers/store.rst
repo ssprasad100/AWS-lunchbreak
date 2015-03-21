@@ -26,7 +26,7 @@ Nearby stores
 Specific store
 ==============
 
-.. http:get:: /v1/customers/store/(int:store_id)/
+.. http:get:: /v1/customers/store/(int:id)/
 
     Store with the given ID.
 
@@ -34,7 +34,7 @@ Specific store
 
     Serializer: :doc:`/serializers/global/store`
 
-    :query int store_id: ID of the store
+    :query int id: ID of the store
 
     :resheader Content-Type: application/json
 
@@ -45,13 +45,13 @@ Specific store
 Opening hours and holiday periods
 =================================
 
-.. http:get:: /v1/customers/store/hours/(int:store_id)/
+.. http:get:: /v1/customers/store/hours/(int:id)/
 
     Authentication: :doc:`/authentication/user`
 
     Show the opening hours of a specific store.
 
-    :query int store_id: ID of the store
+    :query int id: ID of the store
 
     :resheader Content-Type: application/json
 
@@ -65,7 +65,7 @@ Opening hours and holiday periods
 Opening hours
 =============
 
-.. http:get:: /v1/customers/store/hours/(int:store_id)/
+.. http:get:: /v1/customers/store/hours/(int:id)/
 
     Show the opening hours of a specific store.
 
@@ -73,7 +73,7 @@ Opening hours
 
     Serializer: :doc:`/serializers/global/openingHours`
 
-    :query int store_id: ID of the store
+    :query int id: ID of the store
 
     :resheader Content-Type: application/json
 
@@ -85,7 +85,7 @@ Opening hours
 Holiday periods
 ===============
 
-.. http:get:: /v1/customers/store/holiday/(int:store_id)/
+.. http:get:: /v1/customers/store/holiday/(int:id)/
 
     Show upcoming holiday periods of the store this week.
 
@@ -93,7 +93,7 @@ Holiday periods
 
     Serializer: :doc:`/serializers/global/holidayPeriod`
 
-    :query int store_id: ID of the store
+    :query int id: ID of the store
 
     :resheader Content-Type: application/json
 

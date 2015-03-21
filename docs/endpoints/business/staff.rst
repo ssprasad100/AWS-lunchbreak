@@ -37,7 +37,7 @@ Login
 Specific
 ========
 
-.. http:get:: /v1/business/staff/(int:staff_id)/
+.. http:get:: /v1/business/staff/(int:id)/
 
     Staff
 
@@ -45,7 +45,7 @@ Specific
 
     :resheader Content-Type: application/json
 
-    :query int staff_id: :doc:`/serializers/business/staff` ID
+    :query int id: :doc:`/serializers/business/staff` ID
 
     :statuscode 200: no error
     :statuscode 403: authentication failed

@@ -1,8 +1,10 @@
 UserToken
 =========
 
-* Fields extends :doc:`/serializers/global/token`
+Fields extends :doc:`/serializers/global/token`
+-----------------------------------------------
     - **user** (:doc:`/serializers/customers/user`) - User
 
-* Read only fields
+Read only
+^^^^^^^^^
     - user

@@ -1,8 +1,10 @@
 StaffToken
 ==========
 
-* Fields extends :doc:`/serializers/global/token`
+Fields extends :doc:`/serializers/global/token`
+-----------------------------------------------
     - **staff** (*int*) - :doc:`/serializers/business/staff` ID
 
-* Read only fields
+Read only
+^^^^^^^^^
     - staff

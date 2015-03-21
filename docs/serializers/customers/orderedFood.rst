@@ -1,16 +1,19 @@
 OrderedFood
 ===========
 
-* Fields extends :doc:`/serializers/global/food`
+Fields extends :doc:`/serializers/global/food`
+----------------------------------------------
     - **referenceId** (*int*) - Reference :doc:`/serializers/global/food` ID, not required
     - **amount** (*int*) - Amount, default 1
 
-* Read only fields
+Read only
+^^^^^^^^^
     - id
     - ingredientGroups
     - store
     - category
     - name
 
-* Write only fields
+Write only
+^^^^^^^^^^
     - referenceId

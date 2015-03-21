@@ -3,6 +3,8 @@ Global
 ======
 
 .. toctree::
+    :maxdepth: 1
+
     defaultFood
     defaultFoodCategory
     defaultIngredient

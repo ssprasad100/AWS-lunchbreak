@@ -1,7 +1,8 @@
 OpeningHours
 ============
 
-* Fields
+Fields
+------
     - **id** (*int*) - OpeningHours ID
     - **day** (*int*) - Day of the week, 0: monday
     - **opening** (*time*) - Time of opening

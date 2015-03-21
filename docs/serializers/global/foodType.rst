@@ -1,7 +1,8 @@
 FoodType
 ========
 
-* Fields
+Fields
+------
     - **id** (*int*) - FoodType ID
     - **name** (*String*) - Name
     - **icon** (*int*) - Icon ID

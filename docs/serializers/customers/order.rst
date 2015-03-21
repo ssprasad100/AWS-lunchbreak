@@ -1,7 +1,8 @@
 Order
 =====
 
-* Fields
+Fields
+------
     - **id** (*int*) - Order ID
     - **name** (*String*) - Name
     - **store** (*int*) - :doc:`/serializers/global/store` ID
@@ -18,7 +19,8 @@ Order
     - **total** (*decimal*) - Total cost
     - **food** (:doc:`/serializers/customers/orderedFood` array) - Ordered food
 
-* Read only fields
+Read only
+^^^^^^^^^
     - id
     - store
     - orderedTime

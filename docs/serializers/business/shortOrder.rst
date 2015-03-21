@@ -1,7 +1,8 @@
 ShortOrder
 ==========
 
-* Fields
+Fields
+------
     - **id** (*int*) - Order ID
     - **user** (:doc:`/serializers/business/privateUser`) - User
     - **orderedTime** (*datetime*) - Time of order
@@ -17,7 +18,8 @@ ShortOrder
     - **total** (*decimal*) - Total cost
 
 
-* Read only fields
+Read only
+^^^^^^^^^
     - id
     - user
     - orderedTime

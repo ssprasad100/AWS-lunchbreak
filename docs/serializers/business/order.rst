@@ -1,9 +1,11 @@
 Order
 =====
 
-* Fields extends :doc:`/serializers/business/shortOrder`
+Fields extends :doc:`/serializers/business/shortOrder`
+------------------------------------------------------
     - **food** (:doc:`/serializers/customers/orderedFood` array) - Ordered food
 
 
-* Read only fields
+Read only
+^^^^^^^^^
     - food

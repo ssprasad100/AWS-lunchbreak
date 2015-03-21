@@ -24,7 +24,7 @@ List
 Specific
 ========
 
-.. http:get:: /v1/business/order/(int:order_id)/
+.. http:get:: /v1/business/order/(int:id)/
 
     Update the status of an order.
 
@@ -34,7 +34,7 @@ Specific
 
     :resheader Content-Type: application/json
 
-    :query int order_id: :doc:`/serializers/business/order` ID
+    :query int id: :doc:`/serializers/business/order` ID
 
     :statuscode 200: no error
     :statuscode 403: authentication failed
@@ -43,7 +43,7 @@ Specific
 Update status
 =============
 
-.. http:patch:: /v1/business/order/(int:order_id)/
+.. http:patch:: /v1/business/order/(int:id)/
 
     Update the status of an order.
 
@@ -53,7 +53,7 @@ Update status
 
     :resheader Content-Type: application/json
 
-    :query int order_id: :doc:`/serializers/business/order` ID
+    :query int id: :doc:`/serializers/business/order` ID
 
     :statuscode 200: no error
     :statuscode 403: authentication failed

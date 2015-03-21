@@ -41,7 +41,7 @@ Login
 Specific
 ========
 
-.. http:get:: /v1/business/employee/(int:employee_id)/
+.. http:get:: /v1/business/employee/(int:id)/
 
     Employees in the authenticated staff.
 
@@ -51,7 +51,7 @@ Specific
 
     :resheader Content-Type: application/json
 
-    :query int employee_id: :doc:`/serializers/business/employee` ID
+    :query int id: :doc:`/serializers/business/employee` ID
 
     :statuscode 200: no error
     :statuscode 403: authentication failed
@@ -60,7 +60,7 @@ Specific
 Password reset request
 ======================
 
-.. http:get:: /v1/business/employee/reset/request/(int:employee_id)/
+.. http:get:: /v1/business/employee/reset/request/(int:id)/
 
     Employees in the authenticated staff.
 
@@ -68,7 +68,7 @@ Password reset request
 
     :resheader Content-Type: application/json
 
-    :query int employee_id: :doc:`/serializers/business/employee` ID
+    :query int id: :doc:`/serializers/business/employee` ID
 
     :statuscode 200: no error
     :statuscode 403: authentication failed

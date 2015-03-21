@@ -1,13 +1,16 @@
 Staff
 =====
 
-* Fields
+Fields
+------
     - **id** (*int*) - Staff ID
     - **store** (:doc:`/serializers/global/store`) - Store
     - **password** (*String*) - Password
 
-* Read only fields
+Read only
+^^^^^^^^^
     - id
 
-* Write only fields
+Write only
+^^^^^^^^^^
     - password
