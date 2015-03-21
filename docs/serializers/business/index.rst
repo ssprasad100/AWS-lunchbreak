@@ -7,6 +7,7 @@ Business
     employeeToken
     order
     privateUser
+    shortFood
     shortOrder
     staff
     staffToken

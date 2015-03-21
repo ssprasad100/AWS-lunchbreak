@@ -59,11 +59,11 @@ class FoodListView(generics.ListAPIView):
 
     authentication_classes = (EmployeeAuthentication,)
     serializer_class = ShortFoodSerializer
-    pagination_class = None
     queryset = Food.objects.all()
 
 
 class DefaultFoodListView(FoodListView):
+    pagination_class = None
     queryset = DefaultFood.objects.all()
 
 
@@ -74,13 +74,11 @@ class FoodRetrieveView(generics.RetrieveAPIView):
 
     authentication_classes = (EmployeeAuthentication,)
     serializer_class = DefaultFoodSerializer  # Default serializer doesn't return the store
-    pagination_class = None
     queryset = Food.objects.all()
 
 
 class DefaultFoodRetrieveView(FoodRetrieveView):
     queryset = DefaultFood.objects.all()
-
 
 
 class FoodCategoryListView(generics.ListAPIView):
