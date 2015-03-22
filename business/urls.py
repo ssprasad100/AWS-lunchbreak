@@ -29,4 +29,8 @@ urlpatterns = patterns('',
     url(r'staff/nearby/(?P<latitude>\d+.?\d*)/(?P<longitude>\d+.?\d*)/(?P<proximity>\d+.?\d*)/$', views.StaffView.as_view()),
     url(r'staff/reset/request/(?P<email>.+)/$', views.StaffRequestResetView.as_view()),
     url(r'staff/reset/(?P<email>.+)/(?P<passwordReset>.+)/$', views.StaffResetView.as_view()),
+
+    url(r'^store/open/$', views.StoreOpenView.as_view()),
+    url(r'^store/hours/$', views.OpeningHoursListView.as_view()),
+    url(r'^store/holiday/$', views.HolidayPeriodListView.as_view()),
 )

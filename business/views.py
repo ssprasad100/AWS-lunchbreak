@@ -14,7 +14,9 @@ from lunch.models import (DefaultFood, DefaultIngredient, Food, FoodCategory,
 from lunch.responses import BadRequest, DoesNotExist
 from lunch.serializers import (DefaultFoodCategorySerializer,
                                DefaultFoodSerializer,
-                               DefaultIngredientSerializer, FoodTypeSerializer)
+                               DefaultIngredientSerializer, FoodTypeSerializer,
+                               HolidayPeriodSerializer, OpeningHoursSerializer)
+from lunch.views import getHolidayPeriods, getOpeningAndHoliday, getOpeningHours
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -223,3 +225,43 @@ class StaffResetView(APIView):
             staff.setPassword(request.data['password'])
             staff.save()
             return Response(status=status.HTTP_200_OK)
+
+
+class StoreOpenView(generics.ListAPIView):
+    '''
+    List the opening hours and holiday periods.
+    '''
+
+    authentication_classes = (EmployeeAuthentication,)
+    serializer_class = OpeningHoursSerializer
+    pagination_class = None
+    queryset = None
+
+    def get(self, request, *args, **kwargs):
+        return getOpeningAndHoliday(self.request.user.staff.store_id)
+
+
+class OpeningHoursListView(generics.ListAPIView):
+    '''
+    List the opening hours.
+    '''
+
+    authentication_classes = (EmployeeAuthentication,)
+    serializer_class = OpeningHoursSerializer
+    pagination_class = None
+
+    def get_queryset(self):
+        return getOpeningHours(self.request.user.staff.store_id)
+
+
+class HolidayPeriodListView(generics.ListAPIView):
+    '''
+    List the holiday periods.
+    '''
+
+    authentication_classes = (EmployeeAuthentication,)
+    serializer_class = HolidayPeriodSerializer
+    pagination_class = None
+
+    def get_queryset(self):
+        return getHolidayPeriods(self.request.user.staff.store_id)

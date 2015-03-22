@@ -1,5 +1,3 @@
-import datetime
-
 from customers.authentication import CustomerAuthentication
 from customers.digits import Digits
 from customers.models import Order, OrderedFood, User, UserToken
@@ -9,11 +7,11 @@ from customers.serializers import (OrderedFoodPriceSerializer, OrderSerializer,
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 from lunch.exceptions import LunchbreakException
-from lunch.models import (Food, HolidayPeriod, Ingredient, OpeningHours, Store,
-                          tokenGenerator)
+from lunch.models import Food, Ingredient, Store, tokenGenerator
 from lunch.responses import BadRequest
 from lunch.serializers import (FoodSerializer, HolidayPeriodSerializer,
                                OpeningHoursSerializer, StoreSerializer)
+from lunch.views import getHolidayPeriods, getOpeningAndHoliday, getOpeningHours
 from rest_framework import generics, status
 from rest_framework.response import Response
 
@@ -34,14 +32,6 @@ class StoreListView(generics.ListAPIView):
             return Store.objects.filter(id=self.kwargs['id'])
 
 
-def getOpeningHours(storeId):
-    return OpeningHours.objects.filter(store_id=storeId).order_by('day', 'opening')
-
-
-def getHolidayPeriods(storeId):
-    return HolidayPeriod.objects.filter(store_id=storeId, start__lte=timezone.now() + datetime.timedelta(days=7), end__gte=timezone.now())
-
-
 class StoreOpenView(generics.ListAPIView):
     '''
     List the opening hours and holiday periods of a store.
@@ -49,21 +39,11 @@ class StoreOpenView(generics.ListAPIView):
 
     authentication_classes = (CustomerAuthentication,)
     serializer_class = OpeningHoursSerializer
-
-    def get_queryset(self):
-        return getOpeningHours(self.kwargs['store_id'])
+    pagination_class = None
+    queryset = None
 
     def get(self, request, *args, **kwargs):
-        storeId = self.kwargs['store_id']
-        openingHours = OpeningHoursSerializer(getOpeningHours(storeId), many=True)
-        holidayPeriods = HolidayPeriodSerializer(getHolidayPeriods(storeId), many=True)
-
-        data = {
-            'openingHours': openingHours.data,
-            'holidayPeriods': holidayPeriods.data
-        }
-
-        return Response(data=data, status=status.HTTP_200_OK)
+        return getOpeningAndHoliday(self.kwargs['store_id'])
 
 
 class OpeningHoursListView(generics.ListAPIView):
@@ -73,6 +53,7 @@ class OpeningHoursListView(generics.ListAPIView):
 
     authentication_classes = (CustomerAuthentication,)
     serializer_class = OpeningHoursSerializer
+    pagination_class = None
 
     def get_queryset(self):
         return getOpeningHours(self.kwargs['store_id'])
@@ -85,6 +66,7 @@ class HolidayPeriodListView(generics.ListAPIView):
 
     authentication_classes = (CustomerAuthentication,)
     serializer_class = HolidayPeriodSerializer
+    pagination_class = None
 
     def get_queryset(self):
         return getHolidayPeriods(self.kwargs['store_id'])
