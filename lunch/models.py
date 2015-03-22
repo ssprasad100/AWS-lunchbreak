@@ -258,7 +258,7 @@ class FoodCategory(BaseFoodCategory):
 class FoodType(models.Model):
     name = models.CharField(max_length=64)
     icon = models.PositiveIntegerField(choices=ICONS, default=0)
-    quantifier = models.CharField(max_length=64)
+    quantifier = models.CharField(max_length=64, blank=True, null=True)
     inputType = models.PositiveIntegerField(choices=INPUT_TYPES, default=0)
 
     def __unicode__(self):
