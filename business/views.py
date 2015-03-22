@@ -9,11 +9,12 @@ from customers.models import (Order, ORDER_STATUS_PLACED, ORDER_STATUS_RECEIVED,
                               ORDER_STATUS_STARTED, ORDER_STATUS_WAITING)
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import validate_email
-from lunch.models import (DefaultFood, Food, FoodCategory, FoodType,
-                          IngredientGroup, Store)
+from lunch.models import (DefaultFood, DefaultIngredient, Food, FoodCategory,
+                          FoodType, Ingredient, IngredientGroup, Store)
 from lunch.responses import BadRequest, DoesNotExist
 from lunch.serializers import (DefaultFoodCategorySerializer,
-                               DefaultFoodSerializer, FoodTypeSerializer)
+                               DefaultFoodSerializer,
+                               DefaultIngredientSerializer, FoodTypeSerializer)
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -54,7 +55,7 @@ class EmployeeRequestResetView(APIView):
 
 class FoodListView(generics.ListAPIView):
     '''
-    List the food categories.
+    List the food.
     '''
 
     authentication_classes = (EmployeeAuthentication,)
@@ -79,6 +80,25 @@ class FoodRetrieveView(generics.RetrieveAPIView):
 
 class DefaultFoodRetrieveView(FoodRetrieveView):
     queryset = DefaultFood.objects.all()
+
+
+class IngredientListView(generics.ListAPIView):
+    '''
+    List the food ingredients.
+    '''
+
+    authentication_classes = (EmployeeAuthentication,)
+    serializer_class = DefaultIngredientSerializer
+
+    def get_queryset(self):
+        return Ingredient.objects.filter(store_id=self.request.user.staff.store_id)
+
+
+class DefaultIngredientListView(IngredientListView):
+    pagination_class = None
+
+    def get_queryset(self):
+        return DefaultIngredient.objects.all()
 
 
 class FoodCategoryListView(generics.ListAPIView):

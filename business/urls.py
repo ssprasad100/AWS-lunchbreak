@@ -11,6 +11,9 @@ urlpatterns = patterns('',
     url(r'food/default/$', views.DefaultFoodListView.as_view()),
     url(r'food/default/(?P<pk>\d+)/$', views.DefaultFoodRetrieveView.as_view()),
 
+    url(r'ingredient/$', views.IngredientListView.as_view()),
+    url(r'ingredient/default/$', views.DefaultIngredientListView.as_view()),
+
     url(r'foodcategory/$', views.FoodCategoryListView.as_view()),
 
     url(r'foodtype/$', views.FoodTypeListView.as_view()),
