@@ -1,9 +1,20 @@
-from fabric.api import abort, env, local, run, settings, sudo
+import os
+
+from fabric.api import abort, env, local, run, settings
 from fabric.context_managers import cd, prefix
 from fabric.contrib import files
 from Lunchbreak.config import Base, Beta, Development, Staging, UWSGI
 
-PACKAGES = ['git', 'nginx', 'python', 'build-essential']
+PACKAGES = [
+	'git',
+	'nginx',
+	'python',
+	'python2.7-dev',  # Compilation of uWSGI
+	'build-essential',  # Compilation of uWSGI
+	'mysql-server',
+	'libmysqlclient-dev',  # MySQL-python pip module
+	'libffi-dev'  # cffi pip module
+]
 PIP_PACKAGES = ['uwsgi', 'virtualenvwrapper']
 BRANCH = local('git rev-parse --abbrev-ref HEAD', capture=True)
 CONFIGS = {
@@ -19,6 +30,10 @@ BRANCH = CONFIG.BRANCH
 USER = BRANCH
 HOME = '/home/%s' % USER
 PATH = '%s/%s' % (HOME, CONFIG.HOST,)
+
+MYSQL_ROOT_PASSWORD_VAR = 'MYSQL_ROOT_PASSWORD'
+os.environ.setdefault('MYSQL_ROOT_PASSWORD_VAR', 'password')
+MYSQL_ROOT_PASSWORD = os.environ.get(MYSQL_ROOT_PASSWORD_VAR)
 
 env.host_string = '%s@%s' % ('root', CONFIG.HOST,)
 print env.host_string
@@ -45,15 +60,24 @@ def nginx():
 
 
 def installations():
-	sudo('apt-get update')
-	sudo('apt-get -y install %s' % ' '.join(PACKAGES))
+	run('apt-get update')
+	run('apt-get -y upgrade')
+
+	# Autofill mysql-server passwords
+	run('debconf-set-selections <<< "mysql-server mysql-server/root_password password %s"' % MYSQL_ROOT_PASSWORD)
+	run('debconf-set-selections <<< "mysql-server mysql-server/root_password_again password %s"' % MYSQL_ROOT_PASSWORD)
+
+	run('apt-get -y install %s' % ' '.join(PACKAGES))
+
+	# Clear autofillers after in case they weren't used
+	run('echo PURGE | debconf-communicate packagename')
 
 	# Install pip
-	sudo('wget https://bootstrap.pypa.io/get-pip.py')
-	sudo('python get-pip.py')
+	run('wget https://bootstrap.pypa.io/get-pip.py')
+	run('python get-pip.py')
 
 	# Globally install pip packages
-	sudo('pip install %s' % ' '.join(PIP_PACKAGES))
+	run('pip install %s' % ' '.join(PIP_PACKAGES))
 
 
 def prerequisites():
@@ -76,30 +100,29 @@ def updateProject():
 				publicKey = run('cat %s/.ssh/id_rsa.pub' % HOME)
 				abort('publicKey has not been added: %s' % publicKey)
 
-	run('cp %s/bashrc-default %s/.bashrc' % (PATH, HOME,))
-
-	with prefix('source %s' % HOME + '/.bashrc'):
-		with settings(warn_only=True):
-			output = local('lsvirtualenv | grep %s' % BRANCH, capture=True)
-			if output.failed:  # Virtualenv doesn't exist, so create it
-				run('mkvirtualenv -a %s -r %s' % (PATH, PATH + '/requirements.txt',))
-
 	# Update the files first inside of the remote path
 	with cd(PATH):
 		run('git fetch --all')
 		run('git reset --hard origin/%s' % BRANCH)
 
+		run('cp %s/bashrc-default %s/.bashrc' % (PATH, HOME,))
+
+		with prefix('source %s' % HOME + '/.bashrc'):
+			with settings(warn_only=True):
+				output = local('lsvirtualenv | grep %s' % BRANCH, capture=True)
+				if output.failed:  # Virtualenv doesn't exist, so create it
+					if run('mkvirtualenv -a %s %s' % (PATH, CONFIG.HOST,)).failed:
+						abort('Could not create virtualenv.')
+
 		# Use the branch as a virtualenv and migrate everything
-		with prefix('workon %s' % BRANCH):
-			pipInstall = run('pip install -r requirements.txt')
-			if pipInstall.failed:
-				abort('Could not install requirements.')
-			migration = run('python manage.py migrate lunch --noinput')
-			if migration.failed:
-				abort('Something went wrong when migrating the database.')
-			static = run('python manage.py collectstatic --noinput -c')
-			if static.failed:
-				abort('Something went wrong when collecting the static files.')
+		with prefix('workon %s' % CONFIG.HOST):
+			run('pip install -r requirements.txt')
+			run('python manage.py migrate lunch --noinput')
+			run('python manage.py collectstatic --noinput -c')
+
+
+def mysql():
+	pass
 
 
 def deploy():
@@ -124,6 +147,7 @@ def deploy():
 	env.host_string = '%s@%s' % (USER, CONFIG.HOST,)
 
 	updateProject()
+	mysql()
 
 	# We need root privileges
 	env.host_string = '%s@%s' % ('root', CONFIG.HOST,)
