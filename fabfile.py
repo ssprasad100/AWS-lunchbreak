@@ -1,7 +1,7 @@
 import os
 
 from fabric.api import abort, env, local, run, settings
-from fabric.context_managers import cd, prefix
+from fabric.context_managers import cd, hide, prefix
 from fabric.contrib import files
 from Lunchbreak.config import Base, Beta, Development, Staging, UWSGI
 
@@ -60,45 +60,38 @@ def nginx():
 
 
 def installations():
-	run('apt-get update')
-	run('apt-get -y upgrade')
+	with hide('stdout'):
+		run('apt-get update')
+		run('apt-get -y upgrade')
 
-	# Autofill mysql-server passwords
-	run('debconf-set-selections <<< "mysql-server mysql-server/root_password password %s"' % MYSQL_ROOT_PASSWORD)
-	run('debconf-set-selections <<< "mysql-server mysql-server/root_password_again password %s"' % MYSQL_ROOT_PASSWORD)
+		# Autofill mysql-server passwords
+		run('debconf-set-selections <<< "mysql-server mysql-server/root_password password %s"' % MYSQL_ROOT_PASSWORD)
+		run('debconf-set-selections <<< "mysql-server mysql-server/root_password_again password %s"' % MYSQL_ROOT_PASSWORD)
 
-	run('apt-get -y install %s' % ' '.join(PACKAGES))
+		run('apt-get -y install %s' % ' '.join(PACKAGES))
 
-	# Clear autofillers after in case they weren't used
-	run('echo PURGE | debconf-communicate packagename')
+		# Clear autofillers after in case they weren't used
+		run('echo PURGE | debconf-communicate mysql-server')
 
-	# Install pip
-	run('wget https://bootstrap.pypa.io/get-pip.py')
-	run('python get-pip.py')
+		# Install pip
+		run('wget https://bootstrap.pypa.io/get-pip.py')
+		run('python get-pip.py')
 
-	# Globally install pip packages
-	run('pip install %s' % ' '.join(PIP_PACKAGES))
+		# Globally install pip packages
+		run('pip install %s' % ' '.join(PIP_PACKAGES))
 
 
 def prerequisites():
 	run('export DJANGO_CONFIGURATION=%s' % CONFIG.__name__)
 	run('export DJANGO_SETTINGS_MODULE=Lunchbreak.settings')
-	# test()
-
-
-def test():
-	test = local('python manage.py test lunch')
-
-	if test.failed:
-		abort('The tests did not pass.')
+	local('python manage.py test lunch')
 
 
 def updateProject():
 	if not files.exists(PATH):
-		with settings(warn_only=True):
+		with settings(hide('stdout'), warn_only=True):
 			if run('git clone git@github.com:AndreasBackx/Lunchbreak-API.git %s' % PATH).failed:
-				publicKey = run('cat %s/.ssh/id_rsa.pub' % HOME)
-				abort('publicKey has not been added: %s' % publicKey)
+				abort('The public key has not been added to Github yet: %s' % getPublicKey(HOME))
 
 	# Update the files first inside of the remote path
 	with cd(PATH):
@@ -109,16 +102,21 @@ def updateProject():
 
 		with prefix('source %s' % HOME + '/.bashrc'):
 			with settings(warn_only=True):
-				output = local('lsvirtualenv | grep %s' % BRANCH, capture=True)
+				output = run('lsvirtualenv | grep %s' % BRANCH)
 				if output.failed:  # Virtualenv doesn't exist, so create it
 					if run('mkvirtualenv -a %s %s' % (PATH, CONFIG.HOST,)).failed:
 						abort('Could not create virtualenv.')
 
 		# Use the branch as a virtualenv and migrate everything
 		with prefix('workon %s' % CONFIG.HOST):
-			run('pip install -r requirements.txt')
-			run('python manage.py migrate lunch --noinput')
-			run('python manage.py collectstatic --noinput -c')
+			with hide('stdout'):
+				run('pip install -r requirements.txt')
+				run('python manage.py migrate lunch --noinput')
+				run('python manage.py collectstatic --noinput -c')
+
+
+def getPublicKey(home):
+	return run('cat %s/.ssh/id_rsa.pub' % home)
 
 
 def mysql():
@@ -132,9 +130,12 @@ def deploy():
 	with settings(warn_only=True):
 		run('useradd %s --create-home --home %s' % (USER, HOME,))
 		run('nginx')
+
+	# Generate public/private key if it doesn't exist
 	key = '/root/.ssh/id_rsa'
 	if not files.exists(key):
 		run('ssh-keygen -b 2048 -t rsa -f %s -q -N ""' % key)
+		abort('The public key needs to be added to Github: %s' % getPublicKey('/root'))
 	run('cp -r /root/.ssh %s/.ssh' % HOME)
 	run('ssh-keyscan -H github.com > %s/.ssh/known_hosts' % HOME)
 	run('chown -R %s:%s %s/.ssh' % (USER, USER, HOME,))
