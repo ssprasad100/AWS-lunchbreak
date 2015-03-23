@@ -1,15 +1,9 @@
-"""
-WSGI config for Lunchbreak project.
-
-It exposes the WSGI callable as a module-level variable named ``application``.
-
-For more information on this file, see
-https://docs.djangoproject.com/en/1.7/howto/deployment/wsgi/
-"""
-
 import os
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Lunchbreak.settings')
-os.environ.setdefault('DJANGO_CONFIGURATION', 'Development')
 
 from configurations.wsgi import get_wsgi_application
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Lunchbreak.settings')
+os.environ.setdefault('DJANGO_CONFIGURATION', 'Development')
+configuration = os.environ.get('DJANGO_CONFIGURATION')
+
 application = get_wsgi_application()
