@@ -4,6 +4,7 @@ from fabric.api import abort, env, local, run, settings
 from fabric.context_managers import cd, hide, prefix
 from fabric.contrib import files
 from Lunchbreak.config import Base, Beta, Development, Staging, UWSGI
+from fabric.operations import reboot
 
 PACKAGES = [
 	'git',
@@ -47,7 +48,7 @@ def nginx():
 	# Remove the default site configuration
 	run('rm %s/sites-available/default' % nginxDir)
 	# Copy Lunchbreak's default site configuration
-	run('cp %s/nginx-default %s' % (PATH, availableFile,))
+	run('cp %s/default/nginx %s' % (PATH, availableFile,))
 
 	# Replace the variables
 	files.sed(availableFile, '{upstream}', BRANCH)
@@ -59,7 +60,7 @@ def nginx():
 	run('ln -s %s %s' % (availableFile, enabledDir,))
 
 
-def installations():
+def installations(rebooted=False):
 	with hide('stdout'):
 		run('apt-get update')
 		run('apt-get -y upgrade')
@@ -72,6 +73,13 @@ def installations():
 
 		# Clear autofillers after in case they weren't used
 		run('echo PURGE | debconf-communicate mysql-server')
+
+		if files.exists('/var/run/reboot-required.pkgs'):  # File exists if a reboot is required after an installation
+			if rebooted:
+				abort('I might be stuck in a reboot loop, come have a look sysadmin.')
+			reboot(wait=180)  # We are gonna reboot the system and give it 3 minutes at max to reboot, else there's something wrong.
+			installations(rebooted=True)
+			return
 
 		# Install pip
 		run('wget https://bootstrap.pypa.io/get-pip.py')
@@ -98,7 +106,7 @@ def updateProject():
 		run('git fetch --all')
 		run('git reset --hard origin/%s' % BRANCH)
 
-		run('cp %s/bashrc-default %s/.bashrc' % (PATH, HOME,))
+		run('cp %s/default/.bashrc %s/.bashrc' % (PATH, HOME,))
 
 		with prefix('source %s' % HOME + '/.bashrc'):
 			with settings(warn_only=True):
@@ -120,7 +128,9 @@ def getPublicKey(home):
 
 
 def mysql():
-	pass
+	# key_buffer is deprecated and generates warnings, must be changed to key_buffer_size
+	files.sed('/etc/mysql/my.cnf', r'key_buffer\s+', 'key_buffer_size ')
+	run('service mysql restart')
 
 
 def deploy():
