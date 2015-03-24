@@ -15,7 +15,9 @@ PACKAGES = [
 	'build-essential',  # Compilation of uWSGI
 	'mysql-server',
 	'libmysqlclient-dev',  # MySQL-python pip module
-	'libffi-dev'  # cffi pip module
+	'libffi-dev',  # cffi pip module
+	'libpcre3',  # uWSGI internal routing support
+	'libpcre3-dev'  # uWSGI internal routing support
 ]
 PIP_PACKAGES = ['uwsgi', 'virtualenvwrapper']
 BRANCH = local('git rev-parse --abbrev-ref HEAD', capture=True)
@@ -182,7 +184,8 @@ def nginx():
 	files.sed(availableFile, '\{path\}', PATH)
 
 	# Link the available site configuration with the enabled one
-	run('ln -s %s %s' % (availableFile, enabledDir,))
+	if not files.exists('%s%s' % (enabledDir, CONFIG.HOST,)):
+		run('ln -s %s %s' % (availableFile, enabledDir,))
 
 
 def uwsgi():
@@ -191,23 +194,31 @@ def uwsgi():
 
 	if not files.exists(log):
 		run('mkdir -p %s' % log)
+		run('chown -R www-data:www-data %s' % log)
 	if not files.exists(apps):
 		run('mkdir -p %s' % apps)
+		run('chown -R www-data:www-data %s' % log)
+	log += '/emperor.log'
 
 	iniFile = 'lunchbreak.ini'
 	run('cp %s/default/%s %s/%s' % (PATH, iniFile, PATH, iniFile,))
 	iniFile = '%s/%s' % (PATH, iniFile,)
 
-	files.sed(iniFile, '\{branch\}', BRANCH)
-	files.sed(iniFile, '\{path\}', PATH)
+	virtualenv = '%s/.virtualenvs/%s' % (HOME, BRANCH,)
 
-	run('mv %s %s/%s' % (iniFile, apps, CONFIG.HOST,))
+	files.sed(iniFile, '\{host\}', CONFIG.HOST)
+	files.sed(iniFile, '\{path\}', PATH)
+	files.sed(iniFile, '\{virtualenv\}', virtualenv)
+
+	run('mv %s %s/%s.ini' % (iniFile, apps, CONFIG.HOST,))
 
 	configFile = 'uwsgi.conf'
-	run('cp %s/default/%s /etc/init/%s' % (PATH, configFile, configFile,))
+	initFolder = '/etc/init/'
+	configPath = '%s%s' % (initFolder, configFile,)
+	run('cp %s/default/%s %s' % (PATH, configFile, configPath,))
 
-	files.sed(iniFile, '\{apps\}', apps)
-	files.sed(iniFile, '\{log\}', log)
+	files.sed(configPath, '\{apps\}', apps)
+	files.sed(configPath, '\{log\}', log)
 
 	run('service uwsgi restart')
 
@@ -218,8 +229,9 @@ def deploy():
 	# Generate public/private key if it doesn't exist
 	key = '/root/.ssh/id_rsa'
 	if not files.exists(key):
-		run('ssh-keygen -b 2048 -t rsa -f %s -q -N ""' % key)
-		abort('The public key needs to be added to Github: %s' % getPublicKey('/root'))
+		with hide('stdout', 'stderr'):
+			run('ssh-keygen -b 2048 -t rsa -f %s -q -N ""' % key)
+			abort('The public key needs to be added to Github: %s' % getPublicKey('/root'))
 
 	installations()
 
