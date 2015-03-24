@@ -31,6 +31,7 @@ BRANCH = CONFIG.BRANCH
 MYSQL_USER = CONFIG.DATABASES['default']['USER']
 MYSQL_DATABASE = CONFIG.DATABASES['default']['NAME']
 MYSQL_HOST = CONFIG.DATABASES['default']['HOST']
+NGINX = '/etc/init.d/nginx'
 
 USER = BRANCH
 HOME = '/home/%s' % USER
@@ -175,7 +176,6 @@ def nginx():
 	# Copy Lunchbreak's default site configuration
 	run('cp %s/default/nginx %s' % (PATH, availableFile,))
 
-	# Replace the variables
 	files.sed(availableFile, '\{upstream\}', BRANCH)
 	files.sed(availableFile, '\{port\}', CONFIG.PORT)
 	files.sed(availableFile, '\{domain\}', CONFIG.HOST)
@@ -186,7 +186,30 @@ def nginx():
 
 
 def uwsgi():
-	pass
+	apps = '/etc/uwsgi/apps'
+	log = '/var/log/uwsgi'
+
+	if not files.exists(log):
+		run('mkdir -p %s' % log)
+	if not files.exists(apps):
+		run('mkdir -p %s' % apps)
+
+	iniFile = 'lunchbreak.ini'
+	run('cp %s/default/%s %s/%s' % (PATH, iniFile, PATH, iniFile,))
+	iniFile = '%s/%s' % (PATH, iniFile,)
+
+	files.sed(iniFile, '\{branch\}', BRANCH)
+	files.sed(iniFile, '\{path\}', PATH)
+
+	run('mv %s %s/%s' % (iniFile, apps, CONFIG.HOST,))
+
+	configFile = 'uwsgi.conf'
+	run('cp %s/default/%s /etc/init/%s' % (PATH, configFile, configFile,))
+
+	files.sed(iniFile, '\{apps\}', apps)
+	files.sed(iniFile, '\{log\}', log)
+
+	run('service uwsgi restart')
 
 
 def deploy():
@@ -203,13 +226,12 @@ def deploy():
 	# Create the user
 	with settings(warn_only=True):
 		run('useradd %s --create-home --home %s' % (USER, HOME,))
-		run('nginx')
 	run('cp -r /root/.ssh %s/.ssh' % HOME)
 	# Add Github to known hosts
 	run('ssh-keyscan -H github.com > %s/.ssh/known_hosts' % HOME)
 	run('chown -R %s:%s %s/.ssh' % (USER, USER, HOME,))
 
-	run('nginx -s quit')
+	run('%s stop' % NGINX)
 
 	# Use that account via SSH now
 	env.host_string = '%s@%s' % (USER, CONFIG.HOST,)
@@ -219,8 +241,9 @@ def deploy():
 	# We need root privileges
 	env.host_string = '%s@%s' % ('root', CONFIG.HOST,)
 
+	uwsgi()
 	nginx()
-	run('nginx -s start')
+	run('%s start' % NGINX)
 
 
 def opbeatRelease():
