@@ -72,7 +72,8 @@ class Base:
     USE_L10N = True
     USE_TZ = True
 
-    STATIC_ROOT = BASE_DIR + '/static/'
+    STATIC_RELATIVE = '/static/'
+    STATIC_ROOT = BASE_DIR + STATIC_RELATIVE
     STATIC_URL = '/static/'
     TEMPLATE_DIRS = (
         BASE_DIR + '/business/templates/',

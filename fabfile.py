@@ -30,6 +30,7 @@ CONFIG = CONFIGS[BRANCH]
 BRANCH = CONFIG.BRANCH
 MYSQL_USER = CONFIG.DATABASES['default']['USER']
 MYSQL_DATABASE = CONFIG.DATABASES['default']['NAME']
+MYSQL_HOST = CONFIG.DATABASES['default']['HOST']
 
 USER = BRANCH
 HOME = '/home/%s' % USER
@@ -40,6 +41,7 @@ MYSQL_ROOT_PASSWORD = os.environ.get(MYSQL_ROOT_PASSWORD_VAR)
 MYSQL_ROOT_PASSWORD = 'password' if MYSQL_ROOT_PASSWORD is None else MYSQL_ROOT_PASSWORD  # Root password will be edited manually if needed
 
 env.host_string = '%s@%s' % ('root', CONFIG.HOST,)
+env.shell = '/bin/bash -c -l'
 
 characters = 'ABCDEFGHIJKLMNOPQRSTUVWabcdefghijklmnopqrstuvwxyz0123456789'
 
@@ -54,11 +56,11 @@ def getSysvar(key):
 	return None if not output else output
 
 
-def addGlobalSysvar(key, value):
+def setSysvar(key, value):
 	if getSysvar(key) is None:
 		command = 'export %s="%s"' % (key, value,)
 		run(command)
-		files.append('%s/.bashrc' % HOME, command)
+		files.append('%s/.bash_profile' % HOME, command)
 
 
 def getPublicKey(home):
@@ -108,30 +110,36 @@ def updateProject():
 			if run('git clone git@github.com:AndreasBackx/Lunchbreak-API.git %s' % PATH).failed:
 				abort('The public key has not been added to Github yet: %s' % getPublicKey(HOME))
 
+	virtualEnv = BRANCH
+
 	# Update the files first inside of the remote path
 	with cd(PATH):
 		run('git fetch --all')
 		run('git reset --hard origin/%s' % BRANCH)
 
-		run('cp %s/default/.bashrc %s/.bashrc' % (PATH, HOME,))
+		bash_profile = '%s/.bash_profile' % HOME
+		if not files.exists(bash_profile):
+			run('cp %s/default/.bash_profile %s' % (PATH, bash_profile,))
 		mysql()
 
-		with prefix('source %s' % HOME + '/.bashrc'):
-			with settings(warn_only=True):
-				output = run('lsvirtualenv | grep %s' % BRANCH)
-				if output.failed:  # Virtualenv doesn't exist, so create it
-					if run('mkvirtualenv -a %s %s' % (PATH, CONFIG.HOST,)).failed:
-						abort('Could not create virtualenv.')
+		with settings(warn_only=True):
+			output = run('lsvirtualenv | grep %s' % virtualEnv)
+			if output.failed:  # Virtualenv doesn't exist, so create it
+				if run('mkvirtualenv -a %s %s' % (PATH, virtualEnv,)).failed:
+					abort('Could not create virtualenv.')
 
 		# Use the branch as a virtualenv and migrate everything
-		with prefix('workon %s' % CONFIG.HOST):
+		with prefix('workon %s' % virtualEnv):
 			with hide('stdout'):
 				run('pip install -r requirements.txt')
 
-				addGlobalSysvar('DJANGO_CONFIGURATION', CONFIG.__name__)
-				addGlobalSysvar('DJANGO_SETTINGS_MODULE', 'Lunchbreak.settings')
+				setSysvar('DJANGO_CONFIGURATION', CONFIG.__name__)
+				setSysvar('DJANGO_SETTINGS_MODULE', 'Lunchbreak.settings')
 
-				run('python manage.py migrate lunch --noinput')
+				run('python manage.py migrate --noinput')
+				staticRoot = '%s/%s%s' % (HOME, CONFIG.HOST, CONFIG.STATIC_RELATIVE,)
+				if not files.exists(staticRoot):
+					run('mkdir "%s"' % staticRoot)
 				run('python manage.py collectstatic --noinput -c')
 
 
@@ -161,33 +169,35 @@ def mysql():
 	files.sed('/etc/mysql/my.cnf', r'key_buffer\s+', 'key_buffer_size ')
 	run('service mysql restart')
 
+	env.host_string = '%s@%s' % (USER, CONFIG.HOST,)
+
 	mysqlPassword = getSysvar(CONFIG.DB_PASS_VAR)
 
 	if mysqlPassword is None:  # User probably doesn't exist
 		mysqlPassword = generateString(50)
-		addGlobalSysvar(CONFIG.DB_PASS_VAR, mysqlPassword)
+		setSysvar(CONFIG.DB_PASS_VAR, mysqlPassword)
 
-		runQuery('CREATE USER "%s"@"127.0.0.1" IDENTIFIED BY "%s";' % (MYSQL_USER, mysqlPassword,))
-		runQuery('GRANT ALL PRIVILEGES ON %s.* TO "%s"@"127.0.0.1";' % (MYSQL_DATABASE, MYSQL_USER,))
+		runQuery('CREATE DATABASE %s;' % MYSQL_DATABASE)
+		runQuery('CREATE USER "%s"@"%s" IDENTIFIED BY "%s";' % (MYSQL_USER, MYSQL_HOST, mysqlPassword,))
+		runQuery('GRANT ALL PRIVILEGES ON %s.* TO "%s"@"%s";' % (MYSQL_DATABASE, MYSQL_USER, MYSQL_HOST,))
 		runQuery('FLUSH PRIVILEGES;')
-
-	env.host_string = '%s@%s' % (USER, CONFIG.HOST,)
 
 
 def deploy():
 	prerequisites()
-	installations()
-
-	# Create the user
-	with settings(warn_only=True):
-		run('useradd %s --create-home --home %s' % (USER, HOME,))
-		run('nginx')
 
 	# Generate public/private key if it doesn't exist
 	key = '/root/.ssh/id_rsa'
 	if not files.exists(key):
 		run('ssh-keygen -b 2048 -t rsa -f %s -q -N ""' % key)
 		abort('The public key needs to be added to Github: %s' % getPublicKey('/root'))
+
+	installations()
+
+	# Create the user
+	with settings(warn_only=True):
+		run('useradd %s --create-home --home %s' % (USER, HOME,))
+		run('nginx')
 	run('cp -r /root/.ssh %s/.ssh' % HOME)
 	# Add Github to known hosts
 	run('ssh-keyscan -H github.com > %s/.ssh/known_hosts' % HOME)
