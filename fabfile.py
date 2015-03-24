@@ -149,15 +149,17 @@ def nginx():
 	enabledDir = '%s/sites-enabled/' % nginxDir
 
 	# Remove the default site configuration
-	run('rm %s/sites-available/default' % nginxDir)
+	defaultConfig = '%s/sites-available/default' % nginxDir
+	if files.exists(defaultConfig):
+		run('rm %s' % defaultConfig)
 	# Copy Lunchbreak's default site configuration
 	run('cp %s/default/nginx %s' % (PATH, availableFile,))
 
 	# Replace the variables
-	files.sed(availableFile, '{upstream}', BRANCH)
-	files.sed(availableFile, '{port}', CONFIG.PORT)
-	files.sed(availableFile, '{domain}', CONFIG.HOST)
-	files.sed(availableFile, '{path}', PATH)
+	files.sed(availableFile, '\{upstream\}', BRANCH)
+	files.sed(availableFile, '\{port\}', CONFIG.PORT)
+	files.sed(availableFile, '\{domain\}', CONFIG.HOST)
+	files.sed(availableFile, '\{path\}', PATH)
 
 	# Link the available site configuration with the enabled one
 	run('ln -s %s %s' % (availableFile, enabledDir,))
