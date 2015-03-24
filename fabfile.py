@@ -143,6 +143,26 @@ def updateProject():
 				run('python manage.py collectstatic --noinput -c')
 
 
+def mysql():
+	env.host_string = '%s@%s' % ('root', CONFIG.HOST,)
+	# key_buffer is deprecated and generates warnings, must be changed to key_buffer_size
+	files.sed('/etc/mysql/my.cnf', r'key_buffer\s+', 'key_buffer_size ')
+	run('service mysql restart')
+
+	env.host_string = '%s@%s' % (USER, CONFIG.HOST,)
+
+	mysqlPassword = getSysvar(CONFIG.DB_PASS_VAR)
+
+	if mysqlPassword is None:  # User probably doesn't exist
+		mysqlPassword = generateString(50)
+		setSysvar(CONFIG.DB_PASS_VAR, mysqlPassword)
+
+		runQuery('CREATE DATABASE %s;' % MYSQL_DATABASE)
+		runQuery('CREATE USER "%s"@"%s" IDENTIFIED BY "%s";' % (MYSQL_USER, MYSQL_HOST, mysqlPassword,))
+		runQuery('GRANT ALL PRIVILEGES ON %s.* TO "%s"@"%s";' % (MYSQL_DATABASE, MYSQL_USER, MYSQL_HOST,))
+		runQuery('FLUSH PRIVILEGES;')
+
+
 def nginx():
 	nginxDir = '/etc/nginx'
 	availableFile = '%s/sites-available/%s' % (nginxDir, CONFIG.HOST,)
@@ -165,24 +185,8 @@ def nginx():
 	run('ln -s %s %s' % (availableFile, enabledDir,))
 
 
-def mysql():
-	env.host_string = '%s@%s' % ('root', CONFIG.HOST,)
-	# key_buffer is deprecated and generates warnings, must be changed to key_buffer_size
-	files.sed('/etc/mysql/my.cnf', r'key_buffer\s+', 'key_buffer_size ')
-	run('service mysql restart')
-
-	env.host_string = '%s@%s' % (USER, CONFIG.HOST,)
-
-	mysqlPassword = getSysvar(CONFIG.DB_PASS_VAR)
-
-	if mysqlPassword is None:  # User probably doesn't exist
-		mysqlPassword = generateString(50)
-		setSysvar(CONFIG.DB_PASS_VAR, mysqlPassword)
-
-		runQuery('CREATE DATABASE %s;' % MYSQL_DATABASE)
-		runQuery('CREATE USER "%s"@"%s" IDENTIFIED BY "%s";' % (MYSQL_USER, MYSQL_HOST, mysqlPassword,))
-		runQuery('GRANT ALL PRIVILEGES ON %s.* TO "%s"@"%s";' % (MYSQL_DATABASE, MYSQL_USER, MYSQL_HOST,))
-		runQuery('FLUSH PRIVILEGES;')
+def uwsgi():
+	pass
 
 
 def deploy():
