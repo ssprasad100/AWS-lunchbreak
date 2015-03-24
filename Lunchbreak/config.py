@@ -49,7 +49,8 @@ class Base:
 
     WSGI_APPLICATION = 'Lunchbreak.wsgi.application'
 
-    DB_PASS = os.environ.get('LB_%s_password' % BRANCH)
+    DB_PASS_VAR = 'LB_%s_password' % BRANCH
+    DB_PASS = os.environ.get(DB_PASS_VAR)
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
@@ -162,7 +163,8 @@ class Development(Base):
     DEBUG = True
     HOST = '%s.lunchbreakapp.be' % BRANCH
 
-    DB_PASS = os.environ.get('LB_%s_password' % BRANCH)
+    DB_PASS_VAR = 'LB_%s_password' % BRANCH
+    DB_PASS = os.environ.get(DB_PASS_VAR)
     DB = 'LB_%s' % BRANCH
     DATABASES = {
         'default': {
@@ -178,6 +180,19 @@ class Development(Base):
 
 class UWSGI(Development):
     BRANCH = 'uwsgi'
+
+    DB_PASS_VAR = 'LB_%s_password' % BRANCH
+    DB_PASS = os.environ.get(DB_PASS_VAR)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'LB_%s' % BRANCH,
+            'USER': 'LB_%s' % BRANCH,
+            'PASSWORD': DB_PASS,
+            'HOST': 'localhost',
+            'PORT': '3306'
+        }
+    }
 
 
 class Travis(Development):
@@ -202,6 +217,19 @@ class Staging(Base):
         HOST
     ]
 
+    DB_PASS_VAR = 'LB_%s_password' % BRANCH
+    DB_PASS = os.environ.get(DB_PASS_VAR)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'LB_%s' % BRANCH,
+            'USER': 'LB_%s' % BRANCH,
+            'PASSWORD': DB_PASS,
+            'HOST': 'localhost',
+            'PORT': '3306'
+        }
+    }
+
 
 class Beta(Base):
     BRANCH = 'beta'
@@ -211,3 +239,16 @@ class Beta(Base):
     ALLOWED_HOSTS = [
         HOST
     ]
+
+    DB_PASS_VAR = 'LB_%s_password' % BRANCH
+    DB_PASS = os.environ.get(DB_PASS_VAR)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'LB_%s' % BRANCH,
+            'USER': 'LB_%s' % BRANCH,
+            'PASSWORD': DB_PASS,
+            'HOST': 'localhost',
+            'PORT': '3306'
+        }
+    }
