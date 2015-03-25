@@ -20,6 +20,7 @@ PACKAGES = [
 	'libpcre3-dev'  # uWSGI internal routing support
 ]
 PIP_PACKAGES = ['uwsgi', 'virtualenvwrapper']
+
 BRANCH = local('git rev-parse --abbrev-ref HEAD', capture=True)
 CONFIGS = {
 	'master': Base,
@@ -30,14 +31,16 @@ CONFIGS = {
 }
 CONFIG = CONFIGS[BRANCH]
 BRANCH = CONFIG.BRANCH
-MYSQL_USER = CONFIG.DATABASES['default']['USER']
-MYSQL_DATABASE = CONFIG.DATABASES['default']['NAME']
-MYSQL_HOST = CONFIG.DATABASES['default']['HOST']
+
 NGINX = '/etc/init.d/nginx'
 
 USER = BRANCH
 HOME = '/home/%s' % USER
 PATH = '%s/%s' % (HOME, CONFIG.HOST,)
+
+MYSQL_USER = CONFIG.DATABASES['default']['USER']
+MYSQL_DATABASE = CONFIG.DATABASES['default']['NAME']
+MYSQL_HOST = CONFIG.DATABASES['default']['HOST']
 
 MYSQL_ROOT_PASSWORD_VAR = 'MYSQL_ROOT_PASSWORD'
 MYSQL_ROOT_PASSWORD = os.environ.get(MYSQL_ROOT_PASSWORD_VAR)
@@ -92,12 +95,20 @@ def installations(rebooted=False):
 		# Clear autofillers after in case they weren't used
 		run('echo PURGE | debconf-communicate mysql-server')
 
+		timezoneFile = '/etc/timezone'
+		correctTimezone = run('cat %s' % timezoneFile) == CONFIG.TIME_ZONE
+		if not correctTimezone:
+			run('echo "%s" | tee %s' % (CONFIG.TIME_ZONE, timezoneFile,))
+			run('dpkg-reconfigure --frontend noninteractive tzdata')
+
 		if files.exists('/var/run/reboot-required.pkgs'):  # File exists if a reboot is required after an installation
 			if rebooted:
 				abort('I might be stuck in a reboot loop, come have a look sysadmin.')
 			reboot(wait=180)  # We are gonna reboot the system and give it 3 minutes at max to reboot, else there's something wrong.
 			installations(rebooted=True)
 			return
+		elif not correctTimezone:
+			run('service cron restart')  # If the timezone was incorrect, restart the cron service just in case, but not when there is a reboot
 
 		# Install pip
 		run('wget https://bootstrap.pypa.io/get-pip.py')
@@ -197,7 +208,7 @@ def uwsgi():
 		run('chown -R www-data:www-data %s' % log)
 	if not files.exists(apps):
 		run('mkdir -p %s' % apps)
-		run('chown -R www-data:www-data %s' % log)
+		run('chown -R www-data:www-data %s' % apps)
 	log += '/emperor.log'
 
 	iniFile = 'lunchbreak.ini'
