@@ -1,5 +1,5 @@
 upstream {upstream} {
-    server {path}/lunchbreak.sock;
+    server /tmp/{domain}.sock;
 }
 
 server {
