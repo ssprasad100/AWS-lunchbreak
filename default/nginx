@@ -1,16 +1,24 @@
 upstream {upstream} {
-    server unix:/tmp/{domain}.sock;
+    server      unix:/tmp/{domain}.sock;
 }
 
 server {
     listen      80;
     server_name {domain};
     charset     utf-8;
+    root        {path};
 
     client_max_body_size 5M;
 
+
+    location {static_url} {
+        alias       {path}{static_relative};
+        access_log  off;
+        expires     30d;
+    }
+
     location / {
         uwsgi_pass  {upstream};
-        include     {path}/uwsgi_params;
+        include     uwsgi_params;
     }
 }

@@ -193,6 +193,8 @@ def nginx():
 	files.sed(availableFile, '\{port\}', CONFIG.PORT)
 	files.sed(availableFile, '\{domain\}', CONFIG.HOST)
 	files.sed(availableFile, '\{path\}', PATH)
+	files.sed(availableFile, '\{static_url\}', CONFIG.STATIC_URL)
+	files.sed(availableFile, '\{static_relative\}', CONFIG.STATIC_RELATIVE)
 
 	# Link the available site configuration with the enabled one
 	if not files.exists('%s%s' % (enabledDir, CONFIG.HOST,)):
