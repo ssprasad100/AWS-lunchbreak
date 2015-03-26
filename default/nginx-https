@@ -17,8 +17,8 @@ upstream {upstream} {
 server {
     listen              443 ssl;
 
-    ssl_certificate     {ssl_path}/cloock.crt;
-    ssl_certificate_key {ssl_path}/cloock.key;
+    ssl_certificate     {ssl_path}/{domain}.crt;
+    ssl_certificate_key {ssl_path}/{domain}.key;
     ssl_session_timeout 5m;
     ssl_session_cache   shared:SSL:50m;
 
@@ -33,7 +33,7 @@ server {
 
     resolver            8.8.8.8;
     ssl_stapling        on;
-    ssl_trusted_certificate {ssl_path}/trusted_certificates.pem;
+    ssl_trusted_certificate {ssl_path}/{domain}.pem;
 
     server_name         {domain};
     charset             utf-8;

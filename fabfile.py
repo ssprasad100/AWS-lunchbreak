@@ -184,21 +184,23 @@ def nginx():
 	availableFile = '%s/sites-available/%s' % (nginxDir, CONFIG.HOST,)
 	enabledDir = '%s/sites-enabled/' % nginxDir
 
-	if not files.exists(sslDir):
-		run('mkdir -p %s' % sslDir)
-	if not files.exists('%s/cloock.crt' % sslDir)\
-		or not files.exists('%s/cloock.key' % sslDir)\
-		or not files.exists('%s/trusted_certificates.pem' % sslDir):
-		warn('Not all of the SSL files (certificates and private key) are present in the directory. Please add them to "%s" and restart nginx.' % sslDir)
-	if not files.exists('%s/dhparam.pem' % sslDir):
-		run('openssl dhparam -out %s/dhparam.pem 2048' % sslDir)
+	if CONFIG.SSL:
+		if not files.exists(sslDir):
+			run('mkdir -p %s' % sslDir)
+		if not files.exists('%s/%s.crt' % (sslDir, CONFIG.HOST,))\
+			or not files.exists('%s/%s.key' % (sslDir, CONFIG.HOST,))\
+			or not files.exists('%s/%s.pem' % (sslDir, CONFIG.HOST,)):
+			warn('Not all of the SSL files (certificates and private key) are present in the directory. Please add them to "%s" and restart nginx.' % sslDir)
+		if not files.exists('%s/dhparam.pem' % sslDir):
+			run('openssl dhparam -out %s/dhparam.pem 2048' % sslDir)
 
 	# Remove the default site configuration
 	defaultConfig = '%s/sites-available/default' % nginxDir
 	if files.exists(defaultConfig):
 		run('rm %s' % defaultConfig)
 	# Copy Lunchbreak's default site configuration
-	run('cp %s/default/nginx %s' % (PATH, availableFile,))
+	protocol = 'https' if CONFIG.SSL else 'http'
+	run('cp %s/default/nginx-%s %s' % (PATH, protocol, availableFile,))
 
 	files.sed(availableFile, '\{upstream\}', BRANCH)
 	files.sed(availableFile, '\{port\}', CONFIG.PORT)
