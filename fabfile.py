@@ -147,6 +147,9 @@ def updateProject():
 			with hide('stdout'):
 				run('pip install -r requirements.txt')
 
+				setSysvar('DJANGO_CONFIGURATION', CONFIG.__name__)
+				setSysvar('DJANGO_SETTINGS_MODULE', 'Lunchbreak.settings')
+
 				run('python manage.py migrate --noinput')
 				staticRoot = '%s/%s%s' % (HOME, CONFIG.HOST, CONFIG.STATIC_RELATIVE,)
 				if not files.exists(staticRoot):
