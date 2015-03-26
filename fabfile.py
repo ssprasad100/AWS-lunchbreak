@@ -4,8 +4,9 @@ import random
 from fabric.api import abort, env, local, run, settings
 from fabric.context_managers import cd, hide, prefix
 from fabric.contrib import files
-from Lunchbreak.config import Base, Beta, Development, Staging, UWSGI
 from fabric.operations import reboot
+from fabric.utils import warn
+from Lunchbreak.config import Base, Beta, Development, Staging, UWSGI
 
 PACKAGES = [
 	'git',
@@ -179,8 +180,18 @@ def mysql():
 
 def nginx():
 	nginxDir = '/etc/nginx'
+	sslDir = '%s/ssl' % nginxDir
 	availableFile = '%s/sites-available/%s' % (nginxDir, CONFIG.HOST,)
 	enabledDir = '%s/sites-enabled/' % nginxDir
+
+	if not files.exists(sslDir):
+		run('mkdir -p %s' % sslDir)
+	if not files.exists('%s/cloock.crt' % sslDir)\
+		or not files.exists('%s/cloock.key' % sslDir)\
+		or not files.exists('%s/trusted_certificates.pem' % sslDir):
+		warn('Not all of the SSL files (certificates and private key) are present in the directory. Please add them to "%s" and restart nginx.' % sslDir)
+	if not files.exists('%s/dhparam.pem' % sslDir):
+		run('openssl dhparam -out %s/dhparam.pem 2048' % sslDir)
 
 	# Remove the default site configuration
 	defaultConfig = '%s/sites-available/default' % nginxDir
@@ -195,6 +206,7 @@ def nginx():
 	files.sed(availableFile, '\{path\}', PATH)
 	files.sed(availableFile, '\{static_url\}', CONFIG.STATIC_URL)
 	files.sed(availableFile, '\{static_relative\}', CONFIG.STATIC_RELATIVE)
+	files.sed(availableFile, '\{ssl_path\}', sslDir)
 
 	# Link the available site configuration with the enabled one
 	if not files.exists('%s%s' % (enabledDir, CONFIG.HOST,)):

@@ -6,3 +6,7 @@ static
 *.pyc
 _build
 *.paw
+*.crt
+*.csr
+*.key
+*.pem
