@@ -1,5 +1,5 @@
 upstream {upstream} {
-    server /tmp/{domain}.sock;
+    server unix:/tmp/{domain}.sock;
 }
 
 server {
