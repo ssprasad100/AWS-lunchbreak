@@ -153,7 +153,7 @@ class Store(models.Model):
     minTime = models.PositiveIntegerField(default=0)
 
     GEOCODING_URL = 'https://maps.googleapis.com/maps/api/geocode/json'
-    GEOCODING_KEY = 'AIzaSyD7jRgPzUxQ4fdghdwoyTnD5hB6EOtpDhE'
+    GEOCODING_KEY = 'AIzaSyCHgip4CE_6DMxP506uDRIQy_nQisuHAQI'
     ADDRESS_FORMAT = '%s,+%s,+%s+%s,+%s+%s'
 
     def save(self, *args, **kwargs):
