@@ -41,6 +41,7 @@ PATH = '%s/%s' % (HOME, CONFIG.HOST,)
 MYSQL_USER = CONFIG.DATABASES['default']['USER']
 MYSQL_DATABASE = CONFIG.DATABASES['default']['NAME']
 MYSQL_HOST = CONFIG.DATABASES['default']['HOST']
+MYSQL_USER_PASSWORD = None
 
 MYSQL_ROOT_PASSWORD_VAR = 'MYSQL_ROOT_PASSWORD'
 MYSQL_ROOT_PASSWORD = os.environ.get(MYSQL_ROOT_PASSWORD_VAR)
@@ -165,14 +166,16 @@ def mysql():
 
 	env.host_string = '%s@%s' % (USER, CONFIG.HOST,)
 
-	mysqlPassword = getSysvar(CONFIG.DB_PASS_VAR)
+	global MYSQL_USER_PASSWORD
+	MYSQL_USER_PASSWORD = getSysvar(CONFIG.DB_PASS_VAR)
+	print MYSQL_USER_PASSWORD
 
-	if mysqlPassword is None:  # User probably doesn't exist
-		mysqlPassword = generateString(50)
-		setSysvar(CONFIG.DB_PASS_VAR, mysqlPassword)
+	if MYSQL_USER_PASSWORD is None:  # User probably doesn't exist
+		MYSQL_USER_PASSWORD = generateString(50)
+		setSysvar(CONFIG.DB_PASS_VAR, MYSQL_USER_PASSWORD)
 
 		runQuery('CREATE DATABASE %s;' % MYSQL_DATABASE)
-		runQuery('CREATE USER "%s"@"%s" IDENTIFIED BY "%s";' % (MYSQL_USER, MYSQL_HOST, mysqlPassword,))
+		runQuery('CREATE USER "%s"@"%s" IDENTIFIED BY "%s";' % (MYSQL_USER, MYSQL_HOST, MYSQL_USER_PASSWORD,))
 		runQuery('GRANT ALL PRIVILEGES ON %s.* TO "%s"@"%s";' % (MYSQL_DATABASE, MYSQL_USER, MYSQL_HOST,))
 		runQuery('FLUSH PRIVILEGES;')
 
@@ -236,6 +239,8 @@ def uwsgi():
 	files.sed(iniFile, '\{path\}', PATH)
 	files.sed(iniFile, '\{virtualenv\}', virtualenv)
 	files.sed(iniFile, '\{configuration\}', CONFIG.__name__)
+	files.sed(iniFile, '\{password_var\}', CONFIG.DB_PASS_VAR)
+	files.sed(iniFile, '\{password\}', MYSQL_USER_PASSWORD)
 
 	run('mv %s %s/%s.ini' % (iniFile, apps, CONFIG.HOST,))
 
