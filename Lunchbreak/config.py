@@ -181,23 +181,6 @@ class Development(Base):
     }
 
 
-class UWSGI(Development):
-    BRANCH = 'uwsgi'
-
-    DB_PASS_VAR = 'LB_%s_password' % BRANCH
-    DB_PASS = os.environ.get(DB_PASS_VAR)
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'LB_%s' % BRANCH,
-            'USER': 'LB_%s' % BRANCH,
-            'PASSWORD': DB_PASS,
-            'HOST': 'localhost',
-            'PORT': '3306'
-        }
-    }
-
-
 class Travis(Development):
     DATABASES = {
         'default': {

@@ -10,10 +10,6 @@ class Development(config.Development, Configuration):
     pass
 
 
-class UWSGI(config.UWSGI, Configuration):
-    pass
-
-
 class Travis(config.Travis, Configuration):
     pass
 

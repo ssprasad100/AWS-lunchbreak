@@ -6,7 +6,7 @@ from fabric.context_managers import cd, hide, prefix
 from fabric.contrib import files
 from fabric.operations import reboot
 from fabric.utils import warn
-from Lunchbreak.config import Base, Beta, Development, Staging, UWSGI
+from Lunchbreak.config import Base, Beta, Development, Staging
 
 PACKAGES = [
 	'git',
@@ -22,13 +22,12 @@ PACKAGES = [
 ]
 PIP_PACKAGES = ['uwsgi', 'virtualenvwrapper']
 
-BRANCH = local('git rev-parse --abbrev-ref HEAD', capture=True)
+BRANCH = os.environ.get('TRAVIS_BRANCH') or local('git rev-parse --abbrev-ref HEAD', capture=True)
 CONFIGS = {
 	'master': Base,
 	'beta': Beta,
 	'staging': Staging,
-	'development': Development,
-	'uwsgi': UWSGI
+	'development': Development
 }
 CONFIG = CONFIGS[BRANCH]
 BRANCH = CONFIG.BRANCH
