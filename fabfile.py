@@ -84,14 +84,14 @@ def prerequisites():
 
 def installations(rebooted=False):
 	with hide('stdout'):
-		run('apt-get update')
-		run('apt-get -y upgrade')
+		run('apt-get -qq update')
+		run('apt-get -yqq upgrade')
 
 		# Autofill mysql-server passwords
 		run('debconf-set-selections <<< "mysql-server mysql-server/root_password password %s"' % MYSQL_ROOT_PASSWORD)
 		run('debconf-set-selections <<< "mysql-server mysql-server/root_password_again password %s"' % MYSQL_ROOT_PASSWORD)
 
-		run('apt-get -y install %s' % ' '.join(PACKAGES))
+		run('apt-get -yqq install %s' % ' '.join(PACKAGES))
 
 		# Clear autofillers after in case they weren't used
 		run('echo PURGE | debconf-communicate mysql-server')
@@ -110,6 +110,9 @@ def installations(rebooted=False):
 			return
 		elif not correctTimezone:
 			run('service cron restart')  # If the timezone was incorrect, restart the cron service just in case, but not when there is a reboot
+
+		run('apt-get -qq autoremove')
+		run('apt-get -qq autoclean')
 
 		# Install pip
 		run('wget https://bootstrap.pypa.io/get-pip.py')
