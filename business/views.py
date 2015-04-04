@@ -1,5 +1,5 @@
 from business.authentication import EmployeeAuthentication, StaffAuthentication
-from business.exceptions import InvalidDate
+from business.exceptions import InvalidDatetime
 from business.models import Employee, Staff
 from business.responses import InvalidEmail
 from business.serializers import (EmployeeSerializer, OrderSerializer,
@@ -164,7 +164,7 @@ class OrderListView(generics.ListAPIView):
                     since = timezone.datetime.strptime(sinceString, '%d-%m-%Y-%H-%M')
                 except ValueError as e:
                     print e
-                    raise InvalidDate()
+                    raise InvalidDatetime()
             if 'option' in self.kwargs and self.kwargs['option'] == 'pickupTime':
                 result = result.order_by('pickupTime')
                 if since is not None:

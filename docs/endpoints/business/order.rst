@@ -5,9 +5,9 @@ Order
 List
 ====
 
-.. http:get:: /v1/business/order/(String:option)
+.. http:get:: /v1/business/order/(String:option)/(String:since)
 
-    List all of the orders with the status: placed, received, started and waiting ordered by 'orderedTime' descending or 'pickupTime' ascending.
+    List all of the orders with the status: placed, received, started and waiting.
 
     Authentication: :doc:`/authentication/employee`
 
@@ -15,7 +15,8 @@ List
 
     :resheader Content-Type: application/json
 
-    :query String option: Choices between 'orderedTime' or 'pickupTime'. If none is given, it's 'orderedTime'.
+    :query String option: Optional choice between 'orderedTime' or 'pickupTime'. Order by 'orderedTime' descending (default if empty) or 'pickupTime' ascending.
+    :query String since: Optional datetime from where the 'option' parameter should be returned. Format '%d-%m-%Y-%H-%M'. Can be used if option is not given too.
 
     :statuscode 200: no error
     :statuscode 403: authentication failed
