@@ -10,3 +10,4 @@ Business
     ingredientGroup
     order
     staff
+    storeCategory
