@@ -1,4 +1,5 @@
 from business.authentication import EmployeeAuthentication, StaffAuthentication
+from business.exceptions import InvalidDate
 from business.models import Employee, Staff
 from business.responses import InvalidEmail
 from business.serializers import (EmployeeSerializer, OrderSerializer,
@@ -9,6 +10,7 @@ from customers.models import (Order, ORDER_STATUS_PLACED, ORDER_STATUS_RECEIVED,
                               ORDER_STATUS_STARTED, ORDER_STATUS_WAITING)
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import validate_email
+from django.utils import timezone
 from lunch.models import (DefaultFood, DefaultIngredient, Food, FoodCategory,
                           FoodType, Ingredient, IngredientGroup, Store)
 from lunch.responses import BadRequest, DoesNotExist
@@ -154,9 +156,23 @@ class OrderListView(generics.ListAPIView):
     def get_queryset(self):
         result = Order.objects.filter(store_id=self.request.user.staff.store_id, status__in=[ORDER_STATUS_PLACED, ORDER_STATUS_RECEIVED, ORDER_STATUS_STARTED, ORDER_STATUS_WAITING])
         if self.request.method == 'GET':
+            since = None
+            if 'datetime' in self.kwargs and self.kwargs['datetime'] is not None:
+                sinceString = self.kwargs['datetime']
+                print sinceString
+                try:
+                    since = timezone.datetime.strptime(sinceString, '%d-%m-%Y-%H-%M')
+                except ValueError as e:
+                    print e
+                    raise InvalidDate()
             if 'option' in self.kwargs and self.kwargs['option'] == 'pickupTime':
-                return result.order_by('pickupTime')
-            return result.order_by('-orderedTime')
+                result = result.order_by('pickupTime')
+                if since is not None:
+                    result = result.filter(pickupTime__gte=since)
+            else:
+                result = result.order_by('-orderedTime')
+                if since is not None:
+                    result = result.filter(orderedTime__gte=since)
         return result
 
 

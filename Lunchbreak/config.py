@@ -69,9 +69,9 @@ class Base:
 
     LANGUAGE_CODE = 'nl-be'
     TIME_ZONE = 'Europe/Brussels'
-    USE_I18N = True
-    USE_L10N = True
-    USE_TZ = True
+    USE_I18N = True  # Translate localisation
+    USE_L10N = True  # Format localisation
+    USE_TZ = False
 
     STATIC_RELATIVE = '/static/'
     STATIC_ROOT = BASE_DIR + STATIC_RELATIVE

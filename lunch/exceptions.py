@@ -39,7 +39,6 @@ class LunchbreakException(APIException):
         else:
             super(LunchbreakException, self).__init__(detail)
 
-
     def getResponse(self):
         return lunchbreakExceptionHandler(self)
 
