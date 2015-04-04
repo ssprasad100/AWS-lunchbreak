@@ -99,12 +99,15 @@ class LunchbreakManager(models.Manager):
 
 
 ICONS = (
-    (0, 'Icoontje 0'),
-    (1, 'Icoontje 1'),
-    (2, 'Icoontje 2'),
-    (3, 'Icoontje 3'),
-    (4, 'Icoontje 4'),
-    (5, 'Icoontje 5')
+    (0, 'Onbekend'),
+    # 1xx StoreCategories
+    (100, 'Slager'),
+    (101, 'Bakker'),
+    (102, 'Broodjeszaak'),
+    # 2xx Ingredients
+    (200, 'Tomaten'),
+    # 3xx FoodTypes
+    (300, 'Broodje')
 )
 
 
@@ -126,6 +129,7 @@ INPUT_TYPES = (
 
 class StoreCategory(models.Model):
     name = models.CharField(max_length=64)
+    icon = models.PositiveIntegerField(choices=ICONS, default=0)
 
     class Meta:
         verbose_name_plural = 'Store categories'
