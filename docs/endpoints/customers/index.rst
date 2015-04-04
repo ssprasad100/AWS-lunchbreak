@@ -6,5 +6,6 @@ Customers
     food
     order
     store
+    storeCategory
     token
     user

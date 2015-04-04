@@ -1,9 +1,10 @@
 import datetime
 
 from django.utils import timezone
-from lunch.models import HolidayPeriod, OpeningHours
-from lunch.serializers import HolidayPeriodSerializer, OpeningHoursSerializer
-from rest_framework import status
+from lunch.models import HolidayPeriod, OpeningHours, StoreCategory
+from lunch.serializers import (HolidayPeriodSerializer, OpeningHoursSerializer,
+                               StoreCategorySerializer)
+from rest_framework import generics, status
 from rest_framework.response import Response
 
 
@@ -16,6 +17,9 @@ def getHolidayPeriods(storeId):
 
 
 def getOpeningAndHoliday(storeId):
+    '''
+    Return both the the opening hours and holiday periods as a Response.
+    '''
     openingHours = OpeningHoursSerializer(getOpeningHours(storeId), many=True)
     holidayPeriods = HolidayPeriodSerializer(getHolidayPeriods(storeId), many=True)
 
@@ -25,3 +29,13 @@ def getOpeningAndHoliday(storeId):
     }
 
     return Response(data=data, status=status.HTTP_200_OK)
+
+
+class StoreCategoryListViewBase(generics.ListAPIView):
+    '''
+    List all of the store categories.
+    '''
+
+    serializer_class = StoreCategorySerializer
+    pagination_class = None
+    queryset = StoreCategory.objects.all()

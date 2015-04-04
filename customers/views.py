@@ -11,7 +11,8 @@ from lunch.models import Food, Ingredient, Store, tokenGenerator
 from lunch.responses import BadRequest
 from lunch.serializers import (FoodSerializer, HolidayPeriodSerializer,
                                OpeningHoursSerializer, StoreSerializer)
-from lunch.views import getHolidayPeriods, getOpeningAndHoliday, getOpeningHours
+from lunch.views import (getHolidayPeriods, getOpeningAndHoliday,
+                         getOpeningHours, StoreCategoryListViewBase)
 from rest_framework import generics, status
 from rest_framework.response import Response
 
@@ -44,6 +45,10 @@ class StoreOpenView(generics.ListAPIView):
 
     def get(self, request, *args, **kwargs):
         return getOpeningAndHoliday(self.kwargs['store_id'])
+
+
+class StoreCategoryListView(StoreCategoryListViewBase):
+    authentication_classes = (CustomerAuthentication,)
 
 
 class OpeningHoursListView(generics.ListAPIView):

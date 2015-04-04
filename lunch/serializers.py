@@ -9,7 +9,7 @@ class StoreCategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = StoreCategory
-        fields = ('id', 'name',)
+        fields = ('id', 'name', 'icon',)
 
 
 class StoreSerializer(serializers.ModelSerializer):
