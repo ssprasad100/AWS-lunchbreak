@@ -11,6 +11,13 @@ Fields
     - **paid** (*boolean*) - Already paid or not
     - **total** (*decimal*) - Total cost
     - **food** (:doc:`/serializers/customers/orderedFood` array) - Ordered food, cannot be empty
+    - **status** (*int*) - Status number
+        + **0** - *Placed*
+        + **1** - *Denied*
+        + **2** - *Received*
+        + **3** - *Started*
+        + **4** - *Waiting*
+        + **5** - *Completed*
 
 Read only
 ^^^^^^^^^
@@ -18,9 +25,9 @@ Read only
     - store
     - paid
     - total
+    - status
 
 Write only
 ^^^^^^^^^^
     - storeId
-    - pickupTime
     - food

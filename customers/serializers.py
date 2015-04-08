@@ -169,9 +169,9 @@ class ShortOrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ('id', 'store', 'storeId', 'pickupTime', 'paid', 'total', 'food',)
-        read_only_fields = ('id', 'paid', 'total', 'store',)
-        write_only_fields = ('storeId', 'pickupTime', 'food',)
+        fields = ('id', 'store', 'storeId', 'pickupTime', 'paid', 'total', 'food', 'status',)
+        read_only_fields = ('id', 'paid', 'total', 'store', 'status',)
+        write_only_fields = ('storeId', 'food',)
 
 
 class OrderSerializer(serializers.ModelSerializer):
