@@ -2,7 +2,7 @@
 Order
 =====
 
-Specific order
+Retrieve order
 ==============
 
 .. http:get:: /v1/customers/order/(int:id)/

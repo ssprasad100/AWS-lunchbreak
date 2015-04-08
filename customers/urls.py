@@ -6,7 +6,7 @@ urlpatterns = patterns('',
     url(r'^food/store/(?P<store_id>\d+)/$', views.FoodListView.as_view()),
 
     url(r'^order/$', views.OrderView.as_view()),
-    url(r'^order/(?P<id>\d+)/$', views.OrderView.as_view()),
+    url(r'^order/(?P<pk>\d+)/$', views.OrderRetrieveView.as_view()),
     url(r'^order/price/$', views.OrderPriceView.as_view()),
 
     url(r'^store/(?P<id>\d+)/$', views.StoreListView.as_view()),

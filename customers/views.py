@@ -98,14 +98,9 @@ class OrderView(generics.ListCreateAPIView):
     '''
 
     authentication_classes = (CustomerAuthentication,)
-    serializer_class = OrderSerializer
+    serializer_class = ShortOrderSerializer
 
     def get_queryset(self):
-        '''
-        Return all of the Orders for the authenticated user.
-        '''
-        if 'id' in self.kwargs:
-            return Order.objects.filter(user=self.request.user, id=self.kwargs['id'])
         return Order.objects.filter(user=self.request.user)
 
     def create(self, request, *args, **kwargs):
@@ -118,6 +113,16 @@ class OrderView(generics.ListCreateAPIView):
             else:
                 return Response(data=orderSerializer.data, status=status.HTTP_201_CREATED)
         return BadRequest(orderSerializer.errors)
+
+
+class OrderRetrieveView(generics.RetrieveAPIView):
+    '''
+    Retrieve a single order.
+    '''
+
+    authentication_classes = (CustomerAuthentication,)
+    serializer_class = OrderSerializer
+    queryset = Order.objects.all()
 
 
 class OrderPriceView(generics.CreateAPIView):
