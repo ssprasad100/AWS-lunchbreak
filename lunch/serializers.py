@@ -97,6 +97,17 @@ class FoodSerializer(DefaultFoodSerializer):
     class Meta:
         model = Food
         fields = DefaultFoodSerializer.Meta.fields + ('store',)
+        read_only_fields = DefaultFoodSerializer.Meta.read_only_fields
+
+
+class ShortDefaultFoodSerializer(serializers.ModelSerializer):
+    foodType = FoodTypeSerializer(many=False)
+    category = DefaultFoodCategorySerializer(many=False)
+
+    class Meta:
+        model = DefaultFood
+        fields = ('id', 'name', 'cost', 'category', 'foodType',)
+        read_only_fields = ('id',)
 
 
 class TokenSerializer(serializers.ModelSerializer):

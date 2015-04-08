@@ -30,7 +30,7 @@ Specific store
 
     Authentication: :doc:`/authentication/user`
 
-    Serializer: :doc:`/serializers/global/food`
+    Serializer: :doc:`/serializers/global/shortDefaultFood`
 
     :query int id: ID of the store
 

@@ -2,7 +2,7 @@ from django.conf.urls import patterns, url
 from customers import views
 
 urlpatterns = patterns('',
-    url(r'^food/(?P<id>\d+)/$', views.FoodListView.as_view()),
+    url(r'^food/(?P<pk>\d+)/$', views.FoodRetrieveView.as_view()),
     url(r'^food/store/(?P<store_id>\d+)/$', views.FoodListView.as_view()),
 
     url(r'^order/$', views.OrderView.as_view()),
