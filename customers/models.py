@@ -48,7 +48,7 @@ class Order(models.Model):
 
 
 class OrderedFood(BaseStoreFood):
-    amount = models.IntegerField(default=1)
+    amount = models.DecimalField(decimal_places=3, max_digits=13, default=1)
     order = models.ForeignKey(Order, related_name='food')
 
     @staticmethod

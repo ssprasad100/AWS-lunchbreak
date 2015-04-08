@@ -121,9 +121,12 @@ DAYS = (
     (6, 'Zondag')
 )
 
+INPUT_AMOUNT = 0
+INPUT_WEIGHT = 1
+
 INPUT_TYPES = (
-    (0, 'Aantal'),
-    (1, 'Gewicht')
+    (INPUT_AMOUNT, 'Aantal'),
+    (INPUT_WEIGHT, 'Gewicht')
 )
 
 

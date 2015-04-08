@@ -8,6 +8,7 @@ MINTIME_EXCEEDED = 701
 PASTORDER_DENIED = 702
 DIGITS_UNAVAILABLE = 703
 STORE_CLOSED = 704
+AMOUNT_INVALID = 705
 
 DIGITS_LEGACY_ERROR = 0
 DIGITS_INVALID_PHONE = 32
@@ -69,3 +70,9 @@ class StoreClosed(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
     code = STORE_CLOSED
     information = 'The store is closed.'
+
+
+class AmountInvalid(LunchbreakException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    code = AMOUNT_INVALID
+    information = 'The amount is invalid.'

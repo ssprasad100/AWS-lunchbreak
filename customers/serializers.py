@@ -1,12 +1,12 @@
 from datetime import timedelta
 
-from customers.exceptions import (CostCheckFailed, MinTimeExceeded,
-                                  PastOrderDenied, StoreClosed)
+from customers.exceptions import (AmountInvalid, CostCheckFailed,
+                                  MinTimeExceeded, PastOrderDenied, StoreClosed)
 from customers.models import Order, OrderedFood, User, UserToken
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
-from lunch.exceptions import DoesNotExist, BadRequest
-from lunch.models import Food, Ingredient, Store, OpeningHours
+from lunch.exceptions import BadRequest, DoesNotExist
+from lunch.models import Food, Ingredient, INPUT_AMOUNT, OpeningHours, Store
 from lunch.serializers import (FoodCategorySerializer, FoodSerializer,
                                FoodTypeSerializer, StoreSerializer,
                                TokenSerializer)
@@ -25,7 +25,7 @@ class ShortStoreSerializer(serializers.ModelSerializer):
 class OrderedFoodSerializer(FoodSerializer):
     category = FoodCategorySerializer(many=False, read_only=True)
     referenceId = serializers.IntegerField(write_only=True, required=False)
-    amount = serializers.IntegerField(required=False)
+    amount = serializers.DecimalField(decimal_places=3, max_digits=13, required=False)
     foodType = FoodTypeSerializer(many=False, required=False)
 
     def to_internal_value(self, data):
@@ -96,6 +96,11 @@ class ShortOrderSerializer(serializers.ModelSerializer):
             order.delete()
             raise CostCheckFailed()
 
+    def amountOnlyInteger(self, order, orderedFood, amount):
+        if not float(amount).is_integer() and orderedFood.foodType.inputType == INPUT_AMOUNT:
+            order.delete()
+            raise AmountInvalid()
+
     def create(self, validated_data):
         pickupTime = validated_data['pickupTime']
         food = validated_data['food']
@@ -141,6 +146,7 @@ class ShortOrderSerializer(serializers.ModelSerializer):
                     raise DoesNotExist('Referenced food does not exist.')
                 orderedFood = OrderedFood(**referenceFood.values()[0])
 
+                self.amountOnlyInteger(order, orderedFood, amount)
                 self.costCheck(order, orderedFood, amount, f['cost'])
 
                 orderedFood.pk = None
@@ -152,6 +158,7 @@ class ShortOrderSerializer(serializers.ModelSerializer):
                 exact, closestFood = OrderedFood.objects.closestFood(orderedFood, ingredientIds)
                 orderedFood.cost = closestFood.cost if exact else OrderedFood.calculateCost(Ingredient.objects.filter(id__in=ingredientIds, store_id=store), closestFood)
 
+                self.amountOnlyInteger(order, orderedFood, amount)
                 self.costCheck(order, orderedFood, amount, f['cost'])
 
                 orderedFood.name = closestFood.name
