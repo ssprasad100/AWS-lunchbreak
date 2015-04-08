@@ -105,7 +105,7 @@ class OrderView(generics.ListCreateAPIView):
     serializer_class = ShortOrderSerializer
 
     def get_queryset(self):
-        return Order.objects.filter(user=self.request.user)
+        return Order.objects.filter(user=self.request.user).order_by('-pickupTime')
 
     def create(self, request, *args, **kwargs):
         orderSerializer = ShortOrderSerializer(data=request.data, context={'user': request.user})

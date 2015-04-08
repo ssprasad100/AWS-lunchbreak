@@ -26,7 +26,7 @@ User's orders
 
 .. http:get:: /v1/customers/order/
 
-    All of the authenticated user's orders.
+    All of the authenticated user's orders ordered by pickupTime descending.
 
     Authentication: :doc:`/authentication/user`
 
