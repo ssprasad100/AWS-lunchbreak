@@ -8,8 +8,8 @@ from django.utils import timezone
 from lunch.exceptions import BadRequest, DoesNotExist
 from lunch.models import Food, Ingredient, INPUT_AMOUNT, OpeningHours, Store
 from lunch.serializers import (FoodCategorySerializer, FoodSerializer,
-                               FoodTypeSerializer, StoreSerializer,
-                               TokenSerializer)
+                               FoodTypeSerializer, IngredientGroupSerializer,
+                               StoreSerializer, TokenSerializer)
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -22,7 +22,8 @@ class ShortStoreSerializer(serializers.ModelSerializer):
         read_only_fields = ('name',)
 
 
-class OrderedFoodSerializer(FoodSerializer):
+class OrderedFoodSerializer(serializers.ModelSerializer):
+    ingredientGroups = IngredientGroupSerializer(many=True, read_only=True)
     category = FoodCategorySerializer(many=False, read_only=True)
     referenceId = serializers.IntegerField(write_only=True, required=False)
     amount = serializers.DecimalField(decimal_places=3, max_digits=13, required=False)

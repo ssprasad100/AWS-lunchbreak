@@ -1,7 +1,7 @@
-from lunch.models import (DefaultFood, DefaultFoodCategory, DefaultIngredient,
-                          Food, FoodCategory, FoodType, HolidayPeriod,
-                          Ingredient, IngredientGroup, OpeningHours, Store,
-                          StoreCategory, BaseToken)
+from lunch.models import (BaseToken, DefaultFood, DefaultFoodCategory,
+                          DefaultIngredient, DefaultIngredientRelation, Food,
+                          FoodCategory, FoodType, HolidayPeriod, Ingredient,
+                          IngredientGroup, OpeningHours, Store, StoreCategory)
 from rest_framework import serializers
 
 
@@ -48,6 +48,14 @@ class IngredientSerializer(DefaultIngredientSerializer):
         fields = DefaultIngredientSerializer.Meta.fields + ('store',)
 
 
+class ShortDefaultIngredientRelationSerializer(serializers.HyperlinkedModelSerializer):
+    id = serializers.ReadOnlyField(source='ingredient.id')
+
+    class Meta:
+        model = DefaultIngredientRelation
+        fields = ('id', 'typical',)
+
+
 class IngredientGroupSerializer(serializers.ModelSerializer):
     ingredients = IngredientSerializer(many=True)
 
@@ -81,6 +89,7 @@ class DefaultFoodSerializer(serializers.ModelSerializer):
     ingredientGroups = IngredientGroupSerializer(many=True, read_only=True)
     category = DefaultFoodCategorySerializer(many=False)
     foodType = FoodTypeSerializer(many=False)
+    ingredients = ShortDefaultIngredientRelationSerializer(source='defaultingredientrelation_set', many=True)
 
     class Meta:
         model = DefaultFood
@@ -89,6 +98,7 @@ class DefaultFoodSerializer(serializers.ModelSerializer):
 
 
 class FoodSerializer(DefaultFoodSerializer):
+    ingredients = ShortDefaultIngredientRelationSerializer(source='ingredientrelation_set', many=True)
 
     def create(self, validated_data):
         ingredients = Ingredient.objects.filter(id__in=validated_data['ingredients'])

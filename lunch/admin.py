@@ -1,7 +1,8 @@
 from django.contrib import admin
 from lunch.models import (DefaultFood, DefaultFoodCategory, DefaultIngredient,
-                          Food, FoodCategory, FoodType, HolidayPeriod,
-                          Ingredient, IngredientGroup, OpeningHours, Store,
+                          DefaultIngredientRelation, Food, FoodCategory,
+                          FoodType, HolidayPeriod, Ingredient, IngredientGroup,
+                          IngredientRelation, OpeningHours, Store,
                           StoreCategory)
 
 admin.site.register(StoreCategory)
@@ -43,17 +44,27 @@ class FoodTypeAdmin(admin.ModelAdmin):
     fields = ('name', 'icon', 'quantifier', 'inputType',)
 
 
+class DefaultIngredientsRelationInline(admin.TabularInline):
+    model = DefaultIngredientRelation
+    extra = 3
+
+
+class IngredientsRelationInline(DefaultIngredientsRelationInline):
+    model = IngredientRelation
+
+
 @admin.register(DefaultFood)
 class DefaultFoodAdmin(admin.ModelAdmin):
     list_display = ('name', 'cost', 'category',)
-    fields = ('name', 'cost', 'ingredients', 'category', 'foodType',)
-    filter_horizontal = ('ingredients',)
+    fields = ('name', 'cost', 'category', 'foodType',)
+    inlines = (DefaultIngredientsRelationInline,)
 
 
 @admin.register(Food)
 class FoodAdmin(DefaultFoodAdmin):
     list_display = ('name', 'cost', 'store', 'category',)
-    fields = ('name', 'cost', 'ingredients', 'store', 'category', 'foodType',)
+    fields = ('name', 'cost', 'store', 'category', 'foodType',)
+    inlines = (IngredientsRelationInline,)
 
 
 @admin.register(DefaultIngredient)

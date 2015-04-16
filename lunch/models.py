@@ -296,12 +296,11 @@ class BaseFood(models.Model):
 
 class DefaultFood(BaseFood):
     category = models.ForeignKey(DefaultFoodCategory, null=True, blank=True)
-    ingredients = models.ManyToManyField(DefaultIngredient, null=True, blank=True)
+    ingredients = models.ManyToManyField(DefaultIngredient, through='DefaultIngredientRelation', null=True, blank=True)
 
 
 class BaseStoreFood(BaseFood):
     category = models.ForeignKey(FoodCategory, null=True, blank=True)
-    ingredients = models.ManyToManyField(Ingredient, null=True, blank=True)
     store = models.ForeignKey(Store)
 
     class Meta:
@@ -309,7 +308,24 @@ class BaseStoreFood(BaseFood):
 
 
 class Food(BaseStoreFood):
-    pass
+    ingredients = models.ManyToManyField(Ingredient, through='IngredientRelation', null=True, blank=True)
+
+
+class BaseIngredientRelation(models.Model):
+    typical = models.BooleanField(default=False)
+
+    class Meta:
+        abstract = True
+
+
+class DefaultIngredientRelation(BaseIngredientRelation):
+    food = models.ForeignKey(DefaultFood)
+    ingredient = models.ForeignKey(DefaultIngredient)
+
+
+class IngredientRelation(BaseIngredientRelation):
+    food = models.ForeignKey(Food)
+    ingredient = models.ForeignKey(Ingredient)
 
 
 IDENTIFIER_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWabcdefghijklmnopqrstuvwxyz0123456789'

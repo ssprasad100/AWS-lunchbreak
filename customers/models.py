@@ -1,5 +1,5 @@
 from django.db import models
-from lunch.models import BaseStoreFood, BaseToken, Store
+from lunch.models import BaseStoreFood, BaseToken, Ingredient, Store
 from phonenumber_field.modelfields import PhoneNumberField
 
 ORDER_STATUS_PLACED = 0
@@ -48,6 +48,7 @@ class Order(models.Model):
 
 
 class OrderedFood(BaseStoreFood):
+    ingredients = models.ManyToManyField(Ingredient, null=True, blank=True)
     amount = models.DecimalField(decimal_places=3, max_digits=13, default=1)
     order = models.ForeignKey(Order, related_name='food')
 

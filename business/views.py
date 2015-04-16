@@ -5,7 +5,8 @@ from business.responses import InvalidEmail
 from business.serializers import (EmployeeSerializer, OrderSerializer,
                                   ShortFoodSerializer,
                                   ShortIngredientGroupSerializer,
-                                  ShortOrderSerializer, StaffSerializer)
+                                  ShortOrderSerializer, StaffSerializer,
+                                  StoreFoodSerializer)
 from customers.models import (Order, ORDER_STATUS_PLACED, ORDER_STATUS_RECEIVED,
                               ORDER_STATUS_STARTED, ORDER_STATUS_WAITING)
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
@@ -15,7 +16,6 @@ from lunch.models import (DefaultFood, DefaultIngredient, Food, FoodCategory,
                           FoodType, Ingredient, IngredientGroup, Store)
 from lunch.responses import BadRequest, DoesNotExist
 from lunch.serializers import (DefaultFoodCategorySerializer,
-                               DefaultFoodSerializer,
                                DefaultIngredientSerializer, FoodTypeSerializer,
                                HolidayPeriodSerializer, OpeningHoursSerializer)
 from lunch.views import (getHolidayPeriods, getOpeningAndHoliday,
@@ -79,7 +79,7 @@ class FoodRetrieveView(generics.RetrieveAPIView):
     '''
 
     authentication_classes = (EmployeeAuthentication,)
-    serializer_class = DefaultFoodSerializer  # Default serializer doesn't return the store
+    serializer_class = StoreFoodSerializer  # Default serializer doesn't return the store
     queryset = Food.objects.all()
 
 

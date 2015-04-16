@@ -8,6 +8,7 @@ class OrderedFoodAdmin(FoodAdmin):
     list_display = FoodAdmin.list_display + ('amount', 'order',)
     fields = FoodAdmin.fields + ('amount', 'order',)
     readonly_fields = ('cost',)
+    inlines = ()
 
 
 @admin.register(User)

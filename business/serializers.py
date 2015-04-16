@@ -2,7 +2,7 @@ from business.models import Employee, EmployeeToken, Staff, StaffToken
 from customers.models import Order, User
 from customers.serializers import OrderedFoodSerializer
 from lunch.models import Food, IngredientGroup
-from lunch.serializers import StoreSerializer, TokenSerializer
+from lunch.serializers import StoreSerializer, TokenSerializer, FoodSerializer, DefaultFoodSerializer
 from rest_framework import serializers
 
 
@@ -90,3 +90,10 @@ class ShortFoodSerializer(serializers.ModelSerializer):
         model = Food
         fields = ('id', 'name', 'category', 'foodType',)
         read_only_fields = ('id', 'name', 'category', 'foodType',)
+
+
+class StoreFoodSerializer(FoodSerializer):
+    class Meta:
+        model = Food
+        fields = DefaultFoodSerializer.Meta.fields
+        read_only_fields = DefaultFoodSerializer.Meta.read_only_fields
