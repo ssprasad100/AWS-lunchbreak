@@ -3,15 +3,13 @@ from datetime import timedelta
 from customers.exceptions import (AmountInvalid, CostCheckFailed,
                                   MinTimeExceeded, PastOrderDenied, StoreClosed)
 from customers.models import Order, OrderedFood, User, UserToken
-from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
-from lunch.exceptions import BadRequest, DoesNotExist
-from lunch.models import Food, Ingredient, INPUT_AMOUNT, OpeningHours, Store
-from lunch.serializers import (FoodCategorySerializer, FoodSerializer,
-                               FoodTypeSerializer, IngredientGroupSerializer,
+from lunch.exceptions import BadRequest
+from lunch.models import Food, INPUT_AMOUNT, OpeningHours, Store
+from lunch.serializers import (IngredientGroupSerializer,
+                               ShortDefaultIngredientRelationSerializer,
                                StoreSerializer, TokenSerializer)
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
 
 
 class ShortStoreSerializer(serializers.ModelSerializer):
@@ -24,63 +22,20 @@ class ShortStoreSerializer(serializers.ModelSerializer):
 
 class OrderedFoodSerializer(serializers.ModelSerializer):
     ingredientGroups = IngredientGroupSerializer(many=True, read_only=True)
-    category = FoodCategorySerializer(many=False, read_only=True)
-    referenceId = serializers.IntegerField(write_only=True, required=False)
-    amount = serializers.DecimalField(decimal_places=3, max_digits=13, required=False)
-    foodType = FoodTypeSerializer(many=False, required=False)
-
-    def to_internal_value(self, data):
-        if 'referenceId' not in data and 'ingredients' not in data:
-            raise serializers.ValidationError({'referenceId, ingredients': 'One of these fields is required.'})
-        return super(OrderedFoodSerializer, self).to_internal_value(data)
+    cost = serializers.DecimalField(decimal_places=2, max_digits=5)
 
     class Meta:
         model = OrderedFood
-        fields = FoodSerializer.Meta.fields + ('referenceId', 'amount',)
-        read_only_fields = ('id', 'ingredientGroups', 'store', 'category', 'name',)
-        write_only_fields = ('referenceId',)
+        fields = ('id', 'ingredients', 'amount', 'order', 'original', 'ingredientGroups', 'cost')
+        read_only_fields = ('id', 'order', 'ingredientGroups',)
 
 
-class OrderedFoodPriceSerializer(serializers.BaseSerializer):
-    ingredients = serializers.ListField(child=serializers.IntegerField())
-    store = serializers.IntegerField()
-
-    def to_internal_value(self, data):
-        store = data.get('store')
-        ingredients = data.get('ingredients')
-
-        # Perform the data validation.
-        if not store:
-            raise ValidationError({
-                'store': 'This field is required.'
-            })
-        elif len(Store.objects.filter(id=store)) == 0:
-            raise ValidationError({
-                'store': 'Store id does not exist.'
-            })
-
-        if not ingredients:
-            raise ValidationError({
-                'ingredients': 'This field is required.'
-            })
-        if type(ingredients) is not list:
-            raise ValidationError({
-                'ingredients': 'This field is needs to be a list of integers.'
-            })
-
-        return {
-            'store': int(store),
-            'ingredients': [int(i) for i in ingredients]
-        }
-
-    def to_representation(self, obj):
-        return {
-            'store': obj.store,
-            'ingredients': obj.ingredients
-        }
+class OrderedFoodPriceSerializer(serializers.ModelSerializer):
 
     class Meta:
-        fields = ('ingredients', 'store',)
+        model = OrderedFood
+        fields = ('ingredients', 'amount', 'original',)
+        write_only_fields = fields
 
 
 class ShortOrderSerializer(serializers.ModelSerializer):
@@ -88,36 +43,28 @@ class ShortOrderSerializer(serializers.ModelSerializer):
     Used after placing an order for confirmation.
     '''
 
-    food = OrderedFoodSerializer(many=True, write_only=True)
-    store = ShortStoreSerializer(read_only=True)
-    storeId = serializers.IntegerField(write_only=True)
+    orderedFood = OrderedFoodSerializer(many=True, write_only=True)
 
     def costCheck(self, order, orderedFood, amount, cost):
         if orderedFood.cost * amount != cost:
             order.delete()
             raise CostCheckFailed()
 
-    def amountOnlyInteger(self, order, orderedFood, amount):
-        if not float(amount).is_integer() and orderedFood.foodType.inputType == INPUT_AMOUNT:
+    def amountCheck(self, order, original, amount):
+        if not float(amount).is_integer() and original.foodType.inputType == INPUT_AMOUNT:
             order.delete()
             raise AmountInvalid()
 
     def create(self, validated_data):
         pickupTime = validated_data['pickupTime']
-        food = validated_data['food']
-        storeId = validated_data['storeId']
+        orderedFood = validated_data['orderedFood']
+        store = validated_data['store']
 
-        if len(food) == 0:
+        if len(orderedFood) == 0:
             raise BadRequest()
 
         if pickupTime < timezone.now():
             raise PastOrderDenied()
-
-        print storeId
-        try:
-            store = Store.objects.get(id=storeId)
-        except ObjectDoesNotExist:
-            raise DoesNotExist('Store does not exist')
 
         if pickupTime - timezone.now() < timedelta(minutes=store.minTime):
             raise MinTimeExceeded()
@@ -137,49 +84,32 @@ class ShortOrderSerializer(serializers.ModelSerializer):
 
         order = Order(user=user, store=store, pickupTime=pickupTime)
         order.save()
-        for f in food:
-            orderedFood = OrderedFood()
+        for f in orderedFood:
+            original = f['original']
             amount = f['amount'] if 'amount' in f else 1
+            self.amountCheck(order, original, amount)
 
-            if 'referenceId' in f:
-                referenceFood = Food.objects.filter(id=f['referenceId'])
-                if len(referenceFood) == 0:
-                    raise DoesNotExist('Referenced food does not exist.')
-                orderedFood = OrderedFood(**referenceFood.values()[0])
+            cost = f['cost']
 
-                self.amountOnlyInteger(order, orderedFood, amount)
-                self.costCheck(order, orderedFood, amount, f['cost'])
+            orderedF = OrderedFood(original=original, order=order, amount=amount)
 
-                orderedFood.pk = None
-                orderedFood.order = order
+            if 'ingredients' in f:
+                orderedF.save()
+                ingredients = f['ingredients']
+                closestFood = Food.objects.closestFood(ingredients, original.foodType.id)
+                orderedF.cost = OrderedFood.calculateCost(ingredients, closestFood)
+                self.costCheck(order, orderedF, amount, cost)
             else:
-                orderedFood.store = store
+                self.costCheck(order, original, amount, cost)
+                orderedF.cost = original.cost
 
-                ingredientIds = [ingredient.id for ingredient in f['ingredients']]
-                exact, closestFood = OrderedFood.objects.closestFood(orderedFood, ingredientIds)
-                orderedFood.cost = closestFood.cost if exact else OrderedFood.calculateCost(Ingredient.objects.filter(id__in=ingredientIds, store_id=store), closestFood)
-
-                self.amountOnlyInteger(order, orderedFood, amount)
-                self.costCheck(order, orderedFood, amount, f['cost'])
-
-                orderedFood.name = closestFood.name
-                orderedFood.foodType = closestFood.foodType
-                orderedFood.order = order
-
-                orderedFood.save()
-                orderedFood.ingredients = f['ingredients']
-
-            orderedFood.amount = amount
-            orderedFood.save()
-
-        order.save()
+            orderedF.save()
         return order
 
     class Meta:
         model = Order
-        fields = ('id', 'store', 'storeId', 'pickupTime', 'paid', 'total', 'food', 'status',)
-        read_only_fields = ('id', 'paid', 'total', 'store', 'status',)
-        write_only_fields = ('storeId', 'food',)
+        fields = ('id', 'store', 'pickupTime', 'paid', 'total', 'orderedFood', 'status',)
+        read_only_fields = ('id', 'paid', 'total', 'status',)
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -188,12 +118,12 @@ class OrderSerializer(serializers.ModelSerializer):
     '''
 
     store = StoreSerializer(read_only=True)
-    food = OrderedFoodSerializer(many=True, read_only=True)
+    orderedfood = OrderedFoodSerializer(many=True, read_only=True, source='orderedfood_set')
 
     class Meta:
         model = Order
-        fields = ('id', 'store', 'orderedTime', 'pickupTime', 'status', 'paid', 'total', 'food',)
-        read_only_fields = ('id', 'store', 'orderedTime', 'pickupTime', 'status', 'paid', 'total', 'food',)
+        fields = ('id', 'store', 'orderedTime', 'pickupTime', 'status', 'paid', 'total', 'orderedfood',)
+        read_only_fields = ('id', 'store', 'orderedTime', 'pickupTime', 'status', 'paid', 'total', 'orderedfood',)
 
 
 class UserSerializer(serializers.ModelSerializer):

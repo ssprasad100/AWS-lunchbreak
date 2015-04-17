@@ -1,14 +1,12 @@
 from customers.models import Order, OrderedFood, UserToken, User
 from django.contrib import admin
-from lunch.admin import FoodAdmin
 
 
 @admin.register(OrderedFood)
-class OrderedFoodAdmin(FoodAdmin):
-    list_display = FoodAdmin.list_display + ('amount', 'order',)
-    fields = FoodAdmin.fields + ('amount', 'order',)
-    readonly_fields = ('cost',)
-    inlines = ()
+class OrderedFoodAdmin(admin.ModelAdmin):
+    list_display = ('amount', 'order', 'original', 'ingredientGroups')
+    fields = list_display + ('ingredients',)
+    readonly_fields = ('ingredientGroups',)
 
 
 @admin.register(User)

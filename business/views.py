@@ -159,11 +159,9 @@ class OrderListView(generics.ListAPIView):
             since = None
             if 'datetime' in self.kwargs and self.kwargs['datetime'] is not None:
                 sinceString = self.kwargs['datetime']
-                print sinceString
                 try:
                     since = timezone.datetime.strptime(sinceString, '%d-%m-%Y-%H-%M')
-                except ValueError as e:
-                    print e
+                except ValueError:
                     raise InvalidDatetime()
             if 'option' in self.kwargs and self.kwargs['option'] == 'pickupTime':
                 result = result.order_by('pickupTime')

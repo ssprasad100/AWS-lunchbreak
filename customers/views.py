@@ -1,7 +1,8 @@
 from customers.authentication import CustomerAuthentication
 from customers.digits import Digits
 from customers.models import Order, OrderedFood, User, UserToken
-from customers.serializers import (OrderedFoodPriceSerializer, OrderSerializer,
+from customers.serializers import (OrderedFoodPriceSerializer,
+                                   OrderedFoodSerializer, OrderSerializer,
                                    ShortOrderSerializer, UserSerializer,
                                    UserTokenSerializer)
 from django.core.exceptions import ObjectDoesNotExist
@@ -11,9 +12,8 @@ from lunch.models import Food, Ingredient, Store, tokenGenerator
 from lunch.responses import BadRequest
 from lunch.serializers import (HolidayPeriodSerializer, OpeningHoursSerializer,
                                ShortDefaultFoodSerializer, StoreSerializer)
-from lunch.views import (FoodRetrieveViewBase, getHolidayPeriods,
-                         getOpeningAndHoliday, getOpeningHours,
-                         StoreCategoryListViewBase)
+from lunch.views import (getHolidayPeriods, getOpeningAndHoliday,
+                         getOpeningHours, StoreCategoryListViewBase)
 from rest_framework import generics, status
 from rest_framework.response import Response
 
@@ -91,7 +91,13 @@ class FoodListView(generics.ListAPIView):
             return Food.objects.filter(store_id=self.kwargs['store_id'])
 
 
-class FoodRetrieveView(FoodRetrieveViewBase):
+class FoodRetrieveView(generics.RetrieveAPIView):
+    '''
+    Retrieve a specific food.
+    '''
+
+    serializer_class = OrderedFoodSerializer
+    queryset = OrderedFood.objects.all()
 
     authentication_classes = (CustomerAuthentication,)
 
@@ -141,15 +147,13 @@ class OrderPriceView(generics.CreateAPIView):
         if priceSerializer.is_valid():
             result = []
             for priceCheck in priceSerializer.validated_data:
-                priceInfo = {}
-                exact, closestFood = OrderedFood.objects.closestFood(orderedFood=None, ingredients=priceCheck['ingredients'], storeId=priceCheck['store'])
-                if not exact:
-                    orderedIngredients = Ingredient.objects.filter(id__in=priceCheck['ingredients'], store_id=priceCheck['store'])
-                    priceInfo['cost'] = OrderedFood.calculateCost(orderedIngredients, closestFood)
+                original = priceCheck['original']
+                if 'ingredients' in priceCheck:
+                    ingredients = priceCheck['ingredients']
+                    closestFood = Food.objects.closestFood(ingredients, original.foodType.id)
+                    result.append(OrderedFood.calculateCost(ingredients, closestFood))
                 else:
-                    priceInfo['cost'] = closestFood.cost
-                    priceInfo['food_id'] = closestFood.id
-                result.append(priceInfo)
+                    result.append(original.cost)
             return Response(data=result, status=status.HTTP_200_OK)
         return BadRequest(priceSerializer.errors)
 

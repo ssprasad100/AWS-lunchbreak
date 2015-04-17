@@ -2,7 +2,6 @@ import random
 
 import requests
 from django.db import models
-from django.db.models import Count
 from django.utils.functional import cached_property
 from lunch.exceptions import AddressNotFound
 
@@ -46,56 +45,29 @@ class LunchbreakManager(models.Manager):
                 order_by=['distance']
             )
 
-    def closestFood(self, orderedFood=False, ingredients=None, storeId=None):
-        ingredients = ingredients if ingredients else orderedFood.ingredients.all()
-        storeId = storeId if storeId else orderedFood.store_id
-
-        food = Food.objects.annotate(count=Count('ingredients')).filter(count=len(ingredients)).filter(store_id=storeId)
-        ids = orderedFood.ingredients.values_list('id', flat=True) if orderedFood and ingredients is None else ingredients
-        for _id in ids:
-            food = food.filter(ingredients__id=_id)
-        if(len(food) > 0):
-            return (True, food[0],)
-        else:
-            if ingredients is None:
-                return (False, Food.objects.raw('''
-                SELECT
-                    lunch_food.id,
-                    lunch_food.name,
-                    lunch_food.cost,
-                    SUM(lunch_ingredient.cost) AS difference
-                FROM `lunch_food`
-                    INNER JOIN `lunch_food_ingredients` ON lunch_food.id = lunch_food_ingredients.food_id
-                    INNER JOIN `lunch_ingredient` ON lunch_food_ingredients.ingredient_id = lunch_ingredient.id
-                WHERE lunch_ingredient.id NOT IN (
-                    SELECT
-                        lunch_food_ingredients.ingredient_id
-                    FROM `lunch_food`
-                        INNER JOIN `lunch_food_ingredients` ON lunch_food.id = lunch_food_ingredients.food_id
-                        LEFT JOIN `customers_orderedfood_ingredients` ON lunch_food_ingredients.ingredient_id = customers_orderedfood_ingredients.ingredient_id
-                        INNER JOIN `customers_orderedfood` ON customers_orderedfood_ingredients.orderedfood_id = customers_orderedfood.id
-                    WHERE customers_orderedfood.id = %s AND customers_orderedfood.store_id = %s
-                )
-                GROUP BY lunch_food.id
-                ORDER BY difference ASC, cost DESC;
-                ''', [orderedFood.id, orderedFood.store_id])[0],)
-            else:
-                #
-                return (False, Food.objects.raw('''
-                SELECT
-                    lunch_food.id,
-                    lunch_food.name,
-                    lunch_food.cost,
-                    SUM(lunch_ingredient.cost) AS difference
-                FROM `lunch_food`
-                    INNER JOIN `lunch_food_ingredients` ON lunch_food.id = lunch_food_ingredients.food_id
-                    INNER JOIN `lunch_ingredient` ON lunch_food_ingredients.ingredient_id = lunch_ingredient.id
-                WHERE lunch_ingredient.id NOT IN (
-                    ''' + ','.join([str(i) for i in ingredients]) + '''
-                )
-                GROUP BY lunch_food.id
-                ORDER BY difference ASC, cost DESC;
-                ''')[0],)
+    def closestFood(self, ingredients, foodType):
+        return Food.objects.raw(('''
+            SELECT
+                lunch_food.id,
+                lunch_food.name,
+                lunch_food.cost
+            FROM
+                `lunch_food`
+                INNER JOIN
+                    `lunch_ingredientrelation` ON lunch_food.id = lunch_ingredientrelation.food_id
+                INNER JOIN
+                    `lunch_ingredient` ON lunch_ingredientrelation.ingredient_id = lunch_ingredient.id
+            WHERE
+                lunch_food.foodType_id = %d AND
+                lunch_ingredient.id IN ('''
+                + ','.join([str(i.id) for i in ingredients]) +
+            ''')
+            GROUP BY
+                lunch_food.id
+            ORDER BY
+                COUNT(lunch_ingredientrelation.id) DESC,
+                SUM(lunch_ingredientrelation.typical) DESC,
+                lunch_food.cost DESC;''') % foodType)[0]
 
 
 ICONS = (
@@ -299,16 +271,10 @@ class DefaultFood(BaseFood):
     ingredients = models.ManyToManyField(DefaultIngredient, through='DefaultIngredientRelation', null=True, blank=True)
 
 
-class BaseStoreFood(BaseFood):
+class Food(BaseFood):
     category = models.ForeignKey(FoodCategory, null=True, blank=True)
-    store = models.ForeignKey(Store)
-
-    class Meta:
-        abstract = True
-
-
-class Food(BaseStoreFood):
     ingredients = models.ManyToManyField(Ingredient, through='IngredientRelation', null=True, blank=True)
+    store = models.ForeignKey(Store)
 
 
 class BaseIngredientRelation(models.Model):
@@ -316,6 +282,7 @@ class BaseIngredientRelation(models.Model):
 
     class Meta:
         abstract = True
+        unique_together = ('food', 'ingredient',)
 
 
 class DefaultIngredientRelation(BaseIngredientRelation):

@@ -1,5 +1,6 @@
 from django.db import models
-from lunch.models import BaseStoreFood, BaseToken, Ingredient, Store
+from django.utils.functional import cached_property
+from lunch.models import BaseToken, Food, Ingredient, Store
 from phonenumber_field.modelfields import PhoneNumberField
 
 ORDER_STATUS_PLACED = 0
@@ -42,15 +43,28 @@ class Order(models.Model):
 
     def save(self, *args, **kwargs):
         self.total = 0
-        for f in self.food.all():
+        for f in self.orderedfood_set.all():
             self.total += f.cost * f.amount
         super(Order, self).save(*args, **kwargs)
 
 
-class OrderedFood(BaseStoreFood):
+class OrderedFood(models.Model):
     ingredients = models.ManyToManyField(Ingredient, null=True, blank=True)
     amount = models.DecimalField(decimal_places=3, max_digits=13, default=1)
-    order = models.ForeignKey(Order, related_name='food')
+    cost = models.DecimalField(decimal_places=2, max_digits=5, default=0)
+    order = models.ForeignKey(Order)
+    original = models.ForeignKey(Food)
+
+    @cached_property
+    def ingredientGroups(self):
+        result = []
+        if self.ingredients is not None:
+            for ingredient in self.ingredients.all():
+                if ingredient.group not in result:
+                    result.append(ingredient.group)
+            else:
+                result = self.original.ingredientGroups
+        return result
 
     @staticmethod
     def calculateCost(orderedIngredients, food):
@@ -59,9 +73,9 @@ class OrderedFood(BaseStoreFood):
         for ingredient in orderedIngredients:
             if ingredient not in foodIngredients:
                 cost += ingredient.cost
-        for ingredient in foodIngredients:
-            if ingredient not in orderedIngredients:
-                cost -= ingredient.cost
+        # for ingredient in foodIngredients:
+        #     if ingredient not in orderedIngredients:
+        #         cost -= ingredient.cost
         return cost
 
 

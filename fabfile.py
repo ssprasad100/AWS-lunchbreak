@@ -171,7 +171,6 @@ def mysql():
 
 	global MYSQL_USER_PASSWORD
 	MYSQL_USER_PASSWORD = getSysvar(CONFIG.DB_PASS_VAR)
-	print MYSQL_USER_PASSWORD
 
 	if MYSQL_USER_PASSWORD is None:  # User probably doesn't exist
 		MYSQL_USER_PASSWORD = generateString(50)
