@@ -46,7 +46,7 @@ class LunchbreakManager(models.Manager):
                 order_by=['distance']
             )
 
-    def closestFood(self, ingredients, foodType):
+    def closestFood(self, ingredients, original):
         return Food.objects.raw(('''
             SELECT
                 lunch_food.id,
@@ -55,20 +55,22 @@ class LunchbreakManager(models.Manager):
             FROM
                 `lunch_food`
                 INNER JOIN
-                    `lunch_ingredientrelation` ON lunch_food.id = lunch_ingredientrelation.food_id
+                    `lunch_ingredientrelation` ON lunch_food.id = lunch_ingredientrelation.food_id AND lunch_ingredientrelation.typical = 1
                 INNER JOIN
                     `lunch_ingredient` ON lunch_ingredientrelation.ingredient_id = lunch_ingredient.id
             WHERE
                 lunch_food.foodType_id = %d AND
-                lunch_ingredient.id IN ('''
-                + ','.join([str(i.id) for i in ingredients]) +
-            ''')
+                lunch_food.store_id = %d
             GROUP BY
                 lunch_food.id
             ORDER BY
-                COUNT(lunch_ingredientrelation.id) DESC,
-                SUM(lunch_ingredientrelation.typical) DESC,
-                lunch_food.cost DESC;''') % foodType)[0]
+                SUM(
+                    CASE WHEN lunch_ingredient.id IN ('''
+                    + ','.join([str(i.id) for i in ingredients]) +
+                    ''') THEN 1 ELSE -1 END
+                ) DESC,
+                (lunch_food.id = %d) DESC,
+                lunch_food.cost DESC;''') % (original.foodType.id, original.store.id, original.id,))[0]
 
 
 ICONS = (
