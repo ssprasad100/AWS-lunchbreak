@@ -156,10 +156,10 @@ class OrderPriceView(generics.CreateAPIView):
                     closestFood = Food.objects.closestFood(ingredients, original.foodType.id)
 
                     priceInfo['cost'] = OrderedFood.calculateCost(ingredients, closestFood)
-                    priceInfo['foodId'] = closestFood.id
+                    priceInfo['food'] = closestFood.id
                 else:
                     priceInfo['cost'] = original.cost
-                    priceInfo['foodId'] = original.id
+                    priceInfo['food'] = original.id
                 result.append(priceInfo)
             return Response(data=result, status=status.HTTP_200_OK)
         return BadRequest(priceSerializer.errors)

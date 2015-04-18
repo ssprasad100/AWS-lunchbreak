@@ -73,7 +73,7 @@ Request price
     :resheader Content-Type: application/json
 
     :resjsonarr decimal cost: Calculated cost
-    :resjsonarr int foodId: :doc:`/serializers/global/food` ID
+    :resjsonarr int food: :doc:`/serializers/global/food` ID
 
     :statuscode 200: no error
     :statuscode 403: authentication failed
