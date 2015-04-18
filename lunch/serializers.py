@@ -116,8 +116,8 @@ class ShortDefaultFoodSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = DefaultFood
-        fields = ('id', 'name', 'cost', 'category', 'foodType',)
-        read_only_fields = ('id',)
+        fields = ('id', 'name', 'cost', 'category', 'foodType', 'hasIngredients',)
+        read_only_fields = ('id', 'hasIngredients',)
 
 
 class TokenSerializer(serializers.ModelSerializer):

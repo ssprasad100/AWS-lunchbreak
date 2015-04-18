@@ -285,6 +285,10 @@ class BaseFood(models.Model):
                 result.append(ingredient.group)
         return result
 
+    @cached_property
+    def hasIngredients(self):
+        return len(self.ingredients.all()) > 0
+
     def __unicode__(self):
         return self.name
 
