@@ -97,7 +97,7 @@ class ShortOrderSerializer(serializers.ModelSerializer):
             if 'ingredients' in f:
                 orderedF.save()
                 ingredients = f['ingredients']
-                IngredientGroup.checkMaximum(ingredients)
+                IngredientGroup.checkIngredients(ingredients, original.foodType)
                 closestFood = Food.objects.closestFood(ingredients, original.foodType.id)
                 orderedF.cost = OrderedFood.calculateCost(ingredients, closestFood)
                 self.costCheck(order, orderedF, amount, cost)

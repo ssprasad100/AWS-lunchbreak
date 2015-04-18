@@ -3,7 +3,8 @@ import random
 import requests
 from django.db import models
 from django.utils.functional import cached_property
-from lunch.exceptions import AddressNotFound, IngredientGroupMaxExceeded
+from lunch.exceptions import (AddressNotFound, IngredientGroupMaxExceeded,
+                              IngredientGroupsRequiredNotMet)
 
 
 class LunchbreakManager(models.Manager):
@@ -188,23 +189,26 @@ class IngredientGroup(models.Model):
     def __unicode__(self):
         return self.name
 
-
     @staticmethod
-    def checkMaximum(ingredients):
-        ingredientGroups = []
+    def checkIngredients(ingredients, foodType):
+        ingredientGroups = {}
         for ingredient in ingredients:
             group = ingredient.group
+            inGroups = group.id in ingredientGroups
+            amount = 0
             if group.maximum > 0:
-                if not hasattr(group, 'amount'):
-                    group.amount = 0
-                inGroups = group in ingredientGroups
                 if inGroups:
-                    group = ingredientGroups[ingredientGroups.index(group)]
-                group.amount += 1
-                if group.amount > group.maximum:
+                    amount = ingredientGroups[group.id]
+                amount += 1
+                if amount > group.maximum:
                     raise IngredientGroupMaxExceeded()
-                if not inGroups:
-                    ingredientGroups.append(group)
+            if not inGroups:
+                ingredientGroups[group.id] = amount
+
+        ingredientGroups = [key for key, value in ingredientGroups.iteritems()]
+        requiredIds = [i.id for i in foodType.required.all()]
+        if not set(requiredIds) < set(ingredientGroups):
+            raise IngredientGroupsRequiredNotMet()
 
 
 class BaseIngredient(models.Model):
@@ -257,6 +261,7 @@ class FoodType(models.Model):
     icon = models.PositiveIntegerField(choices=ICONS, default=0)
     quantifier = models.CharField(max_length=64, blank=True, null=True)
     inputType = models.PositiveIntegerField(choices=INPUT_TYPES, default=0)
+    required = models.ManyToManyField(IngredientGroup)
 
     def __unicode__(self):
         return self.name

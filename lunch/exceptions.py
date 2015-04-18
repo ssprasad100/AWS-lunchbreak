@@ -5,6 +5,7 @@ from rest_framework.response import Response
 ADDRESS_NOT_FOUND = 601
 DOES_NOT_EXIST = 602
 INGR_GROUP_MAX_EXCEEDED = 603
+INGR_GROUP_REQ_NOT_MET = 604
 
 
 def lunchbreakExceptionHandler(exception):
@@ -66,3 +67,9 @@ class IngredientGroupMaxExceeded(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
     code = INGR_GROUP_MAX_EXCEEDED
     information = 'IngredientGroup maximum exceeded.'
+
+
+class IngredientGroupsRequiredNotMet(LunchbreakException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    code = INGR_GROUP_REQ_NOT_MET
+    information = 'Required IngredientGroups not met.'

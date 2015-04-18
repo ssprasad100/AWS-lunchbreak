@@ -41,7 +41,7 @@ class FoodCategoryAdmin(DefaultFoodCategoryAdmin):
 @admin.register(FoodType)
 class FoodTypeAdmin(admin.ModelAdmin):
     list_display = ('name', 'icon', 'quantifier', 'inputType',)
-    fields = ('name', 'icon', 'quantifier', 'inputType',)
+    fields = ('name', 'icon', 'quantifier', 'inputType', 'required',)
 
 
 class DefaultIngredientsRelationInline(admin.TabularInline):

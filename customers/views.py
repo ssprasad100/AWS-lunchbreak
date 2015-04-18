@@ -10,7 +10,8 @@ from django.utils import timezone
 from lunch.exceptions import LunchbreakException
 from lunch.models import Food, IngredientGroup, Store, tokenGenerator
 from lunch.responses import BadRequest
-from lunch.serializers import (HolidayPeriodSerializer, OpeningHoursSerializer,
+from lunch.serializers import (FoodSerializer, HolidayPeriodSerializer,
+                               OpeningHoursSerializer,
                                ShortDefaultFoodSerializer, StoreSerializer)
 from lunch.views import (getHolidayPeriods, getOpeningAndHoliday,
                          getOpeningHours, StoreCategoryListViewBase)
@@ -96,8 +97,8 @@ class FoodRetrieveView(generics.RetrieveAPIView):
     Retrieve a specific food.
     '''
 
-    serializer_class = OrderedFoodSerializer
-    queryset = OrderedFood.objects.all()
+    serializer_class = FoodSerializer
+    queryset = Food.objects.all()
 
     authentication_classes = (CustomerAuthentication,)
 
@@ -150,7 +151,7 @@ class OrderPriceView(generics.CreateAPIView):
                 original = priceCheck['original']
                 if 'ingredients' in priceCheck:
                     ingredients = priceCheck['ingredients']
-                    IngredientGroup.checkMaximum(ingredients)
+                    IngredientGroup.checkIngredients(ingredients, original.foodType)
                     closestFood = Food.objects.closestFood(ingredients, original.foodType.id)
                     result.append(OrderedFood.calculateCost(ingredients, closestFood))
                 else:
