@@ -3,7 +3,7 @@ Order
 
 Fields extends :doc:`/serializers/business/shortOrder`
 ------------------------------------------------------
-    - **food** (:doc:`/serializers/customers/orderedFood` array) - Ordered food
+    - **food** (:doc:`/serializers/customers/orderedFood` list) - Ordered food
 
 
 Read only

@@ -4,4 +4,11 @@ OrderFoodPrice
 Fields
 ------
     - **store** (*int*) - Store ID
-    - **ingredients** (*int array*) - Array of :doc:`/serializers/global/ingredient` IDs
+    - **ingredients** (*list*) - :doc:`/serializers/global/ingredient` IDs
+    - **original** (*int*) - Reference :doc:`/serializers/global/food` ID
+
+Write only
+^^^^^^^^^^
+    - store
+    - ingredients
+    - original

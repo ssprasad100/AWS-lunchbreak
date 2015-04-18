@@ -13,5 +13,5 @@ Fields
     - **number** (*int*) - Street number
     - **latitude** (*decimal*) - Latitude coordinate
     - **longitude** (*decimal*) - Longitude coordinate
-    - **categories** (:doc:`/serializers/global/storeCategory` array) - Store categories
+    - **categories** (:doc:`/serializers/global/storeCategory` list) - Store categories
     - **minTime** (*int*) - Minimum amount of minutes ahead of time an order needs to be

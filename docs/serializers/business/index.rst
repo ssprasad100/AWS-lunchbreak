@@ -14,3 +14,4 @@ Business
     shortIngredientGroup
     staff
     staffToken
+    storeFood

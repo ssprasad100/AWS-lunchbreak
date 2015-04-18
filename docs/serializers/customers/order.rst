@@ -4,7 +4,6 @@ Order
 Fields
 ------
     - **id** (*int*) - Order ID
-    - **name** (*String*) - Name
     - **store** (*int*) - :doc:`/serializers/global/store` ID
     - **orderedTime** (*datetime*) - Datetime of order
     - **pickupTime** (*datetime*) - Datetime of pickup
@@ -17,7 +16,7 @@ Fields
         + **5** - *Completed*
     - **paid** (*boolean*) - Already paid or not
     - **total** (*decimal*) - Total cost
-    - **food** (:doc:`/serializers/customers/orderedFood` array) - Ordered food
+    - **orderedFood** (:doc:`/serializers/customers/orderedFood` list) - Ordered food
 
 Read only
 ^^^^^^^^^

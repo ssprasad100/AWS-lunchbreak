@@ -47,7 +47,7 @@ Retrieve
 
     Authentication: :doc:`/authentication/employee`
 
-    Serializer: :doc:`/serializers/global/defaultFood`
+    Serializer: :doc:`/serializers/business/storeFood`
 
     :resheader Content-Type: application/json
 

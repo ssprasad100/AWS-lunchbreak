@@ -16,6 +16,7 @@ Global
     ingredientGroup
     openingHours
     shortDefaultFood
+    shortDefaultIngredientRelation
     store
     storeCategory
     token

@@ -1,5 +1,5 @@
-DefaultFood
-===========
+StoreFood
+=========
 
 Fields
 ------
@@ -10,7 +10,7 @@ Fields
     - **ingredients** (*list*) - Ingredients IDs
     - **category** (:doc:`/serializers/global/foodCategory`) - Food category
     - **foodType** (:doc:`/serializers/global/foodType`) - Food type
-    - **ingredients** (:doc:`/serializers/global/shortDefaultIngredientRelation`) - (Default)Ingredient relation
+    - **ingredients** (:doc:`/serializers/global/ingredient`) - (Default)Ingredients
 
 Read only
 ^^^^^^^^^
