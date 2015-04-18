@@ -153,7 +153,7 @@ class OrderPriceView(generics.CreateAPIView):
                 if 'ingredients' in priceCheck:
                     ingredients = priceCheck['ingredients']
                     IngredientGroup.checkIngredients(ingredients, original.foodType)
-                    closestFood = Food.objects.closestFood(ingredients, original.foodType.id)
+                    closestFood = Food.objects.closestFood(ingredients, original)
 
                     priceInfo['cost'] = OrderedFood.calculateCost(ingredients, closestFood)
                     priceInfo['food'] = closestFood.id

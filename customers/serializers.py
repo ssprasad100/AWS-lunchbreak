@@ -7,9 +7,8 @@ from django.utils import timezone
 from lunch.exceptions import BadRequest
 from lunch.models import (Food, IngredientGroup, INPUT_AMOUNT, OpeningHours,
                           Store)
-from lunch.serializers import (IngredientGroupSerializer,
-                               ShortDefaultIngredientRelationSerializer,
-                               StoreSerializer, TokenSerializer)
+from lunch.serializers import (IngredientGroupSerializer, StoreSerializer,
+                               TokenSerializer)
 from rest_framework import serializers
 
 
@@ -98,7 +97,7 @@ class ShortOrderSerializer(serializers.ModelSerializer):
                 orderedF.save()
                 ingredients = f['ingredients']
                 IngredientGroup.checkIngredients(ingredients, original.foodType)
-                closestFood = Food.objects.closestFood(ingredients, original.foodType.id)
+                closestFood = Food.objects.closestFood(ingredients, original)
                 orderedF.cost = OrderedFood.calculateCost(ingredients, closestFood)
                 self.costCheck(order, orderedF, amount, cost)
             else:
