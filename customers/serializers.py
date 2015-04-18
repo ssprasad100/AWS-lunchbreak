@@ -5,7 +5,8 @@ from customers.exceptions import (AmountInvalid, CostCheckFailed,
 from customers.models import Order, OrderedFood, User, UserToken
 from django.utils import timezone
 from lunch.exceptions import BadRequest
-from lunch.models import Food, INPUT_AMOUNT, OpeningHours, Store
+from lunch.models import (Food, IngredientGroup, INPUT_AMOUNT, OpeningHours,
+                          Store)
 from lunch.serializers import (IngredientGroupSerializer,
                                ShortDefaultIngredientRelationSerializer,
                                StoreSerializer, TokenSerializer)
@@ -96,6 +97,7 @@ class ShortOrderSerializer(serializers.ModelSerializer):
             if 'ingredients' in f:
                 orderedF.save()
                 ingredients = f['ingredients']
+                IngredientGroup.checkMaximum(ingredients)
                 closestFood = Food.objects.closestFood(ingredients, original.foodType.id)
                 orderedF.cost = OrderedFood.calculateCost(ingredients, closestFood)
                 self.costCheck(order, orderedF, amount, cost)

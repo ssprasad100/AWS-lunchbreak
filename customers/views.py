@@ -8,7 +8,7 @@ from customers.serializers import (OrderedFoodPriceSerializer,
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 from lunch.exceptions import LunchbreakException
-from lunch.models import Food, Ingredient, Store, tokenGenerator
+from lunch.models import Food, IngredientGroup, Store, tokenGenerator
 from lunch.responses import BadRequest
 from lunch.serializers import (HolidayPeriodSerializer, OpeningHoursSerializer,
                                ShortDefaultFoodSerializer, StoreSerializer)
@@ -150,6 +150,7 @@ class OrderPriceView(generics.CreateAPIView):
                 original = priceCheck['original']
                 if 'ingredients' in priceCheck:
                     ingredients = priceCheck['ingredients']
+                    IngredientGroup.checkMaximum(ingredients)
                     closestFood = Food.objects.closestFood(ingredients, original.foodType.id)
                     result.append(OrderedFood.calculateCost(ingredients, closestFood))
                 else:

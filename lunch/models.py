@@ -3,7 +3,7 @@ import random
 import requests
 from django.db import models
 from django.utils.functional import cached_property
-from lunch.exceptions import AddressNotFound
+from lunch.exceptions import AddressNotFound, IngredientGroupMaxExceeded
 
 
 class LunchbreakManager(models.Manager):
@@ -187,6 +187,24 @@ class IngredientGroup(models.Model):
 
     def __unicode__(self):
         return self.name
+
+
+    @staticmethod
+    def checkMaximum(ingredients):
+        ingredientGroups = []
+        for ingredient in ingredients:
+            group = ingredient.group
+            if group.maximum > 0:
+                if not hasattr(group, 'amount'):
+                    group.amount = 0
+                inGroups = group in ingredientGroups
+                if inGroups:
+                    group = ingredientGroups[ingredientGroups.index(group)]
+                group.amount += 1
+                if group.amount > group.maximum:
+                    raise IngredientGroupMaxExceeded()
+                if not inGroups:
+                    ingredientGroups.append(group)
 
 
 class BaseIngredient(models.Model):

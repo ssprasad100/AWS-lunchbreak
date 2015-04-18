@@ -73,9 +73,9 @@ class OrderedFood(models.Model):
         for ingredient in orderedIngredients:
             if ingredient not in foodIngredients:
                 cost += ingredient.cost
-        # for ingredient in foodIngredients:
-        #     if ingredient not in orderedIngredients:
-        #         cost -= ingredient.cost
+        for ingredient in foodIngredients:
+            if ingredient not in orderedIngredients:
+                cost -= ingredient.cost
         return cost
 
 
