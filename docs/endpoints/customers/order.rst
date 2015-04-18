@@ -66,11 +66,14 @@ Request price
 
     Authentication: :doc:`/authentication/user`
 
-    Serializer: :doc:`/serializers/customers/orderedFoodPrice`
+    Request serializer: :doc:`/serializers/customers/orderedFoodPrice`
 
     :reqheader Content-Type: application/json
 
     :resheader Content-Type: application/json
+
+    :resjsonarr decimal cost: Calculated cost
+    :resjsonarr int foodId: :doc:`/serializers/global/food` ID
 
     :statuscode 200: no error
     :statuscode 403: authentication failed
