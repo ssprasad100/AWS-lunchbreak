@@ -148,14 +148,19 @@ class OrderPriceView(generics.CreateAPIView):
         if priceSerializer.is_valid():
             result = []
             for priceCheck in priceSerializer.validated_data:
+                priceInfo = {}
                 original = priceCheck['original']
                 if 'ingredients' in priceCheck:
                     ingredients = priceCheck['ingredients']
                     IngredientGroup.checkIngredients(ingredients, original.foodType)
                     closestFood = Food.objects.closestFood(ingredients, original.foodType.id)
-                    result.append(OrderedFood.calculateCost(ingredients, closestFood))
+
+                    priceInfo['cost'] = OrderedFood.calculateCost(ingredients, closestFood)
+                    priceInfo['food'] = closestFood.id
                 else:
-                    result.append(original.cost)
+                    priceInfo['cost'] = original.cost
+                    priceInfo['food'] = original.id
+                result.append(priceInfo)
             return Response(data=result, status=status.HTTP_200_OK)
         return BadRequest(priceSerializer.errors)
 
