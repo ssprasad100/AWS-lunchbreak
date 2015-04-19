@@ -100,11 +100,13 @@ class ShortOrderSerializer(serializers.ModelSerializer):
                 closestFood = Food.objects.closestFood(ingredients, original)
                 orderedF.cost = OrderedFood.calculateCost(ingredients, closestFood)
                 self.costCheck(order, orderedF, amount, cost)
+                orderedF.ingredients = ingredients
             else:
                 self.costCheck(order, original, amount, cost)
                 orderedF.cost = original.cost
 
             orderedF.save()
+        order.save()
         return order
 
     class Meta:
