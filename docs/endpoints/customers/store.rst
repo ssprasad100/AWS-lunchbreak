@@ -45,7 +45,7 @@ Specific store
 Opening hours and holiday periods
 =================================
 
-.. http:get:: /v1/customers/store/hours/(int:id)/
+.. http:get:: /v1/customers/store/open/(int:id)/
 
     Authentication: :doc:`/authentication/user`
 
