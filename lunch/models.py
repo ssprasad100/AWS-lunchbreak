@@ -189,10 +189,13 @@ class HolidayPeriod(models.Model):
     closed = models.BooleanField(default=True)
 
 
-class IngredientGroup(models.Model):
+class BaseIngredientGroup(models.Model):
     name = models.CharField(max_length=256)
     maximum = models.PositiveIntegerField(default=0, verbose_name='Maximum amount')
     priority = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        abstract = True
 
     @cached_property
     def ingredients(self):
@@ -223,10 +226,17 @@ class IngredientGroup(models.Model):
             raise IngredientGroupsRequiredNotMet()
 
 
+class DefaultIngredientGroup(BaseIngredientGroup):
+    pass
+
+
+class IngredientGroup(BaseIngredientGroup):
+    store = models.ForeignKey(Store)
+
+
 class BaseIngredient(models.Model):
     name = models.CharField(max_length=256)
     cost = models.DecimalField(decimal_places=2, max_digits=5, default=0)
-    group = models.ForeignKey(IngredientGroup)
     icon = models.PositiveIntegerField(choices=ICONS, default=0)
 
     class Meta:
@@ -237,10 +247,11 @@ class BaseIngredient(models.Model):
 
 
 class DefaultIngredient(BaseIngredient):
-    pass
+    group = models.ForeignKey(DefaultIngredientGroup)
 
 
 class Ingredient(BaseIngredient):
+    group = models.ForeignKey(IngredientGroup)
     store = models.ForeignKey(Store)
 
 
