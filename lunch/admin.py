@@ -1,9 +1,9 @@
 from django.contrib import admin
 from lunch.models import (DefaultFood, DefaultFoodCategory, DefaultIngredient,
-                          DefaultIngredientRelation, Food, FoodCategory,
-                          FoodType, HolidayPeriod, Ingredient, IngredientGroup,
-                          IngredientRelation, OpeningHours, Store,
-                          StoreCategory)
+                          DefaultIngredientGroup, DefaultIngredientRelation,
+                          Food, FoodCategory, FoodType, HolidayPeriod,
+                          Ingredient, IngredientGroup, IngredientRelation,
+                          OpeningHours, Store, StoreCategory)
 
 admin.site.register(StoreCategory)
 
@@ -79,7 +79,13 @@ class IngredientAdmin(DefaultIngredientAdmin):
     fields = ('name', 'cost', 'group', 'store', 'icon',)
 
 
+@admin.register(DefaultIngredientGroup)
+class DefaultIngredientGroupAdmin(admin.ModelAdmin):
+    list_display = ('name', 'maximum', 'priority',)
+    fields = list_display
+
+
 @admin.register(IngredientGroup)
 class IngredientGroupAdmin(admin.ModelAdmin):
-    list_display = ('name', 'maximum',)
-    fields = ('name', 'maximum',)
+    list_display = DefaultIngredientGroupAdmin.list_display + ('store',)
+    fields = list_display
