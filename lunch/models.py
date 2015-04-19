@@ -54,9 +54,9 @@ class LunchbreakManager(models.Manager):
                 lunch_food.cost
             FROM
                 `lunch_food`
-                INNER JOIN
+                LEFT JOIN
                     `lunch_ingredientrelation` ON lunch_food.id = lunch_ingredientrelation.food_id AND lunch_ingredientrelation.typical = 1
-                INNER JOIN
+                LEFT JOIN
                     `lunch_ingredient` ON lunch_ingredientrelation.ingredient_id = lunch_ingredient.id
             WHERE
                 lunch_food.foodType_id = %d AND
@@ -65,12 +65,22 @@ class LunchbreakManager(models.Manager):
                 lunch_food.id
             ORDER BY
                 SUM(
-                    CASE WHEN lunch_ingredient.id IN ('''
-                    + ','.join([str(i.id) for i in ingredients]) +
-                    ''') THEN 1 ELSE -1 END
+                    CASE WHEN lunch_ingredient.id IS NULL
+                        THEN
+                            0
+                        ELSE
+                            CASE WHEN lunch_ingredient.id IN ('''
+                                + ','.join([str(i.id) for i in ingredients]) +
+                                ''')
+                                THEN
+                                    1
+                                ELSE
+                                    -1
+                                END
+                        END
                 ) DESC,
                 (lunch_food.id = %d) DESC,
-                lunch_food.cost DESC;''') % (original.foodType.id, original.store.id, original.id,))[0]
+                lunch_food.cost ASC;''') % (original.foodType.id, original.store.id, original.id,))[0]
 
 
 ICONS = (
