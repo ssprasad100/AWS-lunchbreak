@@ -65,20 +65,20 @@ class DefaultFoodAdmin(admin.ModelAdmin):
 class FoodAdmin(DefaultFoodAdmin):
     list_display = DefaultFoodAdmin.list_display + ('store',)
     fields = DefaultFoodAdmin.fields + ('store',)
-    readonly_fields = DefaultFoodAdmin.readonly_fields
     inlines = (IngredientsRelationInline,)
 
 
 @admin.register(DefaultIngredient)
 class DefaultIngredientAdmin(admin.ModelAdmin):
     list_display = ('name', 'cost', 'group',)
-    fields = ('name', 'cost', 'group', 'icon',)
+    readonly_fields = ('lastModified',)
+    fields = ('name', 'cost', 'group', 'icon',) + readonly_fields
 
 
 @admin.register(Ingredient)
 class IngredientAdmin(DefaultIngredientAdmin):
-    list_display = ('name', 'cost', 'group', 'store',)
-    fields = ('name', 'cost', 'group', 'store', 'icon',)
+    list_display = DefaultIngredientAdmin.list_display + ('store',)
+    fields = DefaultIngredientAdmin.fields + ('store',)
 
 
 @admin.register(DefaultIngredientGroup)
