@@ -238,6 +238,7 @@ class BaseIngredient(models.Model):
     name = models.CharField(max_length=256)
     cost = models.DecimalField(decimal_places=2, max_digits=5, default=0)
     icon = models.PositiveIntegerField(choices=ICONS, default=0)
+    lastModified = models.DateTimeField(auto_now=True)
 
     class Meta:
         abstract = True
@@ -294,6 +295,7 @@ class BaseFood(models.Model):
     name = models.CharField(max_length=256)
     cost = models.DecimalField(decimal_places=2, max_digits=5)
     foodType = models.ForeignKey(FoodType, null=True)
+    lastModified = models.DateTimeField(auto_now=True)
 
     objects = LunchbreakManager()
 

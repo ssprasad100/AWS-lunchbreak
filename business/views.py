@@ -24,6 +24,18 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+AVAILABLE_STATUSES = [ORDER_STATUS_PLACED, ORDER_STATUS_RECEIVED, ORDER_STATUS_STARTED, ORDER_STATUS_WAITING]
+
+
+def getSince(request, kwargs, methodCheck=False):
+    if (methodCheck or request.method == 'GET') and 'datetime' in kwargs and kwargs['datetime'] is not None:
+        sinceString = kwargs['datetime']
+        try:
+            return timezone.datetime.strptime(sinceString, '%d-%m-%Y-%H-%M')
+        except ValueError:
+            raise InvalidDatetime()
+    return None
+
 
 class EmployeeView(generics.ListAPIView):
     '''
@@ -65,7 +77,13 @@ class FoodListView(generics.ListAPIView):
 
     authentication_classes = (EmployeeAuthentication,)
     serializer_class = ShortFoodSerializer
-    queryset = Food.objects.all()
+
+    def get_queryset(self):
+        result = Food.objects.filter(store_id=self.request.user.staff.store_id)
+        since = getSince(self.request, self.kwargs)
+        if since is not None:
+            return result.filter(lastModified__gte=since)
+        return result
 
 
 class DefaultFoodListView(FoodListView):
@@ -96,7 +114,11 @@ class IngredientListView(generics.ListAPIView):
     serializer_class = DefaultIngredientSerializer
 
     def get_queryset(self):
-        return Ingredient.objects.filter(store_id=self.request.user.staff.store_id)
+        result = Ingredient.objects.filter(store_id=self.request.user.staff.store_id)
+        since = getSince(self.request, self.kwargs)
+        if since is not None:
+            return result.filter(lastModified__gte=since)
+        return result
 
 
 class DefaultIngredientListView(IngredientListView):
@@ -127,14 +149,12 @@ class FoodTypeListView(generics.ListAPIView):
     authentication_classes = (EmployeeAuthentication,)
     serializer_class = FoodTypeSerializer
     pagination_class = None
-
-    def get_queryset(self):
-        return FoodType.objects.all()
+    queryset = FoodType.objects.all()
 
 
 class IngredientGroupListView(generics.ListAPIView):
     '''
-    List the ingredient groups.
+    List the store's ingredient groups.
     '''
 
     authentication_classes = (EmployeeAuthentication,)
@@ -142,7 +162,7 @@ class IngredientGroupListView(generics.ListAPIView):
     pagination_class = None
 
     def get_queryset(self):
-        return IngredientGroup.objects.all()
+        return IngredientGroup.objects.filter(store_id=self.request.user.staff.store_id)
 
 
 class OrderListView(generics.ListAPIView):
@@ -154,15 +174,10 @@ class OrderListView(generics.ListAPIView):
     serializer_class = ShortOrderSerializer
 
     def get_queryset(self):
-        result = Order.objects.filter(store_id=self.request.user.staff.store_id, status__in=[ORDER_STATUS_PLACED, ORDER_STATUS_RECEIVED, ORDER_STATUS_STARTED, ORDER_STATUS_WAITING])
+        result = Order.objects.filter(store_id=self.request.user.staff.store_id, status__in=AVAILABLE_STATUSES)
         if self.request.method == 'GET':
-            since = None
-            if 'datetime' in self.kwargs and self.kwargs['datetime'] is not None:
-                sinceString = self.kwargs['datetime']
-                try:
-                    since = timezone.datetime.strptime(sinceString, '%d-%m-%Y-%H-%M')
-                except ValueError:
-                    raise InvalidDatetime()
+            since = getSince(self.request, self.kwargs, methodCheck=True)
+
             if 'option' in self.kwargs and self.kwargs['option'] == 'pickupTime':
                 result = result.order_by('pickupTime')
                 if since is not None:
@@ -183,7 +198,7 @@ class OrderUpdateView(generics.RetrieveUpdateAPIView):
     serializer_class = OrderSerializer
 
     def get_queryset(self):
-        return Order.objects.filter(store_id=self.request.user.staff.store_id, status__in=[ORDER_STATUS_PLACED, ORDER_STATUS_RECEIVED, ORDER_STATUS_STARTED, ORDER_STATUS_WAITING])
+        return Order.objects.filter(store_id=self.request.user.staff.store_id, status__in=AVAILABLE_STATUSES)
 
 
 class StaffView(generics.ListAPIView):
