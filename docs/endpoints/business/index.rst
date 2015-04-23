@@ -7,6 +7,7 @@ Business
     food
     foodCategory
     foodType
+    ingredient
     ingredientGroup
     order
     staff

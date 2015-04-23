@@ -10,8 +10,9 @@ Business
     order
     privateUser
     shortFood
-    shortOrder
     shortIngredientGroup
+    shortOrder
+    singleIngredient
     staff
     staffToken
     storeFood
