@@ -5,7 +5,8 @@ from business.responses import InvalidEmail
 from business.serializers import (EmployeeSerializer, OrderSerializer,
                                   ShortFoodSerializer,
                                   ShortIngredientGroupSerializer,
-                                  ShortOrderSerializer, StaffSerializer,
+                                  ShortOrderSerializer,
+                                  SingleIngredientSerializer, StaffSerializer,
                                   StoreFoodSerializer)
 from customers.models import (Order, ORDER_STATUS_PLACED, ORDER_STATUS_RECEIVED,
                               ORDER_STATUS_STARTED, ORDER_STATUS_WAITING)
@@ -16,8 +17,8 @@ from lunch.models import (DefaultFood, DefaultIngredient, Food, FoodCategory,
                           FoodType, Ingredient, IngredientGroup, Store)
 from lunch.responses import BadRequest, DoesNotExist
 from lunch.serializers import (DefaultFoodCategorySerializer,
-                               DefaultIngredientSerializer, FoodTypeSerializer,
-                               HolidayPeriodSerializer, OpeningHoursSerializer)
+                               FoodTypeSerializer, HolidayPeriodSerializer,
+                               OpeningHoursSerializer)
 from lunch.views import (getHolidayPeriods, getOpeningAndHoliday,
                          getOpeningHours, StoreCategoryListViewBase)
 from rest_framework import generics, status
@@ -111,7 +112,7 @@ class IngredientListView(generics.ListAPIView):
     '''
 
     authentication_classes = (EmployeeAuthentication,)
-    serializer_class = DefaultIngredientSerializer
+    serializer_class = SingleIngredientSerializer
 
     def get_queryset(self):
         result = Ingredient.objects.filter(store_id=self.request.user.staff.store_id)

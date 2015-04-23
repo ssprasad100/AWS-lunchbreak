@@ -1,8 +1,9 @@
 from business.models import Employee, EmployeeToken, Staff, StaffToken
 from customers.models import Order, User
 from customers.serializers import OrderedFoodSerializer
-from lunch.models import Food, IngredientGroup
-from lunch.serializers import (DefaultFoodSerializer, FoodSerializer,
+from lunch.models import DefaultIngredient, Food, IngredientGroup
+from lunch.serializers import (DefaultFoodSerializer,
+                               DefaultIngredientSerializer, FoodSerializer,
                                ShortDefaultIngredientRelationSerializer,
                                StoreSerializer, TokenSerializer)
 from rest_framework import serializers
@@ -100,3 +101,10 @@ class StoreFoodSerializer(FoodSerializer):
         model = Food
         fields = DefaultFoodSerializer.Meta.fields
         read_only_fields = DefaultFoodSerializer.Meta.read_only_fields
+
+
+class SingleIngredientSerializer(DefaultIngredientSerializer):
+
+    class Meta:
+        model = DefaultIngredient
+        fields = DefaultIngredientSerializer.Meta.fields + ('group',)
