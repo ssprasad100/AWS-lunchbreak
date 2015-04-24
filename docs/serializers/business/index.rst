@@ -8,6 +8,7 @@ Business
     employee
     employeeToken
     order
+    orderedFood
     privateUser
     shortFood
     shortIngredientGroup

@@ -1,6 +1,5 @@
 from business.models import Employee, EmployeeToken, Staff, StaffToken
-from customers.models import Order, User
-from customers.serializers import OrderedFoodSerializer
+from customers.models import Order, OrderedFood, User
 from lunch.models import DefaultIngredient, Food, IngredientGroup
 from lunch.serializers import (DefaultFoodSerializer,
                                DefaultIngredientSerializer, FoodSerializer,
@@ -61,6 +60,15 @@ class PrivateUserSerializer(serializers.ModelSerializer):
         fields = ('id', 'name',)
 
 
+class OrderedFoodSerializer(serializers.ModelSerializer):
+    cost = serializers.DecimalField(decimal_places=2, max_digits=5)
+
+    class Meta:
+        model = OrderedFood
+        fields = ('id', 'ingredients', 'amount', 'original', 'cost')
+        read_only_fields = fields
+
+
 class ShortOrderSerializer(serializers.ModelSerializer):
     user = PrivateUserSerializer(read_only=True)
 
@@ -71,12 +79,12 @@ class ShortOrderSerializer(serializers.ModelSerializer):
 
 
 class OrderSerializer(ShortOrderSerializer):
-    food = OrderedFoodSerializer(many=True, read_only=True)
+    orderedFood = OrderedFoodSerializer(many=True, read_only=True, source="orderedfood_set")
 
     class Meta:
         model = Order
-        fields = ShortOrderSerializer.Meta.fields + ('food',)
-        read_only_fields = ShortOrderSerializer.Meta.read_only_fields + ('food',)
+        fields = ShortOrderSerializer.Meta.fields + ('orderedFood',)
+        read_only_fields = ShortOrderSerializer.Meta.read_only_fields + ('orderedFood',)
 
 
 class ShortIngredientGroupSerializer(serializers.ModelSerializer):
