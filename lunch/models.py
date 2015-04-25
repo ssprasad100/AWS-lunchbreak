@@ -285,7 +285,7 @@ class FoodType(models.Model):
     icon = models.PositiveIntegerField(choices=ICONS, default=0)
     quantifier = models.CharField(max_length=64, blank=True, null=True)
     inputType = models.PositiveIntegerField(choices=INPUT_TYPES, default=0)
-    required = models.ManyToManyField(IngredientGroup)
+    required = models.ManyToManyField(IngredientGroup, blank=True, null=True)
 
     def __unicode__(self):
         return self.name
