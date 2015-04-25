@@ -47,6 +47,13 @@ class LunchbreakManager(models.Manager):
             )
 
     def closestFood(self, ingredients, original):
+        ingredientsIn = -1 if len(ingredients) == 0 else '''
+            CASE WHEN lunch_ingredient.id IN (%s)
+                THEN
+                    1
+                ELSE
+                    -1
+                END''' % ','.join([str(i.id) for i in ingredients]);
         return Food.objects.raw(('''
             SELECT
                 lunch_food.id,
@@ -69,18 +76,11 @@ class LunchbreakManager(models.Manager):
                         THEN
                             0
                         ELSE
-                            CASE WHEN lunch_ingredient.id IN ('''
-                                + ','.join([str(i.id) for i in ingredients]) +
-                                ''')
-                                THEN
-                                    1
-                                ELSE
-                                    -1
-                                END
+                            %s
                         END
                 ) DESC,
                 (lunch_food.id = %d) DESC,
-                lunch_food.cost ASC;''') % (original.foodType.id, original.store.id, original.id,))[0]
+                lunch_food.cost ASC;''') % (original.foodType.id, original.store.id, ingredientsIn, original.id,))[0]
 
 
 ICONS = (
@@ -222,7 +222,9 @@ class BaseIngredientGroup(models.Model):
 
         ingredientGroups = [key for key, value in ingredientGroups.iteritems()]
         requiredIds = [i.id for i in foodType.required.all()]
-        if not set(requiredIds) < set(ingredientGroups):
+        print ingredientGroups
+        print requiredIds
+        if len(requiredIds) > 0 and not set(requiredIds) < set(ingredientGroups):
             raise IngredientGroupsRequiredNotMet()
 
 
