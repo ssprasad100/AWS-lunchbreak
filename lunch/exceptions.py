@@ -6,6 +6,7 @@ ADDRESS_NOT_FOUND = 601
 DOES_NOT_EXIST = 602
 INGR_GROUP_MAX_EXCEEDED = 603
 INGR_GROUP_REQ_NOT_MET = 604
+INVALID_STORE_LINKING = 605
 
 
 def lunchbreakExceptionHandler(exception):
@@ -73,3 +74,9 @@ class IngredientGroupsRequiredNotMet(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
     code = INGR_GROUP_REQ_NOT_MET
     information = 'Required IngredientGroups not met.'
+
+
+class InvalidStoreLinking(LunchbreakException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    code = INVALID_STORE_LINKING
+    information = 'Invalid store linking.'

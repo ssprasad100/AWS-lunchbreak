@@ -1,10 +1,11 @@
 import random
 
 import requests
-from django.db import models
+from django.db import models, transaction
 from django.utils.functional import cached_property
 from lunch.exceptions import (AddressNotFound, IngredientGroupMaxExceeded,
-                              IngredientGroupsRequiredNotMet)
+                              IngredientGroupsRequiredNotMet,
+                              InvalidStoreLinking)
 
 
 class LunchbreakManager(models.Manager):
@@ -53,7 +54,8 @@ class LunchbreakManager(models.Manager):
                     1
                 ELSE
                     -1
-                END''' % ','.join([str(i.id) for i in ingredients]);
+                END''' % ','.join([str(i.id) for i in ingredients])
+
         return Food.objects.raw(('''
             SELECT
                 lunch_food.id,
@@ -257,6 +259,12 @@ class Ingredient(BaseIngredient):
     group = models.ForeignKey(IngredientGroup)
     store = models.ForeignKey(Store)
 
+    def save(self, *args, **kwargs):
+        print '%d != %d' % (self.store_id, self.group.store_id,)
+        if self.store_id != self.group.store_id:
+            raise InvalidStoreLinking()
+        super(Ingredient, self).save(*args, **kwargs)
+
 
 class BaseFoodCategory(models.Model):
     name = models.CharField(max_length=128)
@@ -296,7 +304,7 @@ class FoodType(models.Model):
 class BaseFood(models.Model):
     name = models.CharField(max_length=256)
     cost = models.DecimalField(decimal_places=2, max_digits=5)
-    foodType = models.ForeignKey(FoodType, null=True)
+    foodType = models.ForeignKey(FoodType)
     lastModified = models.DateTimeField(auto_now=True)
 
     objects = LunchbreakManager()
@@ -321,14 +329,19 @@ class BaseFood(models.Model):
 
 
 class DefaultFood(BaseFood):
-    category = models.ForeignKey(DefaultFoodCategory, null=True, blank=True)
+    category = models.ForeignKey(DefaultFoodCategory)
     ingredients = models.ManyToManyField(DefaultIngredient, through='DefaultIngredientRelation', null=True, blank=True)
 
 
 class Food(BaseFood):
-    category = models.ForeignKey(FoodCategory, null=True, blank=True)
+    category = models.ForeignKey(FoodCategory)
     ingredients = models.ManyToManyField(Ingredient, through='IngredientRelation', null=True, blank=True)
     store = models.ForeignKey(Store)
+
+    def save(self, *args, **kwargs):
+        if self.category.store_id != self.store_id:
+            raise InvalidStoreLinking()
+        super(Food, self).save(*args, **kwargs)
 
 
 class BaseIngredientRelation(models.Model):
