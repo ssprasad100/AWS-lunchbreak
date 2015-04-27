@@ -22,11 +22,10 @@ class ShortStoreSerializer(serializers.ModelSerializer):
 
 class OrderedFoodSerializer(serializers.ModelSerializer):
     ingredientGroups = IngredientGroupSerializer(many=True, read_only=True)
-    cost = serializers.DecimalField(decimal_places=2, max_digits=5)
 
     class Meta:
         model = OrderedFood
-        fields = ('id', 'ingredients', 'amount', 'order', 'original', 'ingredientGroups', 'cost')
+        fields = ('id', 'ingredients', 'amount', 'order', 'original', 'ingredientGroups', 'cost', 'useOriginal',)
         read_only_fields = ('id', 'order', 'ingredientGroups',)
 
 
@@ -90,7 +89,7 @@ class ShortOrderSerializer(serializers.ModelSerializer):
                 self.amountCheck(order, original, amount)
                 cost = f['cost']
 
-                orderedF = OrderedFood(original=original, order=order, amount=amount)
+                orderedF = OrderedFood(original=original, order=order, amount=amount, cost=cost)
 
                 if 'ingredients' in f:
                     orderedF.save()
@@ -103,6 +102,7 @@ class ShortOrderSerializer(serializers.ModelSerializer):
                 else:
                     self.costCheck(order, original, amount, cost)
                     orderedF.cost = original.cost
+                    orderedF.useOriginal = True
 
                 orderedF.save()
         except:

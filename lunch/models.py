@@ -1,7 +1,7 @@
 import random
 
 import requests
-from django.db import models, transaction
+from django.db import models
 from django.utils.functional import cached_property
 from lunch.exceptions import (AddressNotFound, IngredientGroupMaxExceeded,
                               IngredientGroupsRequiredNotMet,

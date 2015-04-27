@@ -51,9 +51,10 @@ class Order(models.Model):
 class OrderedFood(models.Model):
     ingredients = models.ManyToManyField(Ingredient, null=True, blank=True)
     amount = models.DecimalField(decimal_places=3, max_digits=13, default=1)
-    cost = models.DecimalField(decimal_places=2, max_digits=5, default=0)
+    cost = models.DecimalField(decimal_places=2, max_digits=5)
     order = models.ForeignKey(Order)
     original = models.ForeignKey(Food)
+    useOriginal = models.BooleanField(default=False)
 
     @cached_property
     def ingredientGroups(self):

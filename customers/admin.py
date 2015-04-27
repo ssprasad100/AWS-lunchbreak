@@ -5,7 +5,7 @@ from django.contrib import admin
 @admin.register(OrderedFood)
 class OrderedFoodAdmin(admin.ModelAdmin):
     list_display = ('amount', 'order', 'original', 'ingredientGroups')
-    fields = list_display + ('ingredients',)
+    fields = list_display + ('ingredients', 'useOriginal',)
     readonly_fields = ('ingredientGroups',)
 
 
