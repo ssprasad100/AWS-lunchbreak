@@ -195,6 +195,7 @@ class BaseIngredientGroup(models.Model):
     name = models.CharField(max_length=256)
     maximum = models.PositiveIntegerField(default=0, verbose_name='Maximum amount')
     priority = models.PositiveIntegerField(default=0)
+    cost = models.DecimalField(decimal_places=2, max_digits=5, default=-1)
 
     class Meta:
         abstract = True

@@ -83,7 +83,7 @@ class IngredientAdmin(DefaultIngredientAdmin):
 
 @admin.register(DefaultIngredientGroup)
 class DefaultIngredientGroupAdmin(admin.ModelAdmin):
-    list_display = ('name', 'maximum', 'priority',)
+    list_display = ('name', 'maximum', 'priority', 'cost',)
     fields = list_display
 
 

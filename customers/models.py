@@ -70,13 +70,30 @@ class OrderedFood(models.Model):
     @staticmethod
     def calculateCost(orderedIngredients, food):
         foodIngredients = food.ingredients.all()
+        foodGroups = food.ingredientGroups
+        orderedGroups = []
         cost = food.cost
         for ingredient in orderedIngredients:
             if ingredient not in foodIngredients:
-                cost += ingredient.cost
+                if ingredient.group.cost < 0:
+                    cost += ingredient.cost
+                elif ingredient.group not in foodGroups:
+                    cost += ingredient.group.cost
+            if ingredient.group not in orderedGroups:
+                orderedGroups.append(ingredient.group)
+
+        removedGroups = []
         for ingredient in foodIngredients:
             if ingredient not in orderedIngredients:
-                cost -= ingredient.cost
+                if ingredient.group.cost < 0:
+                    cost -= ingredient.cost
+                elif ingredient.group not in removedGroups:
+                    removedGroups.append(ingredient.group)
+
+        for group in removedGroups:
+            if group not in orderedGroups:
+                cost -= group.cost
+
         return cost
 
 
