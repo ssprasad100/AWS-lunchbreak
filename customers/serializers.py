@@ -47,12 +47,10 @@ class ShortOrderSerializer(serializers.ModelSerializer):
 
     def costCheck(self, order, orderedFood, amount, cost):
         if orderedFood.cost * amount != cost:
-            order.delete()
             raise CostCheckFailed()
 
     def amountCheck(self, order, original, amount):
         if not float(amount).is_integer() and original.foodType.inputType == INPUT_AMOUNT:
-            order.delete()
             raise AmountInvalid()
 
     def create(self, validated_data):
@@ -84,28 +82,33 @@ class ShortOrderSerializer(serializers.ModelSerializer):
 
         order = Order(user=user, store=store, pickupTime=pickupTime)
         order.save()
-        for f in orderedFood:
-            original = f['original']
-            amount = f['amount'] if 'amount' in f else 1
-            self.amountCheck(order, original, amount)
 
-            cost = f['cost']
+        try:
+            for f in orderedFood:
+                original = f['original']
+                amount = f['amount'] if 'amount' in f else 1
+                self.amountCheck(order, original, amount)
+                cost = f['cost']
 
-            orderedF = OrderedFood(original=original, order=order, amount=amount)
+                orderedF = OrderedFood(original=original, order=order, amount=amount)
 
-            if 'ingredients' in f:
+                if 'ingredients' in f:
+                    orderedF.save()
+                    ingredients = f['ingredients']
+                    IngredientGroup.checkIngredients(ingredients, original.foodType)
+                    closestFood = Food.objects.closestFood(ingredients, original)
+                    orderedF.cost = OrderedFood.calculateCost(ingredients, closestFood)
+                    self.costCheck(order, orderedF, amount, cost)
+                    orderedF.ingredients = ingredients
+                else:
+                    self.costCheck(order, original, amount, cost)
+                    orderedF.cost = original.cost
+
                 orderedF.save()
-                ingredients = f['ingredients']
-                IngredientGroup.checkIngredients(ingredients, original.foodType)
-                closestFood = Food.objects.closestFood(ingredients, original)
-                orderedF.cost = OrderedFood.calculateCost(ingredients, closestFood)
-                self.costCheck(order, orderedF, amount, cost)
-                orderedF.ingredients = ingredients
-            else:
-                self.costCheck(order, original, amount, cost)
-                orderedF.cost = original.cost
+        except:
+            order.delete()
+            raise
 
-            orderedF.save()
         order.save()
         return order
 

@@ -224,8 +224,6 @@ class BaseIngredientGroup(models.Model):
 
         ingredientGroups = [key for key, value in ingredientGroups.iteritems()]
         requiredIds = [i.id for i in foodType.required.all()]
-        print ingredientGroups
-        print requiredIds
         if len(requiredIds) > 0 and not set(requiredIds) < set(ingredientGroups):
             raise IngredientGroupsRequiredNotMet()
 
@@ -260,7 +258,6 @@ class Ingredient(BaseIngredient):
     store = models.ForeignKey(Store)
 
     def save(self, *args, **kwargs):
-        print '%d != %d' % (self.store_id, self.group.store_id,)
         if self.store_id != self.group.store_id:
             raise InvalidStoreLinking()
         super(Ingredient, self).save(*args, **kwargs)
