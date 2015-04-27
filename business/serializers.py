@@ -1,6 +1,8 @@
 from business.models import Employee, EmployeeToken, Staff, StaffToken
 from customers.models import Order, OrderedFood, User
-from lunch.models import DefaultIngredient, Food, IngredientGroup
+from lunch.exceptions import InvalidStoreLinking
+from lunch.models import (DefaultIngredient, Food, Ingredient, IngredientGroup,
+                          IngredientRelation)
 from lunch.serializers import (DefaultFoodSerializer,
                                DefaultIngredientSerializer, FoodSerializer,
                                ShortDefaultIngredientRelationSerializer,
@@ -95,13 +97,49 @@ class ShortIngredientGroupSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', 'name', 'maximum', 'priority',)
 
 
+class IngredientRelationSerializer(serializers.ModelSerializer):
+    ingredient = serializers.PrimaryKeyRelatedField(write_only=True, queryset=Ingredient.objects.all())
+
+    class Meta:
+        model = IngredientRelation
+        fields = ('ingredient', 'typical',)
+        write_only_fields = fields
+
+
 class ShortFoodSerializer(serializers.ModelSerializer):
-    ingredients = ShortDefaultIngredientRelationSerializer(source='ingredientrelation_set', many=True)
+    ingredients = ShortDefaultIngredientRelationSerializer(source='ingredientrelation_set', many=True, required=False, read_only=True)
+    ingredientRelations = IngredientRelationSerializer(source='ingredientrelation_set', many=True, required=False, write_only=True)
 
     class Meta:
         model = Food
-        fields = ('id', 'name', 'category', 'foodType', 'ingredients',)
-        read_only_fields = ('id', 'name', 'category', 'foodType', 'ingredients',)
+        fields = ('id', 'name', 'category', 'foodType', 'ingredients', 'category', 'cost', 'ingredientRelations',)
+        read_only_fields = ('id', 'ingredients',)
+        write_only_fields = ('category', 'cost', 'ingredientRelations',)
+
+    def create(self, validated_data):
+        name = validated_data['name']
+        category = validated_data['category']
+        foodType = validated_data['foodType']
+        cost = validated_data['cost']
+        store = validated_data['store']
+
+        food = Food(name=name, category=category, foodType=foodType, cost=cost, store=store)
+
+        relations = None
+        if 'ingredientrelation_set' in validated_data:
+            relations = validated_data['ingredientrelation_set']
+            for relation in relations:
+                if relation['ingredient'].store_id != store.id:
+                    raise InvalidStoreLinking()
+
+        food.save()
+
+        if relations is not None:
+            for relation in relations:
+                rel = IngredientRelation(food=food, **relation)
+                rel.save()
+
+        return food
 
 
 class StoreFoodSerializer(FoodSerializer):

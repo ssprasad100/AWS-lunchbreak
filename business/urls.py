@@ -6,7 +6,7 @@ urlpatterns = patterns('',
     url(r'^employee/(?P<id>\d+)/$', views.EmployeeView.as_view()),
     url(r'^employee/reset/request/(?P<employee_id>\d+)/$', views.EmployeeRequestResetView.as_view()),
 
-    url(r'^food/(?P<datetime>[0-3][0-9]-[0-1][0-9]-20[0-9][0-9]-[0-2][0-9]-[0-5][0-9])?/?$', views.FoodListView.as_view()),
+    url(r'^food/(?P<datetime>[0-3][0-9]-[0-1][0-9]-20[0-9][0-9]-[0-2][0-9]-[0-5][0-9])?/?$', views.FoodView.as_view()),
     url(r'^food/(?P<pk>\d+)/$', views.FoodRetrieveView.as_view()),
     url(r'^food/default/$', views.DefaultFoodListView.as_view()),
     url(r'^food/default/(?P<pk>\d+)/$', views.DefaultFoodRetrieveView.as_view()),

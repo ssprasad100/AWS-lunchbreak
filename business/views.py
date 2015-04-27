@@ -1,9 +1,10 @@
 from business.authentication import EmployeeAuthentication, StaffAuthentication
 from business.exceptions import InvalidDatetime
 from business.models import Employee, Staff
+from business.permissions import StoreOwnerPermission
 from business.responses import InvalidEmail
-from business.serializers import (EmployeeSerializer, OrderSerializer,
-                                  ShortFoodSerializer,
+from business.serializers import (EmployeeSerializer,
+                                  OrderSerializer, ShortFoodSerializer,
                                   ShortIngredientGroupSerializer,
                                   ShortOrderSerializer,
                                   SingleIngredientSerializer, StaffSerializer,
@@ -85,6 +86,19 @@ class FoodListView(generics.ListAPIView):
         if since is not None:
             return result.filter(lastModified__gte=since)
         return result
+
+
+class FoodView(FoodListView, generics.CreateAPIView):
+
+    permission_classes = (StoreOwnerPermission,)
+
+    def post(self, request, format=None, datetime=None):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save(store=request.user.staff.store)
+
+            return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+        return BadRequest()
 
 
 class DefaultFoodListView(FoodListView):

@@ -361,6 +361,11 @@ class IngredientRelation(BaseIngredientRelation):
     food = models.ForeignKey(Food)
     ingredient = models.ForeignKey(Ingredient)
 
+    def save(self, *args, **kwargs):
+        if self.food.store_id != self.ingredient.store_id:
+            raise InvalidStoreLinking()
+        super(IngredientRelation, self).save(*args, **kwargs)
+
 
 IDENTIFIER_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWabcdefghijklmnopqrstuvwxyz0123456789'
 IDENTIFIER_LENGTH = 64
