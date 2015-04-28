@@ -15,3 +15,4 @@ Fields
     - **longitude** (*decimal*) - Longitude coordinate
     - **categories** (:doc:`/serializers/global/storeCategory` list) - Store categories
     - **minTime** (*int*) - Minimum amount of minutes ahead of time an order needs to be
+    - **heartsCount** (*int*) - Amount of hearts.

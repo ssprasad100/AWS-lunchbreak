@@ -9,13 +9,7 @@ Fields
     - **paid** (*boolean*) - Already paid or not
     - **total** (*decimal*) - Total cost
     - **orderedFood** (:doc:`/serializers/customers/orderedFood` list) - Ordered food, cannot be empty
-    - **status** (*int*) - Status number
-        + **0** - *Placed*
-        + **1** - *Denied*
-        + **2** - *Received*
-        + **3** - *Started*
-        + **4** - *Waiting*
-        + **5** - *Completed*
+    - **status** (*int*) - :ref:`orderStatusses`.
 
 Read only
 ^^^^^^^^^

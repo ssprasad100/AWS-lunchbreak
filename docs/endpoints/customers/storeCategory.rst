@@ -14,8 +14,3 @@ List
     Authentication: :doc:`/authentication/user`
 
     Serializer: :doc:`/serializers/global/storeCategory`
-
-    :resheader Content-Type: application/json
-
-    :statuscode 200: no error
-    :statuscode 403: authentication failed

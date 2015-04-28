@@ -13,13 +13,8 @@ List
 
     Serializer: :doc:`/serializers/business/shortOrder`
 
-    :resheader Content-Type: application/json
-
     :query String option: Optional choice between 'orderedTime' or 'pickupTime'. Order by 'orderedTime' descending (default if empty) or 'pickupTime' ascending.
     :query String since: Optional datetime from where the 'option' parameter should be returned. Format '%d-%m-%Y-%H-%M'. Can be used if option is not given too.
-
-    :statuscode 200: no error
-    :statuscode 403: authentication failed
 
 
 Specific
@@ -33,12 +28,7 @@ Specific
 
     Serializer: :doc:`/serializers/business/order`
 
-    :resheader Content-Type: application/json
-
     :query int id: :doc:`/serializers/business/order` ID
-
-    :statuscode 200: no error
-    :statuscode 403: authentication failed
 
 
 Update status
@@ -52,9 +42,4 @@ Update status
 
     Serializer: :doc:`/serializers/business/order`
 
-    :resheader Content-Type: application/json
-
     :query int id: :doc:`/serializers/business/order` ID
-
-    :statuscode 200: no error
-    :statuscode 403: authentication failed

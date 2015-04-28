@@ -15,11 +15,6 @@ Specific food
 
     :query int id: ID of the food
 
-    :resheader Content-Type: application/json
-
-    :statuscode 200: no error
-    :statuscode 403: authentication failed
-
 
 Specific store
 ==============
@@ -33,8 +28,3 @@ Specific store
     Serializer: :doc:`/serializers/global/shortDefaultFood`
 
     :query int id: ID of the store
-
-    :resheader Content-Type: application/json
-
-    :statuscode 200: no error
-    :statuscode 403: authentication failed

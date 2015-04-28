@@ -41,15 +41,15 @@ class StoreHeartView(generics.UpdateAPIView):
     '''
 
     authentication_classes = (CustomerAuthentication,)
-    queryset = Heart.objects.all()
 
+    def get_queryset(self):
+        return get_object_or_404(Store, id=self.kwargs['store_id'])
 
     def update(self, request, *args, **kwargs):
-        like = 'store_like' in self.kwargs
-        storeId = self.kwargs['store_like'] if like else self.kwargs['store_dislike']
-        store = Store.objects.get(id=storeId)
+        heart = 'option' in self.kwargs and self.kwargs['option'] == 'heart'
+        store = self.get_queryset()
 
-        if like:
+        if heart:
             heart, created = Heart.objects.get_or_create(store=store, user=request.user)
             statusCode = status.HTTP_201_CREATED if created else status.HTTP_200_OK
             return Response(status=statusCode)
@@ -57,7 +57,6 @@ class StoreHeartView(generics.UpdateAPIView):
             heart = get_object_or_404(Heart, store=store, user=request.user)
             heart.delete()
             return Response(status=status.HTTP_200_OK)
-
 
 
 class StoreOpenView(generics.ListAPIView):

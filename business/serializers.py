@@ -93,8 +93,8 @@ class ShortIngredientGroupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = IngredientGroup
-        fields = ('id', 'name', 'maximum', 'priority',)
-        read_only_fields = ('id', 'name', 'maximum', 'priority',)
+        fields = ('id', 'name', 'maximum', 'priority', 'cost',)
+        read_only_fields = fields
 
 
 class IngredientRelationSerializer(serializers.ModelSerializer):

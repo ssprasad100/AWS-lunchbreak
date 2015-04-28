@@ -9,6 +9,6 @@ Lunchbreak |release| documentation
 
     Authentication <authentication/index>
     Endpoints <endpoints/index>
+    Permissions <permissions/index>
     Serializers <serializers/index>
-    error
     other
