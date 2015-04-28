@@ -17,11 +17,6 @@ Nearby stores
     :query decimal longitude: longitude coordinate
     :query number proximity: proximity, default is 5 km
 
-    :resheader Content-Type: application/json
-
-    :statuscode 200: no error
-    :statuscode 403: authentication failed
-
 
 Specific store
 ==============
@@ -36,10 +31,20 @@ Specific store
 
     :query int id: ID of the store
 
-    :resheader Content-Type: application/json
 
-    :statuscode 200: no error
-    :statuscode 403: authentication failed
+Heart/unheart store
+===================
+
+.. http:get:: /v1/customers/store/(string:option)/(int:id)/
+
+    Store with the given ID.
+
+    Authentication: :doc:`/authentication/user`
+
+    Serializer: :doc:`/serializers/global/store`
+
+    :query string option: Heart/unheart, unheart default
+    :query int id: ID of the store
 
 
 Opening hours and holiday periods
@@ -52,11 +57,6 @@ Opening hours and holiday periods
     Show the opening hours of a specific store.
 
     :query int id: ID of the store
-
-    :resheader Content-Type: application/json
-
-    :statuscode 200: no error
-    :statuscode 403: authentication failed
 
     :resjson objectarray holidayPeriods: :doc:`/serializers/global/holidayPeriod`
     :resjson objectarray openingHours: :doc:`/serializers/global/openingHours`
@@ -75,12 +75,6 @@ Opening hours
 
     :query int id: ID of the store
 
-    :resheader Content-Type: application/json
-
-    :statuscode 200: no error
-    :statuscode 403: authentication failed
-
-
 
 Holiday periods
 ===============
@@ -94,8 +88,3 @@ Holiday periods
     Serializer: :doc:`/serializers/global/holidayPeriod`
 
     :query int id: ID of the store
-
-    :resheader Content-Type: application/json
-
-    :statuscode 200: no error
-    :statuscode 403: authentication failed

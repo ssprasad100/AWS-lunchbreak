@@ -13,11 +13,6 @@ List
 
     Serializer: :doc:`/serializers/business/employee`
 
-    :resheader Content-Type: application/json
-
-    :statuscode 200: no error
-    :statuscode 403: authentication failed
-
 
 Login
 =====
@@ -32,11 +27,6 @@ Login
 
     Response serializer: :doc:`/serializers/business/employeeToken`
 
-    :resheader Content-Type: application/json
-
-    :statuscode 200: no error
-    :statuscode 403: authentication failed
-
 
 Specific
 ========
@@ -49,12 +39,7 @@ Specific
 
     Serializer: :doc:`/serializers/business/employee`
 
-    :resheader Content-Type: application/json
-
     :query int id: :doc:`/serializers/business/employee` ID
-
-    :statuscode 200: no error
-    :statuscode 403: authentication failed
 
 
 Password reset request
@@ -66,9 +51,4 @@ Password reset request
 
     Authentication: :doc:`/authentication/staff`
 
-    :resheader Content-Type: application/json
-
     :query int id: :doc:`/serializers/business/employee` ID
-
-    :statuscode 200: no error
-    :statuscode 403: authentication failed

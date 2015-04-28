@@ -8,3 +8,4 @@ Fields
     - **maximum** (*int*) - Maximum amount of items selected, 0 means unlimited
     - **ingredients** (:doc:`/serializers/global/ingredient` list) - Ingredients
     - **priority** (*int*) - Priority number
+    - **cost** (*decimal*) - Cost

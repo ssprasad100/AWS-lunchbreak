@@ -11,11 +11,6 @@ List
 
     Serializer: :doc:`/serializers/business/staff`
 
-    :resheader Content-Type: application/json
-
-    :statuscode 200: no error
-    :statuscode 403: authentication failed
-
 
 Login
 =====
@@ -28,11 +23,6 @@ Login
 
     Response serializer: :doc:`/serializers/business/staffToken`
 
-    :resheader Content-Type: application/json
-
-    :statuscode 200: no error
-    :statuscode 403: authentication failed
-
 
 Specific
 ========
@@ -43,12 +33,7 @@ Specific
 
     Serializer: :doc:`/serializers/business/staff`
 
-    :resheader Content-Type: application/json
-
     :query int id: :doc:`/serializers/business/staff` ID
-
-    :statuscode 200: no error
-    :statuscode 403: authentication failed
 
 
 Nearby
@@ -60,14 +45,9 @@ Nearby
 
     Serializer: :doc:`/serializers/business/staff`
 
-    :resheader Content-Type: application/json
-
     :query decimal latitude: latitude coordinate
     :query decimal longitude: longitude coordinate
     :query decimal proximity: proximity in km, optional, default is 5 km
-
-    :statuscode 200: no error
-    :statuscode 403: authentication failed
 
 
 Password reset request
@@ -77,9 +57,4 @@ Password reset request
 
     Send an email to reset the password off the given Staff e-mailadress.
 
-    :resheader Content-Type: application/json
-
     :query String staff_email: :doc:`/serializers/business/staff` email
-
-    :statuscode 200: no error
-    :statuscode 403: authentication failed

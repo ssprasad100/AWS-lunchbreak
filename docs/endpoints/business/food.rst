@@ -2,6 +2,20 @@
 Food
 ====
 
+Create
+======
+
+.. http:get:: /v1/business/food/
+
+    Create food for the authorised store.
+
+    Permissions: :doc:`/permissions/business/storeOwner`
+
+    Authentication: :doc:`/authentication/employee`
+
+    Serializer: :doc:`/serializers/business/shortFood`
+
+
 List
 ====
 
@@ -12,11 +26,6 @@ List
     Authentication: :doc:`/authentication/employee`
 
     Serializer: :doc:`/serializers/business/shortFood`
-
-    :resheader Content-Type: application/json
-
-    :statuscode 200: no error
-    :statuscode 403: authentication failed
 
 
 List Default
@@ -32,11 +41,6 @@ List Default
 
     Serializer: :doc:`/serializers/business/shortFood`
 
-    :resheader Content-Type: application/json
-
-    :statuscode 200: no error
-    :statuscode 403: authentication failed
-
 
 Retrieve
 ========
@@ -49,12 +53,7 @@ Retrieve
 
     Serializer: :doc:`/serializers/business/storeFood`
 
-    :resheader Content-Type: application/json
-
     :query int id: :doc:`/serializers/global/food` ID
-
-    :statuscode 200: no error
-    :statuscode 403: authentication failed
 
 
 Retrieve Default
@@ -68,9 +67,4 @@ Retrieve Default
 
     Serializer: :doc:`/serializers/global/defaultFood`
 
-    :resheader Content-Type: application/json
-
     :query int id: :doc:`/serializers/global/defaultFood` ID
-
-    :statuscode 200: no error
-    :statuscode 403: authentication failed

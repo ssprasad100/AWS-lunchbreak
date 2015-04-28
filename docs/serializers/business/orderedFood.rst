@@ -8,6 +8,7 @@ Fields
     - **amount** (*decimal*) - Amount, default 1
     - **original** (*int*) - Reference :doc:`/serializers/global/food` ID
     - **cost** (*decimal*) - Cost
+    - **useOriginal** (*boolean*) - Use original Food
 
 Read only
 ^^^^^^^^^
@@ -16,3 +17,4 @@ Read only
     - amount
     - original
     - cost
+    - useOriginal

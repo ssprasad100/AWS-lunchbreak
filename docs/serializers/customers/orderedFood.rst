@@ -10,8 +10,10 @@ Fields
     - **original** (*int*) - Reference :doc:`/serializers/global/food` ID
     - **ingredientGroups** (:doc:`/serializers/global/ingredientGroup` list) - Ingredient groups
     - **cost** (*decimal*) - Cost
+    - **useOriginal** (*boolean*) - Use original Food
 
 Read only
 ^^^^^^^^^
     - id
     - ingredientGroups
+    - useOriginal

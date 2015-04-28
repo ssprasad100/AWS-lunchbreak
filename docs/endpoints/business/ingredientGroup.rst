@@ -14,8 +14,3 @@ List
     Authentication: :doc:`/authentication/employee`
 
     Serializer: :doc:`/serializers/business/shortIngredientGroup`
-
-    :resheader Content-Type: application/json
-
-    :statuscode 200: no error
-    :statuscode 403: authentication failed

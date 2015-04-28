@@ -15,11 +15,6 @@ Retrieve order
 
     :query int id: ID of the order
 
-    :resheader Content-Type: application/json
-
-    :statuscode 200: no error
-    :statuscode 403: authentication failed
-
 
 User's orders
 =============
@@ -31,11 +26,6 @@ User's orders
     Authentication: :doc:`/authentication/user`
 
     Serializer: :doc:`/serializers/customers/shortOrder`
-
-    :resheader Content-Type: application/json
-
-    :statuscode 200: no error
-    :statuscode 403: authentication failed
 
 
 Place order
@@ -49,13 +39,6 @@ Place order
 
     Serializer: :doc:`/serializers/customers/shortOrder`
 
-    :reqheader Content-Type: application/json
-
-    :resheader Content-Type: application/json
-
-    :statuscode 200: no error
-    :statuscode 403: authentication failed
-
 
 Request price
 =============
@@ -68,13 +51,5 @@ Request price
 
     Request serializer: :doc:`/serializers/customers/orderedFoodPrice`
 
-    :reqheader Content-Type: application/json
-
-    :resheader Content-Type: application/json
-
     :resjsonarr decimal cost: Calculated cost
     :resjsonarr int food: :doc:`/serializers/global/food` ID
-
-    :statuscode 200: no error
-    :statuscode 403: authentication failed
-

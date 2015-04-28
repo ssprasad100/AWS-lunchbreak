@@ -7,6 +7,7 @@ Fields
     - **name** (*String*) - Name
     - **maximum** (*int*) - Maximum amount of items selected, 0 means unlimited
     - **priority** (*int*) - Priority number
+    - **cost** (*decimal*) - Cost
 
 
 Read only
@@ -17,3 +18,4 @@ Read only
     - pickupTime
     - paid
     - total
+    - cost
