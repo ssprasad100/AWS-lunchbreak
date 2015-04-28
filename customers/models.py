@@ -9,6 +9,7 @@ ORDER_STATUS_RECEIVED = 2
 ORDER_STATUS_STARTED = 3
 ORDER_STATUS_WAITING = 4
 ORDER_STATUS_COMPLETED = 5
+ORDER_STATUS_NOT_COLLECTED = 6
 
 ORDER_STATUS = (
     (ORDER_STATUS_PLACED, 'Placed'),
@@ -16,7 +17,8 @@ ORDER_STATUS = (
     (ORDER_STATUS_RECEIVED, 'Received'),
     (ORDER_STATUS_STARTED, 'Started'),
     (ORDER_STATUS_WAITING, 'Waiting'),
-    (ORDER_STATUS_COMPLETED, 'Completed')
+    (ORDER_STATUS_COMPLETED, 'Completed'),
+    (ORDER_STATUS_NOT_COLLECTED, 'Not collected')
 )
 
 
@@ -30,6 +32,15 @@ class User(models.Model):
 
     def __unicode__(self):
         return self.name if self.name else unicode(self.phone)
+
+
+class Heart(models.Model):
+    user = models.ForeignKey(User)
+    store = models.ForeignKey(Store)
+    added = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'store',)
 
 
 class Order(models.Model):

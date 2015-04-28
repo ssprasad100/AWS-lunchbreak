@@ -10,6 +10,8 @@ urlpatterns = patterns('',
     url(r'^order/price/$', views.OrderPriceView.as_view()),
 
     url(r'^store/(?P<id>\d+)/$', views.StoreListView.as_view()),
+    url(r'^store/heart/(?P<store_like>\d+)/$', views.StoreHeartView.as_view()),
+    url(r'^store/unheart/(?P<store_dislike>\d+)/$', views.StoreHeartView.as_view()),
     url(r'^store/holiday/(?P<store_id>\d+)/$', views.HolidayPeriodListView.as_view()),
     url(r'^store/hours/(?P<store_id>\d+)/$', views.OpeningHoursListView.as_view()),
     url(r'^store/nearby/(?P<latitude>\d+\.\d+)/(?P<longitude>\d+\.\d+)/$', views.StoreListView.as_view()),

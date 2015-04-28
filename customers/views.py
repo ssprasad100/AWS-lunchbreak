@@ -1,6 +1,6 @@
 from customers.authentication import CustomerAuthentication
 from customers.digits import Digits
-from customers.models import Order, OrderedFood, User, UserToken
+from customers.models import Heart, Order, OrderedFood, User, UserToken
 from customers.serializers import (OrderedFoodPriceSerializer, OrderSerializer,
                                    ShortOrderSerializer, UserSerializer,
                                    UserTokenSerializer)
@@ -16,6 +16,7 @@ from lunch.views import (getHolidayPeriods, getOpeningAndHoliday,
                          getOpeningHours, StoreCategoryListViewBase)
 from rest_framework import generics, status
 from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
 
 
 class StoreListView(generics.ListAPIView):
@@ -32,6 +33,31 @@ class StoreListView(generics.ListAPIView):
             return Store.objects.nearby(self.kwargs['latitude'], self.kwargs['longitude'], proximity)
         elif 'id' in self.kwargs:
             return Store.objects.filter(id=self.kwargs['id'])
+
+
+class StoreHeartView(generics.UpdateAPIView):
+    '''
+    Heart or unheart a store.
+    '''
+
+    authentication_classes = (CustomerAuthentication,)
+    queryset = Heart.objects.all()
+
+
+    def update(self, request, *args, **kwargs):
+        like = 'store_like' in self.kwargs
+        storeId = self.kwargs['store_like'] if like else self.kwargs['store_dislike']
+        store = Store.objects.get(id=storeId)
+
+        if like:
+            heart, created = Heart.objects.get_or_create(store=store, user=request.user)
+            statusCode = status.HTTP_201_CREATED if created else status.HTTP_200_OK
+            return Response(status=statusCode)
+        else:
+            heart = get_object_or_404(Heart, store=store, user=request.user)
+            heart.delete()
+            return Response(status=status.HTTP_200_OK)
+
 
 
 class StoreOpenView(generics.ListAPIView):

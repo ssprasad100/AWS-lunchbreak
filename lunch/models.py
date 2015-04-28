@@ -131,20 +131,20 @@ class StoreCategory(models.Model):
 class Store(models.Model):
     name = models.CharField(max_length=256)
 
+    objects = LunchbreakManager()
+
     country = models.CharField(max_length=256)
     province = models.CharField(max_length=256)
     city = models.CharField(max_length=256)
     postcode = models.CharField(max_length=20, verbose_name='Postal code')
     street = models.CharField(max_length=256)
     number = models.PositiveIntegerField()
-
-    objects = LunchbreakManager()
     latitude = models.DecimalField(blank=True, decimal_places=7, max_digits=10)
     longitude = models.DecimalField(blank=True, decimal_places=7, max_digits=10)
 
     categories = models.ManyToManyField(StoreCategory)
-
     minTime = models.PositiveIntegerField(default=0)
+    hearts = models.ManyToManyField('customers.User', through='customers.Heart', blank=True)
 
     GEOCODING_URL = 'https://maps.googleapis.com/maps/api/geocode/json'
     GEOCODING_KEY = 'AIzaSyCHgip4CE_6DMxP506uDRIQy_nQisuHAQI'
@@ -165,6 +165,10 @@ class Store(models.Model):
 
     def __unicode__(self):
         return self.name + ', ' + self.city
+
+    @cached_property
+    def heartsCount(self):
+        return self.hearts.count()
 
 
 class OpeningHours(models.Model):
@@ -320,7 +324,7 @@ class BaseFood(models.Model):
 
     @cached_property
     def hasIngredients(self):
-        return len(self.ingredients.all()) > 0
+        return self.ingredients.count() > 0
 
     def __unicode__(self):
         return self.name
@@ -328,12 +332,12 @@ class BaseFood(models.Model):
 
 class DefaultFood(BaseFood):
     category = models.ForeignKey(DefaultFoodCategory)
-    ingredients = models.ManyToManyField(DefaultIngredient, through='DefaultIngredientRelation', null=True, blank=True)
+    ingredients = models.ManyToManyField(DefaultIngredient, through='DefaultIngredientRelation', blank=True)
 
 
 class Food(BaseFood):
     category = models.ForeignKey(FoodCategory)
-    ingredients = models.ManyToManyField(Ingredient, through='IngredientRelation', null=True, blank=True)
+    ingredients = models.ManyToManyField(Ingredient, through='IngredientRelation', blank=True)
     store = models.ForeignKey(Store)
 
     def save(self, *args, **kwargs):
