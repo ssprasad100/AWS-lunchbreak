@@ -12,5 +12,4 @@ Read only
 ^^^^^^^^^
     - id
     - name
-    - category
     - foodType

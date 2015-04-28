@@ -114,7 +114,7 @@ class ShortFoodSerializer(serializers.ModelSerializer):
         model = Food
         fields = ('id', 'name', 'category', 'foodType', 'ingredients', 'category', 'cost', 'ingredientRelations',)
         read_only_fields = ('id', 'ingredients',)
-        write_only_fields = ('category', 'cost', 'ingredientRelations',)
+        write_only_fields = ('cost', 'ingredientRelations',)
 
     def create(self, validated_data):
         name = validated_data['name']

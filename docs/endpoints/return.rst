@@ -17,9 +17,9 @@ HTTP status codes are always best to go from if there isn't any extra error info
 +-------+-------------------------------------------------------------------------------+
 | Code  | Explanation                                                                   |
 +=======+===============================================================================+
-| 200   | Everything went OK and *nothing was added* to the database.                   |
+| 200   | Everything went OK and **nothing was added** to the database.                 |
 +-------+-------------------------------------------------------------------------------+
-| 201   | Everything went OK and *something was added* to the database.                 |
+| 201   | Everything went OK and **something was added** to the database.               |
 +-------+-------------------------------------------------------------------------------+
 | 400   | Bad request, input was unexpected.                                            |
 +-------+-------------------------------------------------------------------------------+
