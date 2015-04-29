@@ -74,8 +74,7 @@ class OrderedFood(models.Model):
             for ingredient in self.ingredients.all():
                 if ingredient.group not in result:
                     result.append(ingredient.group)
-            else:
-                result = self.original.ingredientGroups
+            result = self.original.ingredientGroups
         return result
 
     @staticmethod
