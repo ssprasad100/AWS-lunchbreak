@@ -33,7 +33,7 @@ def getSince(request, kwargs, methodCheck=False):
     if (methodCheck or request.method == 'GET') and 'datetime' in kwargs and kwargs['datetime'] is not None:
         sinceString = kwargs['datetime']
         try:
-            return timezone.datetime.strptime(sinceString, '%d-%m-%Y-%H-%M')
+            return timezone.datetime.strptime(sinceString, '%d-%m-%Y-%H-%M-%S')
         except ValueError:
             raise InvalidDatetime()
     return None
@@ -202,11 +202,11 @@ class OrderListView(generics.ListAPIView):
             if 'option' in self.kwargs and self.kwargs['option'] == 'pickupTime':
                 result = result.order_by('pickupTime')
                 if since is not None:
-                    result = result.filter(pickupTime__gte=since)
+                    result = result.filter(pickupTime__gt=since)
             else:
                 result = result.order_by('-orderedTime')
                 if since is not None:
-                    result = result.filter(orderedTime__gte=since)
+                    result = result.filter(orderedTime__gt=since)
         return result
 
 

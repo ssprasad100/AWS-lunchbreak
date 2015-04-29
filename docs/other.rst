@@ -6,11 +6,17 @@ Formats
 =======
 
 
-DateTime
-    * ```%Y-%m-%d %H:%M```
+Date
+    * ```%Y-%m-%d```
 
 Time
-    * ```%H:%M```
+    * ```%H:%M:%S```
+
+DateTime
+    * ```%Y-%m-%d %H:%M:%S```
+
+
+*Replace spaces and colons with dashes for in formats in the URL*
 
 
 Pagination

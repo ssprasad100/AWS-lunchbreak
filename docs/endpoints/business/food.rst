@@ -19,13 +19,15 @@ Create
 List
 ====
 
-.. http:get:: /v1/business/food/
+.. http:get:: /v1/business/food/(datetime:since)/
 
     List the food of the store.
 
     Authentication: :doc:`/authentication/employee`
 
     Serializer: :doc:`/serializers/business/shortFood`
+
+    :query datetime since: Optional datetime to return the food that have been modified since that datetime.
 
 
 List Default

@@ -73,6 +73,21 @@ class Base:
     USE_L10N = True  # Format localisation
     USE_TZ = False
 
+    DATE_FORMAT = '%Y-%m-%d'
+    DATE_INPUT_FORMATS = (
+        DATE_FORMAT,
+    )
+
+    TIME_FORMAT = '%H:%M:%S'
+    TIME_INPUT_FORMATS = (
+        TIME_FORMAT,
+    )
+
+    DATETIME_FORMAT = '%s %s' % (DATE_FORMAT, TIME_FORMAT,)
+    DATETIME_INPUT_FORMATS = (
+        DATETIME_FORMAT,
+    )
+
     STATIC_RELATIVE = '/static/'
     STATIC_ROOT = BASE_DIR + STATIC_RELATIVE
     STATIC_URL = '/static/'
@@ -83,16 +98,33 @@ class Base:
     APPEND_SLASH = True
 
     REST_FRAMEWORK = {
-        'EXCEPTION_HANDLER': 'lunch.exceptions.lunchbreakExceptionHandler',
-        'COERCE_DECIMAL_TO_STRING': False,
         'DEFAULT_RENDERER_CLASSES': [
             'rest_framework.renderers.JSONRenderer',
         ],
         'DEFAULT_PARSER_CLASSES': (
             'rest_framework.parsers.JSONParser',
         ),
+        'DEFAULT_AUTHENTICATION_CLASSES': [],
+
         'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-        'PAGE_SIZE': 25
+        'PAGE_SIZE': 25,
+        'MAX_PAGINATE_BY': 25,
+
+        'DATE_FORMAT': DATE_FORMAT,
+        'TIME_FORMAT': TIME_FORMAT,
+        'DATETIME_FORMAT': DATETIME_FORMAT,
+
+        'DATE_INPUT_FORMATS': list(DATE_INPUT_FORMATS),
+        'TIME_INPUT_FORMATS': list(TIME_INPUT_FORMATS),
+        'DATETIME_INPUT_FORMATS': list(DATETIME_INPUT_FORMATS),
+
+        'COERCE_DECIMAL_TO_STRING': False,
+
+        'EXCEPTION_HANDLER': 'lunch.exceptions.lunchbreakExceptionHandler',
+
+        'TEST_REQUEST_RENDERER_CLASSES': [
+            'rest_framework.renderers.JSONRenderer',
+        ]
     }
 
     OPBEAT = {
@@ -150,13 +182,6 @@ class Base:
     EMAIL_PORT = 587
     EMAIL_USE_TLS = True
     EMAIL_FROM = 'noreply@lunchbreakapp.be'
-
-    DATETIME_INPUT_FORMATS = (
-        '%Y-%m-%d %H:%M',
-    )
-    TIME_INPUT_FORMATS = (
-        '%H:%M',
-    )
 
 
 class Development(Base):

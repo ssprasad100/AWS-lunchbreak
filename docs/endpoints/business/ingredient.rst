@@ -5,7 +5,7 @@ Ingredient
 List
 ====
 
-.. http:get:: /v1/business/ingredient/(String:since)
+.. http:get:: /v1/business/ingredient/(datetime:since)/
 
     List the ingredients.
 
@@ -13,7 +13,7 @@ List
 
     Serializer: :doc:`/serializers/business/singleIngredient`
 
-    :query String since: Optional datetime to return the ingredients that have been modified since that datetime. Format '%d-%m-%Y-%H-%M'.
+    :query datetime since: Optional datetime to return the ingredients that have been modified since that datetime.
 
 
 List Default
