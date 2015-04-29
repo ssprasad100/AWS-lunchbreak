@@ -21,6 +21,8 @@ HTTP status codes are always best to go from if there isn't any extra error info
 +-----------+-------------------------------------------------------------------------------+
 | 201       | Everything went OK and **something was added** to the database.               |
 +-----------+-------------------------------------------------------------------------------+
+| 204       | Everything went OK and **something was deleted** in the database.             |
++-----------+-------------------------------------------------------------------------------+
 | 400       | Bad request, input was unexpected.                                            |
 +-----------+-------------------------------------------------------------------------------+
 | 403       | Authorisation failed and you were not granted access.                         |

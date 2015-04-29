@@ -3,12 +3,12 @@ from business.exceptions import InvalidDatetime
 from business.models import Employee, Staff
 from business.permissions import StoreOwnerPermission
 from business.responses import InvalidEmail
-from business.serializers import (EmployeeSerializer,
-                                  OrderSerializer, ShortFoodSerializer,
+from business.serializers import (EmployeeSerializer, OrderSerializer,
+                                  ShortFoodSerializer,
                                   ShortIngredientGroupSerializer,
                                   ShortOrderSerializer,
                                   SingleIngredientSerializer, StaffSerializer,
-                                  StoreFoodSerializer)
+                                  StoreFoodSerializer, UpdateFoodSerializer)
 from customers.models import (Order, ORDER_STATUS_PLACED, ORDER_STATUS_RECEIVED,
                               ORDER_STATUS_STARTED, ORDER_STATUS_WAITING)
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
@@ -96,7 +96,6 @@ class FoodView(FoodListView, generics.CreateAPIView):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save(store=request.user.staff.store)
-
             return Response(data=serializer.data, status=status.HTTP_201_CREATED)
         return BadRequest()
 
@@ -106,14 +105,21 @@ class DefaultFoodListView(FoodListView):
     queryset = DefaultFood.objects.all()
 
 
-class FoodRetrieveView(generics.RetrieveAPIView):
+class FoodRetrieveView(generics.RetrieveUpdateDestroyAPIView):
     '''
     Retrieve a (default) food.
     '''
 
     authentication_classes = (EmployeeAuthentication,)
-    serializer_class = StoreFoodSerializer  # Default serializer doesn't return the store
-    queryset = Food.objects.all()
+
+    def get_queryset(self, *args, **kwargs):
+        return Food.objects.filter(store_id=self.request.user.staff.store_id)
+
+    def get_serializer_class(self, *args, **kwargs):
+        if self.request.method == 'GET':
+            return StoreFoodSerializer
+        else:
+            return UpdateFoodSerializer
 
 
 class DefaultFoodRetrieveView(FoodRetrieveView):

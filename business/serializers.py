@@ -112,34 +112,49 @@ class ShortFoodSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Food
-        fields = ('id', 'name', 'category', 'foodType', 'ingredients', 'category', 'cost', 'ingredientRelations',)
+        fields = ('id', 'name', 'category', 'foodType', 'cost', 'ingredients', 'category', 'ingredientRelations',)
         read_only_fields = ('id', 'ingredients',)
         write_only_fields = ('cost', 'ingredientRelations',)
 
-    def create(self, validated_data):
-        name = validated_data['name']
-        category = validated_data['category']
-        foodType = validated_data['foodType']
-        cost = validated_data['cost']
-        store = validated_data['store']
+    def createOrUpdate(self, validated_data, food=None):
+        update = food is not None
+        if not update:
+            name = validated_data['name']
+            category = validated_data['category']
+            foodType = validated_data['foodType']
+            cost = validated_data['cost']
+            store = validated_data['store']
 
-        food = Food(name=name, category=category, foodType=foodType, cost=cost, store=store)
+            food = Food(name=name, category=category, foodType=foodType, cost=cost, store=store)
+        else:
+            food.name = validated_data.get('name', food.name)
+            food.category = validated_data.get('category', food.category)
+            food.foodType = validated_data.get('foodType', food.foodType)
+            food.cost = validated_data.get('cost', food.cost)
+            food.store = validated_data.get('store', food.store)
 
-        relations = None
-        if 'ingredientrelation_set' in validated_data:
-            relations = validated_data['ingredientrelation_set']
+        relations = validated_data.get('ingredientrelation_set', None)
+        if relations is not None:
             for relation in relations:
-                if relation['ingredient'].store_id != store.id:
+                if relation['ingredient'].store_id != food.store.id:
                     raise InvalidStoreLinking()
 
         food.save()
 
         if relations is not None:
+            if update:
+                IngredientRelation.objects.filter(food=food).delete()
             for relation in relations:
                 rel = IngredientRelation(food=food, **relation)
                 rel.save()
 
         return food
+
+    def create(self, validated_data):
+        return self.createOrUpdate(validated_data)
+
+    def update(self, instance, validated_data):
+        return self.createOrUpdate(validated_data, instance)
 
 
 class StoreFoodSerializer(FoodSerializer):
@@ -147,6 +162,15 @@ class StoreFoodSerializer(FoodSerializer):
         model = Food
         fields = DefaultFoodSerializer.Meta.fields
         read_only_fields = DefaultFoodSerializer.Meta.read_only_fields
+
+
+class UpdateFoodSerializer(ShortFoodSerializer):
+
+    class Meta:
+        model = ShortFoodSerializer.Meta.model
+        fields = ShortFoodSerializer.Meta.fields
+        read_only_fields = ShortFoodSerializer.Meta.read_only_fields
+        write_only_fields = ('ingredientRelations',)
 
 
 class SingleIngredientSerializer(DefaultIngredientSerializer):
