@@ -75,7 +75,8 @@ def getPublicKey(home):
 
 
 def runQuery(query, user='root', password=MYSQL_ROOT_PASSWORD):
-	return run('mysql -u %s  --password="%s" -e \'%s\'' % (user, password, query,))
+	with hide('stdout'):
+		return run('mysql -u %s  --password="%s" -e \'%s\'' % (user, password, query,))
 
 
 def prerequisites():
@@ -182,11 +183,20 @@ def mysql():
 		runQuery('FLUSH PRIVILEGES;')
 
 
+def sed(f, variables):
+	with hide('stdout'):
+		for key, value in variables.iteritems():
+			files.sed(f, '\{%s\}' % key, value)
+
+
 def nginx():
 	nginxDir = '/etc/nginx'
 	sslDir = '%s/ssl' % nginxDir
 	availableFile = '%s/sites-available/%s' % (nginxDir, CONFIG.HOST,)
 	enabledDir = '%s/sites-enabled/' % nginxDir
+
+	# Don't send Nginx version number in error pages and server header
+	files.uncomment('%s/nginx.conf' % nginxDir, 'server_tokens off;')
 
 	if CONFIG.SSL:
 		if not files.exists(sslDir):
@@ -206,13 +216,16 @@ def nginx():
 	protocol = 'https' if CONFIG.SSL else 'http'
 	run('cp %s/default/nginx-%s %s' % (PATH, protocol, availableFile,))
 
-	files.sed(availableFile, '\{upstream\}', BRANCH)
-	files.sed(availableFile, '\{port\}', CONFIG.PORT)
-	files.sed(availableFile, '\{domain\}', CONFIG.HOST)
-	files.sed(availableFile, '\{path\}', PATH)
-	files.sed(availableFile, '\{static_url\}', CONFIG.STATIC_URL)
-	files.sed(availableFile, '\{static_relative\}', CONFIG.STATIC_RELATIVE)
-	files.sed(availableFile, '\{ssl_path\}', sslDir)
+	aVariables = {
+		'upstream': BRANCH,
+		'port': CONFIG.PORT,
+		'domain': CONFIG.HOST,
+		'path': PATH,
+		'static_url': CONFIG.STATIC_URL,
+		'static_relative': CONFIG.STATIC_RELATIVE,
+		'ssl_path': sslDir
+	}
+	sed(availableFile, aVariables)
 
 	# Link the available site configuration with the enabled one
 	if not files.exists('%s%s' % (enabledDir, CONFIG.HOST,)):
@@ -237,12 +250,15 @@ def uwsgi():
 
 	virtualenv = '%s/.virtualenvs/%s' % (HOME, BRANCH,)
 
-	files.sed(iniFile, '\{host\}', CONFIG.HOST)
-	files.sed(iniFile, '\{path\}', PATH)
-	files.sed(iniFile, '\{virtualenv\}', virtualenv)
-	files.sed(iniFile, '\{configuration\}', CONFIG.__name__)
-	files.sed(iniFile, '\{password_var\}', CONFIG.DB_PASS_VAR)
-	files.sed(iniFile, '\{password\}', MYSQL_USER_PASSWORD)
+	iniVariables = {
+		'host': CONFIG.HOST,
+		'path': PATH,
+		'virtualenv': virtualenv,
+		'configuration': CONFIG.__name__,
+		'password_var': CONFIG.DB_PASS_VAR,
+		'password': MYSQL_USER_PASSWORD
+	}
+	sed(iniFile, iniVariables)
 
 	run('mv %s %s/%s.ini' % (iniFile, apps, CONFIG.HOST,))
 
@@ -251,8 +267,11 @@ def uwsgi():
 	configPath = '%s%s' % (initFolder, configFile,)
 	run('cp %s/default/%s %s' % (PATH, configFile, configPath,))
 
-	files.sed(configPath, '\{apps\}', apps)
-	files.sed(configPath, '\{log\}', log)
+	configVariables = {
+		'apps': apps,
+		'log': log
+	}
+	sed(configPath, configVariables)
 
 	run('service uwsgi restart')
 
