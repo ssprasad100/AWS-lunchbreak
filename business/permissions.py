@@ -15,7 +15,7 @@ class StoreOwnerPermission(permissions.BasePermission):
         if hasattr(obj, 'store'):
             store = None
             if isinstance(request.user, Employee):
-                store = request.staff.store
+                store = request.user.staff.store
             elif isinstance(request.user, Staff):
                 store = request.user.store
 

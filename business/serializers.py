@@ -176,5 +176,6 @@ class UpdateFoodSerializer(ShortFoodSerializer):
 class SingleIngredientSerializer(DefaultIngredientSerializer):
 
     class Meta:
-        model = DefaultIngredient
+        model = Ingredient
         fields = DefaultIngredientSerializer.Meta.fields + ('group',)
+        read_only_fields = ('id',)

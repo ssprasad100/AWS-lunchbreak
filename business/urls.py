@@ -15,7 +15,8 @@ urlpatterns = patterns('',
 
     url(r'^foodtype/$', views.FoodTypeListView.as_view()),
 
-    url(r'^ingredient/(?P<datetime>[0-3][0-9]-[0-1][0-9]-20[0-9][0-9]-[0-2][0-9]-[0-5][0-9]-[0-5][0-9])?/?$', views.IngredientListView.as_view()),
+    url(r'^ingredient/(?P<datetime>[0-3][0-9]-[0-1][0-9]-20[0-9][0-9]-[0-2][0-9]-[0-5][0-9]-[0-5][0-9])?/?$', views.IngredientView.as_view()),
+    url(r'^ingredient/(?P<pk>\d+)/$', views.SingleIngredientView.as_view()),
     url(r'^ingredient/default/$', views.DefaultIngredientListView.as_view()),
 
     url(r'^ingredientgroup/$', views.IngredientGroupListView.as_view()),

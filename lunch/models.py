@@ -263,7 +263,7 @@ class Ingredient(BaseIngredient):
     store = models.ForeignKey(Store)
 
     def save(self, *args, **kwargs):
-        if self.store_id != self.group.store_id:
+        if self.store != self.group.store:
             raise InvalidStoreLinking()
         super(Ingredient, self).save(*args, **kwargs)
 

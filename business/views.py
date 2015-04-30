@@ -126,27 +126,51 @@ class DefaultFoodRetrieveView(FoodRetrieveView):
     queryset = DefaultFood.objects.all()
 
 
-class IngredientListView(generics.ListAPIView):
+class IngredientView(generics.ListCreateAPIView):
     '''
     List the food ingredients.
     '''
 
     authentication_classes = (EmployeeAuthentication,)
     serializer_class = SingleIngredientSerializer
+    permission_classes = (StoreOwnerPermission,)
 
     def get_queryset(self):
-        result = Ingredient.objects.filter(store_id=self.request.user.staff.store_id)
+        result = Ingredient.objects.filter(store=self.request.user.staff.store)
         since = getSince(self.request, self.kwargs)
         if since is not None:
             return result.filter(lastModified__gte=since)
         return result
 
+    def perform_create(self, serializer):
+        serializer.save(store=self.request.user.staff.store)
 
-class DefaultIngredientListView(IngredientListView):
-    pagination_class = None
+
+class SingleIngredientView(generics.RetrieveUpdateDestroyAPIView):
+
+    authentication_classes = (EmployeeAuthentication,)
+    serializer_class = SingleIngredientSerializer
+    permission_classes = (StoreOwnerPermission,)
 
     def get_queryset(self):
-        return DefaultIngredient.objects.all()
+        result = Ingredient.objects.filter(store=self.request.user.staff.store)
+        since = getSince(self.request, self.kwargs)
+        if since is not None:
+            return result.filter(lastModified__gte=since)
+        return result
+
+    def get_permission_classes(self):
+        print 'get permission classes'
+
+    def perform_update(self, serializer):
+        serializer.save(store=self.request.user.staff.store)
+
+
+class DefaultIngredientListView(generics.ListAPIView):
+    authentication_classes = (EmployeeAuthentication,)
+    serializer_class = SingleIngredientSerializer
+    pagination_class = None
+    queryset = DefaultIngredient.objects.all()
 
 
 class FoodCategoryListView(generics.ListAPIView):
