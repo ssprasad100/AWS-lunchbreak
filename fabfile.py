@@ -83,14 +83,21 @@ def prerequisites():
 	local('python manage.py test lunch')
 
 
+def sedFile(f, variables):
+	for key, value in variables.iteritems():
+		with hide('stdout', 'running'):
+			files.sed(f, '\{%s\}' % key, value)
+
+
 def installations(rebooted=False):
 	with hide('stdout'):
 		run('apt-get -qq update')
 		run('apt-get -yqq upgrade')
 
 		# Autofill mysql-server passwords
-		run('debconf-set-selections <<< "mysql-server mysql-server/root_password password %s"' % MYSQL_ROOT_PASSWORD)
-		run('debconf-set-selections <<< "mysql-server mysql-server/root_password_again password %s"' % MYSQL_ROOT_PASSWORD)
+		with hide('stdout', 'running'):
+			run('debconf-set-selections <<< "mysql-server mysql-server/root_password password %s"' % MYSQL_ROOT_PASSWORD)
+			run('debconf-set-selections <<< "mysql-server mysql-server/root_password_again password %s"' % MYSQL_ROOT_PASSWORD)
 
 		run('apt-get -yqq install %s' % ' '.join(PACKAGES))
 
@@ -183,12 +190,6 @@ def mysql():
 		runQuery('FLUSH PRIVILEGES;')
 
 
-def sed(f, variables):
-	with hide('stdout'):
-		for key, value in variables.iteritems():
-			files.sed(f, '\{%s\}' % key, value)
-
-
 def nginx():
 	nginxDir = '/etc/nginx'
 	sslDir = '%s/ssl' % nginxDir
@@ -201,9 +202,8 @@ def nginx():
 	if CONFIG.SSL:
 		if not files.exists(sslDir):
 			run('mkdir -p %s' % sslDir)
-		if not files.exists('%s/%s.crt' % (sslDir, CONFIG.HOST,))\
-			or not files.exists('%s/%s.key' % (sslDir, CONFIG.HOST,))\
-			or not files.exists('%s/%s.pem' % (sslDir, CONFIG.HOST,)):
+		if not files.exists('%s/lunchbreak.key' % sslDir)\
+			or not files.exists('%s/lunchbreak.pem' % sslDir):
 			warn('Not all of the SSL files (certificates and private key) are present in the directory. Please add them to "%s" and restart nginx.' % sslDir)
 		if not files.exists('%s/dhparam.pem' % sslDir):
 			run('openssl dhparam -out %s/dhparam.pem 2048' % sslDir)
@@ -225,7 +225,7 @@ def nginx():
 		'static_relative': CONFIG.STATIC_RELATIVE,
 		'ssl_path': sslDir
 	}
-	sed(availableFile, aVariables)
+	sedFile(availableFile, aVariables)
 
 	# Link the available site configuration with the enabled one
 	if not files.exists('%s%s' % (enabledDir, CONFIG.HOST,)):
@@ -258,7 +258,7 @@ def uwsgi():
 		'password_var': CONFIG.DB_PASS_VAR,
 		'password': MYSQL_USER_PASSWORD
 	}
-	sed(iniFile, iniVariables)
+	sedFile(iniFile, iniVariables)
 
 	run('mv %s %s/%s.ini' % (iniFile, apps, CONFIG.HOST,))
 
@@ -271,7 +271,7 @@ def uwsgi():
 		'apps': apps,
 		'log': log
 	}
-	sed(configPath, configVariables)
+	sedFile(configPath, configVariables)
 
 	run('service uwsgi restart')
 
