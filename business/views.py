@@ -110,6 +110,7 @@ class FoodRetrieveView(generics.RetrieveUpdateDestroyAPIView):
     Retrieve a (default) food.
     '''
 
+    permission_classes = (StoreOwnerPermission,)
     authentication_classes = (EmployeeAuthentication,)
 
     def get_queryset(self, *args, **kwargs):
