@@ -227,7 +227,6 @@ class Staging(Base):
     ALLOWED_HOSTS = [
         HOST
     ]
-    SSL = False
 
     DB_PASS_VAR = 'LB_%s_password' % BRANCH
     DB_PASS = os.environ.get(DB_PASS_VAR)
@@ -251,7 +250,6 @@ class Beta(Base):
     ALLOWED_HOSTS = [
         HOST
     ]
-    SSL = False
 
     DB_PASS_VAR = 'LB_%s_password' % BRANCH
     DB_PASS = os.environ.get(DB_PASS_VAR)
