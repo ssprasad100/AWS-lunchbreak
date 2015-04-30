@@ -3,8 +3,8 @@ from business.exceptions import InvalidDatetime
 from business.models import Employee, Staff
 from business.permissions import StoreOwnerPermission
 from business.responses import InvalidEmail
-from business.serializers import (EmployeeSerializer, OrderSerializer,
-                                  ShortFoodSerializer,
+from business.serializers import (EmployeeSerializer, FoodCategorySerializer,
+                                  OrderSerializer, ShortFoodSerializer,
                                   ShortIngredientGroupSerializer,
                                   ShortOrderSerializer,
                                   SingleIngredientSerializer, StaffSerializer,
@@ -17,8 +17,7 @@ from django.utils import timezone
 from lunch.models import (DefaultFood, DefaultIngredient, Food, FoodCategory,
                           FoodType, Ingredient, IngredientGroup, Store)
 from lunch.responses import BadRequest, DoesNotExist
-from lunch.serializers import (DefaultFoodCategorySerializer,
-                               FoodTypeSerializer, HolidayPeriodSerializer,
+from lunch.serializers import (FoodTypeSerializer, HolidayPeriodSerializer,
                                OpeningHoursSerializer)
 from lunch.views import (getHolidayPeriods, getOpeningAndHoliday,
                          getOpeningHours, StoreCategoryListViewBase)
@@ -37,6 +36,13 @@ def getSince(request, kwargs, methodCheck=False):
         except ValueError:
             raise InvalidDatetime()
     return None
+
+
+class ListCreateStoreView(generics.ListCreateAPIView):
+
+    def perform_create(self, serializer):
+        store = self.request.user.staff.store if isinstance(self.request.user, Employee) else self.request.user.store
+        serializer.save(store=store)
 
 
 class EmployeeView(generics.ListAPIView):
@@ -81,7 +87,7 @@ class FoodListView(generics.ListAPIView):
     serializer_class = ShortFoodSerializer
 
     def get_queryset(self):
-        result = Food.objects.filter(store_id=self.request.user.staff.store_id)
+        result = Food.objects.filter(store=self.request.user.staff.store)
         since = getSince(self.request, self.kwargs)
         if since is not None:
             return result.filter(lastModified__gte=since)
@@ -114,7 +120,7 @@ class FoodRetrieveView(generics.RetrieveUpdateDestroyAPIView):
     authentication_classes = (EmployeeAuthentication,)
 
     def get_queryset(self, *args, **kwargs):
-        return Food.objects.filter(store_id=self.request.user.staff.store_id)
+        return Food.objects.filter(store=self.request.user.staff.store)
 
     def get_serializer_class(self, *args, **kwargs):
         if self.request.method == 'GET':
@@ -127,7 +133,7 @@ class DefaultFoodRetrieveView(FoodRetrieveView):
     queryset = DefaultFood.objects.all()
 
 
-class IngredientView(generics.ListCreateAPIView):
+class IngredientView(ListCreateStoreView):
     '''
     List the food ingredients.
     '''
@@ -143,9 +149,6 @@ class IngredientView(generics.ListCreateAPIView):
             return result.filter(lastModified__gte=since)
         return result
 
-    def perform_create(self, serializer):
-        serializer.save(store=self.request.user.staff.store)
-
 
 class SingleIngredientView(generics.RetrieveUpdateDestroyAPIView):
 
@@ -160,12 +163,6 @@ class SingleIngredientView(generics.RetrieveUpdateDestroyAPIView):
             return result.filter(lastModified__gte=since)
         return result
 
-    def get_permission_classes(self):
-        print 'get permission classes'
-
-    def perform_update(self, serializer):
-        serializer.save(store=self.request.user.staff.store)
-
 
 class DefaultIngredientListView(generics.ListAPIView):
     authentication_classes = (EmployeeAuthentication,)
@@ -174,17 +171,31 @@ class DefaultIngredientListView(generics.ListAPIView):
     queryset = DefaultIngredient.objects.all()
 
 
-class FoodCategoryListView(generics.ListAPIView):
+class FoodCategoryMultiView(ListCreateStoreView):
     '''
     List the food categories.
     '''
 
     authentication_classes = (EmployeeAuthentication,)
-    serializer_class = DefaultFoodCategorySerializer
+    serializer_class = FoodCategorySerializer
+    permission_classes = (StoreOwnerPermission,)
     pagination_class = None
 
     def get_queryset(self):
-        return FoodCategory.objects.filter(store_id=self.request.user.staff.store_id)
+        return FoodCategory.objects.filter(store=self.request.user.staff.store)
+
+
+class FoodCategorySingleView(generics.RetrieveUpdateDestroyAPIView):
+    '''
+    List the food categories.
+    '''
+
+    authentication_classes = (EmployeeAuthentication,)
+    serializer_class = FoodCategorySerializer
+    permission_classes = (StoreOwnerPermission,)
+
+    def get_queryset(self):
+        return FoodCategory.objects.filter(store=self.request.user.staff.store)
 
 
 class FoodTypeListView(generics.ListAPIView):
@@ -208,7 +219,7 @@ class IngredientGroupListView(generics.ListAPIView):
     pagination_class = None
 
     def get_queryset(self):
-        return IngredientGroup.objects.filter(store_id=self.request.user.staff.store_id)
+        return IngredientGroup.objects.filter(store=self.request.user.staff.store)
 
 
 class OrderListView(generics.ListAPIView):
@@ -220,7 +231,7 @@ class OrderListView(generics.ListAPIView):
     serializer_class = ShortOrderSerializer
 
     def get_queryset(self):
-        result = Order.objects.filter(store_id=self.request.user.staff.store_id, status__in=AVAILABLE_STATUSES)
+        result = Order.objects.filter(store=self.request.user.staff.store, status__in=AVAILABLE_STATUSES)
         if self.request.method == 'GET':
             since = getSince(self.request, self.kwargs, methodCheck=True)
 
@@ -244,7 +255,7 @@ class OrderUpdateView(generics.RetrieveUpdateAPIView):
     serializer_class = OrderSerializer
 
     def get_queryset(self):
-        return Order.objects.filter(store_id=self.request.user.staff.store_id, status__in=AVAILABLE_STATUSES)
+        return Order.objects.filter(store=self.request.user.staff.store, status__in=AVAILABLE_STATUSES)
 
 
 class StaffView(generics.ListAPIView):

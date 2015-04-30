@@ -1,7 +1,7 @@
 from business.models import Employee, EmployeeToken, Staff, StaffToken
 from customers.models import Order, OrderedFood, User
 from lunch.exceptions import InvalidStoreLinking
-from lunch.models import (DefaultIngredient, Food, Ingredient, IngredientGroup,
+from lunch.models import (Food, FoodCategory, Ingredient, IngredientGroup,
                           IngredientRelation)
 from lunch.serializers import (DefaultFoodSerializer,
                                DefaultIngredientSerializer, FoodSerializer,
@@ -104,6 +104,14 @@ class IngredientRelationSerializer(serializers.ModelSerializer):
         model = IngredientRelation
         fields = ('ingredient', 'typical',)
         write_only_fields = fields
+
+
+class FoodCategorySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = FoodCategory
+        fields = ('id', 'name', 'priority',)
+        read_only_fields = ('id',)
 
 
 class ShortFoodSerializer(serializers.ModelSerializer):
