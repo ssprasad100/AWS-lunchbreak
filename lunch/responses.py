@@ -4,6 +4,7 @@ from lunch.exceptions import lunchbreakExceptionHandler
 
 AUTHENTICATION_FAILED = 600
 DOES_NOT_EXIST = 602
+WRONG_API_VERSION = 606
 
 
 class LunchbreakResponse(Response):
@@ -37,3 +38,9 @@ class DoesNotExist(LunchbreakResponse):
     status_code = status.HTTP_400_BAD_REQUEST
     code = DOES_NOT_EXIST
     information = 'Object does not exist.'
+
+
+class WrongAPIVersion(LunchbreakResponse):
+    status_code = status.HTTP_404_NOT_FOUND
+    code = WRONG_API_VERSION
+    information = 'API Version not supported.'

@@ -1,11 +1,13 @@
 import datetime
 
 from django.utils import timezone
+from lunch.responses import WrongAPIVersion
 from lunch.models import Food, HolidayPeriod, OpeningHours, StoreCategory
 from lunch.serializers import (FoodSerializer, HolidayPeriodSerializer,
                                OpeningHoursSerializer, StoreCategorySerializer)
 from rest_framework import generics, status
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 
 def getOpeningHours(storeId):
@@ -48,3 +50,21 @@ class FoodRetrieveViewBase(generics.RetrieveAPIView):
 
     serializer_class = FoodSerializer
     queryset = Food.objects.all()
+
+
+class WrongAPIVersionView(APIView):
+
+    def get(self, request, *args, **kwargs):
+        return WrongAPIVersion()
+
+    def post(self, request, *args, **kwargs):
+        return WrongAPIVersion()
+
+    def patch(self, request, *args, **kwargs):
+        return WrongAPIVersion()
+
+    def delete(self, request, *args, **kwargs):
+        return WrongAPIVersion()
+
+    def put(self, request, *args, **kwargs):
+        return WrongAPIVersion()
