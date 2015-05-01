@@ -2,52 +2,55 @@ from customers.authentication import CustomerAuthentication
 from customers.digits import Digits
 from customers.models import Heart, Order, OrderedFood, User, UserToken
 from customers.serializers import (OrderedFoodPriceSerializer, OrderSerializer,
-                                   ShortOrderSerializer, UserSerializer,
-                                   UserTokenSerializer)
+                                   ShortOrderSerializer, StoreHeartSerializer,
+                                   UserSerializer, UserTokenSerializer)
 from django.core.exceptions import ObjectDoesNotExist
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from lunch.exceptions import LunchbreakException
 from lunch.models import Food, IngredientGroup, Store, tokenGenerator
 from lunch.responses import BadRequest
 from lunch.serializers import (FoodSerializer, HolidayPeriodSerializer,
                                OpeningHoursSerializer,
-                               ShortDefaultFoodSerializer, StoreSerializer)
+                               ShortDefaultFoodSerializer, ShortStoreSerializer)
 from lunch.views import (getHolidayPeriods, getOpeningAndHoliday,
                          getOpeningHours, StoreCategoryListViewBase)
 from rest_framework import generics, status
 from rest_framework.response import Response
-from django.shortcuts import get_object_or_404
 
 
-class StoreListView(generics.ListAPIView):
+class StoreMultiView(generics.ListAPIView):
     '''
     List the stores.
     '''
 
     authentication_classes = (CustomerAuthentication,)
-    serializer_class = StoreSerializer
+    serializer_class = ShortStoreSerializer
 
     def get_queryset(self):
         proximity = self.kwargs['proximity'] if 'proximity' in self.kwargs else 5
         if 'latitude' in self.kwargs and 'longitude' in self.kwargs:
             return Store.objects.nearby(self.kwargs['latitude'], self.kwargs['longitude'], proximity)
-        elif 'id' in self.kwargs:
-            return Store.objects.filter(id=self.kwargs['id'])
 
 
-class StoreHeartView(generics.UpdateAPIView):
+class StoreHeartView(generics.RetrieveUpdateAPIView):
     '''
     Heart or unheart a store.
     '''
 
     authentication_classes = (CustomerAuthentication,)
+    serializer_class = StoreHeartSerializer
+    queryset = Store.objects.all()
 
-    def get_queryset(self):
-        return get_object_or_404(Store, id=self.kwargs['store_id'])
+    def get(self, request, pk, **kwargs):
+        store = get_object_or_404(Store, id=pk)
+        store.hearted = request.user in store.hearts.all()
+        serializer = self.serializer_class(store)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
 
-    def update(self, request, *args, **kwargs):
+    def update(self, request, pk, **kwargs):
         heart = 'option' in self.kwargs and self.kwargs['option'] == 'heart'
-        store = self.get_queryset()
+        store = get_object_or_404(Store, id=pk)
 
         if heart:
             heart, created = Heart.objects.get_or_create(store=store, user=request.user)

@@ -12,12 +12,20 @@ class StoreCategorySerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'icon',)
 
 
-class StoreSerializer(serializers.ModelSerializer):
+class ShortStoreSerializer(serializers.ModelSerializer):
     categories = StoreCategorySerializer(many=True, read_only=True)
 
     class Meta:
         model = Store
-        fields = ('id', 'name', 'country', 'province', 'city', 'postcode', 'street', 'number', 'latitude', 'longitude', 'categories', 'minTime', 'heartsCount',)
+        fields = ('id', 'name', 'latitude', 'longitude', 'categories', 'heartsCount',)
+
+
+class StoreSerializer(ShortStoreSerializer):
+    categories = StoreCategorySerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Store
+        fields = ShortStoreSerializer.Meta.fields + ('country', 'province', 'city', 'postcode', 'street', 'number', 'minTime',)
 
 
 class OpeningHoursSerializer(serializers.ModelSerializer):

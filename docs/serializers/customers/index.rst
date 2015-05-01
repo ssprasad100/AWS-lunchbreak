@@ -9,6 +9,6 @@ Customers
     orderedFood
     orderedFoodPrice
     shortOrder
-    shortStore
+    storeHeart
     user
     userToken

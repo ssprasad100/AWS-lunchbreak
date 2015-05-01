@@ -322,8 +322,8 @@ def deploy():
 	nginx()
 	run('%s start' % NGINX)
 
-	opbeatRelease()
 	updateDocs()
+	opbeatRelease()
 
 
 def opbeatRelease():

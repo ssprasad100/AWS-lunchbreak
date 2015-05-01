@@ -11,7 +11,7 @@ Nearby stores
 
     Authentication: :doc:`/authentication/user`
 
-    Serializer: :doc:`/serializers/global/store`
+    Serializer: :doc:`/serializers/global/shortStore`
 
     :query decimal latitude: latitude coordinate
     :query decimal longitude: longitude coordinate
@@ -27,7 +27,7 @@ Specific store
 
     Authentication: :doc:`/authentication/user`
 
-    Serializer: :doc:`/serializers/global/store`
+    Serializer: :doc:`/serializers/customers/storeHeart`
 
     :query int id: ID of the store
 
@@ -37,11 +37,11 @@ Heart/unheart store
 
 .. http:get:: /v1/customers/store/(string:option)/(int:id)/
 
-    Store with the given ID.
+    Heart/unheart a store.
 
     Authentication: :doc:`/authentication/user`
 
-    Serializer: :doc:`/serializers/global/store`
+    Serializer: :doc:`/serializers/customers/storeHeart`
 
     :query string option: Heart/unheart, unheart default
     :query int id: ID of the store
@@ -52,9 +52,11 @@ Opening hours and holiday periods
 
 .. http:get:: /v1/customers/store/open/(int:id)/
 
-    Authentication: :doc:`/authentication/user`
+    **Pagination disabled.**
 
-    Show the opening hours of a specific store.
+    Show the opening hours and upcoming holiday periods of a specific store.
+
+    Authentication: :doc:`/authentication/user`
 
     :query int id: ID of the store
 
@@ -66,6 +68,8 @@ Opening hours
 =============
 
 .. http:get:: /v1/customers/store/hours/(int:id)/
+
+    **Pagination disabled.**
 
     Show the opening hours of a specific store.
 
@@ -80,6 +84,8 @@ Holiday periods
 ===============
 
 .. http:get:: /v1/customers/store/holiday/(int:id)/
+
+    **Pagination disabled.**
 
     Show upcoming holiday periods of the store this week.
 

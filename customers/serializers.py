@@ -12,12 +12,13 @@ from lunch.serializers import (IngredientGroupSerializer, StoreSerializer,
 from rest_framework import serializers
 
 
-class ShortStoreSerializer(serializers.ModelSerializer):
+class StoreHeartSerializer(StoreSerializer):
+    hearted = serializers.BooleanField()
 
     class Meta:
         model = Store
-        fields = ('id', 'name',)
-        read_only_fields = ('name',)
+        fields = StoreSerializer.Meta.fields + ('hearted',)
+        read_only_fields = StoreSerializer.Meta.fields + ('hearted',)
 
 
 class OrderedFoodSerializer(serializers.ModelSerializer):
