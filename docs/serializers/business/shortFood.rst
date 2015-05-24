@@ -5,11 +5,22 @@ Fields
 ------
     - **id** (*int*) - (Default)Food ID
     - **name** (*String*) - Name
-    - **category** (*int*) - :doc:`/serializers/global/foodCategory` ID
-    - **foodType** (*int*) - :doc:`/serializers/global/foodType` ID
+    - **cost** (*decimal*) - Cost
+    - **ingredients** (*list*) - Ingredients IDs
+    - **category** (:doc:`/serializers/global/foodCategory`) - Food category
+    - **foodType** (:doc:`/serializers/global/foodType`) - Food type
+    - **ingredients** (:doc:`/serializers/global/ingredient`) - (Default)Ingredients
+    - **ingredientRelations** (:doc:`/serializers/global/ingredient`) - (Default)Ingredients
 
 Read only
 ^^^^^^^^^
     - id
     - name
-    - foodType
+    - ingredients
+
+Write only
+^^^^^^^^^
+    - ingredientRelations
+
+
+The difference between ingredients and ingredientRelations is in the backend and won't be explained in these docs. Just keep in mind to use ingredients when reading and ingredientRelations when writing.

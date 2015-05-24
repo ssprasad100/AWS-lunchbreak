@@ -122,7 +122,7 @@ class ShortFoodSerializer(serializers.ModelSerializer):
         model = Food
         fields = ('id', 'name', 'category', 'foodType', 'cost', 'ingredients', 'category', 'ingredientRelations',)
         read_only_fields = ('id', 'ingredients',)
-        write_only_fields = ('cost', 'ingredientRelations',)
+        write_only_fields = ('ingredientRelations',)
 
     def createOrUpdate(self, validated_data, food=None):
         update = food is not None
