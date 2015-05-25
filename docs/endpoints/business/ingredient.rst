@@ -2,16 +2,18 @@
 Ingredient
 ==========
 
-List
-====
+List/Create
+===========
 
 .. http:get:: /v1/business/ingredient/(datetime:since)/
 
-    List the ingredients.
+    List the ingredients or create an ingredient with a POST request.
+
+    Permissions: :doc:`/permissions/business/storeOwner`
 
     Authentication: :doc:`/authentication/employee`
 
-    Serializer: :doc:`/serializers/business/singleIngredient`
+    Serializer: :doc:`/serializers/business/ingredient`
 
     :query datetime since: Optional datetime to return the ingredients that have been modified since that datetime.
 
@@ -27,4 +29,20 @@ List Default
 
     Authentication: :doc:`/authentication/employee`
 
-    Serializer: :doc:`/serializers/business/singleIngredient`
+    Serializer: :doc:`/serializers/business/ingredient`
+
+
+Retrieve/update
+===============
+
+.. http:get:: /v1/business/ingredient/(int:id)/
+
+    Retrieve/patch an ingredient by its ID.
+
+    Permissions: :doc:`/permissions/business/storeOwner`
+
+    Authentication: :doc:`/authentication/employee`
+
+    Serializer: :doc:`/serializers/business/ingredient`
+
+    :query int id: :doc:`/serializers/business/ingredient` ID

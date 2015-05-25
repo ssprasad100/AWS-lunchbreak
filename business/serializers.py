@@ -4,9 +4,9 @@ from lunch.exceptions import InvalidStoreLinking
 from lunch.models import (Food, FoodCategory, Ingredient, IngredientGroup,
                           IngredientRelation)
 from lunch.serializers import (DefaultFoodSerializer,
-                               DefaultIngredientSerializer, FoodSerializer,
+                               FoodSerializer,
                                ShortDefaultIngredientRelationSerializer,
-                               StoreSerializer, TokenSerializer)
+                               StoreSerializer, TokenSerializer, DefaultFoodCategorySerializer)
 from rest_framework import serializers
 
 
@@ -94,7 +94,7 @@ class ShortIngredientGroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = IngredientGroup
         fields = ('id', 'name', 'maximum', 'priority', 'cost',)
-        read_only_fields = fields
+        read_only_fields = ('id',)
 
 
 class IngredientRelationSerializer(serializers.ModelSerializer):
@@ -106,12 +106,12 @@ class IngredientRelationSerializer(serializers.ModelSerializer):
         write_only_fields = fields
 
 
-class FoodCategorySerializer(serializers.ModelSerializer):
+class FoodCategorySerializer(DefaultFoodCategorySerializer):
 
     class Meta:
         model = FoodCategory
-        fields = ('id', 'name', 'priority',)
-        read_only_fields = ('id',)
+        fields = DefaultFoodCategorySerializer.Meta.fields
+        read_only_fields = DefaultFoodCategorySerializer.Meta.read_only_fields
 
 
 class ShortFoodSerializer(serializers.ModelSerializer):
@@ -172,18 +172,9 @@ class StoreFoodSerializer(FoodSerializer):
         read_only_fields = DefaultFoodSerializer.Meta.read_only_fields
 
 
-class UpdateFoodSerializer(ShortFoodSerializer):
-
-    class Meta:
-        model = ShortFoodSerializer.Meta.model
-        fields = ShortFoodSerializer.Meta.fields
-        read_only_fields = ShortFoodSerializer.Meta.read_only_fields
-        write_only_fields = ('ingredientRelations',)
-
-
-class SingleIngredientSerializer(DefaultIngredientSerializer):
+class IngredientSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Ingredient
-        fields = DefaultIngredientSerializer.Meta.fields + ('group',)
+        fields = ('id', 'name', 'cost', 'icon', 'group',)
         read_only_fields = ('id',)

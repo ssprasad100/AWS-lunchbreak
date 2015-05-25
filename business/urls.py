@@ -7,20 +7,21 @@ urlpatterns = patterns('',
     url(r'^employee/reset/request/(?P<employee_id>\d+)/$', views.EmployeeRequestResetView.as_view()),
 
     url(r'^food/(?P<datetime>[0-3][0-9]-[0-1][0-9]-20[0-9][0-9]-[0-2][0-9]-[0-5][0-9]-[0-5][0-9])?/?$', views.FoodView.as_view()),
-    url(r'^food/(?P<pk>\d+)/$', views.FoodRetrieveView.as_view()),
+    url(r'^food/(?P<pk>\d+)/$', views.FoodSingleView.as_view()),
     url(r'^food/default/$', views.DefaultFoodListView.as_view()),
-    url(r'^food/default/(?P<pk>\d+)/$', views.DefaultFoodRetrieveView.as_view()),
+    url(r'^food/default/(?P<pk>\d+)/$', views.DefaultFoodSingleView.as_view()),
 
     url(r'^foodcategory/$', views.FoodCategoryMultiView.as_view()),
     url(r'^foodcategory/(?P<pk>\d+)/$', views.FoodCategorySingleView.as_view()),
 
     url(r'^foodtype/$', views.FoodTypeListView.as_view()),
 
-    url(r'^ingredient/(?P<datetime>[0-3][0-9]-[0-1][0-9]-20[0-9][0-9]-[0-2][0-9]-[0-5][0-9]-[0-5][0-9])?/?$', views.IngredientView.as_view()),
-    url(r'^ingredient/(?P<pk>\d+)/$', views.SingleIngredientView.as_view()),
+    url(r'^ingredient/(?P<datetime>[0-3][0-9]-[0-1][0-9]-20[0-9][0-9]-[0-2][0-9]-[0-5][0-9]-[0-5][0-9])?/?$', views.IngredientMultiView.as_view()),
+    url(r'^ingredient/(?P<pk>\d+)/$', views.IngredientSingleView.as_view()),
     url(r'^ingredient/default/$', views.DefaultIngredientListView.as_view()),
 
-    url(r'^ingredientgroup/$', views.IngredientGroupListView.as_view()),
+    url(r'^ingredientgroup/$', views.IngredientGroupMultiView.as_view()),
+    url(r'^ingredientgroup/(?P<pk>\d+)/$', views.IngredientGroupSingleView.as_view()),
 
     url(r'^order/(?P<option>pickupTime|orderedTime)?/?(?P<datetime>[0-3][0-9]-[0-1][0-9]-20[0-9][0-9]-[0-2][0-9]-[0-5][0-9]-[0-5][0-9])?/?$', views.OrderListView.as_view()),
     url(r'^order/(?P<pk>\d+)/$', views.OrderUpdateView.as_view()),

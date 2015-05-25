@@ -10,7 +10,7 @@ Fields
     - **ingredients** (*list*) - Ingredients IDs
     - **category** (:doc:`/serializers/global/foodCategory`) - Food category
     - **foodType** (:doc:`/serializers/global/foodType`) - Food type
-    - **ingredients** (:doc:`/serializers/global/ingredient`) - (Default)Ingredients
+    - **ingredients** (:doc:`/serializers/business/ingredient`) - (Default)Ingredients
 
 Read only
 ^^^^^^^^^

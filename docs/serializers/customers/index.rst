@@ -4,11 +4,6 @@ Customers
 
 .. toctree::
     :maxdepth: 1
+    :glob:
 
-    order
-    orderedFood
-    orderedFoodPrice
-    shortOrder
-    storeHeart
-    user
-    userToken
+    *

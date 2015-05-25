@@ -13,9 +13,3 @@ Fields
 Read only
 ^^^^^^^^^
     - id
-    - user
-    - orderedTime
-    - pickupTime
-    - paid
-    - total
-    - cost

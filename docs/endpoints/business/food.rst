@@ -2,26 +2,14 @@
 Food
 ====
 
-Create
-======
-
-.. http:get:: /v1/business/food/
-
-    Create food for the authorised store.
-
-    Permissions: :doc:`/permissions/business/storeOwner`
-
-    Authentication: :doc:`/authentication/employee`
-
-    Serializer: :doc:`/serializers/business/shortFood`
-
-
-List
-====
+List/Create
+===========
 
 .. http:get:: /v1/business/food/(datetime:since)/
 
-    List the food of the store.
+    List the food of the store or create food with a POST request.
+
+    Permissions: :doc:`/permissions/business/storeOwner`
 
     Authentication: :doc:`/authentication/employee`
 
@@ -44,16 +32,19 @@ List Default
     Serializer: :doc:`/serializers/business/shortFood`
 
 
-Retrieve
-========
+Retrieve/Update
+===============
 
-.. http:get:: /v1/business/food/(int:id)
+.. http:get:: /v1/business/food/(int:id)/
 
-    Retrieve a food by its ID.
+    Retrieve/patch a food by its ID.
+
+    Permissions: :doc:`/permissions/business/storeOwner`
 
     Authentication: :doc:`/authentication/employee`
 
-    Serializer: :doc:`/serializers/business/storeFood`
+    GET Serializer: :doc:`/serializers/business/storeFood`
+    POST Serializer: :doc:`/serializers/business/shortFood`
 
     :query int id: :doc:`/serializers/global/food` ID
 
@@ -61,7 +52,7 @@ Retrieve
 Retrieve Default
 ================
 
-.. http:get:: /v1/business/food/default/(int:id)
+.. http:get:: /v1/business/food/default/(int:id)/
 
     Retrieve a food by its ID.
 

@@ -3,9 +3,7 @@ Customers
 =========
 
 .. toctree::
-    food
-    order
-    store
-    storeCategory
-    token
-    user
+    :maxdepth: 1
+    :glob:
+
+    *

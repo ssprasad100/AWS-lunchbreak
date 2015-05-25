@@ -2,7 +2,7 @@ Store
 =====
 
 Fields extends :doc:`/serializers/global/shortStore`
-------
+----------------------------------------------------
     - **country** (*String*) - Country
     - **province** (*String*) - Province
     - **city** (*String*) - City

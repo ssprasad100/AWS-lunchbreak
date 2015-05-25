@@ -42,18 +42,12 @@ class HolidayPeriodSerializer(serializers.ModelSerializer):
         fields = ('id', 'description', 'start', 'end', 'closed',)
 
 
-class DefaultIngredientSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = DefaultIngredient
-        fields = ('id', 'name', 'cost', 'icon',)
-
-
-class IngredientSerializer(DefaultIngredientSerializer):
+class NestedIngredientSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Ingredient
-        fields = DefaultIngredientSerializer.Meta.fields + ('store',)
+        fields = ('id', 'name', 'cost', 'icon', 'store',)
+        read_only_fields = ('id',)
 
 
 class ShortDefaultIngredientRelationSerializer(serializers.HyperlinkedModelSerializer):
@@ -65,7 +59,7 @@ class ShortDefaultIngredientRelationSerializer(serializers.HyperlinkedModelSeria
 
 
 class IngredientGroupSerializer(serializers.ModelSerializer):
-    ingredients = IngredientSerializer(many=True)
+    ingredients = NestedIngredientSerializer(many=True)
 
     class Meta:
         model = IngredientGroup
@@ -77,6 +71,7 @@ class DefaultFoodCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = DefaultFoodCategory
         fields = ('id', 'name', 'priority',)
+        read_only_fields = ('id',)
 
 
 class FoodCategorySerializer(DefaultFoodCategorySerializer):
@@ -84,6 +79,7 @@ class FoodCategorySerializer(DefaultFoodCategorySerializer):
     class Meta:
         model = FoodCategory
         fields = DefaultFoodCategorySerializer.Meta.fields + ('store',)
+        read_only_fields = DefaultFoodCategorySerializer.Meta.read_only_fields
 
 
 class FoodTypeSerializer(serializers.ModelSerializer):

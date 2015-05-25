@@ -4,13 +4,14 @@ from business.models import Employee, Staff
 from business.permissions import StoreOwnerPermission
 from business.responses import InvalidEmail
 from business.serializers import (EmployeeSerializer, FoodCategorySerializer,
-                                  OrderSerializer, ShortFoodSerializer,
+                                  IngredientSerializer, OrderSerializer,
+                                  ShortFoodSerializer,
                                   ShortIngredientGroupSerializer,
-                                  ShortOrderSerializer,
-                                  SingleIngredientSerializer, StaffSerializer,
-                                  StoreFoodSerializer, UpdateFoodSerializer)
-from customers.models import (Order, ORDER_STATUS_PLACED, ORDER_STATUS_RECEIVED,
-                              ORDER_STATUS_STARTED, ORDER_STATUS_WAITING)
+                                  ShortOrderSerializer, StaffSerializer,
+                                  StoreFoodSerializer)
+from customers.models import (ORDER_STATUS_PLACED, ORDER_STATUS_RECEIVED,
+                              ORDER_STATUS_STARTED, ORDER_STATUS_WAITING,
+                              Order)
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import validate_email
 from django.utils import timezone
@@ -19,8 +20,8 @@ from lunch.models import (DefaultFood, DefaultIngredient, Food, FoodCategory,
 from lunch.responses import BadRequest, DoesNotExist
 from lunch.serializers import (FoodTypeSerializer, HolidayPeriodSerializer,
                                OpeningHoursSerializer)
-from lunch.views import (getHolidayPeriods, getOpeningAndHoliday,
-                         getOpeningHours, StoreCategoryListViewBase)
+from lunch.views import (StoreCategoryListViewBase, getHolidayPeriods,
+                         getOpeningAndHoliday, getOpeningHours)
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -111,9 +112,9 @@ class DefaultFoodListView(FoodListView):
     queryset = DefaultFood.objects.all()
 
 
-class FoodRetrieveView(generics.RetrieveUpdateDestroyAPIView):
+class FoodSingleView(generics.RetrieveUpdateDestroyAPIView):
     '''
-    Retrieve a (default) food.
+    Retrieve/update a (default) food.
     '''
 
     permission_classes = (StoreOwnerPermission,)
@@ -126,20 +127,20 @@ class FoodRetrieveView(generics.RetrieveUpdateDestroyAPIView):
         if self.request.method == 'GET':
             return StoreFoodSerializer
         else:
-            return UpdateFoodSerializer
+            return ShortFoodSerializer
 
 
-class DefaultFoodRetrieveView(FoodRetrieveView):
+class DefaultFoodSingleView(FoodSingleView):
     queryset = DefaultFood.objects.all()
 
 
-class IngredientView(ListCreateStoreView):
+class IngredientMultiView(ListCreateStoreView):
     '''
     List the food ingredients.
     '''
 
     authentication_classes = (EmployeeAuthentication,)
-    serializer_class = SingleIngredientSerializer
+    serializer_class = IngredientSerializer
     permission_classes = (StoreOwnerPermission,)
 
     def get_queryset(self):
@@ -150,10 +151,10 @@ class IngredientView(ListCreateStoreView):
         return result
 
 
-class SingleIngredientView(generics.RetrieveUpdateDestroyAPIView):
+class IngredientSingleView(generics.RetrieveUpdateDestroyAPIView):
 
     authentication_classes = (EmployeeAuthentication,)
-    serializer_class = SingleIngredientSerializer
+    serializer_class = IngredientSerializer
     permission_classes = (StoreOwnerPermission,)
 
     def get_queryset(self):
@@ -166,7 +167,7 @@ class SingleIngredientView(generics.RetrieveUpdateDestroyAPIView):
 
 class DefaultIngredientListView(generics.ListAPIView):
     authentication_classes = (EmployeeAuthentication,)
-    serializer_class = SingleIngredientSerializer
+    serializer_class = IngredientSerializer
     pagination_class = None
     queryset = DefaultIngredient.objects.all()
 
@@ -187,7 +188,7 @@ class FoodCategoryMultiView(ListCreateStoreView):
 
 class FoodCategorySingleView(generics.RetrieveUpdateDestroyAPIView):
     '''
-    List the food categories.
+    Retrieve/update a food category.
     '''
 
     authentication_classes = (EmployeeAuthentication,)
@@ -209,14 +210,28 @@ class FoodTypeListView(generics.ListAPIView):
     queryset = FoodType.objects.all()
 
 
-class IngredientGroupListView(generics.ListAPIView):
+class IngredientGroupMultiView(ListCreateStoreView):
     '''
-    List the store's ingredient groups.
+    List the store's ingredient groups or create one.
     '''
 
     authentication_classes = (EmployeeAuthentication,)
     serializer_class = ShortIngredientGroupSerializer
+    permission_classes = (StoreOwnerPermission,)
     pagination_class = None
+
+    def get_queryset(self):
+        return IngredientGroup.objects.filter(store=self.request.user.staff.store)
+
+
+class IngredientGroupSingleView(generics.RetrieveUpdateDestroyAPIView):
+    '''
+    Retrieve/update an ingredient group.
+    '''
+
+    authentication_classes = (EmployeeAuthentication,)
+    serializer_class = ShortIngredientGroupSerializer
+    permission_classes = (StoreOwnerPermission,)
 
     def get_queryset(self):
         return IngredientGroup.objects.filter(store=self.request.user.staff.store)
