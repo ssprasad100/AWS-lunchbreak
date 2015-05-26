@@ -24,12 +24,12 @@ class StaffAdmin(admin.ModelAdmin):
 class EmployeeAdmin(admin.ModelAdmin):
     fieldsets = (
         (None, {
-                'fields': ('name', 'password',)
+                'fields': ('name', 'password', 'owner',)
             }),
         (None, {'fields': ('staff',)})
     )
     readonly_fields = ('password',)
-    list_display = ('name', 'staff',)
+    list_display = ('name', 'staff', 'owner',)
     list_filter = ('staff',)
     search_fields = ('name', 'staff',)
     ordering = ('staff', 'name',)

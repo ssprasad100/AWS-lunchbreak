@@ -29,6 +29,9 @@ class Staff(PasswordModel):
     def name(self):
         return self.store.name
 
+    def __unicode__(self):
+        return self.store.name
+
 
 class StaffToken(BaseToken):
     staff = models.ForeignKey(Staff)
@@ -39,6 +42,8 @@ class Employee(PasswordModel):
     staff = models.ForeignKey(Staff)
     owner = models.BooleanField(default=False)
 
+    def __unicode__(self):
+        return self.name
 
 class EmployeeToken(BaseToken):
     employee = models.ForeignKey(Employee)
