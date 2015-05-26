@@ -10,4 +10,3 @@ Fields
     - **inputType** (*int*) - Integer representing how values should be inputted on the app
         + **0** - *Aantal*
         + **1** - *Gewicht*
-    - **required** (*list*) - :doc:`/serializers/global/ingredientGroup` IDs

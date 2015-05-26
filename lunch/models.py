@@ -4,7 +4,7 @@ import requests
 from django.db import models
 from django.utils.functional import cached_property
 from lunch.exceptions import (AddressNotFound, IngredientGroupMaxExceeded,
-                              IngredientGroupsRequiredNotMet,
+                              IngredientGroupsMinimumNotMet,
                               InvalidStoreLinking)
 
 
@@ -195,11 +195,23 @@ class HolidayPeriod(models.Model):
     closed = models.BooleanField(default=True)
 
 
+class FoodType(models.Model):
+    name = models.CharField(max_length=64)
+    icon = models.PositiveIntegerField(choices=ICONS, default=0)
+    quantifier = models.CharField(max_length=64, blank=True, null=True)
+    inputType = models.PositiveIntegerField(choices=INPUT_TYPES, default=0)
+
+    def __unicode__(self):
+        return self.name
+
+
 class BaseIngredientGroup(models.Model):
     name = models.CharField(max_length=256)
     maximum = models.PositiveIntegerField(default=0, verbose_name='Maximum amount')
+    minimum = models.PositiveIntegerField(default=0, verbose_name='Minimum amount')
     priority = models.PositiveIntegerField(default=0)
     cost = models.DecimalField(decimal_places=2, max_digits=5, default=-1)
+    foodType = models.ForeignKey(FoodType)
 
     class Meta:
         abstract = True
@@ -212,25 +224,27 @@ class BaseIngredientGroup(models.Model):
         return self.name
 
     @staticmethod
-    def checkIngredients(ingredients, foodType):
+    def checkIngredients(ingredients, food):
         ingredientGroups = {}
         for ingredient in ingredients:
             group = ingredient.group
-            inGroups = group.id in ingredientGroups
-            amount = 0
-            if group.maximum > 0:
-                if inGroups:
-                    amount = ingredientGroups[group.id]
-                amount += 1
-                if amount > group.maximum:
-                    raise IngredientGroupMaxExceeded()
-            if not inGroups:
-                ingredientGroups[group.id] = amount
+            amount = 1
+            if group.id in ingredientGroups:
+                    amount += ingredientGroups[group.id]
+            if group.maximum > 0 and amount > group.maximum:
+                raise IngredientGroupMaxExceeded()
+            ingredientGroups[group.id] = amount
 
-        ingredientGroups = [key for key, value in ingredientGroups.iteritems()]
-        requiredIds = [i.id for i in foodType.required.all()]
-        if len(requiredIds) > 0 and not set(requiredIds) < set(ingredientGroups):
-            raise IngredientGroupsRequiredNotMet()
+        for ingredient in food.ingredients.all():
+            group = ingredient.group
+            if group.minimum > 0:
+                inGroups = group.id in ingredientGroups
+                if not inGroups:
+                    raise IngredientGroupsMinimumNotMet()
+                amount = ingredientGroups[group.id]
+
+                if amount < group.minimum:
+                    raise IngredientGroupsMinimumNotMet()
 
 
 class DefaultIngredientGroup(BaseIngredientGroup):
@@ -290,17 +304,6 @@ class FoodCategory(BaseFoodCategory):
 
     class Meta:
         verbose_name_plural = 'Food categories'
-
-
-class FoodType(models.Model):
-    name = models.CharField(max_length=64)
-    icon = models.PositiveIntegerField(choices=ICONS, default=0)
-    quantifier = models.CharField(max_length=64, blank=True, null=True)
-    inputType = models.PositiveIntegerField(choices=INPUT_TYPES, default=0)
-    required = models.ManyToManyField(IngredientGroup, blank=True, null=True)
-
-    def __unicode__(self):
-        return self.name
 
 
 class BaseFood(models.Model):

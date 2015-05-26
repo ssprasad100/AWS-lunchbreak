@@ -41,7 +41,7 @@ class FoodCategoryAdmin(DefaultFoodCategoryAdmin):
 @admin.register(FoodType)
 class FoodTypeAdmin(admin.ModelAdmin):
     list_display = ('name', 'icon', 'quantifier', 'inputType',)
-    fields = ('name', 'icon', 'quantifier', 'inputType', 'required',)
+    fields = ('name', 'icon', 'quantifier', 'inputType',)
 
 
 class DefaultIngredientsRelationInline(admin.TabularInline):
@@ -83,7 +83,7 @@ class IngredientAdmin(DefaultIngredientAdmin):
 
 @admin.register(DefaultIngredientGroup)
 class DefaultIngredientGroupAdmin(admin.ModelAdmin):
-    list_display = ('name', 'maximum', 'priority', 'cost',)
+    list_display = ('name', 'maximum', 'minimum', 'priority', 'cost', 'foodType',)
     fields = list_display
 
 
