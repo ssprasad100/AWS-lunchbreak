@@ -22,6 +22,8 @@ urlpatterns = patterns('',
 
     url(r'^ingredientgroup/$', views.IngredientGroupMultiView.as_view()),
     url(r'^ingredientgroup/(?P<pk>\d+)/$', views.IngredientGroupSingleView.as_view()),
+    url(r'^ingredientgroup/default/$', views.DefaultIngredientGroupMultiView.as_view()),
+    url(r'^ingredientgroup/default/(?P<foodType>\d+)/$', views.DefaultIngredientGroupMultiView.as_view()),
 
     url(r'^order/(?P<option>pickupTime|orderedTime)?/?(?P<datetime>[0-3][0-9]-[0-1][0-9]-20[0-9][0-9]-[0-2][0-9]-[0-5][0-9]-[0-5][0-9])?/?$', views.OrderListView.as_view()),
     url(r'^order/(?P<pk>\d+)/$', views.OrderUpdateView.as_view()),

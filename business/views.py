@@ -4,6 +4,7 @@ from business.models import Employee, Staff
 from business.permissions import StoreOwnerPermission
 from business.responses import InvalidEmail
 from business.serializers import (EmployeeSerializer, FoodCategorySerializer,
+                                  IngredientGroupSerializer,
                                   IngredientSerializer, OrderSerializer,
                                   ShortFoodSerializer,
                                   ShortIngredientGroupSerializer,
@@ -15,8 +16,9 @@ from customers.models import (ORDER_STATUS_PLACED, ORDER_STATUS_RECEIVED,
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import validate_email
 from django.utils import timezone
-from lunch.models import (DefaultFood, DefaultIngredient, Food, FoodCategory,
-                          FoodType, Ingredient, IngredientGroup, Store)
+from lunch.models import (DefaultFood, DefaultIngredient,
+                          DefaultIngredientGroup, Food, FoodCategory, FoodType,
+                          Ingredient, IngredientGroup, Store)
 from lunch.responses import BadRequest, DoesNotExist
 from lunch.serializers import (FoodTypeSerializer, HolidayPeriodSerializer,
                                OpeningHoursSerializer)
@@ -230,11 +232,23 @@ class IngredientGroupSingleView(generics.RetrieveUpdateDestroyAPIView):
     '''
 
     authentication_classes = (EmployeeAuthentication,)
-    serializer_class = ShortIngredientGroupSerializer
+    serializer_class = IngredientGroupSerializer
     permission_classes = (StoreOwnerPermission,)
 
     def get_queryset(self):
         return IngredientGroup.objects.filter(store=self.request.user.staff.store)
+
+
+class DefaultIngredientGroupMultiView(generics.ListAPIView):
+    authentication_classes = (EmployeeAuthentication,)
+    serializer_class = IngredientGroupSerializer
+    pagination_class = None
+
+    def get_queryset(self):
+        queryset = DefaultIngredientGroup.objects.all()
+        if 'foodType' in self.kwargs and self.kwargs['foodType'] is not None:
+            return queryset.filter(foodType_id=self.kwargs['foodType'])
+        return queryset
 
 
 class OrderListView(generics.ListAPIView):

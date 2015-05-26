@@ -216,10 +216,6 @@ class BaseIngredientGroup(models.Model):
     class Meta:
         abstract = True
 
-    @cached_property
-    def ingredients(self):
-        return self.ingredient_set.all()
-
     def __unicode__(self):
         return self.name
 
@@ -248,11 +244,18 @@ class BaseIngredientGroup(models.Model):
 
 
 class DefaultIngredientGroup(BaseIngredientGroup):
-    pass
+
+    @cached_property
+    def ingredients(self):
+        return self.defaultingredient_set.all()
 
 
 class IngredientGroup(BaseIngredientGroup):
     store = models.ForeignKey(Store)
+
+    @cached_property
+    def ingredients(self):
+        return self.ingredient_set.all()
 
 
 class BaseIngredient(models.Model):
