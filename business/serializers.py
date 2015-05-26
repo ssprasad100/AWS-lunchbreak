@@ -178,3 +178,11 @@ class IngredientSerializer(serializers.ModelSerializer):
         model = Ingredient
         fields = ('id', 'name', 'cost', 'icon', 'group',)
         read_only_fields = ('id',)
+
+
+class IngredientGroupSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = IngredientGroup
+        fields = ('id', 'name', 'maximum', 'minimum', 'ingredients', 'priority', 'cost', 'foodType',)
+        read_only_fields = ('id', 'ingredients',)

@@ -1,7 +1,7 @@
 from lunch.models import (BaseToken, DefaultFood, DefaultFoodCategory,
-                          DefaultIngredient, DefaultIngredientRelation, Food,
-                          FoodCategory, FoodType, HolidayPeriod, Ingredient,
-                          IngredientGroup, OpeningHours, Store, StoreCategory)
+                          DefaultIngredientRelation, Food, FoodCategory,
+                          FoodType, HolidayPeriod, Ingredient, IngredientGroup,
+                          OpeningHours, Store, StoreCategory)
 from rest_framework import serializers
 
 
@@ -10,6 +10,7 @@ class StoreCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = StoreCategory
         fields = ('id', 'name', 'icon',)
+        read_only_fields = ('id',)
 
 
 class ShortStoreSerializer(serializers.ModelSerializer):
@@ -18,6 +19,7 @@ class ShortStoreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Store
         fields = ('id', 'name', 'latitude', 'longitude', 'categories', 'heartsCount',)
+        read_only_fields = ('id',)
 
 
 class StoreSerializer(ShortStoreSerializer):
@@ -26,6 +28,7 @@ class StoreSerializer(ShortStoreSerializer):
     class Meta:
         model = Store
         fields = ShortStoreSerializer.Meta.fields + ('country', 'province', 'city', 'postcode', 'street', 'number', 'minTime',)
+        read_only_fields = ShortStoreSerializer.Meta.read_only_fields
 
 
 class OpeningHoursSerializer(serializers.ModelSerializer):
@@ -33,6 +36,7 @@ class OpeningHoursSerializer(serializers.ModelSerializer):
     class Meta:
         model = OpeningHours
         fields = ('id', 'day', 'opening', 'closing',)
+        read_only_fields = ('id',)
 
 
 class HolidayPeriodSerializer(serializers.ModelSerializer):
@@ -56,6 +60,7 @@ class ShortDefaultIngredientRelationSerializer(serializers.HyperlinkedModelSeria
     class Meta:
         model = DefaultIngredientRelation
         fields = ('id', 'typical',)
+        read_only_fields = ('id',)
 
 
 class IngredientGroupSerializer(serializers.ModelSerializer):
@@ -64,6 +69,7 @@ class IngredientGroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = IngredientGroup
         fields = ('id', 'name', 'maximum', 'minimum', 'ingredients', 'priority', 'cost', 'foodType',)
+        read_only_fields = ('id',)
 
 
 class DefaultFoodCategorySerializer(serializers.ModelSerializer):
@@ -87,6 +93,7 @@ class FoodTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = FoodType
         fields = ('id', 'name', 'icon', 'quantifier', 'inputType',)
+        read_only_fields = ('id',)
 
 
 class DefaultFoodSerializer(serializers.ModelSerializer):
