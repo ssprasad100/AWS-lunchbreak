@@ -18,12 +18,12 @@ List/Create
     Serializer: :doc:`/serializers/global/defaultFoodCategory`
 
 
-Retrieve/Update
-===============
+Retrieve/Update/Delete
+======================
 
 .. http:get:: /v1/business/foodcategory/(int:id)/
 
-    Retrieve/patch a food category by its ID.
+    Retrieve/update/delete a food category by its ID.
 
     Permissions: :doc:`/permissions/business/storeOwner`
 
