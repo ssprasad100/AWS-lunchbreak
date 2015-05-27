@@ -18,12 +18,12 @@ List/Create
     Serializer: :doc:`/serializers/business/shortIngredientGroup`
 
 
-Retrieve/Update
-===============
+Retrieve/Update/Delete
+======================
 
 .. http:get:: /v1/business/ingredientgroup/(int:id)/
 
-    Retrieve an ingredient group of the store or update one with a PATCH request.
+    Retrieve/update/delete an ingredient group of the store by its ID.
 
     Permissions: :doc:`/permissions/business/storeOwner`
 

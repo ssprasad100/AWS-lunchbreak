@@ -32,12 +32,12 @@ List Default
     Serializer: :doc:`/serializers/business/shortFood`
 
 
-Retrieve/Update
-===============
+Retrieve/Update/Delete
+======================
 
 .. http:get:: /v1/business/food/(int:id)/
 
-    Retrieve/patch a food by its ID.
+    Retrieve/update/delete a food by its ID.
 
     Permissions: :doc:`/permissions/business/storeOwner`
 
