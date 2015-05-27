@@ -32,12 +32,12 @@ List Default
     Serializer: :doc:`/serializers/business/ingredient`
 
 
-Retrieve/update
-===============
+Retrieve/Update/Delete
+======================
 
 .. http:get:: /v1/business/ingredient/(int:id)/
 
-    Retrieve/patch an ingredient by its ID.
+    Retrieve/update/delete an ingredient by its ID.
 
     Permissions: :doc:`/permissions/business/storeOwner`
 

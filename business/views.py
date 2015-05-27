@@ -49,10 +49,6 @@ class ListCreateStoreView(generics.ListCreateAPIView):
 
 
 class EmployeeView(generics.ListAPIView):
-    '''
-    List the employees and login.
-    '''
-
     authentication_classes = (StaffAuthentication,)
     serializer_class = EmployeeSerializer
 
@@ -66,10 +62,6 @@ class EmployeeView(generics.ListAPIView):
 
 
 class EmployeeRequestResetView(APIView):
-    '''
-    Send a password reset mail to an employee.
-    '''
-
     authentication_classes = (StaffAuthentication,)
 
     def get(self, request, employee_id, format=None):
@@ -82,10 +74,6 @@ class EmployeeRequestResetView(APIView):
 
 
 class FoodListView(generics.ListAPIView):
-    '''
-    List the food.
-    '''
-
     authentication_classes = (EmployeeAuthentication,)
     serializer_class = ShortFoodSerializer
 
@@ -98,7 +86,6 @@ class FoodListView(generics.ListAPIView):
 
 
 class FoodView(FoodListView, generics.CreateAPIView):
-
     permission_classes = (StoreOwnerPermission,)
 
     def post(self, request, format=None, datetime=None):
@@ -115,10 +102,6 @@ class DefaultFoodListView(FoodListView):
 
 
 class FoodSingleView(generics.RetrieveUpdateDestroyAPIView):
-    '''
-    Retrieve/update a (default) food.
-    '''
-
     permission_classes = (StoreOwnerPermission,)
     authentication_classes = (EmployeeAuthentication,)
 
@@ -132,15 +115,14 @@ class FoodSingleView(generics.RetrieveUpdateDestroyAPIView):
             return ShortFoodSerializer
 
 
-class DefaultFoodSingleView(FoodSingleView):
+class DefaultFoodSingleView(generics.RetrieveAPIView):
+    authentication_classes = (EmployeeAuthentication,)
+    serializer_class = StoreFoodSerializer
+    permission_classes = (StoreOwnerPermission,)
     queryset = DefaultFood.objects.all()
 
 
 class IngredientMultiView(ListCreateStoreView):
-    '''
-    List the food ingredients.
-    '''
-
     authentication_classes = (EmployeeAuthentication,)
     serializer_class = IngredientSerializer
     permission_classes = (StoreOwnerPermission,)
@@ -154,7 +136,6 @@ class IngredientMultiView(ListCreateStoreView):
 
 
 class IngredientSingleView(generics.RetrieveUpdateDestroyAPIView):
-
     authentication_classes = (EmployeeAuthentication,)
     serializer_class = IngredientSerializer
     permission_classes = (StoreOwnerPermission,)
@@ -175,10 +156,6 @@ class DefaultIngredientListView(generics.ListAPIView):
 
 
 class FoodCategoryMultiView(ListCreateStoreView):
-    '''
-    List the food categories.
-    '''
-
     authentication_classes = (EmployeeAuthentication,)
     serializer_class = FoodCategorySerializer
     permission_classes = (StoreOwnerPermission,)
@@ -189,10 +166,6 @@ class FoodCategoryMultiView(ListCreateStoreView):
 
 
 class FoodCategorySingleView(generics.RetrieveUpdateDestroyAPIView):
-    '''
-    Retrieve/update a food category.
-    '''
-
     authentication_classes = (EmployeeAuthentication,)
     serializer_class = FoodCategorySerializer
     permission_classes = (StoreOwnerPermission,)
@@ -202,10 +175,6 @@ class FoodCategorySingleView(generics.RetrieveUpdateDestroyAPIView):
 
 
 class FoodTypeListView(generics.ListAPIView):
-    '''
-    List the food types.
-    '''
-
     authentication_classes = (EmployeeAuthentication,)
     serializer_class = FoodTypeSerializer
     pagination_class = None
@@ -213,10 +182,6 @@ class FoodTypeListView(generics.ListAPIView):
 
 
 class IngredientGroupMultiView(ListCreateStoreView):
-    '''
-    List the store's ingredient groups or create one.
-    '''
-
     authentication_classes = (EmployeeAuthentication,)
     serializer_class = ShortIngredientGroupSerializer
     permission_classes = (StoreOwnerPermission,)
@@ -227,10 +192,6 @@ class IngredientGroupMultiView(ListCreateStoreView):
 
 
 class IngredientGroupSingleView(generics.RetrieveUpdateDestroyAPIView):
-    '''
-    Retrieve/update an ingredient group.
-    '''
-
     authentication_classes = (EmployeeAuthentication,)
     serializer_class = IngredientGroupSerializer
     permission_classes = (StoreOwnerPermission,)
@@ -252,10 +213,6 @@ class DefaultIngredientGroupMultiView(generics.ListAPIView):
 
 
 class OrderListView(generics.ListAPIView):
-    '''
-    List the store's orders.
-    '''
-
     authentication_classes = (EmployeeAuthentication,)
     serializer_class = ShortOrderSerializer
 
@@ -276,10 +233,6 @@ class OrderListView(generics.ListAPIView):
 
 
 class OrderUpdateView(generics.RetrieveUpdateAPIView):
-    '''
-    Update the status of an order and receive specific information about an order.
-    '''
-
     authentication_classes = (EmployeeAuthentication,)
     serializer_class = OrderSerializer
 
@@ -288,10 +241,6 @@ class OrderUpdateView(generics.RetrieveUpdateAPIView):
 
 
 class StaffView(generics.ListAPIView):
-    '''
-    List the staff and login.
-    '''
-
     serializer_class = StaffSerializer
 
     def get_queryset(self):
@@ -308,19 +257,11 @@ class StaffView(generics.ListAPIView):
 
 
 class StaffRequestResetView(APIView):
-    '''
-    Send password reset mail.
-    '''
-
     def get(self, request, email, format=None):
         return StaffAuthentication.requestPasswordReset(request, email)
 
 
 class StaffResetView(APIView):
-    '''
-    Reset password.
-    '''
-
     def post(self, request, email, passwordReset, format=None):
         try:
             validate_email(email)
@@ -344,10 +285,6 @@ class StaffResetView(APIView):
 
 
 class StoreOpenView(generics.ListAPIView):
-    '''
-    List the opening hours and holiday periods.
-    '''
-
     authentication_classes = (EmployeeAuthentication,)
     serializer_class = OpeningHoursSerializer
     pagination_class = None
@@ -362,10 +299,6 @@ class StoreCategoryListView(StoreCategoryListViewBase):
 
 
 class OpeningHoursListView(generics.ListAPIView):
-    '''
-    List the opening hours.
-    '''
-
     authentication_classes = (EmployeeAuthentication,)
     serializer_class = OpeningHoursSerializer
     pagination_class = None
@@ -375,10 +308,6 @@ class OpeningHoursListView(generics.ListAPIView):
 
 
 class HolidayPeriodListView(generics.ListAPIView):
-    '''
-    List the holiday periods.
-    '''
-
     authentication_classes = (EmployeeAuthentication,)
     serializer_class = HolidayPeriodSerializer
     pagination_class = None
