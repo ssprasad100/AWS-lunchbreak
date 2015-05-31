@@ -25,6 +25,7 @@ from lunch.serializers import (FoodTypeSerializer, HolidayPeriodSerializer,
 from lunch.views import (StoreCategoryListViewBase, getHolidayPeriods,
                          getOpeningAndHoliday, getOpeningHours)
 from rest_framework import generics, status
+from rest_framework.exceptions import MethodNotAllowed
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -51,6 +52,7 @@ class ListCreateStoreView(generics.ListCreateAPIView):
 class EmployeeView(generics.ListAPIView):
     authentication_classes = (StaffAuthentication,)
     serializer_class = EmployeeSerializer
+    pagination_class = None
 
     def get_queryset(self):
         return Employee.objects.filter(staff=self.request.user)
@@ -246,7 +248,9 @@ class StaffView(generics.ListAPIView):
         if 'latitude' in self.kwargs and 'longitude' in self.kwargs:
             stores = Store.objects.nearby(self.kwargs['latitude'], self.kwargs['longitude'], proximity)
             return Staff.objects.filter(store__in=stores)
-        return Staff.objects.all()
+        elif self.request.method != 'GET':
+            return Staff.objects.all()
+        raise MethodNotAllowed(self.request.method)
 
     def post(self, request, format=None):
         return StaffAuthentication.login(request)
