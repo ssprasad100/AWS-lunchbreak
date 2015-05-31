@@ -23,23 +23,7 @@ Login
 
     Authentication: :doc:`/authentication/staff`
 
-    Request serializer: :doc:`/serializers/business/employee`
-
-    Response serializer: :doc:`/serializers/business/employeeToken`
-
-
-Specific
-========
-
-.. http:get:: /v1/business/employee/(int:id)/
-
-    Employees in the authenticated staff.
-
-    Authentication: :doc:`/authentication/staff`
-
-    Serializer: :doc:`/serializers/business/employee`
-
-    :query int id: :doc:`/serializers/business/employee` ID
+    Serializer: :doc:`/serializers/business/employeeToken`
 
 
 Password reset request

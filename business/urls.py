@@ -3,7 +3,6 @@ from business import views
 
 urlpatterns = patterns('',
     url(r'^employee/$', views.EmployeeView.as_view()),
-    url(r'^employee/(?P<id>\d+)/$', views.EmployeeView.as_view()),
     url(r'^employee/reset/request/(?P<employee_id>\d+)/$', views.EmployeeRequestResetView.as_view()),
 
     url(r'^food/(?P<datetime>[0-3][0-9]-[0-1][0-9]-20[0-9][0-9]-[0-2][0-9]-[0-5][0-9]-[0-5][0-9])?/?$', views.FoodView.as_view()),
@@ -29,7 +28,6 @@ urlpatterns = patterns('',
     url(r'^order/(?P<pk>\d+)/$', views.OrderUpdateView.as_view()),
 
     url(r'^staff/$', views.StaffView.as_view()),
-    url(r'^staff/(?P<id>\d+)/$', views.StaffView.as_view()),
     url(r'^staff/nearby/(?P<latitude>-?\d+.?\d*)/(?P<longitude>-?\d+.?\d*)/$', views.StaffView.as_view()),
     url(r'^staff/nearby/(?P<latitude>-?\d+.?\d*)/(?P<longitude>-?\d+.?\d*)/(?P<proximity>\d+.?\d*)/$', views.StaffView.as_view()),
     url(r'^staff/reset/request/(?P<email>.+)/$', views.StaffRequestResetView.as_view()),
