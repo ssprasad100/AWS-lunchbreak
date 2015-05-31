@@ -19,21 +19,7 @@ Login
 
     Log into a :doc:`/serializers/business/staff` and receive a :doc:`/serializers/business/staffToken`
 
-    Request serializer: :doc:`/serializers/business/staff`
-
-    Response serializer: :doc:`/serializers/business/staffToken`
-
-
-Specific
-========
-
-.. http:get:: /v1/business/staff/(int:id)/
-
-    Staff
-
     Serializer: :doc:`/serializers/business/staff`
-
-    :query int id: :doc:`/serializers/business/staff` ID
 
 
 Nearby

@@ -53,8 +53,6 @@ class EmployeeView(generics.ListAPIView):
     serializer_class = EmployeeSerializer
 
     def get_queryset(self):
-        if 'id' in self.kwargs:
-            return Employee.objects.filter(id=self.kwargs['id'], staff=self.request.user)
         return Employee.objects.filter(staff=self.request.user)
 
     def post(self, request, format=None):
@@ -248,8 +246,6 @@ class StaffView(generics.ListAPIView):
         if 'latitude' in self.kwargs and 'longitude' in self.kwargs:
             stores = Store.objects.nearby(self.kwargs['latitude'], self.kwargs['longitude'], proximity)
             return Staff.objects.filter(store__in=stores)
-        if 'id' in self.kwargs:
-            return Staff.objects.filter(id=self.kwargs['id'])
         return Staff.objects.all()
 
     def post(self, request, format=None):
