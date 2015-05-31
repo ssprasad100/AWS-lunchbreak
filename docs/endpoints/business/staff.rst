@@ -33,6 +33,8 @@ Retrieve
 
     Retrieve a staff by its ID.
 
+    Authentication: :doc:`/authentication/staff`
+
     Serializer: :doc:`/serializers/business/staff`
 
     :query int id: :doc:`/serializers/business/staff` ID
