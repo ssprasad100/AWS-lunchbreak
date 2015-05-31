@@ -2,16 +2,6 @@
 Staff
 =====
 
-List
-====
-
-.. http:get:: /v1/business/staff/
-
-    List the staff.
-
-    Serializer: :doc:`/serializers/business/staff`
-
-
 Login
 =====
 

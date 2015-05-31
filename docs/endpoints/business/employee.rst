@@ -7,6 +7,8 @@ List
 
 .. http:get:: /v1/business/employee/
 
+    **Pagination disabled.**
+
     Employees in the authenticated staff.
 
     Authentication: :doc:`/authentication/staff`
