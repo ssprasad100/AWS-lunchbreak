@@ -240,7 +240,7 @@ class OrderUpdateView(generics.RetrieveUpdateAPIView):
         return Order.objects.filter(store=self.request.user.staff.store, status__in=AVAILABLE_STATUSES)
 
 
-class StaffView(generics.ListAPIView):
+class StaffView(generics.ListAPIView, generics.RetrieveAPIView):
     serializer_class = StaffSerializer
 
     def get_queryset(self):
@@ -248,7 +248,7 @@ class StaffView(generics.ListAPIView):
         if 'latitude' in self.kwargs and 'longitude' in self.kwargs:
             stores = Store.objects.nearby(self.kwargs['latitude'], self.kwargs['longitude'], proximity)
             return Staff.objects.filter(store__in=stores)
-        elif self.request.method != 'GET':
+        elif 'pk' in self.kwargs or self.request.method != 'GET':
             return Staff.objects.all()
         raise MethodNotAllowed(self.request.method)
 

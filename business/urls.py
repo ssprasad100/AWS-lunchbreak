@@ -28,6 +28,7 @@ urlpatterns = patterns('',
     url(r'^order/(?P<pk>\d+)/$', views.OrderUpdateView.as_view()),
 
     url(r'^staff/$', views.StaffView.as_view()),
+    url(r'^staff/(?P<pk>\d+)/$', views.StaffView.as_view()),
     url(r'^staff/nearby/(?P<latitude>-?\d+.?\d*)/(?P<longitude>-?\d+.?\d*)/$', views.StaffView.as_view()),
     url(r'^staff/nearby/(?P<latitude>-?\d+.?\d*)/(?P<longitude>-?\d+.?\d*)/(?P<proximity>\d+.?\d*)/$', views.StaffView.as_view()),
     url(r'^staff/reset/request/(?P<email>.+)/$', views.StaffRequestResetView.as_view()),
