@@ -45,5 +45,6 @@ class Employee(PasswordModel):
     def __unicode__(self):
         return self.name
 
+
 class EmployeeToken(BaseToken):
     employee = models.ForeignKey(Employee)
