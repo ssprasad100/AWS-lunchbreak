@@ -255,6 +255,7 @@ class StaffMultiView(generics.ListAPIView):
     def post(self, request, format=None):
         return StaffAuthentication.login(request)
 
+
 class StaffSingleView(generics.RetrieveAPIView):
     authentication_classes = (StaffAuthentication,)
     serializer_class = StaffSerializer

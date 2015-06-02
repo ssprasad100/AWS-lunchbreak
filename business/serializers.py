@@ -153,8 +153,7 @@ class ShortFoodSerializer(serializers.ModelSerializer):
             if update:
                 IngredientRelation.objects.filter(food=food).delete()
             for relation in relations:
-                rel = IngredientRelation(food=food, **relation)
-                rel.save()
+                IngredientRelation.objects.update_or_create(food=food, **relation)
 
         return food
 
