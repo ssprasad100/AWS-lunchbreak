@@ -11,4 +11,3 @@ Lunchbreak |release| documentation
     Endpoints <endpoints/index>
     Permissions <permissions/index>
     Serializers <serializers/index>
-    other

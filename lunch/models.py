@@ -99,13 +99,13 @@ ICONS = (
 
 
 DAYS = (
-    (0, 'Maandag'),
-    (1, 'Dinsdag'),
-    (2, 'Woensdag'),
-    (3, 'Donderdag'),
-    (4, 'Vrijdag'),
-    (5, 'Zaterdag'),
-    (6, 'Zondag')
+    (0, 'Zondag'),
+    (1, 'Maandag'),
+    (2, 'Dinsdag'),
+    (3, 'Woensdag'),
+    (4, 'Donderdag'),
+    (5, 'Vrijdag'),
+    (6, 'Zaterdag')
 )
 
 INPUT_AMOUNT = 0
