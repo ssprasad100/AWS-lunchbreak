@@ -106,7 +106,7 @@ class Base:
         ),
         'DEFAULT_AUTHENTICATION_CLASSES': [],
 
-        'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+        'DEFAULT_PAGINATION_CLASS': 'lunch.pagination.SimplePagination',
         'PAGE_SIZE': 25,
         'MAX_PAGINATE_BY': 25,
 
