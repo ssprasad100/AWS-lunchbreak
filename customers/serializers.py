@@ -67,7 +67,9 @@ class ShortOrderSerializer(serializers.ModelSerializer):
         if pickupTime - timezone.now() < timedelta(minutes=store.minTime):
             raise MinTimeExceeded()
 
-        pickupDay = pickupTime.weekday()
+        # datetime.weekday(): return monday 0 - sunday 6
+        # atetime.strftime('%w'): return sunday 0 - monday 6
+        pickupDay = pickupTime.strftime('%w')
         openingHours = OpeningHours.objects.filter(store=store, day=pickupDay)
         pTime = pickupTime.time()
 
