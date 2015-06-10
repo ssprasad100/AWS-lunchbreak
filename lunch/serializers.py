@@ -18,7 +18,7 @@ class ShortStoreSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Store
-        fields = ('id', 'name', 'latitude', 'longitude', 'categories', 'heartsCount',)
+        fields = ('id', 'name', 'city', 'street', 'latitude', 'longitude', 'categories', 'heartsCount',)
         read_only_fields = ('id',)
 
 
