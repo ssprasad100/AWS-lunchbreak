@@ -322,11 +322,7 @@ class BaseFood(models.Model):
 
     @cached_property
     def ingredientGroups(self):
-        result = []
-        for ingredient in self.ingredients.all():
-            if ingredient.group not in result:
-                result.append(ingredient.group)
-        return result
+        return self.foodType.ingredientgroup_set.all()
 
     @cached_property
     def hasIngredients(self):

@@ -69,13 +69,7 @@ class OrderedFood(models.Model):
 
     @cached_property
     def ingredientGroups(self):
-        result = []
-        if self.ingredients is not None:
-            for ingredient in self.ingredients.all():
-                if ingredient.group not in result:
-                    result.append(ingredient.group)
-            result = self.original.ingredientGroups
-        return result
+        return self.original.ingredientGroups
 
     @staticmethod
     def calculateCost(orderedIngredients, food):
