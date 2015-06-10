@@ -1,12 +1,7 @@
-from datetime import timedelta
-
-from customers.exceptions import (AmountInvalid, CostCheckFailed,
-                                  MinTimeExceeded, PastOrderDenied, StoreClosed)
+from customers.exceptions import AmountInvalid, CostCheckFailed
 from customers.models import Order, OrderedFood, User, UserToken
-from django.utils import timezone
 from lunch.exceptions import BadRequest
-from lunch.models import (Food, IngredientGroup, INPUT_AMOUNT, OpeningHours,
-                          Store)
+from lunch.models import INPUT_AMOUNT, Food, IngredientGroup, Store
 from lunch.serializers import (IngredientGroupSerializer, StoreSerializer,
                                TokenSerializer)
 from rest_framework import serializers
@@ -61,24 +56,7 @@ class ShortOrderSerializer(serializers.ModelSerializer):
         if len(orderedFood) == 0:
             raise BadRequest()
 
-        if pickupTime < timezone.now():
-            raise PastOrderDenied()
-
-        if pickupTime - timezone.now() < timedelta(minutes=store.minTime):
-            raise MinTimeExceeded()
-
-        # datetime.weekday(): return monday 0 - sunday 6
-        # atetime.strftime('%w'): return sunday 0 - monday 6
-        pickupDay = pickupTime.strftime('%w')
-        openingHours = OpeningHours.objects.filter(store=store, day=pickupDay)
-        pTime = pickupTime.time()
-
-        for o in openingHours:
-            if o.opening <= pTime <= o.closing:
-                break
-        else:
-            # If the for loop is not stopped by the break, it means that the time of pickup is never when the store is open.
-            raise StoreClosed()
+        Store.checkOpen(store, pickupTime)
 
         user = self.context['user']
 

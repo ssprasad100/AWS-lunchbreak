@@ -1,7 +1,10 @@
 import random
+from datetime import timedelta
 
 import requests
+from customers.exceptions import MinTimeExceeded, PastOrderDenied, StoreClosed
 from django.db import models
+from django.utils import timezone
 from django.utils.functional import cached_property
 from lunch.exceptions import (AddressNotFound, IngredientGroupMaxExceeded,
                               IngredientGroupsMinimumNotMet,
@@ -169,6 +172,36 @@ class Store(models.Model):
     @cached_property
     def heartsCount(self):
         return self.hearts.count()
+
+    @staticmethod
+    def checkOpen(store, pickupTime):
+        if pickupTime < timezone.now():
+            raise PastOrderDenied()
+
+        if pickupTime - timezone.now() < timedelta(minutes=store.minTime):
+            raise MinTimeExceeded()
+
+        holidayPeriods = HolidayPeriod.objects.filter(store=store, start__lte=pickupTime, end__gte=pickupTime)
+
+        openHoliday = False
+        for holidayPeriod in holidayPeriods:
+            if not holidayPeriod.closed:
+                openHoliday = True
+                break
+
+        if not openHoliday:
+            # datetime.weekday(): return monday 0 - sunday 6
+            # atetime.strftime('%w'): return sunday 0 - monday 6
+            pickupDay = pickupTime.strftime('%w')
+            openingHours = OpeningHours.objects.filter(store=store, day=pickupDay)
+            pTime = pickupTime.time()
+
+            for o in openingHours:
+                if o.opening <= pTime <= o.closing:
+                    break
+            else:
+                # If the for loop is not stopped by the break, it means that the time of pickup is never when the store is open.
+                raise StoreClosed()
 
 
 class OpeningHours(models.Model):
