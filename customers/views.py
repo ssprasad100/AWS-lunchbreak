@@ -116,7 +116,7 @@ class FoodListView(generics.ListAPIView):
 
     def get_queryset(self):
         if 'store_id' in self.kwargs:
-            return Food.objects.filter(store_id=self.kwargs['store_id'])
+            return Food.objects.filter(store_id=self.kwargs['store_id']).order_by('-category__priority', 'category__name', 'name')
 
 
 class FoodRetrieveView(generics.RetrieveAPIView):
