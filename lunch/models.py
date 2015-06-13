@@ -8,7 +8,7 @@ from django.utils import timezone
 from django.utils.functional import cached_property
 from lunch.exceptions import (AddressNotFound, IngredientGroupMaxExceeded,
                               IngredientGroupsMinimumNotMet,
-                              InvalidStoreLinking)
+                              InvalidIngredientLinking, InvalidStoreLinking)
 
 
 class LunchbreakManager(models.Manager):
@@ -254,17 +254,32 @@ class BaseIngredientGroup(models.Model):
 
     @staticmethod
     def checkIngredients(ingredients, food):
+        '''
+        Check whether the given ingredients can be made into an OrderedFood based on the closest food.
+        '''
+
         ingredientGroups = {}
         for ingredient in ingredients:
             group = ingredient.group
             amount = 1
             if group.id in ingredientGroups:
-                    amount += ingredientGroups[group.id]
+                amount += ingredientGroups[group.id]
             if group.maximum > 0 and amount > group.maximum:
                 raise IngredientGroupMaxExceeded()
             ingredientGroups[group.id] = amount
 
-        for ingredient in food.ingredients.all():
+        foodTypeGroups = food.foodType.ingredientgroup_set.all()
+
+        for ingredientGroup in ingredientGroups:
+            for foodTypeGroup in foodTypeGroups:
+                if foodTypeGroup.id == ingredientGroup:
+                    break
+            else:
+                raise InvalidIngredientLinking()
+
+        originalIngredients = food.ingredients.all()
+
+        for ingredient in originalIngredients:
             group = ingredient.group
             if group.minimum > 0:
                 inGroups = group.id in ingredientGroups

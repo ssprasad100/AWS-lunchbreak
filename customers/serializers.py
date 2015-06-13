@@ -54,7 +54,7 @@ class ShortOrderSerializer(serializers.ModelSerializer):
         store = validated_data['store']
 
         if len(orderedFood) == 0:
-            raise BadRequest()
+            raise BadRequest('orderedFood empty.')
 
         Store.checkOpen(store, pickupTime)
 
