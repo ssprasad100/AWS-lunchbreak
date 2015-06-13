@@ -10,8 +10,8 @@ admin.site.register(StoreCategory)
 
 @admin.register(Store)
 class StoreAdmin(admin.ModelAdmin):
-    list_display = ('name', 'city', 'country', 'minTime')
-    readonly_fields = ('latitude', 'longitude',)
+    list_display = ('name', 'city', 'country', 'minTime',)
+    readonly_fields = ('latitude', 'longitude', 'hearts',)
 
 
 @admin.register(OpeningHours)
