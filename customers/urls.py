@@ -16,6 +16,7 @@ urlpatterns = patterns('',
     url(r'^store/nearby/(?P<latitude>-?\d+.?\d*)/(?P<longitude>-?\d+.?\d*)/$', views.StoreMultiView.as_view()),
     url(r'^store/nearby/(?P<latitude>-?\d+.?\d*)/(?P<longitude>-?\d+.?\d*)/(?P<proximity>\d+.?\d*)/$', views.StoreMultiView.as_view()),
     url(r'^store/open/(?P<store_id>\d+)/$', views.StoreOpenView.as_view()),
+    url(r'^store/recent/$', views.StoreMultiView.as_view()),
     url(r'^storecategory/$', views.StoreCategoryListView.as_view()),
 
     url(r'^token/$', views.UserTokenView.as_view()),

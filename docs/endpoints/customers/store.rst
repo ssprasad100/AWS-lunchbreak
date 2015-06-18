@@ -18,6 +18,18 @@ Nearby stores
     :query number proximity: proximity, default is 5 km
 
 
+Recent stores
+=============
+
+.. http:get:: /v1/customers/store/recent/
+
+    Recent stores where the user ordered.
+
+    Authentication: :doc:`/authentication/user`
+
+    Serializer: :doc:`/serializers/global/shortStore`
+
+
 Specific store
 ==============
 
