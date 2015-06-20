@@ -13,6 +13,7 @@ AMOUNT_INVALID = 705
 DIGITS_LEGACY_ERROR = 0
 DIGITS_INVALID_PHONE = 32
 DIGITS_APP_AUTH_ERROR = 89
+DIGITS_EXPIRED = 235
 DIGITS_PIN_INCORRECT = 236
 DIGITS_GUEST_AUTH_ERROR = 239
 DIGITS_ALREADY_REGISTERED_ERROR = 285
@@ -21,8 +22,9 @@ DIGITS_EXCEPTIONS = {
     DIGITS_LEGACY_ERROR: 'Digits legacy error.',
     DIGITS_INVALID_PHONE: ['Digits invalid phone number.', status.HTTP_400_BAD_REQUEST],
     DIGITS_APP_AUTH_ERROR: 'Digits app authorization failed.',
-    DIGITS_GUEST_AUTH_ERROR: 'Digits guest authorization failed.',
+    DIGITS_EXPIRED: 'Pin expired.',
     DIGITS_PIN_INCORRECT: ['Incorrect pin.', status.HTTP_400_BAD_REQUEST],
+    DIGITS_GUEST_AUTH_ERROR: 'Digits guest authorization failed.',
     DIGITS_ALREADY_REGISTERED_ERROR: 'User already in the Digits database.'
 }
 
