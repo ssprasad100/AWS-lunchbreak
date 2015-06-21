@@ -180,6 +180,7 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 
 class IngredientGroupSerializer(serializers.ModelSerializer):
+    ingredients = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
     class Meta:
         model = IngredientGroup
