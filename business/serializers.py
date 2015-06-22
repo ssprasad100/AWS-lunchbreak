@@ -11,8 +11,8 @@ from rest_framework import serializers
 
 
 class BusinessTokenSerializer(TokenSerializer):
-    password = serializers.CharField(max_length=128, write_only=True)
-    device = serializers.CharField(max_length=128, write_only=True)
+    password = serializers.CharField(max_length=255, write_only=True)
+    device = serializers.CharField(max_length=255, write_only=True)
 
     class Meta:
         fields = TokenSerializer.Meta.fields + ('password', 'device',)
@@ -63,11 +63,11 @@ class PrivateUserSerializer(serializers.ModelSerializer):
 
 
 class OrderedFoodSerializer(serializers.ModelSerializer):
-    cost = serializers.DecimalField(decimal_places=2, max_digits=5)
+    cost = serializers.DecimalField(decimal_places=2, max_digits=7)
 
     class Meta:
         model = OrderedFood
-        fields = ('id', 'ingredients', 'amount', 'original', 'cost', 'useOriginal',)
+        fields = ('id', 'ingredients', 'amount', 'unitAmount', 'original', 'cost', 'useOriginal',)
         read_only_fields = fields
 
 

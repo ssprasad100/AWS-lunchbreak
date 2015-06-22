@@ -77,4 +77,4 @@ class StoreClosed(LunchbreakException):
 class AmountInvalid(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
     code = AMOUNT_INVALID
-    information = 'The amount is invalid.'
+    information = 'The amount and or unitAmount are invalid.'

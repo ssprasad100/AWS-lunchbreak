@@ -5,7 +5,7 @@ from lunch.models import BaseToken, IDENTIFIER_LENGTH, Store
 
 
 class PasswordModel(models.Model):
-    password = models.CharField(max_length=128)
+    password = models.CharField(max_length=255)
     passwordReset = models.CharField(max_length=IDENTIFIER_LENGTH, null=True, default=None)
 
     class Meta:
@@ -20,7 +20,7 @@ class PasswordModel(models.Model):
 
 class Staff(PasswordModel):
     store = models.ForeignKey(Store)
-    email = models.EmailField(max_length=254)
+    email = models.EmailField(max_length=255)
 
     class Meta:
         verbose_name_plural = 'Staff'
@@ -38,7 +38,7 @@ class StaffToken(BaseToken):
 
 
 class Employee(PasswordModel):
-    name = models.CharField(max_length=128)
+    name = models.CharField(max_length=255)
     staff = models.ForeignKey(Staff)
     owner = models.BooleanField(default=False)
 

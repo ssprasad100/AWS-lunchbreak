@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.functional import cached_property
-from lunch.models import BaseToken, Food, Ingredient, Store
+from lunch.models import (INPUT_AMOUNT, INPUT_MIX, INPUT_WEIGHT, BaseToken,
+                          Food, Ingredient, Store)
 from phonenumber_field.modelfields import PhoneNumberField
 
 ORDER_STATUS_PLACED = 0
@@ -24,7 +25,7 @@ ORDER_STATUS = (
 
 class User(models.Model):
     phone = PhoneNumberField()
-    name = models.CharField(max_length=128, blank=True)
+    name = models.CharField(max_length=255, blank=True)
     digitsId = models.CharField(unique=True, max_length=10, blank=True, null=True, verbose_name='Digits ID')
     requestId = models.CharField(max_length=32, blank=True, null=True, verbose_name='Digits Request ID')
 
@@ -50,19 +51,20 @@ class Order(models.Model):
     pickupTime = models.DateTimeField(verbose_name='Time of pickup')
     status = models.PositiveIntegerField(choices=ORDER_STATUS, default=0)
     paid = models.BooleanField(default=False)
-    total = models.DecimalField(decimal_places=2, max_digits=5, default=0)
+    total = models.DecimalField(decimal_places=2, max_digits=7, default=0)
 
     def save(self, *args, **kwargs):
         self.total = 0
         for f in self.orderedfood_set.all():
-            self.total += f.cost * f.amount
+            self.total += f.cost * f.amount * (1 if f.unitAmount is None else f.unitAmount)
         super(Order, self).save(*args, **kwargs)
 
 
 class OrderedFood(models.Model):
     ingredients = models.ManyToManyField(Ingredient, null=True, blank=True)
-    amount = models.DecimalField(decimal_places=3, max_digits=13, default=1)
-    cost = models.DecimalField(decimal_places=2, max_digits=5)
+    amount = models.PositiveIntegerField(default=1)
+    unitAmount = models.DecimalField(decimal_places=3, max_digits=7, null=True)
+    cost = models.DecimalField(decimal_places=2, max_digits=7)
     order = models.ForeignKey(Order)
     original = models.ForeignKey(Food)
     useOriginal = models.BooleanField(default=False)

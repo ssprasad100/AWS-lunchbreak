@@ -113,15 +113,17 @@ DAYS = (
 
 INPUT_AMOUNT = 0
 INPUT_WEIGHT = 1
+INPUT_MIX = 2
 
 INPUT_TYPES = (
     (INPUT_AMOUNT, 'Aantal'),
-    (INPUT_WEIGHT, 'Gewicht')
+    (INPUT_WEIGHT, 'Gewicht'),
+    (INPUT_MIX, 'Aantal en gewicht'),
 )
 
 
 class StoreCategory(models.Model):
-    name = models.CharField(max_length=64)
+    name = models.CharField(max_length=255)
     icon = models.PositiveIntegerField(choices=ICONS, default=0)
 
     class Meta:
@@ -132,15 +134,15 @@ class StoreCategory(models.Model):
 
 
 class Store(models.Model):
-    name = models.CharField(max_length=256)
+    name = models.CharField(max_length=255)
 
     objects = LunchbreakManager()
 
-    country = models.CharField(max_length=256)
-    province = models.CharField(max_length=256)
-    city = models.CharField(max_length=256)
+    country = models.CharField(max_length=255)
+    province = models.CharField(max_length=255)
+    city = models.CharField(max_length=255)
     postcode = models.CharField(max_length=20, verbose_name='Postal code')
-    street = models.CharField(max_length=256)
+    street = models.CharField(max_length=255)
     number = models.PositiveIntegerField()
     latitude = models.DecimalField(blank=True, decimal_places=7, max_digits=10)
     longitude = models.DecimalField(blank=True, decimal_places=7, max_digits=10)
@@ -220,7 +222,7 @@ class OpeningHours(models.Model):
 
 class HolidayPeriod(models.Model):
     store = models.ForeignKey(Store)
-    description = models.CharField(max_length=128)
+    description = models.CharField(max_length=255)
 
     start = models.DateTimeField()
     end = models.DateTimeField()
@@ -229,9 +231,9 @@ class HolidayPeriod(models.Model):
 
 
 class FoodType(models.Model):
-    name = models.CharField(max_length=64)
+    name = models.CharField(max_length=255)
     icon = models.PositiveIntegerField(choices=ICONS, default=0)
-    quantifier = models.CharField(max_length=64, blank=True, null=True)
+    quantifier = models.CharField(max_length=255, blank=True, null=True)
     inputType = models.PositiveIntegerField(choices=INPUT_TYPES, default=0)
 
     def __unicode__(self):
@@ -239,11 +241,11 @@ class FoodType(models.Model):
 
 
 class BaseIngredientGroup(models.Model):
-    name = models.CharField(max_length=256)
+    name = models.CharField(max_length=255)
     maximum = models.PositiveIntegerField(default=0, verbose_name='Maximum amount')
     minimum = models.PositiveIntegerField(default=0, verbose_name='Minimum amount')
     priority = models.PositiveIntegerField(default=0)
-    cost = models.DecimalField(decimal_places=2, max_digits=5, default=-1)
+    cost = models.DecimalField(default=-1, max_digits=7, decimal_places=2)
     foodType = models.ForeignKey(FoodType)
 
     class Meta:
@@ -307,8 +309,8 @@ class IngredientGroup(BaseIngredientGroup):
 
 
 class BaseIngredient(models.Model):
-    name = models.CharField(max_length=256)
-    cost = models.DecimalField(decimal_places=2, max_digits=5, default=0)
+    name = models.CharField(max_length=255)
+    cost = models.DecimalField(default=0, max_digits=7, decimal_places=2)
     icon = models.PositiveIntegerField(choices=ICONS, default=0)
     lastModified = models.DateTimeField(auto_now=True)
 
@@ -334,7 +336,7 @@ class Ingredient(BaseIngredient):
 
 
 class BaseFoodCategory(models.Model):
-    name = models.CharField(max_length=128)
+    name = models.CharField(max_length=255)
     priority = models.PositiveIntegerField(default=0)
 
     class Meta:
@@ -358,8 +360,8 @@ class FoodCategory(BaseFoodCategory):
 
 
 class BaseFood(models.Model):
-    name = models.CharField(max_length=256)
-    cost = models.DecimalField(decimal_places=2, max_digits=5)
+    name = models.CharField(max_length=255)
+    cost = models.DecimalField(decimal_places=2, max_digits=7)
     foodType = models.ForeignKey(FoodType)
     lastModified = models.DateTimeField(auto_now=True)
 
@@ -429,7 +431,7 @@ def tokenGenerator():
 
 class BaseToken(models.Model):
     identifier = models.CharField(max_length=IDENTIFIER_LENGTH, default=tokenGenerator)
-    device = models.CharField(max_length=128)
+    device = models.CharField(max_length=255)
 
     class Meta:
         abstract = True
