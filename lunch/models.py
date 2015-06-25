@@ -87,6 +87,14 @@ class LunchbreakManager(models.Manager):
                 (lunch_food.id = %d) DESC,
                 lunch_food.cost ASC;''') % (original.foodType.id, original.store.id, ingredientsIn, original.id,))[0]
 
+COST_GROUP_ALWAYS = 0
+COST_GROUP_ADDITIONS = 1
+
+COST_GROUP_CALCULATIONS = (
+    (0, 'Altijd de groepsprijs'),
+    (1, 'Duurder bij toevoegen, zelfde bij aftrekken')
+)
+
 
 ICONS = (
     (0, 'Onbekend'),
@@ -150,6 +158,7 @@ class Store(models.Model):
     categories = models.ManyToManyField(StoreCategory)
     minTime = models.PositiveIntegerField(default=0)
     hearts = models.ManyToManyField('customers.User', through='customers.Heart', blank=True)
+    costCalculation = models.PositiveIntegerField(choices=COST_GROUP_CALCULATIONS, default=COST_GROUP_ALWAYS)
 
     GEOCODING_URL = 'https://maps.googleapis.com/maps/api/geocode/json'
     GEOCODING_KEY = 'AIzaSyCHgip4CE_6DMxP506uDRIQy_nQisuHAQI'
@@ -318,7 +327,7 @@ class BaseIngredient(models.Model):
         abstract = True
 
     def __unicode__(self):
-        return self.name + ' (' + unicode(self.group) + ')'
+        return unicode(self.id) + '. ' + self.name + ' (' + unicode(self.group) + ')'
 
 
 class DefaultIngredient(BaseIngredient):

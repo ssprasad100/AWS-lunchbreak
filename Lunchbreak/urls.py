@@ -3,7 +3,7 @@ from django.contrib import admin
 from lunch import views
 
 urlpatterns = patterns('',
-    url(r'^admin/', include(admin.site.urls)),
+    url(r'^aardappel/', include(admin.site.urls)),
     url(r'^v1/', include('lunch.urls')),
     url(r'^v0/', views.WrongAPIVersionView.as_view())
 )

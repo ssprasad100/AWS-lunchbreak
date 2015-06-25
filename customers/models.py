@@ -1,7 +1,6 @@
 from django.db import models
 from django.utils.functional import cached_property
-from lunch.models import (INPUT_AMOUNT, INPUT_MIX, INPUT_WEIGHT, BaseToken,
-                          Food, Ingredient, Store)
+from lunch.models import COST_GROUP_ADDITIONS, BaseToken, Food, Ingredient, Store
 from phonenumber_field.modelfields import PhoneNumberField
 
 ORDER_STATUS_PLACED = 0
@@ -77,14 +76,19 @@ class OrderedFood(models.Model):
     def calculateCost(orderedIngredients, food):
         foodIngredients = food.ingredients.all()
         foodGroups = food.ingredientGroups
+        add = food.store.costCalculation == COST_GROUP_ADDITIONS if isinstance(food, Food) else False
+
         orderedGroups = []
         cost = food.cost
         for ingredient in orderedIngredients:
             if ingredient not in foodIngredients:
                 if ingredient.group.cost < 0:
                     cost += ingredient.cost
-                elif ingredient.group not in foodGroups:
-                    cost += ingredient.group.cost
+                else:
+                    if add:
+                        cost += ingredient.cost
+                    elif ingredient.group not in foodGroups:
+                        cost += ingredient.group.cost
             if ingredient.group not in orderedGroups:
                 orderedGroups.append(ingredient.group)
 
