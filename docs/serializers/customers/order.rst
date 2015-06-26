@@ -11,6 +11,7 @@ Fields
     - **paid** (*boolean*) - Already paid or not
     - **total** (*decimal*) - Total cost
     - **orderedFood** (:doc:`/serializers/customers/orderedFood` list) - Ordered food
+    - **description** (*string*) - Description
 
 Read only
 ^^^^^^^^^
@@ -22,3 +23,4 @@ Read only
     - paid
     - total
     - food
+    - description

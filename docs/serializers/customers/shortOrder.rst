@@ -10,6 +10,7 @@ Fields
     - **total** (*decimal*) - Total cost
     - **orderedFood** (:doc:`/serializers/customers/orderedFood` list) - Ordered food, cannot be empty
     - **status** (*int*) - :ref:`orderStatusses`.
+    - **description** (*string*) - Description
 
 Read only
 ^^^^^^^^^
@@ -17,3 +18,7 @@ Read only
     - paid
     - total
     - status
+
+Write only
+^^^^^^^^^^
+    - description

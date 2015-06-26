@@ -61,6 +61,7 @@ class ShortOrderSerializer(serializers.ModelSerializer):
         pickupTime = validated_data['pickupTime']
         orderedFood = validated_data['orderedFood']
         store = validated_data['store']
+        description = validated_data.get('description', None)
 
         if len(orderedFood) == 0:
             raise BadRequest('orderedFood empty.')
@@ -69,7 +70,7 @@ class ShortOrderSerializer(serializers.ModelSerializer):
 
         user = self.context['user']
 
-        order = Order(user=user, store=store, pickupTime=pickupTime)
+        order = Order(user=user, store=store, pickupTime=pickupTime, description=description)
         order.save()
 
         try:
@@ -107,8 +108,9 @@ class ShortOrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ('id', 'store', 'pickupTime', 'paid', 'total', 'orderedFood', 'status',)
+        fields = ('id', 'store', 'pickupTime', 'paid', 'total', 'orderedFood', 'status', 'description',)
         read_only_fields = ('id', 'paid', 'total', 'status',)
+        write_only_fields = ('description',)
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -121,8 +123,8 @@ class OrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ('id', 'store', 'orderedTime', 'pickupTime', 'status', 'paid', 'total', 'orderedfood',)
-        read_only_fields = ('id', 'store', 'orderedTime', 'pickupTime', 'status', 'paid', 'total', 'orderedfood',)
+        fields = ('id', 'store', 'orderedTime', 'pickupTime', 'status', 'paid', 'total', 'orderedfood', 'description',)
+        read_only_fields = ('id', 'store', 'orderedTime', 'pickupTime', 'status', 'paid', 'total', 'orderedfood', 'description',)
 
 
 class UserSerializer(serializers.ModelSerializer):

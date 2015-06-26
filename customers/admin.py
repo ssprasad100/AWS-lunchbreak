@@ -19,7 +19,7 @@ class UserAdmin(admin.ModelAdmin):
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     list_display = ('user', 'store', 'orderedTime', 'pickupTime', 'status', 'paid',)
-    fields = ('user', 'store', 'pickupTime', 'status', 'paid', 'orderedTime',)
+    fields = ('user', 'store', 'pickupTime', 'status', 'paid', 'orderedTime', 'description',)
     readonly_fields = ('orderedTime',)
 
 
