@@ -2,12 +2,21 @@ from business.models import Employee, EmployeeToken, Staff, StaffToken
 from customers.models import Order, OrderedFood, User
 from lunch.exceptions import InvalidStoreLinking
 from lunch.models import (Food, FoodCategory, Ingredient, IngredientGroup,
-                          IngredientRelation)
-from lunch.serializers import (DefaultFoodSerializer,
-                               FoodSerializer,
+                          IngredientRelation, Store)
+from lunch.serializers import (DefaultFoodCategorySerializer,
+                               DefaultFoodSerializer, FoodSerializer,
                                ShortDefaultIngredientRelationSerializer,
-                               StoreSerializer, TokenSerializer, DefaultFoodCategorySerializer)
+                               StoreCategorySerializer, TokenSerializer)
 from rest_framework import serializers
+
+
+class StoreSerializer(serializers.ModelSerializer):
+    categories = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+
+    class Meta:
+        model = Store
+        fields = ('id', 'name', 'city', 'street', 'latitude', 'longitude', 'categories', 'heartsCount', 'country', 'province', 'city', 'postcode', 'street', 'number', 'minTime', 'costCalculation',)
+        read_only_fields = ('id', 'latitude', 'longitude', 'heartsCount',)
 
 
 class BusinessTokenSerializer(TokenSerializer):
@@ -17,7 +26,7 @@ class BusinessTokenSerializer(TokenSerializer):
     class Meta:
         fields = TokenSerializer.Meta.fields + ('password', 'device',)
         write_only_fields = ('password', 'device',)
-        read_only_fields = ()
+        read_only_fields = TokenSerializer.Meta.read_only_fields
 
 
 class StaffSerializer(serializers.ModelSerializer):

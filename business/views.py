@@ -9,7 +9,7 @@ from business.serializers import (EmployeeSerializer, FoodCategorySerializer,
                                   ShortFoodSerializer,
                                   ShortIngredientGroupSerializer,
                                   ShortOrderSerializer, StaffSerializer,
-                                  StoreFoodSerializer)
+                                  StoreFoodSerializer, StoreSerializer)
 from customers.models import (ORDER_STATUS_PLACED, ORDER_STATUS_RECEIVED,
                               ORDER_STATUS_STARTED, ORDER_STATUS_WAITING,
                               Order)
@@ -28,6 +28,7 @@ from rest_framework import generics, status
 from rest_framework.exceptions import MethodNotAllowed
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from django.shortcuts import get_object_or_404
 
 AVAILABLE_STATUSES = [ORDER_STATUS_PLACED, ORDER_STATUS_RECEIVED, ORDER_STATUS_STARTED, ORDER_STATUS_WAITING]
 
@@ -47,6 +48,18 @@ class ListCreateStoreView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         store = self.request.user.staff.store if isinstance(self.request.user, Employee) else self.request.user.store
         serializer.save(store=store)
+
+
+class StoreSingleView(generics.RetrieveUpdateAPIView):
+    authentication_classes = (EmployeeAuthentication,)
+    serializer_class = StoreSerializer
+    permission_classes = (StoreOwnerPermission,)
+
+    def get_object(self):
+        return get_object_or_404(self.get_queryset())
+
+    def get_queryset(self):
+        return Store.objects.filter(id=self.request.user.staff.store_id)
 
 
 class EmployeeView(generics.ListAPIView):
