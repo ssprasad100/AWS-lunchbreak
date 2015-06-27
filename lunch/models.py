@@ -249,16 +249,15 @@ class FoodType(models.Model):
         return self.name
 
 
-class BaseIngredientGroup(models.Model):
+class IngredientGroup(models.Model):
     name = models.CharField(max_length=255)
+    foodType = models.ForeignKey(FoodType)
+    store = models.ForeignKey(Store)
+
     maximum = models.PositiveIntegerField(default=0, verbose_name='Maximum amount')
     minimum = models.PositiveIntegerField(default=0, verbose_name='Minimum amount')
     priority = models.PositiveIntegerField(default=0)
     cost = models.DecimalField(default=-1, max_digits=7, decimal_places=2)
-    foodType = models.ForeignKey(FoodType)
-
-    class Meta:
-        abstract = True
 
     def __unicode__(self):
         return self.name
@@ -301,83 +300,53 @@ class BaseIngredientGroup(models.Model):
                 if amount < group.minimum:
                     raise IngredientGroupsMinimumNotMet()
 
-
-class DefaultIngredientGroup(BaseIngredientGroup):
-
-    @cached_property
-    def ingredients(self):
-        return self.defaultingredient_set.all()
-
-
-class IngredientGroup(BaseIngredientGroup):
-    store = models.ForeignKey(Store)
-
     @cached_property
     def ingredients(self):
         return self.ingredient_set.all()
 
 
-class BaseIngredient(models.Model):
+class Ingredient(models.Model):
     name = models.CharField(max_length=255)
     cost = models.DecimalField(default=0, max_digits=7, decimal_places=2)
     icon = models.PositiveIntegerField(choices=ICONS, default=0)
-    lastModified = models.DateTimeField(auto_now=True)
 
-    class Meta:
-        abstract = True
-
-    def __unicode__(self):
-        return unicode(self.id) + '. ' + self.name + ' (' + unicode(self.group) + ')'
-
-
-class DefaultIngredient(BaseIngredient):
-    group = models.ForeignKey(DefaultIngredientGroup)
-
-
-class Ingredient(BaseIngredient):
     group = models.ForeignKey(IngredientGroup)
     store = models.ForeignKey(Store)
+
+    lastModified = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
         if self.store != self.group.store:
             raise InvalidStoreLinking()
         super(Ingredient, self).save(*args, **kwargs)
 
+    def __unicode__(self):
+        return unicode(self.id) + '. ' + self.name + ' (' + unicode(self.group) + ')'
 
-class BaseFoodCategory(models.Model):
+
+class FoodCategory(models.Model):
+    store = models.ForeignKey(Store)
     name = models.CharField(max_length=255)
     priority = models.PositiveIntegerField(default=0)
 
     class Meta:
-        abstract = True
+        verbose_name_plural = 'Food categories'
 
     def __unicode__(self):
         return self.name
 
 
-class DefaultFoodCategory(BaseFoodCategory):
-
-    class Meta:
-        verbose_name_plural = 'Default food categories'
-
-
-class FoodCategory(BaseFoodCategory):
-    store = models.ForeignKey(Store)
-
-    class Meta:
-        verbose_name_plural = 'Food categories'
-
-
-class BaseFood(models.Model):
+class Food(models.Model):
     name = models.CharField(max_length=255)
     cost = models.DecimalField(decimal_places=2, max_digits=7)
     foodType = models.ForeignKey(FoodType)
     lastModified = models.DateTimeField(auto_now=True)
 
-    objects = LunchbreakManager()
+    category = models.ForeignKey(FoodCategory)
+    ingredients = models.ManyToManyField(Ingredient, through='IngredientRelation', blank=True)
+    store = models.ForeignKey(Store)
 
-    class Meta:
-        abstract = True
+    objects = LunchbreakManager()
 
     @cached_property
     def ingredientGroups(self):
@@ -387,42 +356,22 @@ class BaseFood(models.Model):
     def hasIngredients(self):
         return self.ingredients.count() > 0
 
-    def __unicode__(self):
-        return self.name
-
-
-class DefaultFood(BaseFood):
-    category = models.ForeignKey(DefaultFoodCategory)
-    ingredients = models.ManyToManyField(DefaultIngredient, through='DefaultIngredientRelation', blank=True)
-
-
-class Food(BaseFood):
-    category = models.ForeignKey(FoodCategory)
-    ingredients = models.ManyToManyField(Ingredient, through='IngredientRelation', blank=True)
-    store = models.ForeignKey(Store)
-
     def save(self, *args, **kwargs):
         if self.category.store_id != self.store_id:
             raise InvalidStoreLinking()
         super(Food, self).save(*args, **kwargs)
 
+    def __unicode__(self):
+        return self.name
 
-class BaseIngredientRelation(models.Model):
+
+class IngredientRelation(models.Model):
+    food = models.ForeignKey(Food)
+    ingredient = models.ForeignKey(Ingredient)
     typical = models.BooleanField(default=False)
 
     class Meta:
-        abstract = True
         unique_together = ('food', 'ingredient',)
-
-
-class DefaultIngredientRelation(BaseIngredientRelation):
-    food = models.ForeignKey(DefaultFood)
-    ingredient = models.ForeignKey(DefaultIngredient)
-
-
-class IngredientRelation(BaseIngredientRelation):
-    food = models.ForeignKey(Food)
-    ingredient = models.ForeignKey(Ingredient)
 
     def save(self, *args, **kwargs):
         if self.food.store_id != self.ingredient.store_id:

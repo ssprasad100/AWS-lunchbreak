@@ -10,11 +10,11 @@ from django.utils import timezone
 from lunch.exceptions import LunchbreakException
 from lunch.models import Food, IngredientGroup, Store, tokenGenerator
 from lunch.responses import BadRequest
-from lunch.serializers import (FoodSerializer, HolidayPeriodSerializer,
-                               OpeningHoursSerializer,
-                               ShortDefaultFoodSerializer, ShortStoreSerializer)
-from lunch.views import (getHolidayPeriods, getOpeningAndHoliday,
-                         getOpeningHours, StoreCategoryListViewBase)
+from lunch.serializers import (HolidayPeriodSerializer, MultiFoodSerializer,
+                               OpeningHoursSerializer, ShortStoreSerializer,
+                               SingleFoodSerializer)
+from lunch.views import (StoreCategoryListViewBase, getHolidayPeriods,
+                         getOpeningAndHoliday, getOpeningHours)
 from rest_framework import generics, status
 from rest_framework.response import Response
 
@@ -114,7 +114,7 @@ class FoodListView(generics.ListAPIView):
     '''
 
     authentication_classes = (CustomerAuthentication,)
-    serializer_class = ShortDefaultFoodSerializer
+    serializer_class = MultiFoodSerializer
 
     def get_queryset(self):
         if 'store_id' in self.kwargs:
@@ -126,7 +126,7 @@ class FoodRetrieveView(generics.RetrieveAPIView):
     Retrieve a specific food.
     '''
 
-    serializer_class = FoodSerializer
+    serializer_class = SingleFoodSerializer
     queryset = Food.objects.all()
 
     authentication_classes = (CustomerAuthentication,)

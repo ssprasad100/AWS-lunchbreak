@@ -1,7 +1,5 @@
 from django.contrib import admin
-from lunch.models import (DefaultFood, DefaultFoodCategory, DefaultIngredient,
-                          DefaultIngredientGroup, DefaultIngredientRelation,
-                          Food, FoodCategory, FoodType, HolidayPeriod,
+from lunch.models import (Food, FoodCategory, FoodType, HolidayPeriod,
                           Ingredient, IngredientGroup, IngredientRelation,
                           OpeningHours, Store, StoreCategory)
 
@@ -17,83 +15,53 @@ class StoreAdmin(admin.ModelAdmin):
 @admin.register(OpeningHours)
 class OpeningHoursAdmin(admin.ModelAdmin):
     list_display = ('store', 'day', 'opening', 'closing', 'id',)
-    fields = ('store', 'day', 'opening', 'closing', 'id',)
     readonly_fields = ('id',)
+    fields = ('store', 'day', 'opening', 'closing',) + readonly_fields
 
 
 @admin.register(HolidayPeriod)
 class HolidayPeriodAdmin(admin.ModelAdmin):
     list_display = ('store', 'description', 'start', 'end', 'closed', 'id',)
-    fields = ('store', 'description', 'start', 'end', 'closed', 'id',)
     readonly_fields = ('id',)
-
-
-@admin.register(DefaultFoodCategory)
-class DefaultFoodCategoryAdmin(admin.ModelAdmin):
-    list_display = ('name', 'priority', 'id',)
-    fields = ('id', 'name', 'priority',)
-    readonly_fields = ('id',)
+    fields = ('store', 'description', 'start', 'end', 'closed',) + readonly_fields
 
 
 @admin.register(FoodCategory)
-class FoodCategoryAdmin(DefaultFoodCategoryAdmin):
-    list_display = DefaultFoodCategoryAdmin.list_display + ('store',)
-    fields = DefaultFoodCategoryAdmin.fields + ('store',)
+class FoodCategoryAdmin(admin.ModelAdmin):
+    list_display = ('name', 'priority', 'store', 'id',)
+    readonly_fields = ('id',)
+    fields = ('name', 'priority', 'store',) + readonly_fields
 
 
 @admin.register(FoodType)
 class FoodTypeAdmin(admin.ModelAdmin):
     list_display = ('name', 'icon', 'quantifier', 'inputType', 'id',)
-    fields = ('name', 'icon', 'quantifier', 'inputType', 'id',)
     readonly_fields = ('id',)
+    fields = ('name', 'icon', 'quantifier', 'inputType',) + readonly_fields
 
 
-class DefaultIngredientsRelationInline(admin.TabularInline):
-    model = DefaultIngredientRelation
+class IngredientsRelationInline(admin.TabularInline):
+    model = IngredientRelation
     extra = 3
 
 
-class IngredientsRelationInline(DefaultIngredientsRelationInline):
-    model = IngredientRelation
-
-
-@admin.register(DefaultFood)
-class DefaultFoodAdmin(admin.ModelAdmin):
-    list_display = ('name', 'cost', 'category', 'id',)
+@admin.register(Food)
+class FoodAdmin(admin.ModelAdmin):
+    list_display = ('name', 'cost', 'category', 'store', 'id',)
     fields = list_display + ('foodType', 'lastModified',)
     readonly_fields = ('lastModified', 'id',)
-    inlines = (DefaultIngredientsRelationInline,)
-
-
-@admin.register(Food)
-class FoodAdmin(DefaultFoodAdmin):
-    list_display = DefaultFoodAdmin.list_display + ('store',)
-    fields = DefaultFoodAdmin.fields + ('store',)
     inlines = (IngredientsRelationInline,)
 
 
-@admin.register(DefaultIngredient)
-class DefaultIngredientAdmin(admin.ModelAdmin):
-    list_display = ('name', 'cost', 'group', 'id',)
-    readonly_fields = ('id', 'lastModified',)
-    fields = ('name', 'cost', 'group', 'icon',) + readonly_fields
-
-
 @admin.register(Ingredient)
-class IngredientAdmin(DefaultIngredientAdmin):
-    list_display = DefaultIngredientAdmin.list_display + ('store',)
-    fields = DefaultIngredientAdmin.fields + ('store',)
-
-
-@admin.register(DefaultIngredientGroup)
-class DefaultIngredientGroupAdmin(admin.ModelAdmin):
-    list_display = ('name', 'maximum', 'minimum', 'priority', 'cost', 'foodType', 'id',)
-    fields = list_display
-    readonly_fields = ('id',)
+class IngredientAdmin(admin.ModelAdmin):
+    list_display =('name', 'cost', 'group', 'store', 'id',)
+    readonly_fields = ('id', 'lastModified',)
+    fields = ('name', 'cost', 'group', 'icon', 'store',) + readonly_fields
 
 
 @admin.register(IngredientGroup)
 class IngredientGroupAdmin(admin.ModelAdmin):
-    list_display = DefaultIngredientGroupAdmin.list_display + ('store',)
+    list_display = ('name', 'maximum', 'minimum', 'priority', 'cost', 'foodType', 'store', 'id',)
     fields = list_display
     readonly_fields = ('id',)

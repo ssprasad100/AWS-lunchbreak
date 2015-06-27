@@ -1,12 +1,10 @@
 from business.models import Employee, EmployeeToken, Staff, StaffToken
 from customers.models import Order, OrderedFood, User
 from lunch.exceptions import InvalidStoreLinking
-from lunch.models import (Food, FoodCategory, Ingredient, IngredientGroup,
+from lunch.models import (Food, Ingredient, IngredientGroup,
                           IngredientRelation, Store)
-from lunch.serializers import (DefaultFoodCategorySerializer,
-                               DefaultFoodSerializer, FoodSerializer,
-                               ShortDefaultIngredientRelationSerializer,
-                               StoreCategorySerializer, TokenSerializer)
+from lunch.serializers import (ShortIngredientRelationSerializer,
+                               TokenSerializer)
 from rest_framework import serializers
 
 
@@ -115,16 +113,8 @@ class IngredientRelationSerializer(serializers.ModelSerializer):
         write_only_fields = fields
 
 
-class FoodCategorySerializer(DefaultFoodCategorySerializer):
-
-    class Meta:
-        model = FoodCategory
-        fields = DefaultFoodCategorySerializer.Meta.fields
-        read_only_fields = DefaultFoodCategorySerializer.Meta.read_only_fields
-
-
 class ShortFoodSerializer(serializers.ModelSerializer):
-    ingredients = ShortDefaultIngredientRelationSerializer(source='ingredientrelation_set', many=True, required=False, read_only=True)
+    ingredients = ShortIngredientRelationSerializer(source='ingredientrelation_set', many=True, required=False, read_only=True)
     ingredientRelations = IngredientRelationSerializer(source='ingredientrelation_set', many=True, required=False, write_only=True)
 
     class Meta:
@@ -171,13 +161,6 @@ class ShortFoodSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         return self.createOrUpdate(validated_data, instance)
-
-
-class StoreFoodSerializer(FoodSerializer):
-    class Meta:
-        model = Food
-        fields = DefaultFoodSerializer.Meta.fields
-        read_only_fields = DefaultFoodSerializer.Meta.read_only_fields
 
 
 class IngredientSerializer(serializers.ModelSerializer):

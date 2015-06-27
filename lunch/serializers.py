@@ -1,7 +1,7 @@
-from lunch.models import (BaseToken, DefaultFood, DefaultFoodCategory,
-                          DefaultIngredientRelation, Food, FoodCategory,
-                          FoodType, HolidayPeriod, Ingredient, IngredientGroup,
-                          OpeningHours, Store, StoreCategory)
+from lunch.models import (BaseToken, Food, FoodCategory, FoodType,
+                          HolidayPeriod, Ingredient, IngredientGroup,
+                          IngredientRelation, OpeningHours, Store,
+                          StoreCategory)
 from rest_framework import serializers
 
 
@@ -54,11 +54,11 @@ class NestedIngredientSerializer(serializers.ModelSerializer):
         read_only_fields = ('id',)
 
 
-class ShortDefaultIngredientRelationSerializer(serializers.HyperlinkedModelSerializer):
+class ShortIngredientRelationSerializer(serializers.HyperlinkedModelSerializer):
     id = serializers.ReadOnlyField(source='ingredient.id')
 
     class Meta:
-        model = DefaultIngredientRelation
+        model = IngredientRelation
         fields = ('id', 'typical',)
         read_only_fields = ('id',)
 
@@ -72,20 +72,20 @@ class IngredientGroupSerializer(serializers.ModelSerializer):
         read_only_fields = ('id',)
 
 
-class DefaultFoodCategorySerializer(serializers.ModelSerializer):
+class ShortFoodCategorySerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = DefaultFoodCategory
+        model = FoodCategory
         fields = ('id', 'name', 'priority',)
         read_only_fields = ('id',)
 
 
-class FoodCategorySerializer(DefaultFoodCategorySerializer):
+class FoodCategorySerializer(ShortFoodCategorySerializer):
 
     class Meta:
         model = FoodCategory
-        fields = DefaultFoodCategorySerializer.Meta.fields + ('store',)
-        read_only_fields = DefaultFoodCategorySerializer.Meta.read_only_fields
+        fields = ShortFoodCategorySerializer.Meta.fields + ('store',)
+        read_only_fields = ShortFoodCategorySerializer.Meta.read_only_fields
 
 
 class FoodTypeSerializer(serializers.ModelSerializer):
@@ -96,20 +96,11 @@ class FoodTypeSerializer(serializers.ModelSerializer):
         read_only_fields = ('id',)
 
 
-class DefaultFoodSerializer(serializers.ModelSerializer):
+class ShortSingleFoodSerializer(serializers.ModelSerializer):
     ingredientGroups = IngredientGroupSerializer(many=True, read_only=True)
-    category = DefaultFoodCategorySerializer(many=False)
+    category = ShortFoodCategorySerializer(many=False)
     foodType = FoodTypeSerializer(many=False)
-    ingredients = ShortDefaultIngredientRelationSerializer(source='defaultingredientrelation_set', many=True)
-
-    class Meta:
-        model = DefaultFood
-        fields = ('id', 'name', 'cost', 'ingredientGroups', 'ingredients', 'category', 'foodType',)
-        read_only_fields = ('id', 'ingredientGroups',)
-
-
-class FoodSerializer(DefaultFoodSerializer):
-    ingredients = ShortDefaultIngredientRelationSerializer(source='ingredientrelation_set', many=True)
+    ingredients = ShortIngredientRelationSerializer(source='ingredientrelation_set', many=True)
 
     def create(self, validated_data):
         ingredients = Ingredient.objects.filter(id__in=validated_data['ingredients'])
@@ -117,16 +108,24 @@ class FoodSerializer(DefaultFoodSerializer):
 
     class Meta:
         model = Food
-        fields = DefaultFoodSerializer.Meta.fields + ('store',)
-        read_only_fields = DefaultFoodSerializer.Meta.read_only_fields
+        fields = ('id', 'name', 'cost', 'ingredientGroups', 'ingredients', 'category', 'foodType', 'store',)
+        read_only_fields = ('id', 'ingredientGroups',)
 
 
-class ShortDefaultFoodSerializer(serializers.ModelSerializer):
-    foodType = FoodTypeSerializer(many=False)
-    category = DefaultFoodCategorySerializer(many=False)
+class SingleFoodSerializer(ShortSingleFoodSerializer):
 
     class Meta:
-        model = DefaultFood
+        model = ShortSingleFoodSerializer.Meta.model
+        fields = ShortSingleFoodSerializer.Meta.fields + ('store',)
+        read_only_fields = ShortSingleFoodSerializer.Meta.read_only_fields
+
+
+class MultiFoodSerializer(serializers.ModelSerializer):
+    foodType = FoodTypeSerializer(many=False)
+    category = ShortFoodCategorySerializer(many=False)
+
+    class Meta:
+        model = Food
         fields = ('id', 'name', 'cost', 'category', 'foodType', 'hasIngredients',)
         read_only_fields = ('id', 'hasIngredients',)
 
