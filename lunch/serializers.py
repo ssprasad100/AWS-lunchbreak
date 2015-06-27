@@ -108,7 +108,7 @@ class ShortSingleFoodSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Food
-        fields = ('id', 'name', 'cost', 'ingredientGroups', 'ingredients', 'category', 'foodType', 'store',)
+        fields = ('id', 'name', 'description', 'cost', 'ingredientGroups', 'ingredients', 'category', 'foodType', 'store',)
         read_only_fields = ('id', 'ingredientGroups',)
 
 

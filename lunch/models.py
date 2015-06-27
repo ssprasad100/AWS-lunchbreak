@@ -338,6 +338,7 @@ class FoodCategory(models.Model):
 
 class Food(models.Model):
     name = models.CharField(max_length=255)
+    description = models.TextField(null=True, blank=True)
     cost = models.DecimalField(decimal_places=2, max_digits=7)
     foodType = models.ForeignKey(FoodType)
     lastModified = models.DateTimeField(auto_now=True)

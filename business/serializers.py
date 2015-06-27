@@ -119,7 +119,7 @@ class ShortFoodSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Food
-        fields = ('id', 'name', 'category', 'foodType', 'cost', 'ingredients', 'category', 'ingredientRelations',)
+        fields = ('id', 'name', 'description', 'category', 'foodType', 'cost', 'ingredients', 'category', 'ingredientRelations',)
         read_only_fields = ('id', 'ingredients',)
         write_only_fields = ('ingredientRelations',)
 
@@ -127,14 +127,16 @@ class ShortFoodSerializer(serializers.ModelSerializer):
         update = food is not None
         if not update:
             name = validated_data['name']
+            description = validated_data['description']
             category = validated_data['category']
             foodType = validated_data['foodType']
             cost = validated_data['cost']
             store = validated_data['store']
 
-            food = Food(name=name, category=category, foodType=foodType, cost=cost, store=store)
+            food = Food(name=name, description=description, category=category, foodType=foodType, cost=cost, store=store)
         else:
             food.name = validated_data.get('name', food.name)
+            food.description = validated_data.get('description', food.description)
             food.category = validated_data.get('category', food.category)
             food.foodType = validated_data.get('foodType', food.foodType)
             food.cost = validated_data.get('cost', food.cost)
