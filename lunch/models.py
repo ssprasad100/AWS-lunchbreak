@@ -8,7 +8,7 @@ from django.db import models
 from django.utils import timezone
 from django.utils.functional import cached_property
 from lunch.exceptions import (AddressNotFound, IngredientGroupMaxExceeded,
-                              IngredientGroupsMinimumNotMet,
+                              IngredientGroupsMinimumNotMet, InvalidFoodTypeAmount,
                               InvalidIngredientLinking, InvalidStoreLinking)
 
 
@@ -121,13 +121,13 @@ DAYS = (
 )
 
 INPUT_AMOUNT = 0
-INPUT_WEIGHT = 1
-INPUT_MIX = 2
+INPUT_SI_VARIABLE = 1
+INPUT_SI_SET = 2
 
 INPUT_TYPES = (
     (INPUT_AMOUNT, 'Aantal'),
-    (INPUT_WEIGHT, 'Gewicht'),
-    (INPUT_MIX, 'Aantal en gewicht'),
+    (INPUT_SI_VARIABLE, 'Aanpasbaar o.b.v. SI-eenheid'),
+    (INPUT_SI_SET, 'Vaste hoeveelheid o.b.v. SI-eenheid'),
 )
 
 
@@ -245,6 +245,9 @@ class HolidayPeriod(models.Model):
 
     closed = models.BooleanField(default=True)
 
+    def __unicode__(self):
+        return '%s tot %s %s' % (self.start, self.end, 'gesloten' if self.closed else 'open',)
+
     def save(self, *args, **kwargs):
         self.store.save()
         super(HolidayPeriod, self).save(*args, **kwargs)
@@ -255,6 +258,11 @@ class FoodType(models.Model):
     icon = models.PositiveIntegerField(choices=ICONS, default=0)
     quantifier = models.CharField(max_length=255, blank=True, null=True)
     inputType = models.PositiveIntegerField(choices=INPUT_TYPES, default=0)
+
+    def isValidAmount(self, amount, quantity=None):
+        return amount > 0 \
+            and (self.inputType != INPUT_AMOUNT or float(amount).is_integer()) \
+            and (quantity is None or quantity.amountMin <= amount <= quantity.amountMax)
 
     def __unicode__(self):
         return self.name
@@ -358,6 +366,12 @@ class Quantity(models.Model):
         unique_together = ('foodType', 'store',)
         verbose_name_plural = 'Quantities'
 
+    def save(self, *args, **kwargs):
+        if not self.foodType.isValidAmount(self.amountMin) \
+            or not self.foodType.isValidAmount(self.amountMax):
+            raise InvalidFoodTypeAmount()
+        super(Quantity, self).save(*args, **kwargs)
+
     def __unicode__(self):
         return unicode(self.amountMin) + '-' + unicode(self.amountMax)
 
@@ -365,6 +379,7 @@ class Quantity(models.Model):
 class Food(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(null=True, blank=True)
+    amount = models.DecimalField(decimal_places=3, max_digits=7, default=1)
     cost = models.DecimalField(decimal_places=2, max_digits=7)
     foodType = models.ForeignKey(FoodType)
     lastModified = models.DateTimeField(auto_now=True)
@@ -394,6 +409,8 @@ class Food(models.Model):
             return None
 
     def save(self, *args, **kwargs):
+        if not self.foodType.isValidAmount(self.amount):
+            raise InvalidFoodTypeAmount()
         if self.category.store_id != self.store_id:
             raise InvalidStoreLinking()
         super(Food, self).save(*args, **kwargs)

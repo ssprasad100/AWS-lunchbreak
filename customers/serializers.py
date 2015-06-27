@@ -1,7 +1,8 @@
 from customers.exceptions import AmountInvalid, CostCheckFailed
 from customers.models import Order, OrderedFood, User, UserToken
 from lunch.exceptions import BadRequest
-from lunch.models import INPUT_AMOUNT, Food, IngredientGroup, Store
+from lunch.models import (INPUT_SI_VARIABLE, INPUT_SI_SET, Food, IngredientGroup,
+                          Store)
 from lunch.serializers import (IngredientGroupSerializer, StoreSerializer,
                                TokenSerializer)
 from rest_framework import serializers
@@ -21,8 +22,8 @@ class OrderedFoodSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = OrderedFood
-        fields = ('id', 'ingredients', 'amount', 'order', 'original', 'ingredientGroups', 'cost', 'useOriginal',)
-        read_only_fields = ('id', 'order', 'ingredientGroups', 'useOriginal',)
+        fields = ('id', 'ingredients', 'amount', 'foodAmount', 'order', 'original', 'ingredientGroups', 'cost', 'useOriginal',)
+        read_only_fields = ('id', 'foodAmount', 'order', 'ingredientGroups', 'useOriginal',)
 
 
 class OrderedFoodPriceSerializer(serializers.ModelSerializer):
@@ -40,13 +41,13 @@ class ShortOrderSerializer(serializers.ModelSerializer):
 
     orderedFood = OrderedFoodSerializer(many=True, write_only=True)
 
-    def costCheck(self, calculatedCost, amount, givenCost):
-        if calculatedCost * amount != givenCost:
+    def costCheck(self, calculatedCost, food, amount, givenCost):
+        if calculatedCost * amount * (food.amount if food.foodType.inputType == INPUT_SI_SET else 1) != givenCost:
             raise CostCheckFailed()
 
     def amountCheck(self, food, amount):
         if amount <= 0 \
-            or (not float(amount).is_integer() and food.foodType.inputType == INPUT_AMOUNT) \
+            or (not float(amount).is_integer() and food.foodType.inputType != INPUT_SI_VARIABLE) \
             or (food.quantity is not None and not food.quantity.amountMin <= amount <= food.quantity.amountMax):
             raise AmountInvalid()
 
@@ -73,20 +74,20 @@ class ShortOrderSerializer(serializers.ModelSerializer):
                 self.amountCheck(original, amount)
                 cost = f['cost']
 
-                orderedF = OrderedFood(original=original, order=order, amount=amount, cost=cost)
+                orderedF = OrderedFood(amount=amount, foodAmount=original.amount, cost=cost, order=order, original=original)
 
                 if 'ingredients' in f:
                     orderedF.save()
                     ingredients = f['ingredients']
                     closestFood = Food.objects.closestFood(ingredients, original)
                     self.amountCheck(closestFood, amount)
-                    IngredientGroup.checkIngredients(ingredients, quantity, closestFood)
+                    IngredientGroup.checkIngredients(ingredients, closestFood)
                     calculatedCost = OrderedFood.calculateCost(ingredients, closestFood)
-                    self.costCheck(calculatedCost, amount, cost)
+                    self.costCheck(calculatedCost, closestFood, amount, cost)
                     orderedF.cost = calculatedCost
                     orderedF.ingredients = ingredients
                 else:
-                    self.costCheck(original.cost, amount, cost)
+                    self.costCheck(original.cost, original, amount, cost)
                     orderedF.cost = original.cost
                     orderedF.useOriginal = True
 

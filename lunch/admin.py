@@ -5,6 +5,7 @@ from lunch.models import (Food, FoodCategory, FoodType, HolidayPeriod,
 
 admin.site.register(StoreCategory)
 
+
 @admin.register(Quantity)
 class IngredientAdmin(admin.ModelAdmin):
     list_display = ('foodType', 'store', 'amountMin', 'amountMax', 'id',)
@@ -54,7 +55,7 @@ class IngredientsRelationInline(admin.TabularInline):
 @admin.register(Food)
 class FoodAdmin(admin.ModelAdmin):
     list_display = ('name', 'cost', 'category', 'store', 'id',)
-    fields = list_display + ('foodType', 'lastModified',)
+    fields = list_display + ('amount', 'foodType', 'lastModified',)
     readonly_fields = ('lastModified', 'id',)
     inlines = (IngredientsRelationInline,)
 

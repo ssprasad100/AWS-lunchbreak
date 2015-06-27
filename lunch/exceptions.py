@@ -8,6 +8,7 @@ INGR_GROUP_MAX_EXCEEDED = 603
 INGR_GROUP_MIN_NOT_MET = 604
 INVALID_STORE_LINKING = 605
 INVALID_INGREDIENT_LINKING = 607
+INVALID_FOODTYPE_AMOUNT = 608
 
 
 def lunchbreakExceptionHandler(exception):
@@ -87,3 +88,9 @@ class InvalidIngredientLinking(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
     code = INVALID_INGREDIENT_LINKING
     information = 'Invalid ingredient linking.'
+
+
+class InvalidFoodTypeAmount(LunchbreakException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    code = INVALID_FOODTYPE_AMOUNT
+    information = 'Invalid food type amount.'
