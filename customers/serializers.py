@@ -1,8 +1,7 @@
 from customers.exceptions import AmountInvalid, CostCheckFailed
 from customers.models import Order, OrderedFood, User, UserToken
 from lunch.exceptions import BadRequest
-from lunch.models import (INPUT_AMOUNT, INPUT_MIX, INPUT_WEIGHT, Food,
-                          IngredientGroup, Store)
+from lunch.models import INPUT_AMOUNT, Food, IngredientGroup, Store
 from lunch.serializers import (IngredientGroupSerializer, StoreSerializer,
                                TokenSerializer)
 from rest_framework import serializers
@@ -22,7 +21,7 @@ class OrderedFoodSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = OrderedFood
-        fields = ('id', 'ingredients', 'amount', 'unitAmount', 'order', 'original', 'ingredientGroups', 'cost', 'useOriginal',)
+        fields = ('id', 'ingredients', 'amount', 'order', 'original', 'ingredientGroups', 'cost', 'useOriginal',)
         read_only_fields = ('id', 'order', 'ingredientGroups', 'useOriginal',)
 
 
@@ -30,7 +29,7 @@ class OrderedFoodPriceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = OrderedFood
-        fields = ('ingredients', 'amount', 'unitAmount', 'original',)
+        fields = ('ingredients', 'amount', 'original',)
         write_only_fields = fields
 
 
@@ -41,20 +40,14 @@ class ShortOrderSerializer(serializers.ModelSerializer):
 
     orderedFood = OrderedFoodSerializer(many=True, write_only=True)
 
-    def costCheck(self, inputType, calculatedCost, amount, unitAmount, givenCost):
-        if inputType == INPUT_AMOUNT and calculatedCost * amount != givenCost:
-            raise CostCheckFailed()
-        if inputType == INPUT_WEIGHT and calculatedCost * unitAmount != givenCost:
-            raise CostCheckFailed()
-        if inputType == INPUT_MIX and calculatedCost * unitAmount * amount != givenCost:
+    def costCheck(self, calculatedCost, amount, givenCost):
+        if calculatedCost * amount != givenCost:
             raise CostCheckFailed()
 
-    def amountCheck(self, inputType, amount, unitAmount):
-        if inputType == INPUT_AMOUNT and (amount == 0 or unitAmount is not None):
-            raise AmountInvalid()
-        if inputType == INPUT_WEIGHT and (amount != 1 or unitAmount is None or unitAmount <= 0):
-            raise AmountInvalid()
-        if inputType == INPUT_MIX and (amount == 0 or unitAmount is None or unitAmount <= 0):
+    def amountCheck(self, food, amount):
+        if amount <= 0 \
+            or (not float(amount).is_integer() and food.foodType.inputType == INPUT_AMOUNT) \
+            or (food.quantity is not None and not food.quantity.amountMin <= amount <= food.quantity.amountMax):
             raise AmountInvalid()
 
     def create(self, validated_data):
@@ -77,9 +70,7 @@ class ShortOrderSerializer(serializers.ModelSerializer):
             for f in orderedFood:
                 original = f['original']
                 amount = f['amount'] if 'amount' in f else 1
-                unitAmount = f['unitAmount'] if 'unitAmount' in f else None
-                inputType = original.foodType.inputType
-                self.amountCheck(inputType, amount, unitAmount)
+                self.amountCheck(original, amount)
                 cost = f['cost']
 
                 orderedF = OrderedFood(original=original, order=order, amount=amount, cost=cost)
@@ -88,13 +79,14 @@ class ShortOrderSerializer(serializers.ModelSerializer):
                     orderedF.save()
                     ingredients = f['ingredients']
                     closestFood = Food.objects.closestFood(ingredients, original)
-                    IngredientGroup.checkIngredients(ingredients, closestFood)
+                    self.amountCheck(closestFood, amount)
+                    IngredientGroup.checkIngredients(ingredients, quantity, closestFood)
                     calculatedCost = OrderedFood.calculateCost(ingredients, closestFood)
-                    self.costCheck(inputType, calculatedCost, amount, unitAmount, cost)
+                    self.costCheck(calculatedCost, amount, cost)
                     orderedF.cost = calculatedCost
                     orderedF.ingredients = ingredients
                 else:
-                    self.costCheck(inputType, original.cost, amount, unitAmount, cost)
+                    self.costCheck(original.cost, amount, cost)
                     orderedF.cost = original.cost
                     orderedF.useOriginal = True
 

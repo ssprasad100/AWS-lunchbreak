@@ -25,3 +25,4 @@ Read only
     - latitude
     - longitude
     - heartsCount
+    - categories

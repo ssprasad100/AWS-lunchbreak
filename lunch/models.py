@@ -3,6 +3,7 @@ from datetime import timedelta
 
 import requests
 from customers.exceptions import MinTimeExceeded, PastOrderDenied, StoreClosed
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -156,7 +157,7 @@ class Store(models.Model):
     longitude = models.DecimalField(blank=True, decimal_places=7, max_digits=10)
 
     categories = models.ManyToManyField(StoreCategory)
-    minTime = models.PositiveIntegerField(default=0)
+    minTime = models.PositiveIntegerField(default=60)
     hearts = models.ManyToManyField('customers.User', through='customers.Heart', blank=True)
     costCalculation = models.PositiveIntegerField(choices=COST_GROUP_CALCULATIONS, default=COST_GROUP_ALWAYS)
 
@@ -336,6 +337,21 @@ class FoodCategory(models.Model):
         return self.name
 
 
+class Quantity(models.Model):
+    foodType = models.ForeignKey(FoodType)
+    store = models.ForeignKey(Store)
+    amountMin = models.DecimalField(decimal_places=3, max_digits=7, default=1)
+    amountMax = models.DecimalField(decimal_places=3, max_digits=7, default=10)
+    lastModified = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('foodType', 'store',)
+        verbose_name_plural = 'Quantities'
+
+    def __unicode__(self):
+        return unicode(self.amountMin) + '-' + unicode(self.amountMax)
+
+
 class Food(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(null=True, blank=True)
@@ -349,6 +365,9 @@ class Food(models.Model):
 
     objects = LunchbreakManager()
 
+    class Meta:
+        verbose_name_plural = 'Food'
+
     @cached_property
     def ingredientGroups(self):
         return self.foodType.ingredientgroup_set.all()
@@ -356,6 +375,13 @@ class Food(models.Model):
     @cached_property
     def hasIngredients(self):
         return self.ingredients.count() > 0
+
+    @cached_property
+    def quantity(self):
+        try:
+            return Quantity.objects.get(foodType_id=self.foodType_id, store_id=self.store_id)
+        except ObjectDoesNotExist:
+            return None
 
     def save(self, *args, **kwargs):
         if self.category.store_id != self.store_id:

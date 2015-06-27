@@ -18,11 +18,12 @@ from django.core.validators import validate_email
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from lunch.models import (Food, FoodCategory, FoodType, Ingredient,
-                          IngredientGroup, Store)
+                          IngredientGroup, Quantity, Store)
 from lunch.responses import BadRequest, DoesNotExist
 from lunch.serializers import (FoodTypeSerializer, HolidayPeriodSerializer,
                                OpeningHoursSerializer,
                                ShortFoodCategorySerializer,
+                               QuantitySerializer,
                                ShortSingleFoodSerializer)
 from lunch.views import (StoreCategoryListViewBase, getHolidayPeriods,
                          getOpeningAndHoliday, getOpeningHours)
@@ -306,3 +307,22 @@ class HolidayPeriodListView(generics.ListAPIView):
 
     def get_queryset(self):
         return getHolidayPeriods(self.request.user.staff.store_id)
+
+
+class QuantityMultiView(ListCreateStoreView):
+    authentication_classes = (EmployeeAuthentication,)
+    serializer_class = QuantitySerializer
+    permission_classes = (StoreOwnerPermission,)
+    pagination_class = None
+
+    def get_queryset(self):
+        return Quantity.objects.filter(store=self.request.user.staff.store)
+
+
+class QuantitySingleView(generics.RetrieveUpdateDestroyAPIView):
+    authentication_classes = (EmployeeAuthentication,)
+    serializer_class = QuantitySerializer
+    permission_classes = (StoreOwnerPermission,)
+
+    def get_queryset(self):
+        return Quantity.objects.filter(store=self.request.user.staff.store)

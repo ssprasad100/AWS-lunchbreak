@@ -1,6 +1,6 @@
 from lunch.models import (BaseToken, Food, FoodCategory, FoodType,
                           HolidayPeriod, Ingredient, IngredientGroup,
-                          IngredientRelation, OpeningHours, Store,
+                          IngredientRelation, OpeningHours, Quantity, Store,
                           StoreCategory)
 from rest_framework import serializers
 
@@ -96,11 +96,28 @@ class FoodTypeSerializer(serializers.ModelSerializer):
         read_only_fields = ('id',)
 
 
+class ShortQuantitySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Quantity
+        fields = ('id', 'amountMin', 'amountMax', 'lastModified',)
+        read_only_fields = ('id', 'lastModified',)
+
+
+class QuantitySerializer(ShortQuantitySerializer):
+
+    class Meta:
+        model = ShortQuantitySerializer.Meta.model
+        fields = ShortQuantitySerializer.Meta.fields + ('foodType',)
+        read_only_fields = ShortQuantitySerializer.Meta.read_only_fields
+
+
 class ShortSingleFoodSerializer(serializers.ModelSerializer):
     ingredientGroups = IngredientGroupSerializer(many=True, read_only=True)
     category = ShortFoodCategorySerializer(many=False)
     foodType = FoodTypeSerializer(many=False)
     ingredients = ShortIngredientRelationSerializer(source='ingredientrelation_set', many=True)
+    quantity = ShortQuantitySerializer(many=False)
 
     def create(self, validated_data):
         ingredients = Ingredient.objects.filter(id__in=validated_data['ingredients'])
@@ -108,7 +125,7 @@ class ShortSingleFoodSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Food
-        fields = ('id', 'name', 'description', 'cost', 'ingredientGroups', 'ingredients', 'category', 'foodType', 'store',)
+        fields = ('id', 'name', 'description', 'cost', 'ingredientGroups', 'ingredients', 'category', 'foodType', 'store', 'quantity',)
         read_only_fields = ('id', 'ingredientGroups',)
 
 

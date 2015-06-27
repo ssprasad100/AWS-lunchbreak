@@ -1,9 +1,15 @@
 from django.contrib import admin
 from lunch.models import (Food, FoodCategory, FoodType, HolidayPeriod,
                           Ingredient, IngredientGroup, IngredientRelation,
-                          OpeningHours, Store, StoreCategory)
+                          OpeningHours, Quantity, Store, StoreCategory)
 
 admin.site.register(StoreCategory)
+
+@admin.register(Quantity)
+class IngredientAdmin(admin.ModelAdmin):
+    list_display = ('foodType', 'store', 'amountMin', 'amountMax', 'id',)
+    readonly_fields = ('id', 'lastModified',)
+    fields = ('foodType', 'store', 'amountMin', 'amountMax',) + readonly_fields
 
 
 @admin.register(Store)

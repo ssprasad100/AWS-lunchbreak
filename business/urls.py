@@ -22,6 +22,9 @@ urlpatterns = patterns('',
     url(r'^order/(?P<option>pickupTime|orderedTime)?/?(?P<datetime>[0-3][0-9]-[0-1][0-9]-20[0-9][0-9]-[0-2][0-9]-[0-5][0-9]-[0-5][0-9])?/?$', views.OrderListView.as_view()),
     url(r'^order/(?P<pk>\d+)/$', views.OrderUpdateView.as_view()),
 
+    url(r'^quantity/$', views.QuantityMultiView.as_view()),
+    url(r'^quantity/(?P<pk>\d+)/$', views.QuantitySingleView.as_view()),
+
     url(r'^staff/$', views.StaffMultiView.as_view()),
     url(r'^staff/(?P<pk>\d+)/$', views.StaffSingleView.as_view()),
     url(r'^staff/nearby/(?P<latitude>-?\d+.?\d*)/(?P<longitude>-?\d+.?\d*)/$', views.StaffMultiView.as_view()),
