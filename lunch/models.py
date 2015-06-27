@@ -161,6 +161,8 @@ class Store(models.Model):
     hearts = models.ManyToManyField('customers.User', through='customers.Heart', blank=True)
     costCalculation = models.PositiveIntegerField(choices=COST_GROUP_CALCULATIONS, default=COST_GROUP_ALWAYS)
 
+    lastModified = models.DateTimeField(auto_now=True)
+
     GEOCODING_URL = 'https://maps.googleapis.com/maps/api/geocode/json'
     GEOCODING_KEY = 'AIzaSyCHgip4CE_6DMxP506uDRIQy_nQisuHAQI'
     ADDRESS_FORMAT = '%s,+%s,+%s+%s,+%s+%s'
@@ -229,6 +231,10 @@ class OpeningHours(models.Model):
     def __unicode__(self):
         return '%s. %s - %s' % (self.day, self.opening, self.closing,)
 
+    def save(self, *args, **kwargs):
+        self.store.save()
+        super(OpeningHours, self).save(*args, **kwargs)
+
 
 class HolidayPeriod(models.Model):
     store = models.ForeignKey(Store)
@@ -238,6 +244,10 @@ class HolidayPeriod(models.Model):
     end = models.DateTimeField()
 
     closed = models.BooleanField(default=True)
+
+    def save(self, *args, **kwargs):
+        self.store.save()
+        super(HolidayPeriod, self).save(*args, **kwargs)
 
 
 class FoodType(models.Model):
