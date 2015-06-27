@@ -127,7 +127,7 @@ class ShortFoodSerializer(serializers.ModelSerializer):
         update = food is not None
         if not update:
             name = validated_data['name']
-            description = validated_data['description']
+            description = validated_data.get('description', None)
             category = validated_data['category']
             foodType = validated_data['foodType']
             cost = validated_data['cost']
