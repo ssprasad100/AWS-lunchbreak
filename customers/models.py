@@ -1,6 +1,9 @@
+import math
+
 from django.db import models
 from django.utils.functional import cached_property
-from lunch.models import COST_GROUP_ADDITIONS, BaseToken, Food, Ingredient, Store
+from lunch.models import (COST_GROUP_ADDITIONS, BaseToken, Food, Ingredient,
+                          Store)
 from phonenumber_field.modelfields import PhoneNumberField
 
 ORDER_STATUS_PLACED = 0
@@ -56,7 +59,7 @@ class Order(models.Model):
     def save(self, *args, **kwargs):
         self.total = 0
         for f in self.orderedfood_set.all():
-            self.total += f.cost * f.amount
+            self.total += f.total
         super(Order, self).save(*args, **kwargs)
 
 
@@ -75,6 +78,10 @@ class OrderedFood(models.Model):
     @cached_property
     def ingredientGroups(self):
         return self.original.ingredientGroups
+
+    @cached_property
+    def total(self):
+        return math.ceil((self.cost * self.amount * self.foodAmount) * 100) / 100.0
 
     @staticmethod
     def calculateCost(orderedIngredients, food):

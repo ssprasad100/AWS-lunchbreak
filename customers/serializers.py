@@ -1,8 +1,10 @@
+import math
+
 from customers.exceptions import AmountInvalid, CostCheckFailed
 from customers.models import Order, OrderedFood, User, UserToken
 from lunch.exceptions import BadRequest
-from lunch.models import (INPUT_SI_VARIABLE, INPUT_SI_SET, Food, IngredientGroup,
-                          Store)
+from lunch.models import (INPUT_SI_SET, INPUT_SI_VARIABLE, Food,
+                          IngredientGroup, Store)
 from lunch.serializers import (IngredientGroupSerializer, StoreSerializer,
                                TokenSerializer)
 from rest_framework import serializers
@@ -42,7 +44,7 @@ class ShortOrderSerializer(serializers.ModelSerializer):
     orderedFood = OrderedFoodSerializer(many=True, write_only=True)
 
     def costCheck(self, calculatedCost, food, amount, givenCost):
-        if calculatedCost * amount * (food.amount if food.foodType.inputType == INPUT_SI_SET else 1) != givenCost:
+        if math.ceil((calculatedCost * amount * (food.amount if food.foodType.inputType == INPUT_SI_SET else 1)) * 100) / 100.0 != float(givenCost):
             raise CostCheckFailed()
 
     def amountCheck(self, food, amount):
@@ -73,17 +75,20 @@ class ShortOrderSerializer(serializers.ModelSerializer):
                 amount = f['amount'] if 'amount' in f else 1
                 self.amountCheck(original, amount)
                 cost = f['cost']
+                foodAmount = original.amount if original.foodType.inputType == INPUT_SI_SET else 1
 
-                orderedF = OrderedFood(amount=amount, foodAmount=original.amount, cost=cost, order=order, original=original)
+                orderedF = OrderedFood(amount=amount, foodAmount=foodAmount, cost=cost, order=order, original=original)
 
                 if 'ingredients' in f:
                     orderedF.save()
                     ingredients = f['ingredients']
+
                     closestFood = Food.objects.closestFood(ingredients, original)
                     self.amountCheck(closestFood, amount)
                     IngredientGroup.checkIngredients(ingredients, closestFood)
                     calculatedCost = OrderedFood.calculateCost(ingredients, closestFood)
                     self.costCheck(calculatedCost, closestFood, amount, cost)
+
                     orderedF.cost = calculatedCost
                     orderedF.ingredients = ingredients
                 else:
