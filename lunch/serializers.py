@@ -143,7 +143,7 @@ class MultiFoodSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Food
-        fields = ('id', 'name', 'amount', 'cost', 'category', 'foodType', 'hasIngredients',)
+        fields = ('id', 'name', 'amount', 'cost', 'category', 'foodType', 'hasIngredients', 'quantity',)
         read_only_fields = ('id', 'hasIngredients',)
 
 
