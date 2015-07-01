@@ -140,6 +140,7 @@ class SingleFoodSerializer(ShortSingleFoodSerializer):
 class MultiFoodSerializer(serializers.ModelSerializer):
     foodType = FoodTypeSerializer(many=False)
     category = ShortFoodCategorySerializer(many=False)
+    quantity = ShortQuantitySerializer(many=False)
 
     class Meta:
         model = Food
