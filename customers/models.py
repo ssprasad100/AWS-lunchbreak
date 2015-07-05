@@ -60,6 +60,9 @@ class Order(models.Model):
         self.total = 0
         for f in self.orderedfood_set.all():
             self.total += f.total
+
+        if self.status == ORDER_STATUS_COMPLETED:
+            self.paid = True
         super(Order, self).save(*args, **kwargs)
 
 
