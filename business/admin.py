@@ -16,9 +16,6 @@ class StaffAdmin(admin.ModelAdmin):
     search_fields = ('store',)
     ordering = ('store',)
 
-    def has_add_permission(self, request):
-        return False
-
 
 @admin.register(Employee)
 class EmployeeAdmin(admin.ModelAdmin):
@@ -33,6 +30,3 @@ class EmployeeAdmin(admin.ModelAdmin):
     list_filter = ('staff',)
     search_fields = ('name', 'staff',)
     ordering = ('staff', 'name',)
-
-    def has_add_permission(self, request):
-        return False
