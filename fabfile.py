@@ -136,7 +136,7 @@ def firewall():
     run('ufw allow ssh')
     run('ufw allow 443/tcp')
     run('ufw disable')
-    run('ufw enable')
+    run('ufw --force enable')
 
 
 def updateProject():
