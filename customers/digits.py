@@ -19,10 +19,12 @@ class Digits:
     GUEST_TOKEN_URL = BASE_URL + '1.1/guest/activate.json'
     ACCESS_TOKEN_URL = BASE_URL + 'oauth2/token'
 
-    def getBearerHeader(self):
+    @property
+    def bearerHeader(self):
         return 'Bearer ' + self.requestAppToken()
 
-    def getAuthHeader(self):
+    @property
+    def authHeader(self):
         return 'Basic ' + base64.b64encode(urllib.quote(Digits.CONSUMER_KEY) + ':' + urllib.quote(Digits.CONSUMER_SECRET))
 
     def request(self, url, params, headers):
@@ -52,7 +54,7 @@ class Digits:
             }
 
             headers = {
-                'Authorization': self.getAuthHeader()
+                'Authorization': self.authHeader
             }
 
             content = self.request(
@@ -72,7 +74,7 @@ class Digits:
         }
 
         headers = {
-            'Authorization': self.getBearerHeader()
+            'Authorization': self.bearerHeader
         }
 
         content = self.request(
@@ -107,7 +109,7 @@ class Digits:
         }
 
         headers = {
-            'Authorization': self.getBearerHeader(),
+            'Authorization': self.bearerHeader,
             'x-guest-token': self.requestGuestToken()
         }
 
@@ -138,7 +140,7 @@ class Digits:
         }
 
         headers = {
-            'Authorization': self.getBearerHeader()
+            'Authorization': self.bearerHeader
         }
 
         content = self.request(
@@ -165,7 +167,7 @@ class Digits:
         }
 
         headers = {
-            'Authorization': self.getBearerHeader(),
+            'Authorization': self.bearerHeader,
             'x-guest-token': self.requestGuestToken()
         }
 
@@ -197,7 +199,7 @@ class Digits:
         }
 
         headers = {
-            'Authorization': self.getBearerHeader(),
+            'Authorization': self.bearerHeader,
             'x-guest-token': self.requestGuestToken()
         }
 
