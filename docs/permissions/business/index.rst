@@ -1,6 +1,0 @@
-========
-Business
-========
-
-.. toctree::
-    storeOwner

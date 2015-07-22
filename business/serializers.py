@@ -1,7 +1,7 @@
 from business.models import Employee, EmployeeToken, Staff, StaffToken
 from customers.models import Order, OrderedFood, User
 from lunch.exceptions import InvalidStoreLinking
-from lunch.models import (Food, Ingredient, IngredientGroup,
+from lunch.models import (BaseToken, Food, Ingredient, IngredientGroup,
                           IngredientRelation, Store)
 from lunch.serializers import (ShortIngredientRelationSerializer,
                                TokenSerializer)
@@ -22,6 +22,7 @@ class BusinessTokenSerializer(TokenSerializer):
     device = serializers.CharField(max_length=255, write_only=True)
 
     class Meta:
+        model = BaseToken
         fields = TokenSerializer.Meta.fields + ('password', 'device',)
         write_only_fields = ('password', 'device',)
         read_only_fields = TokenSerializer.Meta.read_only_fields

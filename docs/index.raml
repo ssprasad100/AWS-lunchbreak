@@ -1,0 +1,52 @@
+#%RAML 0.8
+---
+title: Lunchbreak
+baseUri: https://api.lunchbreak.be
+version: 1
+documentation:
+  - title: Welcome
+    content: |
+      Welcome to the Lunchbreak API documentation. The API powering the Lunchbreak app, see http://lunchbreakapp.be.
+
+schemas:
+    - food: !include schemas/food.schema
+    - store: !include schemas/store.schema
+
+resourceTypes:
+    - multi:
+        get:
+            description: List of <<resourcePathName|!pluralize>>.
+            responses:
+                200:
+                    body:
+                        application/json:
+                            schema: <<responseSchema>>
+                            example: <<responseExample>>
+
+    - single:
+        description: Target a specific <<resourcePathName|!singularize>>.
+        get:
+            description: Representation of <<resourcePathName|!singularize>>.
+            responses:
+                200:
+                    body:
+                        application/json:
+                            schema: <<responseSchema>>
+                            example: <<responseExample>>
+                404:
+                    description: Object could not be found.
+
+/customers:
+    /food:
+        /{foodId}:
+            type:
+                single:
+                    responseSchema: food
+                    responseExample: {}
+
+        /{storeId}:
+            description: Target all of the foods from a specific store.
+            type:
+                multi:
+                    responseSchema: food
+                    responseExample: {}
