@@ -5,7 +5,9 @@ from customers.models import Order, OrderedFood, User, UserToken
 from lunch.exceptions import BadRequest
 from lunch.models import (INPUT_SI_SET, INPUT_SI_VARIABLE, Food,
                           IngredientGroup, Store)
-from lunch.serializers import (IngredientGroupSerializer, StoreSerializer,
+from lunch.serializers import (HolidayPeriodSerializer,
+                               IngredientGroupSerializer,
+                               OpeningHoursSerializer, StoreSerializer,
                                TokenSerializer)
 from rest_framework import serializers
 
@@ -37,9 +39,7 @@ class OrderedFoodPriceSerializer(serializers.ModelSerializer):
 
 
 class ShortOrderSerializer(serializers.ModelSerializer):
-    '''
-    Used after placing an order for confirmation.
-    '''
+    '''Used after placing an order for confirmation.'''
 
     orderedFood = OrderedFoodSerializer(many=True, write_only=True)
 
@@ -112,9 +112,7 @@ class ShortOrderSerializer(serializers.ModelSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    '''
-    Used for listing a specific or all orders.
-    '''
+    '''Used for listing a specific or all orders.'''
 
     store = StoreSerializer(read_only=True)
     orderedfood = OrderedFoodSerializer(many=True, read_only=True, source='orderedfood_set')

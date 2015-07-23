@@ -1,0 +1,38 @@
+{
+    "type": "object", 
+    "required": true, 
+    "displayName": "Quantity", 
+    "properties": [
+        {
+            "type": "integer", 
+            "required": false, 
+            "displayName": "id", 
+            "description": "ID"
+        }, 
+        {
+            "type": "number", 
+            "required": false, 
+            "displayName": "amountMin", 
+            "description": "AmountMin"
+        }, 
+        {
+            "type": "number", 
+            "required": false, 
+            "displayName": "amountMax", 
+            "description": "AmountMax"
+        }, 
+        {
+            "type": "date", 
+            "required": false, 
+            "displayName": "lastModified", 
+            "description": "LastModified", 
+            "pattern": "%Y-%m-%d %H:%M:%S"
+        }, 
+        {
+            "type": "string", 
+            "required": true, 
+            "displayName": "foodType", 
+            "description": "FoodType"
+        }
+    ]
+}

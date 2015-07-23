@@ -1,52 +1,242 @@
 #%RAML 0.8
 ---
 title: Lunchbreak
-baseUri: https://api.lunchbreak.be
+baseUri: https://api.lunchbreak.be/v1
 version: 1
+mediaType:  application/json
 documentation:
   - title: Welcome
     content: |
       Welcome to the Lunchbreak API documentation. The API powering the Lunchbreak app, see http://lunchbreakapp.be.
 
-schemas:
-    - food: !include schemas/food.schema
-    - store: !include schemas/store.schema
+schemas: !include schemas/include.raml
 
 resourceTypes:
-    - multi:
+    - retrieve:
         get:
-            description: List of <<resourcePathName|!pluralize>>.
+            description: Retrieve a <<resourcePathName|!singularize>>
             responses:
                 200:
                     body:
                         application/json:
-                            schema: <<responseSchema>>
-                            example: <<responseExample>>
-
-    - single:
-        description: Target a specific <<resourcePathName|!singularize>>.
-        get:
-            description: Representation of <<resourcePathName|!singularize>>.
-            responses:
-                200:
-                    body:
-                        application/json:
-                            schema: <<responseSchema>>
+                            schema: <<responseSchema>>Read
                             example: <<responseExample>>
                 404:
-                    description: Object could not be found.
+                    description: <<resourcePathName|!singularize>> could not be found.
+    - list:
+        get:
+            description: List <<resourcePathName|!pluralize>>.
+            responses:
+                200:
+                    body:
+                        application/json:
+                            schema: <<responseSchema>>Read
+                            example: <<responseExample>>
+    - create:
+        post:
+            description: Create <<resourcePathName|!singularize>>.
+            body:
+                application/json:
+                    schema: <<requestSchema>>Write
+                    example: <<requestExample>>
+            responses:
+                201:
+                    body:
+                        application/json:
+                            schema: <<responseSchema>>Read
+                            example: <<responseExample>>
+    - listCreate:
+        get:
+            description: List <<resourcePathName|!pluralize>>.
+            responses:
+                200:
+                    body:
+                        application/json:
+                            schema: <<listResponseSchema>>Read
+                            example: <<listResponseExample>>
+        post:
+            description: Create <<resourcePathName|!singularize>>.
+            body:
+                application/json:
+                    schema: <<createRequestSchema>>Write
+                    example: <<createRequestExample>>
+            responses:
+                201:
+                    body:
+                        application/json:
+                            schema: <<createResponseSchema>>Read
+                            example: <<createResponseExample>>
 
 /customers:
     /food:
         /{foodId}:
             type:
-                single:
-                    responseSchema: food
-                    responseExample: {}
+                retrieve:
+                    responseSchema: lunchSingleFood
+                    responseExample:
 
-        /{storeId}:
+        /store/{storeId}:
             description: Target all of the foods from a specific store.
             type:
-                multi:
-                    responseSchema: food
-                    responseExample: {}
+                list:
+                    responseSchema: lunchMultiFood
+                    responseExample:
+
+    /order:
+        type:
+            listCreate:
+                listResponseSchema: customersShortOrder
+                listResponseExample:
+                createRequestSchema: customersShortOrder
+                createRequestExample:
+                createResponseSchema: customersShortOrder
+                createResponseExample:
+
+        /{orderId}:
+            type:
+                retrieve:
+                    responseSchema: customersOrder
+                    responseExample:
+
+        /price:
+            type:
+                create:
+                    requestSchema: customersShortOrder
+                    requestExample:
+                    responseSchema: customersShortOrder
+                    responseExample: |
+                        [
+                            {
+                                "food": 63,
+                                "cost": 3.0
+                            }
+                        ]
+
+    /store:
+        /{storeId}:
+            uriParameters:
+                storeId:
+                    type: integer
+                    required: true
+            type:
+                retrieve:
+                    responseSchema: customersStore
+                    responseExample:
+
+        /{heart}/{storeId}:
+            description: Heart/unheart a store.
+            uriParameters:
+                heart:
+                    type: string
+                    enum: [heart, unheart]
+                    required: true
+                storeId:
+                    type: integer
+                    required: true
+            type:
+                retrieve:
+                    responseSchema: customersStoreHeart
+                    responseExample:
+
+        /holiday/{storeId}:
+            description: Get the holiday periods of a store.
+            uriParameters:
+                storeId:
+                    type: integer
+                    required: true
+            type:
+                retrieve:
+                    responseSchema: lunchHolidayPeriod
+                    responseExample:
+
+        /hours/{storeId}:
+            description: Get the opening hours of a store.
+            uriParameters:
+                storeId:
+                    type: integer
+                    required: true
+            type:
+                retrieve:
+                    responseSchema: lunchOpeningHours
+                    responseExample:
+
+        /nearby/{latitude}/{longitude}/{proximity}:
+            description: List of nearby stores.
+            uriParameters:
+                latitude:
+                    description: Latitude coordinate.
+                    type: number
+                    required: true
+                longitude:
+                    description: Longitude coordinate.
+                    type: number
+                    required: true
+                proximity:
+                    description: The proximity of the given coordinates in which to look for stores in km.
+                    type: number
+                    required: false
+                    default: 10
+            type:
+                list:
+                    responseSchema: lunchShortStore
+                    responseExample:
+
+        /recent:
+            description: List stores where the user recently ordered something.
+            type:
+                list:
+                    responseSchema: lunchShortStore
+                    responseExample:
+
+        /open/{storeId}:
+            description: Get the opening hours and holiday periods of a store.
+            uriParameters:
+                storeId:
+                    type: integer
+                    required: true
+            type:
+                retrieve:
+                    responseSchema: lunchOpen
+                    responseExample:
+
+    /storecategory:
+        type:
+            list:
+                responseSchema: lunchShortStore
+                responseExample:
+
+    /token:
+        type:
+            list:
+                responseSchema: customersUserToken
+                responseExample:
+
+    /user:
+        post:
+            description: Register a user.
+            body:
+                application/json:
+                    schema: |
+                        {
+                            "type": "string",
+                            "required": true,
+                            "displayName": "phone",
+                            "description": "User's phone number."
+                        }
+            responses:
+                201:
+                    body:
+                        application/json:
+                            schema: <<createResponseSchema>>Read
+                            example: <<createResponseExample>>
+
+        /:
+            type:
+                create:
+                    requestSchema: customersUser
+                    requestExample:
+                    responseSchema: customersUser
+                    responseExample:
+            post:
+                description: Confirm a registration.
+

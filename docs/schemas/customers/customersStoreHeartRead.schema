@@ -1,0 +1,114 @@
+{
+    "type": "object", 
+    "required": true, 
+    "displayName": "StoreHeart", 
+    "properties": [
+        {
+            "type": "integer", 
+            "required": false, 
+            "displayName": "id", 
+            "description": "ID"
+        }, 
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "name"
+        }, 
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "city"
+        }, 
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "street"
+        }, 
+        {
+            "type": "number", 
+            "required": false, 
+            "displayName": "latitude"
+        }, 
+        {
+            "type": "number", 
+            "required": false, 
+            "displayName": "longitude"
+        }, 
+        {
+            "type": "object", 
+            "required": false, 
+            "displayName": "categories", 
+            "properties": [
+                {
+                    "type": "integer", 
+                    "required": false, 
+                    "displayName": "id", 
+                    "description": "ID"
+                }, 
+                {
+                    "type": "string", 
+                    "required": true, 
+                    "displayName": "name", 
+                    "maxLength": 255
+                }, 
+                {
+                    "type": "string", 
+                    "enum": [
+                        0, 
+                        100, 
+                        101, 
+                        102, 
+                        200, 
+                        300
+                    ], 
+                    "displayName": "icon", 
+                    "required": false
+                }
+            ]
+        }, 
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "heartsCount"
+        }, 
+        {
+            "type": "date", 
+            "required": false, 
+            "displayName": "lastModified", 
+            "description": "LastModified", 
+            "pattern": "%Y-%m-%d %H:%M:%S"
+        }, 
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "country"
+        }, 
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "province"
+        }, 
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "postcode", 
+            "description": "Postal code"
+        }, 
+        {
+            "type": "integer", 
+            "required": false, 
+            "displayName": "number"
+        }, 
+        {
+            "type": "integer", 
+            "required": false, 
+            "displayName": "minTime", 
+            "description": "MinTime"
+        }, 
+        {
+            "type": "boolean", 
+            "required": true, 
+            "displayName": "hearted"
+        }
+    ]
+}

@@ -1,0 +1,24 @@
+{
+    "type": "object", 
+    "required": true, 
+    "displayName": "Employee", 
+    "properties": [
+        {
+            "type": "integer", 
+            "required": false, 
+            "displayName": "id", 
+            "description": "ID"
+        }, 
+        {
+            "type": "string", 
+            "required": true, 
+            "displayName": "name", 
+            "maxLength": 255
+        }, 
+        {
+            "type": "boolean", 
+            "required": false, 
+            "displayName": "owner"
+        }
+    ]
+}

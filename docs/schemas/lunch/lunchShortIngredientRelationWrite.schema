@@ -1,0 +1,12 @@
+{
+    "type": "object", 
+    "required": true, 
+    "displayName": "ShortIngredientRelation", 
+    "properties": [
+        {
+            "type": "boolean", 
+            "required": false, 
+            "displayName": "typical"
+        }
+    ]
+}

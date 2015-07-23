@@ -46,6 +46,16 @@ class HolidayPeriodSerializer(serializers.ModelSerializer):
         fields = ('id', 'description', 'start', 'end', 'closed',)
 
 
+# Only here for RAML (atm)
+class OpenSerializer(serializers.Serializer):
+    holidayPeriods = HolidayPeriodSerializer(many=True, read_only=True)
+    openingHours = OpeningHoursSerializer(many=True, read_only=True)
+
+    class Meta:
+        fields = ('holidayPeriods', 'openingHours',)
+        read_only_fields = fields
+
+
 class NestedIngredientSerializer(serializers.ModelSerializer):
 
     class Meta:

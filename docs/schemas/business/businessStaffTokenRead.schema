@@ -1,0 +1,23 @@
+{
+    "type": "object", 
+    "required": true, 
+    "displayName": "StaffToken", 
+    "properties": [
+        {
+            "type": "integer", 
+            "required": false, 
+            "displayName": "id", 
+            "description": "ID"
+        }, 
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "identifier"
+        }, 
+        {
+            "type": "string", 
+            "required": true, 
+            "displayName": "staff"
+        }
+    ]
+}

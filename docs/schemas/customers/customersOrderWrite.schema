@@ -1,0 +1,6 @@
+{
+    "type": "object", 
+    "required": true, 
+    "displayName": "Order", 
+    "description": "Used for listing a specific or all orders."
+}

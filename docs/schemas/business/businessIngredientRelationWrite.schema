@@ -1,0 +1,17 @@
+{
+    "type": "object", 
+    "required": true, 
+    "displayName": "IngredientRelation", 
+    "properties": [
+        {
+            "type": "string", 
+            "required": true, 
+            "displayName": "ingredient"
+        }, 
+        {
+            "type": "boolean", 
+            "required": false, 
+            "displayName": "typical"
+        }
+    ]
+}

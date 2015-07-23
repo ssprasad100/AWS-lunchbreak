@@ -3,11 +3,12 @@ import inspect
 import os
 import copy
 import json
+import shutil
 
 from configurations import importer
 from django.apps import apps
 from django.conf import settings
-from django.db.models import fields as modelFields
+from django.db.models import fields as djangoFields
 from Lunchbreak.config import Base
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Lunchbreak.settings')
@@ -16,7 +17,7 @@ os.environ.setdefault('DJANGO_CONFIGURATION', 'Development')
 importer.install()
 apps.populate(settings.INSTALLED_APPS)
 
-from rest_framework.serializers import ModelSerializer
+from rest_framework.serializers import ModelSerializer, BaseSerializer
 from rest_framework import fields, relations
 
 import business.serializers as businessSerializers
@@ -28,21 +29,6 @@ serializerModules = {
     'customers': customersSerializers,
     'business': businessSerializers
 }
-
-
-def pretty(obj, indent=0):
-    if isinstance(obj, list):
-        for value in obj:
-            pretty(value, indent=indent)
-    elif not isinstance(obj, str) and hasattr(obj, 'iteritems'):
-        for key, value in obj.iteritems():
-            pretty(key, indent=indent)
-            pretty(value, indent=indent + 1)
-    elif inspect.isclass(obj) or isinstance(obj, Schema):
-        pretty(str(obj), indent=indent)
-        pretty(obj.__dict__, indent=indent + 1)
-    else:
-        print '\t' * indent + str(obj)
 
 
 class SchemaEncoder(json.JSONEncoder):
@@ -114,18 +100,21 @@ class Schema(object):
         return result
 
     @staticmethod
-    def getSchemas(obj, read=True, write=True, displayName=None, modelField=None):
+    def getSchemas(obj, read=True, write=True, displayName=None, model=None):
+        modelField = getattr(model, displayName, None) if displayName is not None else None
+
         if issubclass(obj.__class__, fields.Field):
             schema = Schema()
 
             schema.displayName = displayName
-            schema.description = obj.label
+            schema.description = getattr(obj, 'help_text', None)
+            schema.description = getattr(obj, 'label', None) if schema.description is None else schema.description
 
             schema.example = None
             schema.required = obj.required
             schema.default = None if obj.default is fields.empty else str(obj.default)
 
-            if issubclass(obj.__class__, ModelSerializer):
+            if issubclass(obj.__class__, BaseSerializer):
                 if schema.displayName is None:
                     schema.displayName = obj.__class__.__name__.replace('Serializer', '')
                 if obj.__doc__ is not None:
@@ -133,27 +122,32 @@ class Schema(object):
 
                 schema.type = 'object'
 
-                meta = obj.Meta
+                meta = getattr(obj, 'meta', None)
+                model = getattr(meta, 'model', None) if meta is not None else None
 
                 readSchema = copy.deepcopy(schema)
                 writeSchema = schema
 
                 try:
-                    for fieldName, field in obj.get_fields().iteritems():
+                    objFields = obj.get_fields() if hasattr(obj, 'get_fields') else obj.child.get_fields()
+                    for fieldName, field in objFields.iteritems():
                         if issubclass(field.__class__, fields.Field):
                             read_only = getattr(field, 'read_only')
                             write_only = getattr(field, 'write_only')
                             neither = not read_only and not write_only
 
-                            propertySchema = Schema.getSchemas(field, read=read_only, write=write_only, displayName=fieldName, modelField=getattr(meta.model, fieldName, None))
+                            propertySchema = Schema.getSchemas(field, read=read_only, write=write_only, displayName=fieldName, model=model)
 
                             if read and (read_only or neither):
                                 readSchema.properties.append(propertySchema)
-                            elif write and (write_only or neither):
+                            if write and (write_only or neither):
                                 writeSchema.properties.append(propertySchema)
 
                     if read and write:
-                        return [readSchema, writeSchema]
+                        return {
+                                'Read': readSchema,
+                                'Write': writeSchema
+                                }
                     elif read:
                         return readSchema
                     else:
@@ -190,13 +184,13 @@ class Schema(object):
                     schema.type = 'file'
                 elif obj.__class__ is relations.PrimaryKeyRelatedField and modelField is not None:
                     pkField = modelField.field.model._meta.pk.__class__
-                    if issubclass(pkField, modelFields.IntegerField) or pkField in [modelFields.AutoField, modelFields.BinaryField]:
+                    if issubclass(pkField, djangoFields.IntegerField) or pkField in [djangoFields.AutoField, djangoFields.BinaryField]:
                         schema.type = 'integer'
-                    elif pkField in [modelFields.BooleanField, modelFields.NullBooleanField]:
+                    elif pkField in [djangoFields.BooleanField, djangoFields.NullBooleanField]:
                         schema.type = 'boolean'
-                    elif pkField in [modelFields.DecimalField, modelFields.FloatField]:
+                    elif pkField in [djangoFields.DecimalField, djangoFields.FloatField]:
                         schema.type = 'number'
-                    elif issubclass(pkField, modelFields.DateField) or pkField in [modelFields.DurationField, modelFields.TimeField]:
+                    elif issubclass(pkField, djangoFields.DateField) or pkField in [djangoFields.DurationField, djangoFields.TimeField]:
                         schema.type = 'date'
                     else:
                         schema.type = 'string'
@@ -206,15 +200,42 @@ class Schema(object):
                 return schema
 
 done = False
+schemasDirectory = 'docs/schemas'
+
+if os.path.exists(schemasDirectory):
+    shutil.rmtree(schemasDirectory)
+
+os.makedirs(schemasDirectory)
+
+
+def lower(s):
+    return s[:1].lower() + s[1:] if s else ''
+
+schemaIncludeFile = open(schemasDirectory + '/include.raml', 'w+')
 
 for folder, serializerModule in serializerModules.iteritems():
+    directory = schemasDirectory + '/' + folder
+
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
     for name, obj in inspect.getmembers(serializerModule):
         if inspect.isclass(obj):
-            if issubclass(obj, ModelSerializer):
+            if issubclass(obj, BaseSerializer):
                 if not done:
                     schemas = Schema.getSchemas(obj())
-                    #pretty(schemas)
-                    #for s in schemas:
-                    #    print s.representation()
-                    print json.dumps(schemas, indent=4, cls=SchemaEncoder)
-                    done = False
+                    if schemas is not None:
+                        for permission, schema in schemas.iteritems():
+                            data = json.dumps(schema, indent=4, cls=SchemaEncoder)
+
+                            fileName = folder + name.replace('Serializer', '') + permission
+                            relativeFilePath = '%s/%s.schema' % (folder, fileName)
+                            absoluteFilePath = '%s/%s.schema' % (directory, fileName)
+
+                            schemaFile = open(absoluteFilePath, 'w+')
+                            schemaFile.write(data)
+                            schemaFile.close()
+
+                            schemaIncludeFile.write('- %s: !include %s\r\n' % (fileName, relativeFilePath,))
+
+schemaIncludeFile.close()

@@ -1,0 +1,117 @@
+{
+    "type": "object", 
+    "required": true, 
+    "displayName": "ShortSingleFood", 
+    "properties": [
+        {
+            "type": "integer", 
+            "required": false, 
+            "displayName": "id", 
+            "description": "ID"
+        }, 
+        {
+            "type": "string", 
+            "required": true, 
+            "displayName": "name", 
+            "maxLength": 255
+        }, 
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "description"
+        }, 
+        {
+            "type": "number", 
+            "required": false, 
+            "displayName": "amount"
+        }, 
+        {
+            "type": "number", 
+            "required": true, 
+            "displayName": "cost"
+        }, 
+        {
+            "type": "object", 
+            "required": false, 
+            "displayName": "ingredientGroups", 
+            "properties": [
+                {
+                    "type": "integer", 
+                    "required": false, 
+                    "displayName": "id", 
+                    "description": "ID"
+                }, 
+                {
+                    "type": "string", 
+                    "required": true, 
+                    "displayName": "name", 
+                    "maxLength": 255
+                }, 
+                {
+                    "displayName": "maximum", 
+                    "description": "Maximum amount", 
+                    "required": false, 
+                    "maximum": 18446744073709551615, 
+                    "minimum": 0, 
+                    "type": "integer"
+                }, 
+                {
+                    "displayName": "minimum", 
+                    "description": "Minimum amount", 
+                    "required": false, 
+                    "maximum": 18446744073709551615, 
+                    "minimum": 0, 
+                    "type": "integer"
+                }, 
+                {
+                    "type": "object", 
+                    "required": true, 
+                    "displayName": "ingredients"
+                }, 
+                {
+                    "type": "integer", 
+                    "minimum": 0, 
+                    "displayName": "priority", 
+                    "maximum": 18446744073709551615, 
+                    "required": false
+                }, 
+                {
+                    "type": "number", 
+                    "required": false, 
+                    "displayName": "cost"
+                }, 
+                {
+                    "type": "string", 
+                    "required": true, 
+                    "displayName": "foodType", 
+                    "description": "FoodType"
+                }
+            ]
+        }, 
+        {
+            "type": "object", 
+            "required": true, 
+            "displayName": "ingredients"
+        }, 
+        {
+            "type": "object", 
+            "required": true, 
+            "displayName": "category"
+        }, 
+        {
+            "type": "object", 
+            "required": true, 
+            "displayName": "foodType"
+        }, 
+        {
+            "type": "string", 
+            "required": true, 
+            "displayName": "store"
+        }, 
+        {
+            "type": "object", 
+            "required": true, 
+            "displayName": "quantity"
+        }
+    ]
+}

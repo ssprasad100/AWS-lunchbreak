@@ -1,0 +1,25 @@
+{
+    "type": "object", 
+    "required": true, 
+    "displayName": "Quantity", 
+    "properties": [
+        {
+            "type": "number", 
+            "required": false, 
+            "displayName": "amountMin", 
+            "description": "AmountMin"
+        }, 
+        {
+            "type": "number", 
+            "required": false, 
+            "displayName": "amountMax", 
+            "description": "AmountMax"
+        }, 
+        {
+            "type": "string", 
+            "required": true, 
+            "displayName": "foodType", 
+            "description": "FoodType"
+        }
+    ]
+}

@@ -12,7 +12,7 @@ from lunch.models import Food, IngredientGroup, Store, tokenGenerator
 from lunch.responses import BadRequest
 from lunch.serializers import (HolidayPeriodSerializer, MultiFoodSerializer,
                                OpeningHoursSerializer, ShortStoreSerializer,
-                               SingleFoodSerializer)
+                               SingleFoodSerializer, OpenSerializer)
 from lunch.views import (StoreCategoryListViewBase, getHolidayPeriods,
                          getOpeningAndHoliday, getOpeningHours)
 from rest_framework import generics, status
@@ -20,9 +20,7 @@ from rest_framework.response import Response
 
 
 class StoreMultiView(generics.ListAPIView):
-    '''
-    List the stores.
-    '''
+    '''List the stores.'''
 
     authentication_classes = (CustomerAuthentication,)
     serializer_class = ShortStoreSerializer
@@ -36,9 +34,7 @@ class StoreMultiView(generics.ListAPIView):
 
 
 class StoreHeartView(generics.RetrieveUpdateAPIView):
-    '''
-    Heart or unheart a store.
-    '''
+    '''Heart or unheart a store.'''
 
     authentication_classes = (CustomerAuthentication,)
     serializer_class = StoreHeartSerializer
@@ -65,12 +61,10 @@ class StoreHeartView(generics.RetrieveUpdateAPIView):
 
 
 class StoreOpenView(generics.ListAPIView):
-    '''
-    List the opening hours and holiday periods of a store.
-    '''
+    '''List the opening hours and holiday periods of a store.'''
 
     authentication_classes = (CustomerAuthentication,)
-    serializer_class = OpeningHoursSerializer
+    serializer_class = OpenSerializer
     pagination_class = None
     queryset = None
 
@@ -83,9 +77,7 @@ class StoreCategoryListView(StoreCategoryListViewBase):
 
 
 class OpeningHoursListView(generics.ListAPIView):
-    '''
-    List the opening hours of a store.
-    '''
+    '''List the opening hours of a store.'''
 
     authentication_classes = (CustomerAuthentication,)
     serializer_class = OpeningHoursSerializer
@@ -96,9 +88,7 @@ class OpeningHoursListView(generics.ListAPIView):
 
 
 class HolidayPeriodListView(generics.ListAPIView):
-    '''
-    List the holiday periods of a store.
-    '''
+    '''List the holiday periods of a store.'''
 
     authentication_classes = (CustomerAuthentication,)
     serializer_class = HolidayPeriodSerializer
@@ -109,9 +99,7 @@ class HolidayPeriodListView(generics.ListAPIView):
 
 
 class FoodListView(generics.ListAPIView):
-    '''
-    List the available food.
-    '''
+    '''List the available food.'''
 
     authentication_classes = (CustomerAuthentication,)
     serializer_class = MultiFoodSerializer
@@ -122,9 +110,7 @@ class FoodListView(generics.ListAPIView):
 
 
 class FoodRetrieveView(generics.RetrieveAPIView):
-    '''
-    Retrieve a specific food.
-    '''
+    '''Retrieve a specific food.'''
 
     serializer_class = SingleFoodSerializer
     queryset = Food.objects.all()
@@ -133,9 +119,7 @@ class FoodRetrieveView(generics.RetrieveAPIView):
 
 
 class OrderView(generics.ListCreateAPIView):
-    '''
-    Place an order and list a specific or all of the user's orders.
-    '''
+    '''Place an order and list a specific or all of the user's orders.'''
 
     authentication_classes = (CustomerAuthentication,)
     serializer_class = ShortOrderSerializer
@@ -156,9 +140,7 @@ class OrderView(generics.ListCreateAPIView):
 
 
 class OrderRetrieveView(generics.RetrieveAPIView):
-    '''
-    Retrieve a single order.
-    '''
+    '''Retrieve a single order.'''
 
     authentication_classes = (CustomerAuthentication,)
     serializer_class = OrderSerializer
@@ -170,10 +152,8 @@ class OrderPriceView(generics.CreateAPIView):
     serializer_class = OrderedFoodPriceSerializer
 
     def post(self, request, format=None):
-        '''
-        Return the price of the food.
-        '''
-        priceSerializer = OrderedFoodPriceSerializer(data=request.data, many=True)
+        '''    Return the price of the food.
+        '''    priceSerializer = OrderedFoodPriceSerializer(data=request.data, many=True)
         if priceSerializer.is_valid():
             result = []
             for priceCheck in priceSerializer.validated_data:
@@ -195,17 +175,12 @@ class OrderPriceView(generics.CreateAPIView):
 
 
 class UserTokenView(generics.ListAPIView):
-    '''
-    Tokens can only be listed (for now).
-    '''
+    '''Return all of the Tokens for the authenticated user.'''
 
     authentication_classes = (CustomerAuthentication,)
     serializer_class = UserTokenSerializer
 
     def get_queryset(self):
-        '''
-        Return all of the Tokens for the authenticated user.
-        '''
         return UserToken.objects.filter(user=self.request.user)
 
 
@@ -213,8 +188,7 @@ class UserView(generics.CreateAPIView):
 
     serializer_class = UserSerializer
 
-    # For all these methods a try-except is not needed since a DigitsException is generated
-    # which will provide everything
+    # For all these methods a try-except is not needed since a DigitsException is generated which will provide everything
     def register(self, digits, phone):
         try:
             digits.register(phone)

@@ -1,0 +1,13 @@
+{
+    "type": "object", 
+    "required": true, 
+    "displayName": "PrivateUser", 
+    "properties": [
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "name", 
+            "maxLength": 255
+        }
+    ]
+}

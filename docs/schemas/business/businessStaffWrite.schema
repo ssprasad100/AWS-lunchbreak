@@ -1,0 +1,18 @@
+{
+    "type": "object", 
+    "required": true, 
+    "displayName": "Staff", 
+    "properties": [
+        {
+            "type": "object", 
+            "required": true, 
+            "displayName": "store"
+        }, 
+        {
+            "type": "string", 
+            "required": true, 
+            "displayName": "password", 
+            "maxLength": 255
+        }
+    ]
+}

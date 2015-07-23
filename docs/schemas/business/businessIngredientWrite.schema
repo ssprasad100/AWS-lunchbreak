@@ -1,0 +1,36 @@
+{
+    "type": "object", 
+    "required": true, 
+    "displayName": "Ingredient", 
+    "properties": [
+        {
+            "type": "string", 
+            "required": true, 
+            "displayName": "name", 
+            "maxLength": 255
+        }, 
+        {
+            "type": "number", 
+            "required": false, 
+            "displayName": "cost"
+        }, 
+        {
+            "type": "string", 
+            "enum": [
+                0, 
+                100, 
+                101, 
+                102, 
+                200, 
+                300
+            ], 
+            "displayName": "icon", 
+            "required": false
+        }, 
+        {
+            "type": "string", 
+            "required": true, 
+            "displayName": "group"
+        }
+    ]
+}

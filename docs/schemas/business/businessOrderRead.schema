@@ -1,0 +1,114 @@
+{
+    "type": "object", 
+    "required": true, 
+    "displayName": "Order", 
+    "properties": [
+        {
+            "type": "integer", 
+            "required": false, 
+            "displayName": "id", 
+            "description": "ID"
+        }, 
+        {
+            "type": "object", 
+            "required": false, 
+            "displayName": "user", 
+            "properties": [
+                {
+                    "type": "integer", 
+                    "required": false, 
+                    "displayName": "id", 
+                    "description": "ID"
+                }, 
+                {
+                    "type": "string", 
+                    "required": false, 
+                    "displayName": "name", 
+                    "maxLength": 255
+                }
+            ]
+        }, 
+        {
+            "type": "date", 
+            "required": false, 
+            "displayName": "orderedTime", 
+            "description": "Time of order", 
+            "pattern": "%Y-%m-%d %H:%M:%S"
+        }, 
+        {
+            "type": "date", 
+            "required": false, 
+            "displayName": "pickupTime", 
+            "description": "Time of pickup", 
+            "pattern": "%Y-%m-%d %H:%M:%S"
+        }, 
+        {
+            "type": "string", 
+            "enum": [
+                0, 
+                1, 
+                2, 
+                3, 
+                4, 
+                5, 
+                6
+            ], 
+            "displayName": "status", 
+            "required": false
+        }, 
+        {
+            "type": "boolean", 
+            "required": false, 
+            "displayName": "paid"
+        }, 
+        {
+            "type": "number", 
+            "required": false, 
+            "displayName": "total"
+        }, 
+        {
+            "type": "object", 
+            "required": false, 
+            "displayName": "orderedFood", 
+            "properties": [
+                {
+                    "type": "integer", 
+                    "required": false, 
+                    "displayName": "id", 
+                    "description": "ID"
+                }, 
+                {
+                    "type": "string", 
+                    "required": false, 
+                    "displayName": "ingredients"
+                }, 
+                {
+                    "type": "number", 
+                    "required": false, 
+                    "displayName": "amount"
+                }, 
+                {
+                    "type": "string", 
+                    "required": false, 
+                    "displayName": "original"
+                }, 
+                {
+                    "type": "number", 
+                    "required": true, 
+                    "displayName": "cost"
+                }, 
+                {
+                    "type": "boolean", 
+                    "required": false, 
+                    "displayName": "useOriginal", 
+                    "description": "UseOriginal"
+                }
+            ]
+        }, 
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "description"
+        }
+    ]
+}

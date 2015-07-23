@@ -140,44 +140,1406 @@
       .list-group-item:hover {
         background-color: #f5f5f5;
       }
-    </style></head><body data-spy="scroll" data-target="#sidebar"><div class="container"><div class="row"><div class="col-md-9" role="main"><div class="page-header"><h1>Lunchbreak API documentation <small>version 1</small></h1><p>https://api.lunchbreak.be</p><h3 id="Welcome"><a href="#Welcome">Welcome</a></h3><p>Welcome to the Lunchbreak API documentation. The API powering the Lunchbreak app, see <a href="http://lunchbreakapp.be">http://lunchbreakapp.be</a>.</p></div><div class="panel panel-default"><div class="panel-heading"><h3 id="customers" class="panel-title">/customers</h3></div><div class="panel-body"><div class="panel-group"><div class="panel panel-white"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_customers_food__foodId_"><span class="parent">/customers/food</span>/{foodId}</a> <span class="methods"><a href="#customers_food__foodId__get"><span class="badge badge_get">get</span></a></span></h4></div><div id="panel_customers_food__foodId_" class="panel-collapse collapse"><div class="panel-body"><div class="resource-description"><p>Target a specific food.</p></div><div class="list-group"><div onclick="window.location.href = '#customers_food__foodId__get'" class="list-group-item"><span class="badge badge_get">get</span><div class="method_description"><p>Representation of food.</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="customers_food__foodId__get"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_get">get</span> <span class="parent">/customers/food</span>/{foodId}</h4></div><div class="modal-body"><div class="alert alert-info"><p>Representation of food.</p></div><ul class="nav nav-tabs"><li class="active"><a href="#customers_food__foodId__get_request" data-toggle="tab">Request</a></li><li><a href="#customers_food__foodId__get_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="customers_food__foodId__get_request"><h3>URI Parameters</h3><ul><li><strong>foodId</strong>: <em>required (string)</em></li></ul></div><div class="tab-pane" id="customers_food__foodId__get_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Schema</strong>:</p><pre><code>{
-  "type": "object",
-  "$schema": "http://json-schema.org/draft-03/schema",
-  "id": "http://jsonschema.net",
-  "required":false,
-  "properties": {
-    "artistName": {
-      "type": "string",
-      "required":true
-    },
-    "description": {
-      "type": "string",
-      "required": false
-    },
-    "imageURL": {
-      "type": "string",
-      "required": false
+    </style></head><body data-spy="scroll" data-target="#sidebar"><div class="container"><div class="row"><div class="col-md-9" role="main"><div class="page-header"><h1>Lunchbreak API documentation <small>version 1</small></h1><p>https://api.lunchbreak.be/v1</p><h3 id="Welcome"><a href="#Welcome">Welcome</a></h3><p>Welcome to the Lunchbreak API documentation. The API powering the Lunchbreak app, see <a href="http://lunchbreakapp.be">http://lunchbreakapp.be</a>.</p></div><div class="panel panel-default"><div class="panel-heading"><h3 id="customers" class="panel-title">/customers</h3></div><div class="panel-body"><div class="panel-group"><div class="panel panel-white"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_customers_food__foodId_"><span class="parent">/customers/food</span>/{foodId}</a> <span class="methods"><a href="#customers_food__foodId__get"><span class="badge badge_get">get</span></a></span></h4></div><div id="panel_customers_food__foodId_" class="panel-collapse collapse"><div class="panel-body"><div class="list-group"><div onclick="window.location.href = '#customers_food__foodId__get'" class="list-group-item"><span class="badge badge_get">get</span><div class="method_description"><p>Retrieve a food</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="customers_food__foodId__get"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_get">get</span> <span class="parent">/customers/food</span>/{foodId}</h4></div><div class="modal-body"><div class="alert alert-info"><p>Retrieve a food</p></div><ul class="nav nav-tabs"><li class="active"><a href="#customers_food__foodId__get_request" data-toggle="tab">Request</a></li><li><a href="#customers_food__foodId__get_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="customers_food__foodId__get_request"><h3>URI Parameters</h3><ul><li><strong>foodId</strong>: <em>required (string)</em></li></ul></div><div class="tab-pane" id="customers_food__foodId__get_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Schema</strong>:</p><pre><code>{
+    "type": "object", 
+    "required": true, 
+    "displayName": "SingleFood", 
+    "properties": [
+        {
+            "type": "integer", 
+            "required": false, 
+            "displayName": "id", 
+            "description": "ID"
+        }, 
+        {
+            "type": "string", 
+            "required": true, 
+            "displayName": "name", 
+            "maxLength": 255
+        }, 
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "description"
+        }, 
+        {
+            "type": "number", 
+            "required": false, 
+            "displayName": "amount"
+        }, 
+        {
+            "type": "number", 
+            "required": true, 
+            "displayName": "cost"
+        }, 
+        {
+            "type": "object", 
+            "required": false, 
+            "displayName": "ingredientGroups", 
+            "properties": [
+                {
+                    "type": "integer", 
+                    "required": false, 
+                    "displayName": "id", 
+                    "description": "ID"
+                }, 
+                {
+                    "type": "string", 
+                    "required": true, 
+                    "displayName": "name", 
+                    "maxLength": 255
+                }, 
+                {
+                    "displayName": "maximum", 
+                    "description": "Maximum amount", 
+                    "required": false, 
+                    "maximum": 18446744073709551615, 
+                    "minimum": 0, 
+                    "type": "integer"
+                }, 
+                {
+                    "displayName": "minimum", 
+                    "description": "Minimum amount", 
+                    "required": false, 
+                    "maximum": 18446744073709551615, 
+                    "minimum": 0, 
+                    "type": "integer"
+                }, 
+                {
+                    "type": "object", 
+                    "required": true, 
+                    "displayName": "ingredients"
+                }, 
+                {
+                    "type": "integer", 
+                    "minimum": 0, 
+                    "displayName": "priority", 
+                    "maximum": 18446744073709551615, 
+                    "required": false
+                }, 
+                {
+                    "type": "number", 
+                    "required": false, 
+                    "displayName": "cost"
+                }, 
+                {
+                    "type": "string", 
+                    "required": true, 
+                    "displayName": "foodType", 
+                    "description": "FoodType"
+                }
+            ]
+        }, 
+        {
+            "type": "object", 
+            "required": true, 
+            "displayName": "ingredients"
+        }, 
+        {
+            "type": "object", 
+            "required": true, 
+            "displayName": "category"
+        }, 
+        {
+            "type": "object", 
+            "required": true, 
+            "displayName": "foodType"
+        }, 
+        {
+            "type": "string", 
+            "required": true, 
+            "displayName": "store"
+        }, 
+        {
+            "type": "object", 
+            "required": true, 
+            "displayName": "quantity"
+        }
+    ]
+}</code></pre><h2>HTTP status code <a href="http://httpstatus.es/404" target="_blank">404</a></h2><p>food could not be found.</p></div></div></div></div></div></div></div><div class="panel panel-white"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_customers_food_store__storeId_"><span class="parent">/customers/food</span>/store/{storeId}</a> <span class="methods"><a href="#customers_food_store__storeId__get"><span class="badge badge_get">get</span></a></span></h4></div><div id="panel_customers_food_store__storeId_" class="panel-collapse collapse"><div class="panel-body"><div class="resource-description"><p>Target all of the foods from a specific store.</p></div><div class="list-group"><div onclick="window.location.href = '#customers_food_store__storeId__get'" class="list-group-item"><span class="badge badge_get">get</span><div class="method_description"><p>List stores.</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="customers_food_store__storeId__get"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_get">get</span> <span class="parent">/customers/food</span>/store/{storeId}</h4></div><div class="modal-body"><div class="alert alert-info"><p>List stores.</p></div><ul class="nav nav-tabs"><li class="active"><a href="#customers_food_store__storeId__get_request" data-toggle="tab">Request</a></li><li><a href="#customers_food_store__storeId__get_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="customers_food_store__storeId__get_request"><h3>URI Parameters</h3><ul><li><strong>storeId</strong>: <em>required (string)</em></li></ul></div><div class="tab-pane" id="customers_food_store__storeId__get_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Schema</strong>:</p><pre><code>{
+    "type": "object", 
+    "required": true, 
+    "displayName": "MultiFood", 
+    "properties": [
+        {
+            "type": "integer", 
+            "required": false, 
+            "displayName": "id", 
+            "description": "ID"
+        }, 
+        {
+            "type": "string", 
+            "required": true, 
+            "displayName": "name", 
+            "maxLength": 255
+        }, 
+        {
+            "type": "number", 
+            "required": false, 
+            "displayName": "amount"
+        }, 
+        {
+            "type": "number", 
+            "required": true, 
+            "displayName": "cost"
+        }, 
+        {
+            "type": "object", 
+            "required": true, 
+            "displayName": "category"
+        }, 
+        {
+            "type": "object", 
+            "required": true, 
+            "displayName": "foodType"
+        }, 
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "hasIngredients"
+        }, 
+        {
+            "type": "object", 
+            "required": true, 
+            "displayName": "quantity"
+        }
+    ]
+}</code></pre></div></div></div></div></div></div></div><div class="panel panel-white"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_customers_order"><span class="parent">/customers</span>/order</a> <span class="methods"><a href="#customers_order_get"><span class="badge badge_get">get</span></a> <a href="#customers_order_post"><span class="badge badge_post">post</span></a></span></h4></div><div id="panel_customers_order" class="panel-collapse collapse"><div class="panel-body"><div class="list-group"><div onclick="window.location.href = '#customers_order_get'" class="list-group-item"><span class="badge badge_get">get</span><div class="method_description"><p>List orders.</p></div><div class="clearfix"></div></div><div onclick="window.location.href = '#customers_order_post'" class="list-group-item"><span class="badge badge_post">post</span><div class="method_description"><p>Create order.</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="customers_order_get"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_get">get</span> <span class="parent">/customers</span>/order</h4></div><div class="modal-body"><div class="alert alert-info"><p>List orders.</p></div><ul class="nav nav-tabs"><li><a href="#customers_order_get_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane" id="customers_order_get_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Schema</strong>:</p><pre><code>{
+    "type": "object", 
+    "required": true, 
+    "displayName": "ShortOrder", 
+    "description": "Used after placing an order for confirmation.", 
+    "properties": [
+        {
+            "type": "integer", 
+            "required": false, 
+            "displayName": "id", 
+            "description": "ID"
+        }, 
+        {
+            "type": "string", 
+            "required": true, 
+            "displayName": "store"
+        }, 
+        {
+            "type": "date", 
+            "required": true, 
+            "displayName": "pickupTime", 
+            "description": "Time of pickup", 
+            "pattern": "%Y-%m-%d %H:%M:%S"
+        }, 
+        {
+            "type": "boolean", 
+            "required": false, 
+            "displayName": "paid"
+        }, 
+        {
+            "type": "number", 
+            "required": false, 
+            "displayName": "total"
+        }, 
+        {
+            "type": "string", 
+            "enum": [
+                0, 
+                1, 
+                2, 
+                3, 
+                4, 
+                5, 
+                6
+            ], 
+            "displayName": "status", 
+            "required": false
+        }
+    ]
+}</code></pre></div></div></div></div></div></div><div class="modal fade" tabindex="0" id="customers_order_post"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_post">post</span> <span class="parent">/customers</span>/order</h4></div><div class="modal-body"><div class="alert alert-info"><p>Create order.</p></div><ul class="nav nav-tabs"><li class="active"><a href="#customers_order_post_request" data-toggle="tab">Request</a></li><li><a href="#customers_order_post_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="customers_order_post_request"><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Schema</strong>:</p><pre><code>{
+    "type": "object", 
+    "required": true, 
+    "displayName": "ShortOrder", 
+    "description": "Used after placing an order for confirmation.", 
+    "properties": [
+        {
+            "type": "string", 
+            "required": true, 
+            "displayName": "store"
+        }, 
+        {
+            "type": "date", 
+            "required": true, 
+            "displayName": "pickupTime", 
+            "description": "Time of pickup", 
+            "pattern": "%Y-%m-%d %H:%M:%S"
+        }, 
+        {
+            "type": "object", 
+            "required": true, 
+            "displayName": "orderedFood", 
+            "properties": [
+                {
+                    "type": "string", 
+                    "required": false, 
+                    "displayName": "ingredients"
+                }, 
+                {
+                    "type": "number", 
+                    "required": false, 
+                    "displayName": "amount"
+                }, 
+                {
+                    "type": "string", 
+                    "required": true, 
+                    "displayName": "original"
+                }, 
+                {
+                    "type": "number", 
+                    "required": true, 
+                    "displayName": "cost"
+                }
+            ]
+        }, 
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "description"
+        }
+    ]
+}</code></pre></div><div class="tab-pane" id="customers_order_post_response"><h2>HTTP status code <a href="http://httpstatus.es/201" target="_blank">201</a></h2><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Schema</strong>:</p><pre><code>{
+    "type": "object", 
+    "required": true, 
+    "displayName": "ShortOrder", 
+    "description": "Used after placing an order for confirmation.", 
+    "properties": [
+        {
+            "type": "integer", 
+            "required": false, 
+            "displayName": "id", 
+            "description": "ID"
+        }, 
+        {
+            "type": "string", 
+            "required": true, 
+            "displayName": "store"
+        }, 
+        {
+            "type": "date", 
+            "required": true, 
+            "displayName": "pickupTime", 
+            "description": "Time of pickup", 
+            "pattern": "%Y-%m-%d %H:%M:%S"
+        }, 
+        {
+            "type": "boolean", 
+            "required": false, 
+            "displayName": "paid"
+        }, 
+        {
+            "type": "number", 
+            "required": false, 
+            "displayName": "total"
+        }, 
+        {
+            "type": "string", 
+            "enum": [
+                0, 
+                1, 
+                2, 
+                3, 
+                4, 
+                5, 
+                6
+            ], 
+            "displayName": "status", 
+            "required": false
+        }
+    ]
+}</code></pre></div></div></div></div></div></div></div><div class="panel panel-white"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_customers_order__orderId_"><span class="parent">/customers/order</span>/{orderId}</a> <span class="methods"><a href="#customers_order__orderId__get"><span class="badge badge_get">get</span></a></span></h4></div><div id="panel_customers_order__orderId_" class="panel-collapse collapse"><div class="panel-body"><div class="list-group"><div onclick="window.location.href = '#customers_order__orderId__get'" class="list-group-item"><span class="badge badge_get">get</span><div class="method_description"><p>Retrieve a order</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="customers_order__orderId__get"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_get">get</span> <span class="parent">/customers/order</span>/{orderId}</h4></div><div class="modal-body"><div class="alert alert-info"><p>Retrieve a order</p></div><ul class="nav nav-tabs"><li class="active"><a href="#customers_order__orderId__get_request" data-toggle="tab">Request</a></li><li><a href="#customers_order__orderId__get_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="customers_order__orderId__get_request"><h3>URI Parameters</h3><ul><li><strong>orderId</strong>: <em>required (string)</em></li></ul></div><div class="tab-pane" id="customers_order__orderId__get_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Schema</strong>:</p><pre><code>{
+    "type": "object", 
+    "required": true, 
+    "displayName": "Order", 
+    "description": "Used for listing a specific or all orders.", 
+    "properties": [
+        {
+            "type": "integer", 
+            "required": false, 
+            "displayName": "id", 
+            "description": "ID"
+        }, 
+        {
+            "type": "object", 
+            "required": false, 
+            "displayName": "store", 
+            "properties": [
+                {
+                    "type": "integer", 
+                    "required": false, 
+                    "displayName": "id", 
+                    "description": "ID"
+                }, 
+                {
+                    "type": "string", 
+                    "required": false, 
+                    "displayName": "name"
+                }, 
+                {
+                    "type": "string", 
+                    "required": false, 
+                    "displayName": "city"
+                }, 
+                {
+                    "type": "string", 
+                    "required": false, 
+                    "displayName": "street"
+                }, 
+                {
+                    "type": "number", 
+                    "required": false, 
+                    "displayName": "latitude"
+                }, 
+                {
+                    "type": "number", 
+                    "required": false, 
+                    "displayName": "longitude"
+                }, 
+                {
+                    "type": "object", 
+                    "required": false, 
+                    "displayName": "categories", 
+                    "properties": [
+                        {
+                            "type": "integer", 
+                            "required": false, 
+                            "displayName": "id", 
+                            "description": "ID"
+                        }, 
+                        {
+                            "type": "string", 
+                            "required": true, 
+                            "displayName": "name", 
+                            "maxLength": 255
+                        }, 
+                        {
+                            "type": "string", 
+                            "enum": [
+                                0, 
+                                100, 
+                                101, 
+                                102, 
+                                200, 
+                                300
+                            ], 
+                            "displayName": "icon", 
+                            "required": false
+                        }
+                    ]
+                }, 
+                {
+                    "type": "string", 
+                    "required": false, 
+                    "displayName": "heartsCount"
+                }, 
+                {
+                    "type": "date", 
+                    "required": false, 
+                    "displayName": "lastModified", 
+                    "description": "LastModified", 
+                    "pattern": "%Y-%m-%d %H:%M:%S"
+                }, 
+                {
+                    "type": "string", 
+                    "required": true, 
+                    "displayName": "country", 
+                    "maxLength": 255
+                }, 
+                {
+                    "type": "string", 
+                    "required": true, 
+                    "displayName": "province", 
+                    "maxLength": 255
+                }, 
+                {
+                    "type": "string", 
+                    "required": true, 
+                    "displayName": "postcode", 
+                    "description": "Postal code", 
+                    "maxLength": 20
+                }, 
+                {
+                    "type": "integer", 
+                    "minimum": 0, 
+                    "displayName": "number", 
+                    "maximum": 18446744073709551615, 
+                    "required": true
+                }, 
+                {
+                    "displayName": "minTime", 
+                    "description": "MinTime", 
+                    "required": false, 
+                    "maximum": 18446744073709551615, 
+                    "minimum": 0, 
+                    "type": "integer"
+                }
+            ]
+        }, 
+        {
+            "type": "date", 
+            "required": false, 
+            "displayName": "orderedTime", 
+            "description": "Time of order", 
+            "pattern": "%Y-%m-%d %H:%M:%S"
+        }, 
+        {
+            "type": "date", 
+            "required": false, 
+            "displayName": "pickupTime", 
+            "description": "Time of pickup", 
+            "pattern": "%Y-%m-%d %H:%M:%S"
+        }, 
+        {
+            "type": "string", 
+            "enum": [
+                0, 
+                1, 
+                2, 
+                3, 
+                4, 
+                5, 
+                6
+            ], 
+            "displayName": "status", 
+            "required": false
+        }, 
+        {
+            "type": "boolean", 
+            "required": false, 
+            "displayName": "paid"
+        }, 
+        {
+            "type": "number", 
+            "required": false, 
+            "displayName": "total"
+        }, 
+        {
+            "type": "object", 
+            "required": false, 
+            "displayName": "orderedfood", 
+            "properties": [
+                {
+                    "type": "integer", 
+                    "required": false, 
+                    "displayName": "id", 
+                    "description": "ID"
+                }, 
+                {
+                    "type": "string", 
+                    "required": false, 
+                    "displayName": "ingredients"
+                }, 
+                {
+                    "type": "number", 
+                    "required": false, 
+                    "displayName": "amount"
+                }, 
+                {
+                    "type": "number", 
+                    "required": false, 
+                    "displayName": "foodAmount", 
+                    "description": "FoodAmount"
+                }, 
+                {
+                    "type": "string", 
+                    "required": false, 
+                    "displayName": "order"
+                }, 
+                {
+                    "type": "string", 
+                    "required": true, 
+                    "displayName": "original"
+                }, 
+                {
+                    "type": "object", 
+                    "required": false, 
+                    "displayName": "ingredientGroups", 
+                    "properties": [
+                        {
+                            "type": "integer", 
+                            "required": false, 
+                            "displayName": "id", 
+                            "description": "ID"
+                        }, 
+                        {
+                            "type": "string", 
+                            "required": true, 
+                            "displayName": "name", 
+                            "maxLength": 255
+                        }, 
+                        {
+                            "displayName": "maximum", 
+                            "description": "Maximum amount", 
+                            "required": false, 
+                            "maximum": 18446744073709551615, 
+                            "minimum": 0, 
+                            "type": "integer"
+                        }, 
+                        {
+                            "displayName": "minimum", 
+                            "description": "Minimum amount", 
+                            "required": false, 
+                            "maximum": 18446744073709551615, 
+                            "minimum": 0, 
+                            "type": "integer"
+                        }, 
+                        {
+                            "type": "object", 
+                            "required": true, 
+                            "displayName": "ingredients"
+                        }, 
+                        {
+                            "type": "integer", 
+                            "minimum": 0, 
+                            "displayName": "priority", 
+                            "maximum": 18446744073709551615, 
+                            "required": false
+                        }, 
+                        {
+                            "type": "number", 
+                            "required": false, 
+                            "displayName": "cost"
+                        }, 
+                        {
+                            "type": "string", 
+                            "required": true, 
+                            "displayName": "foodType", 
+                            "description": "FoodType"
+                        }
+                    ]
+                }, 
+                {
+                    "type": "number", 
+                    "required": true, 
+                    "displayName": "cost"
+                }, 
+                {
+                    "type": "boolean", 
+                    "required": false, 
+                    "displayName": "useOriginal", 
+                    "description": "UseOriginal"
+                }
+            ]
+        }, 
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "description"
+        }
+    ]
+}</code></pre><h2>HTTP status code <a href="http://httpstatus.es/404" target="_blank">404</a></h2><p>order could not be found.</p></div></div></div></div></div></div></div><div class="panel panel-white"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_customers_order_price"><span class="parent">/customers/order</span>/price</a> <span class="methods"><a href="#customers_order_price_post"><span class="badge badge_post">post</span></a></span></h4></div><div id="panel_customers_order_price" class="panel-collapse collapse"><div class="panel-body"><div class="list-group"><div onclick="window.location.href = '#customers_order_price_post'" class="list-group-item"><span class="badge badge_post">post</span><div class="method_description"><p>Create price.</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="customers_order_price_post"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_post">post</span> <span class="parent">/customers/order</span>/price</h4></div><div class="modal-body"><div class="alert alert-info"><p>Create price.</p></div><ul class="nav nav-tabs"><li class="active"><a href="#customers_order_price_post_request" data-toggle="tab">Request</a></li><li><a href="#customers_order_price_post_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="customers_order_price_post_request"><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Schema</strong>:</p><pre><code>{
+    "type": "object", 
+    "required": true, 
+    "displayName": "ShortOrder", 
+    "description": "Used after placing an order for confirmation.", 
+    "properties": [
+        {
+            "type": "string", 
+            "required": true, 
+            "displayName": "store"
+        }, 
+        {
+            "type": "date", 
+            "required": true, 
+            "displayName": "pickupTime", 
+            "description": "Time of pickup", 
+            "pattern": "%Y-%m-%d %H:%M:%S"
+        }, 
+        {
+            "type": "object", 
+            "required": true, 
+            "displayName": "orderedFood", 
+            "properties": [
+                {
+                    "type": "string", 
+                    "required": false, 
+                    "displayName": "ingredients"
+                }, 
+                {
+                    "type": "number", 
+                    "required": false, 
+                    "displayName": "amount"
+                }, 
+                {
+                    "type": "string", 
+                    "required": true, 
+                    "displayName": "original"
+                }, 
+                {
+                    "type": "number", 
+                    "required": true, 
+                    "displayName": "cost"
+                }
+            ]
+        }, 
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "description"
+        }
+    ]
+}</code></pre></div><div class="tab-pane" id="customers_order_price_post_response"><h2>HTTP status code <a href="http://httpstatus.es/201" target="_blank">201</a></h2><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Schema</strong>:</p><pre><code>{
+    "type": "object", 
+    "required": true, 
+    "displayName": "ShortOrder", 
+    "description": "Used after placing an order for confirmation.", 
+    "properties": [
+        {
+            "type": "integer", 
+            "required": false, 
+            "displayName": "id", 
+            "description": "ID"
+        }, 
+        {
+            "type": "string", 
+            "required": true, 
+            "displayName": "store"
+        }, 
+        {
+            "type": "date", 
+            "required": true, 
+            "displayName": "pickupTime", 
+            "description": "Time of pickup", 
+            "pattern": "%Y-%m-%d %H:%M:%S"
+        }, 
+        {
+            "type": "boolean", 
+            "required": false, 
+            "displayName": "paid"
+        }, 
+        {
+            "type": "number", 
+            "required": false, 
+            "displayName": "total"
+        }, 
+        {
+            "type": "string", 
+            "enum": [
+                0, 
+                1, 
+                2, 
+                3, 
+                4, 
+                5, 
+                6
+            ], 
+            "displayName": "status", 
+            "required": false
+        }
+    ]
+}</code></pre><p><strong>Example</strong>:</p><pre><code>[
+    {
+        "food": 63,
+        "cost": 3.0
     }
-  }
+]
+</code></pre></div></div></div></div></div></div></div><div class="panel panel-white"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_customers_store__storeId_"><span class="parent">/customers/store</span>/{storeId}</a> <span class="methods"><a href="#customers_store__storeId__get"><span class="badge badge_get">get</span></a></span></h4></div><div id="panel_customers_store__storeId_" class="panel-collapse collapse"><div class="panel-body"><div class="list-group"><div onclick="window.location.href = '#customers_store__storeId__get'" class="list-group-item"><span class="badge badge_get">get</span><div class="method_description"><p>Retrieve a store</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="customers_store__storeId__get"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_get">get</span> <span class="parent">/customers/store</span>/{storeId}</h4></div><div class="modal-body"><div class="alert alert-info"><p>Retrieve a store</p></div><ul class="nav nav-tabs"><li class="active"><a href="#customers_store__storeId__get_request" data-toggle="tab">Request</a></li><li><a href="#customers_store__storeId__get_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="customers_store__storeId__get_request"><h3>URI Parameters</h3><ul><li><strong>storeId</strong>: <em>required (integer)</em></li></ul></div><div class="tab-pane" id="customers_store__storeId__get_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Schema</strong>:</p><pre><code>{
+    "type": "object", 
+    "required": true, 
+    "displayName": "Store", 
+    "properties": [
+        {
+            "type": "integer", 
+            "required": false, 
+            "displayName": "id", 
+            "description": "ID"
+        }, 
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "name"
+        }, 
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "city"
+        }, 
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "street"
+        }, 
+        {
+            "type": "number", 
+            "required": false, 
+            "displayName": "latitude"
+        }, 
+        {
+            "type": "number", 
+            "required": false, 
+            "displayName": "longitude"
+        }, 
+        {
+            "type": "object", 
+            "required": false, 
+            "displayName": "categories", 
+            "properties": [
+                {
+                    "type": "integer", 
+                    "required": false, 
+                    "displayName": "id", 
+                    "description": "ID"
+                }, 
+                {
+                    "type": "string", 
+                    "required": true, 
+                    "displayName": "name", 
+                    "maxLength": 255
+                }, 
+                {
+                    "type": "string", 
+                    "enum": [
+                        0, 
+                        100, 
+                        101, 
+                        102, 
+                        200, 
+                        300
+                    ], 
+                    "displayName": "icon", 
+                    "required": false
+                }
+            ]
+        }, 
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "heartsCount"
+        }, 
+        {
+            "type": "date", 
+            "required": false, 
+            "displayName": "lastModified", 
+            "description": "LastModified", 
+            "pattern": "%Y-%m-%d %H:%M:%S"
+        }, 
+        {
+            "type": "string", 
+            "required": true, 
+            "displayName": "country", 
+            "maxLength": 255
+        }, 
+        {
+            "type": "string", 
+            "required": true, 
+            "displayName": "province", 
+            "maxLength": 255
+        }, 
+        {
+            "type": "string", 
+            "required": true, 
+            "displayName": "postcode", 
+            "description": "Postal code", 
+            "maxLength": 20
+        }, 
+        {
+            "type": "integer", 
+            "minimum": 0, 
+            "displayName": "number", 
+            "maximum": 18446744073709551615, 
+            "required": true
+        }, 
+        {
+            "displayName": "minTime", 
+            "description": "MinTime", 
+            "required": false, 
+            "maximum": 18446744073709551615, 
+            "minimum": 0, 
+            "type": "integer"
+        }
+    ]
+}</code></pre><h2>HTTP status code <a href="http://httpstatus.es/404" target="_blank">404</a></h2><p>store could not be found.</p></div></div></div></div></div></div></div><div class="panel panel-white"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_customers_store__heart___storeId_"><span class="parent">/customers/store</span>/{heart}/{storeId}</a> <span class="methods"><a href="#customers_store__heart___storeId__get"><span class="badge badge_get">get</span></a></span></h4></div><div id="panel_customers_store__heart___storeId_" class="panel-collapse collapse"><div class="panel-body"><div class="resource-description"><p>Heart/unheart a store.</p></div><div class="list-group"><div onclick="window.location.href = '#customers_store__heart___storeId__get'" class="list-group-item"><span class="badge badge_get">get</span><div class="method_description"><p>Retrieve a store</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="customers_store__heart___storeId__get"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_get">get</span> <span class="parent">/customers/store</span>/{heart}/{storeId}</h4></div><div class="modal-body"><div class="alert alert-info"><p>Retrieve a store</p></div><ul class="nav nav-tabs"><li class="active"><a href="#customers_store__heart___storeId__get_request" data-toggle="tab">Request</a></li><li><a href="#customers_store__heart___storeId__get_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="customers_store__heart___storeId__get_request"><h3>URI Parameters</h3><ul><li><strong>heart</strong>: <em>required (one of heart, unheart)</em></li><li><strong>storeId</strong>: <em>required (integer)</em></li></ul></div><div class="tab-pane" id="customers_store__heart___storeId__get_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Schema</strong>:</p><pre><code>{
+    "type": "object", 
+    "required": true, 
+    "displayName": "StoreHeart", 
+    "properties": [
+        {
+            "type": "integer", 
+            "required": false, 
+            "displayName": "id", 
+            "description": "ID"
+        }, 
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "name"
+        }, 
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "city"
+        }, 
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "street"
+        }, 
+        {
+            "type": "number", 
+            "required": false, 
+            "displayName": "latitude"
+        }, 
+        {
+            "type": "number", 
+            "required": false, 
+            "displayName": "longitude"
+        }, 
+        {
+            "type": "object", 
+            "required": false, 
+            "displayName": "categories", 
+            "properties": [
+                {
+                    "type": "integer", 
+                    "required": false, 
+                    "displayName": "id", 
+                    "description": "ID"
+                }, 
+                {
+                    "type": "string", 
+                    "required": true, 
+                    "displayName": "name", 
+                    "maxLength": 255
+                }, 
+                {
+                    "type": "string", 
+                    "enum": [
+                        0, 
+                        100, 
+                        101, 
+                        102, 
+                        200, 
+                        300
+                    ], 
+                    "displayName": "icon", 
+                    "required": false
+                }
+            ]
+        }, 
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "heartsCount"
+        }, 
+        {
+            "type": "date", 
+            "required": false, 
+            "displayName": "lastModified", 
+            "description": "LastModified", 
+            "pattern": "%Y-%m-%d %H:%M:%S"
+        }, 
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "country"
+        }, 
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "province"
+        }, 
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "postcode", 
+            "description": "Postal code"
+        }, 
+        {
+            "type": "integer", 
+            "required": false, 
+            "displayName": "number"
+        }, 
+        {
+            "type": "integer", 
+            "required": false, 
+            "displayName": "minTime", 
+            "description": "MinTime"
+        }, 
+        {
+            "type": "boolean", 
+            "required": true, 
+            "displayName": "hearted"
+        }
+    ]
+}</code></pre><h2>HTTP status code <a href="http://httpstatus.es/404" target="_blank">404</a></h2><p>store could not be found.</p></div></div></div></div></div></div></div><div class="panel panel-white"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_customers_store_holiday__storeId_"><span class="parent">/customers/store</span>/holiday/{storeId}</a> <span class="methods"><a href="#customers_store_holiday__storeId__get"><span class="badge badge_get">get</span></a></span></h4></div><div id="panel_customers_store_holiday__storeId_" class="panel-collapse collapse"><div class="panel-body"><div class="resource-description"><p>Get the holiday periods of a store.</p></div><div class="list-group"><div onclick="window.location.href = '#customers_store_holiday__storeId__get'" class="list-group-item"><span class="badge badge_get">get</span><div class="method_description"><p>Retrieve a holiday</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="customers_store_holiday__storeId__get"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_get">get</span> <span class="parent">/customers/store</span>/holiday/{storeId}</h4></div><div class="modal-body"><div class="alert alert-info"><p>Retrieve a holiday</p></div><ul class="nav nav-tabs"><li class="active"><a href="#customers_store_holiday__storeId__get_request" data-toggle="tab">Request</a></li><li><a href="#customers_store_holiday__storeId__get_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="customers_store_holiday__storeId__get_request"><h3>URI Parameters</h3><ul><li><strong>storeId</strong>: <em>required (integer)</em></li></ul></div><div class="tab-pane" id="customers_store_holiday__storeId__get_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Schema</strong>:</p><pre><code>{
+    "type": "object", 
+    "required": true, 
+    "displayName": "HolidayPeriod", 
+    "properties": [
+        {
+            "type": "integer", 
+            "required": false, 
+            "displayName": "id", 
+            "description": "ID"
+        }, 
+        {
+            "type": "string", 
+            "required": true, 
+            "displayName": "description", 
+            "maxLength": 255
+        }, 
+        {
+            "type": "date", 
+            "required": true, 
+            "displayName": "start", 
+            "pattern": "%Y-%m-%d %H:%M:%S"
+        }, 
+        {
+            "type": "date", 
+            "required": true, 
+            "displayName": "end", 
+            "pattern": "%Y-%m-%d %H:%M:%S"
+        }, 
+        {
+            "type": "boolean", 
+            "required": false, 
+            "displayName": "closed"
+        }
+    ]
+}</code></pre><h2>HTTP status code <a href="http://httpstatus.es/404" target="_blank">404</a></h2><p>holiday could not be found.</p></div></div></div></div></div></div></div><div class="panel panel-white"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_customers_store_hours__storeId_"><span class="parent">/customers/store</span>/hours/{storeId}</a> <span class="methods"><a href="#customers_store_hours__storeId__get"><span class="badge badge_get">get</span></a></span></h4></div><div id="panel_customers_store_hours__storeId_" class="panel-collapse collapse"><div class="panel-body"><div class="resource-description"><p>Get the opening hours of a store.</p></div><div class="list-group"><div onclick="window.location.href = '#customers_store_hours__storeId__get'" class="list-group-item"><span class="badge badge_get">get</span><div class="method_description"><p>Retrieve a hour</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="customers_store_hours__storeId__get"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_get">get</span> <span class="parent">/customers/store</span>/hours/{storeId}</h4></div><div class="modal-body"><div class="alert alert-info"><p>Retrieve a hour</p></div><ul class="nav nav-tabs"><li class="active"><a href="#customers_store_hours__storeId__get_request" data-toggle="tab">Request</a></li><li><a href="#customers_store_hours__storeId__get_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="customers_store_hours__storeId__get_request"><h3>URI Parameters</h3><ul><li><strong>storeId</strong>: <em>required (integer)</em></li></ul></div><div class="tab-pane" id="customers_store_hours__storeId__get_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Schema</strong>:</p><pre><code>{
+    "type": "object", 
+    "required": true, 
+    "displayName": "OpeningHours", 
+    "properties": [
+        {
+            "type": "integer", 
+            "required": false, 
+            "displayName": "id", 
+            "description": "ID"
+        }, 
+        {
+            "type": "string", 
+            "enum": [
+                0, 
+                1, 
+                2, 
+                3, 
+                4, 
+                5, 
+                6
+            ], 
+            "displayName": "day", 
+            "required": true
+        }, 
+        {
+            "type": "date", 
+            "required": true, 
+            "displayName": "opening", 
+            "pattern": "%H:%M:%S"
+        }, 
+        {
+            "type": "date", 
+            "required": true, 
+            "displayName": "closing", 
+            "pattern": "%H:%M:%S"
+        }
+    ]
+}</code></pre><h2>HTTP status code <a href="http://httpstatus.es/404" target="_blank">404</a></h2><p>hour could not be found.</p></div></div></div></div></div></div></div><div class="panel panel-white"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_customers_store_nearby__latitude___longitude___proximity_"><span class="parent">/customers/store</span>/nearby/{latitude}/{longitude}/{proximity}</a> <span class="methods"><a href="#customers_store_nearby__latitude___longitude___proximity__get"><span class="badge badge_get">get</span></a></span></h4></div><div id="panel_customers_store_nearby__latitude___longitude___proximity_" class="panel-collapse collapse"><div class="panel-body"><div class="resource-description"><p>List of nearby stores.</p></div><div class="list-group"><div onclick="window.location.href = '#customers_store_nearby__latitude___longitude___proximity__get'" class="list-group-item"><span class="badge badge_get">get</span><div class="method_description"><p>List nearbies.</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="customers_store_nearby__latitude___longitude___proximity__get"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_get">get</span> <span class="parent">/customers/store</span>/nearby/{latitude}/{longitude}/{proximity}</h4></div><div class="modal-body"><div class="alert alert-info"><p>List nearbies.</p></div><ul class="nav nav-tabs"><li class="active"><a href="#customers_store_nearby__latitude___longitude___proximity__get_request" data-toggle="tab">Request</a></li><li><a href="#customers_store_nearby__latitude___longitude___proximity__get_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="customers_store_nearby__latitude___longitude___proximity__get_request"><h3>URI Parameters</h3><ul><li><strong>latitude</strong>: <em>required (number)</em><p>Latitude coordinate.</p></li><li><strong>longitude</strong>: <em>required (number)</em><p>Longitude coordinate.</p></li><li><strong>proximity</strong>: <em>(number - default: 10)</em><p>The proximity of the given coordinates in which to look for stores in km.</p></li></ul></div><div class="tab-pane" id="customers_store_nearby__latitude___longitude___proximity__get_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Schema</strong>:</p><pre><code>{
+    "type": "object", 
+    "required": true, 
+    "displayName": "ShortStore", 
+    "properties": [
+        {
+            "type": "integer", 
+            "required": false, 
+            "displayName": "id", 
+            "description": "ID"
+        }, 
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "name"
+        }, 
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "city"
+        }, 
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "street"
+        }, 
+        {
+            "type": "number", 
+            "required": false, 
+            "displayName": "latitude"
+        }, 
+        {
+            "type": "number", 
+            "required": false, 
+            "displayName": "longitude"
+        }, 
+        {
+            "type": "object", 
+            "required": false, 
+            "displayName": "categories", 
+            "properties": [
+                {
+                    "type": "integer", 
+                    "required": false, 
+                    "displayName": "id", 
+                    "description": "ID"
+                }, 
+                {
+                    "type": "string", 
+                    "required": true, 
+                    "displayName": "name", 
+                    "maxLength": 255
+                }, 
+                {
+                    "type": "string", 
+                    "enum": [
+                        0, 
+                        100, 
+                        101, 
+                        102, 
+                        200, 
+                        300
+                    ], 
+                    "displayName": "icon", 
+                    "required": false
+                }
+            ]
+        }, 
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "heartsCount"
+        }, 
+        {
+            "type": "date", 
+            "required": false, 
+            "displayName": "lastModified", 
+            "description": "LastModified", 
+            "pattern": "%Y-%m-%d %H:%M:%S"
+        }
+    ]
+}</code></pre></div></div></div></div></div></div></div><div class="panel panel-white"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_customers_store_recent"><span class="parent">/customers/store</span>/recent</a> <span class="methods"><a href="#customers_store_recent_get"><span class="badge badge_get">get</span></a></span></h4></div><div id="panel_customers_store_recent" class="panel-collapse collapse"><div class="panel-body"><div class="resource-description"><p>List stores where the user recently ordered something.</p></div><div class="list-group"><div onclick="window.location.href = '#customers_store_recent_get'" class="list-group-item"><span class="badge badge_get">get</span><div class="method_description"><p>List recents.</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="customers_store_recent_get"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_get">get</span> <span class="parent">/customers/store</span>/recent</h4></div><div class="modal-body"><div class="alert alert-info"><p>List recents.</p></div><ul class="nav nav-tabs"><li><a href="#customers_store_recent_get_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane" id="customers_store_recent_get_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Schema</strong>:</p><pre><code>{
+    "type": "object", 
+    "required": true, 
+    "displayName": "ShortStore", 
+    "properties": [
+        {
+            "type": "integer", 
+            "required": false, 
+            "displayName": "id", 
+            "description": "ID"
+        }, 
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "name"
+        }, 
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "city"
+        }, 
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "street"
+        }, 
+        {
+            "type": "number", 
+            "required": false, 
+            "displayName": "latitude"
+        }, 
+        {
+            "type": "number", 
+            "required": false, 
+            "displayName": "longitude"
+        }, 
+        {
+            "type": "object", 
+            "required": false, 
+            "displayName": "categories", 
+            "properties": [
+                {
+                    "type": "integer", 
+                    "required": false, 
+                    "displayName": "id", 
+                    "description": "ID"
+                }, 
+                {
+                    "type": "string", 
+                    "required": true, 
+                    "displayName": "name", 
+                    "maxLength": 255
+                }, 
+                {
+                    "type": "string", 
+                    "enum": [
+                        0, 
+                        100, 
+                        101, 
+                        102, 
+                        200, 
+                        300
+                    ], 
+                    "displayName": "icon", 
+                    "required": false
+                }
+            ]
+        }, 
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "heartsCount"
+        }, 
+        {
+            "type": "date", 
+            "required": false, 
+            "displayName": "lastModified", 
+            "description": "LastModified", 
+            "pattern": "%Y-%m-%d %H:%M:%S"
+        }
+    ]
+}</code></pre></div></div></div></div></div></div></div><div class="panel panel-white"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_customers_store_open__storeId_"><span class="parent">/customers/store</span>/open/{storeId}</a> <span class="methods"><a href="#customers_store_open__storeId__get"><span class="badge badge_get">get</span></a></span></h4></div><div id="panel_customers_store_open__storeId_" class="panel-collapse collapse"><div class="panel-body"><div class="resource-description"><p>Get the opening hours and holiday periods of a store.</p></div><div class="list-group"><div onclick="window.location.href = '#customers_store_open__storeId__get'" class="list-group-item"><span class="badge badge_get">get</span><div class="method_description"><p>Retrieve a open</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="customers_store_open__storeId__get"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_get">get</span> <span class="parent">/customers/store</span>/open/{storeId}</h4></div><div class="modal-body"><div class="alert alert-info"><p>Retrieve a open</p></div><ul class="nav nav-tabs"><li class="active"><a href="#customers_store_open__storeId__get_request" data-toggle="tab">Request</a></li><li><a href="#customers_store_open__storeId__get_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="customers_store_open__storeId__get_request"><h3>URI Parameters</h3><ul><li><strong>storeId</strong>: <em>required (integer)</em></li></ul></div><div class="tab-pane" id="customers_store_open__storeId__get_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Schema</strong>:</p><pre><code>{
+    "type": "object", 
+    "required": true, 
+    "displayName": "Open", 
+    "properties": [
+        {
+            "type": "object", 
+            "required": false, 
+            "displayName": "holidayPeriods", 
+            "properties": [
+                {
+                    "type": "integer", 
+                    "required": false, 
+                    "displayName": "id", 
+                    "description": "ID"
+                }, 
+                {
+                    "type": "string", 
+                    "required": true, 
+                    "displayName": "description", 
+                    "maxLength": 255
+                }, 
+                {
+                    "type": "date", 
+                    "required": true, 
+                    "displayName": "start", 
+                    "pattern": "%Y-%m-%d %H:%M:%S"
+                }, 
+                {
+                    "type": "date", 
+                    "required": true, 
+                    "displayName": "end", 
+                    "pattern": "%Y-%m-%d %H:%M:%S"
+                }, 
+                {
+                    "type": "boolean", 
+                    "required": false, 
+                    "displayName": "closed"
+                }
+            ]
+        }, 
+        {
+            "type": "object", 
+            "required": false, 
+            "displayName": "openingHours", 
+            "properties": [
+                {
+                    "type": "integer", 
+                    "required": false, 
+                    "displayName": "id", 
+                    "description": "ID"
+                }, 
+                {
+                    "type": "string", 
+                    "enum": [
+                        0, 
+                        1, 
+                        2, 
+                        3, 
+                        4, 
+                        5, 
+                        6
+                    ], 
+                    "displayName": "day", 
+                    "required": true
+                }, 
+                {
+                    "type": "date", 
+                    "required": true, 
+                    "displayName": "opening", 
+                    "pattern": "%H:%M:%S"
+                }, 
+                {
+                    "type": "date", 
+                    "required": true, 
+                    "displayName": "closing", 
+                    "pattern": "%H:%M:%S"
+                }
+            ]
+        }
+    ]
+}</code></pre><h2>HTTP status code <a href="http://httpstatus.es/404" target="_blank">404</a></h2><p>open could not be found.</p></div></div></div></div></div></div></div><div class="panel panel-white"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_customers_storecategory"><span class="parent">/customers</span>/storecategory</a> <span class="methods"><a href="#customers_storecategory_get"><span class="badge badge_get">get</span></a></span></h4></div><div id="panel_customers_storecategory" class="panel-collapse collapse"><div class="panel-body"><div class="list-group"><div onclick="window.location.href = '#customers_storecategory_get'" class="list-group-item"><span class="badge badge_get">get</span><div class="method_description"><p>List storecategories.</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="customers_storecategory_get"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_get">get</span> <span class="parent">/customers</span>/storecategory</h4></div><div class="modal-body"><div class="alert alert-info"><p>List storecategories.</p></div><ul class="nav nav-tabs"><li><a href="#customers_storecategory_get_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane" id="customers_storecategory_get_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Schema</strong>:</p><pre><code>{
+    "type": "object", 
+    "required": true, 
+    "displayName": "ShortStore", 
+    "properties": [
+        {
+            "type": "integer", 
+            "required": false, 
+            "displayName": "id", 
+            "description": "ID"
+        }, 
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "name"
+        }, 
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "city"
+        }, 
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "street"
+        }, 
+        {
+            "type": "number", 
+            "required": false, 
+            "displayName": "latitude"
+        }, 
+        {
+            "type": "number", 
+            "required": false, 
+            "displayName": "longitude"
+        }, 
+        {
+            "type": "object", 
+            "required": false, 
+            "displayName": "categories", 
+            "properties": [
+                {
+                    "type": "integer", 
+                    "required": false, 
+                    "displayName": "id", 
+                    "description": "ID"
+                }, 
+                {
+                    "type": "string", 
+                    "required": true, 
+                    "displayName": "name", 
+                    "maxLength": 255
+                }, 
+                {
+                    "type": "string", 
+                    "enum": [
+                        0, 
+                        100, 
+                        101, 
+                        102, 
+                        200, 
+                        300
+                    ], 
+                    "displayName": "icon", 
+                    "required": false
+                }
+            ]
+        }, 
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "heartsCount"
+        }, 
+        {
+            "type": "date", 
+            "required": false, 
+            "displayName": "lastModified", 
+            "description": "LastModified", 
+            "pattern": "%Y-%m-%d %H:%M:%S"
+        }
+    ]
+}</code></pre></div></div></div></div></div></div></div><div class="panel panel-white"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_customers_token"><span class="parent">/customers</span>/token</a> <span class="methods"><a href="#customers_token_get"><span class="badge badge_get">get</span></a></span></h4></div><div id="panel_customers_token" class="panel-collapse collapse"><div class="panel-body"><div class="list-group"><div onclick="window.location.href = '#customers_token_get'" class="list-group-item"><span class="badge badge_get">get</span><div class="method_description"><p>List tokens.</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="customers_token_get"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_get">get</span> <span class="parent">/customers</span>/token</h4></div><div class="modal-body"><div class="alert alert-info"><p>List tokens.</p></div><ul class="nav nav-tabs"><li><a href="#customers_token_get_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane" id="customers_token_get_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Schema</strong>:</p><pre><code>{
+    "type": "object", 
+    "required": true, 
+    "displayName": "UserToken", 
+    "properties": [
+        {
+            "type": "integer", 
+            "required": false, 
+            "displayName": "id", 
+            "description": "ID"
+        }, 
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "identifier"
+        }, 
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "device"
+        }, 
+        {
+            "type": "object", 
+            "required": true, 
+            "displayName": "user"
+        }
+    ]
+}</code></pre></div></div></div></div></div></div></div><div class="panel panel-white"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_customers_user"><span class="parent">/customers</span>/user</a> <span class="methods"><a href="#customers_user_post"><span class="badge badge_post">post</span></a></span></h4></div><div id="panel_customers_user" class="panel-collapse collapse"><div class="panel-body"><div class="list-group"><div onclick="window.location.href = '#customers_user_post'" class="list-group-item"><span class="badge badge_post">post</span><div class="method_description"><p>Register a user.</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="customers_user_post"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_post">post</span> <span class="parent">/customers</span>/user</h4></div><div class="modal-body"><div class="alert alert-info"><p>Register a user.</p></div><ul class="nav nav-tabs"><li class="active"><a href="#customers_user_post_request" data-toggle="tab">Request</a></li><li><a href="#customers_user_post_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="customers_user_post_request"><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Schema</strong>:</p><pre><code>{
+    "type": "string",
+    "required": true,
+    "displayName": "phone",
+    "description": "User&#39;s phone number."
 }
-</code></pre><h2>HTTP status code <a href="http://httpstatus.es/404" target="_blank">404</a></h2><p>Object could not be found.</p></div></div></div></div></div></div></div><div class="panel panel-white"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_customers_food__storeId_"><span class="parent">/customers/food</span>/{storeId}</a> <span class="methods"><a href="#customers_food__storeId__get"><span class="badge badge_get">get</span></a></span></h4></div><div id="panel_customers_food__storeId_" class="panel-collapse collapse"><div class="panel-body"><div class="resource-description"><p>Target all of the foods from a specific store.</p></div><div class="list-group"><div onclick="window.location.href = '#customers_food__storeId__get'" class="list-group-item"><span class="badge badge_get">get</span><div class="method_description"><p>List of foods.</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="customers_food__storeId__get"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_get">get</span> <span class="parent">/customers/food</span>/{storeId}</h4></div><div class="modal-body"><div class="alert alert-info"><p>List of foods.</p></div><ul class="nav nav-tabs"><li class="active"><a href="#customers_food__storeId__get_request" data-toggle="tab">Request</a></li><li><a href="#customers_food__storeId__get_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="customers_food__storeId__get_request"><h3>URI Parameters</h3><ul><li><strong>storeId</strong>: <em>required (string)</em></li></ul></div><div class="tab-pane" id="customers_food__storeId__get_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Schema</strong>:</p><pre><code>{
-  "type": "object",
-  "$schema": "http://json-schema.org/draft-03/schema",
-  "id": "http://jsonschema.net",
-  "required":false,
-  "properties": {
-    "artistName": {
-      "type": "string",
-      "required":true
-    },
-    "description": {
-      "type": "string",
-      "required": false
-    },
-    "imageURL": {
-      "type": "string",
-      "required": false
-    }
-  }
-}
-</code></pre></div></div></div></div></div></div></div></div></div></div></div><div class="col-md-3"><div id="sidebar" class="hidden-print affix" role="complementary"><ul class="nav nav-pills nav-stacked"><li><a href="#customers">/customers</a></li></ul></div></div></div></div></body></html>
+</code></pre></div><div class="tab-pane" id="customers_user_post_response"><h2>HTTP status code <a href="http://httpstatus.es/201" target="_blank">201</a></h2><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Schema</strong>:</p><pre><code>&lt;&lt;createResponseSchema&gt;&gt;Read</code></pre><p><strong>Example</strong>:</p><pre><code>&lt;&lt;createResponseExample&gt;&gt;</code></pre></div></div></div></div></div></div></div><div class="panel panel-white"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_customers_user_"><span class="parent">/customers/user</span>/</a> <span class="methods"><a href="#customers_user__post"><span class="badge badge_post">post</span></a></span></h4></div><div id="panel_customers_user_" class="panel-collapse collapse"><div class="panel-body"><div class="list-group"><div onclick="window.location.href = '#customers_user__post'" class="list-group-item"><span class="badge badge_post">post</span><div class="method_description"><p>Confirm a registration.</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="customers_user__post"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_post">post</span> <span class="parent">/customers/user</span>/</h4></div><div class="modal-body"><div class="alert alert-info"><p>Confirm a registration.</p></div><ul class="nav nav-tabs"><li class="active"><a href="#customers_user__post_request" data-toggle="tab">Request</a></li><li><a href="#customers_user__post_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="customers_user__post_request"><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Schema</strong>:</p><pre><code>{
+    "type": "object", 
+    "required": true, 
+    "displayName": "User", 
+    "properties": [
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "name", 
+            "maxLength": 255
+        }, 
+        {
+            "type": "string", 
+            "required": true, 
+            "displayName": "phone"
+        }, 
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "pin"
+        }, 
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "device"
+        }
+    ]
+}</code></pre></div><div class="tab-pane" id="customers_user__post_response"><h2>HTTP status code <a href="http://httpstatus.es/201" target="_blank">201</a></h2><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Schema</strong>:</p><pre><code>{
+    "type": "object", 
+    "required": true, 
+    "displayName": "User", 
+    "properties": [
+        {
+            "type": "integer", 
+            "required": false, 
+            "displayName": "id", 
+            "description": "ID"
+        }, 
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "name", 
+            "maxLength": 255
+        }
+    ]
+}</code></pre></div></div></div></div></div></div></div></div></div></div></div><div class="col-md-3"><div id="sidebar" class="hidden-print affix" role="complementary"><ul class="nav nav-pills nav-stacked"><li><a href="#customers">/customers</a></li></ul></div></div></div></div></body></html>

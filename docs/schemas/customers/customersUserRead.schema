@@ -1,0 +1,19 @@
+{
+    "type": "object", 
+    "required": true, 
+    "displayName": "User", 
+    "properties": [
+        {
+            "type": "integer", 
+            "required": false, 
+            "displayName": "id", 
+            "description": "ID"
+        }, 
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "name", 
+            "maxLength": 255
+        }
+    ]
+}

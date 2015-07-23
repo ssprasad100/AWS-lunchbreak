@@ -1,0 +1,30 @@
+{
+    "type": "object", 
+    "required": true, 
+    "displayName": "HolidayPeriod", 
+    "properties": [
+        {
+            "type": "string", 
+            "required": true, 
+            "displayName": "description", 
+            "maxLength": 255
+        }, 
+        {
+            "type": "date", 
+            "required": true, 
+            "displayName": "start", 
+            "pattern": "%Y-%m-%d %H:%M:%S"
+        }, 
+        {
+            "type": "date", 
+            "required": true, 
+            "displayName": "end", 
+            "pattern": "%Y-%m-%d %H:%M:%S"
+        }, 
+        {
+            "type": "boolean", 
+            "required": false, 
+            "displayName": "closed"
+        }
+    ]
+}

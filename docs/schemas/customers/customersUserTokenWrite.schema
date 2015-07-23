@@ -1,0 +1,12 @@
+{
+    "type": "object", 
+    "required": true, 
+    "displayName": "UserToken", 
+    "properties": [
+        {
+            "type": "object", 
+            "required": true, 
+            "displayName": "user"
+        }
+    ]
+}

@@ -1,0 +1,26 @@
+{
+    "type": "object", 
+    "required": true, 
+    "displayName": "StoreCategory", 
+    "properties": [
+        {
+            "type": "string", 
+            "required": true, 
+            "displayName": "name", 
+            "maxLength": 255
+        }, 
+        {
+            "type": "string", 
+            "enum": [
+                0, 
+                100, 
+                101, 
+                102, 
+                200, 
+                300
+            ], 
+            "displayName": "icon", 
+            "required": false
+        }
+    ]
+}

@@ -1,0 +1,49 @@
+{
+    "type": "object", 
+    "required": true, 
+    "displayName": "FoodType", 
+    "properties": [
+        {
+            "type": "integer", 
+            "required": false, 
+            "displayName": "id", 
+            "description": "ID"
+        }, 
+        {
+            "type": "string", 
+            "required": true, 
+            "displayName": "name", 
+            "maxLength": 255
+        }, 
+        {
+            "type": "string", 
+            "enum": [
+                0, 
+                100, 
+                101, 
+                102, 
+                200, 
+                300
+            ], 
+            "displayName": "icon", 
+            "required": false
+        }, 
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "quantifier", 
+            "maxLength": 255
+        }, 
+        {
+            "type": "string", 
+            "enum": [
+                0, 
+                1, 
+                2
+            ], 
+            "displayName": "inputType", 
+            "description": "InputType", 
+            "required": false
+        }
+    ]
+}

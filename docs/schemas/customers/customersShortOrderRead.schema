@@ -1,0 +1,50 @@
+{
+    "type": "object", 
+    "required": true, 
+    "displayName": "ShortOrder", 
+    "description": "Used after placing an order for confirmation.", 
+    "properties": [
+        {
+            "type": "integer", 
+            "required": false, 
+            "displayName": "id", 
+            "description": "ID"
+        }, 
+        {
+            "type": "string", 
+            "required": true, 
+            "displayName": "store"
+        }, 
+        {
+            "type": "date", 
+            "required": true, 
+            "displayName": "pickupTime", 
+            "description": "Time of pickup", 
+            "pattern": "%Y-%m-%d %H:%M:%S"
+        }, 
+        {
+            "type": "boolean", 
+            "required": false, 
+            "displayName": "paid"
+        }, 
+        {
+            "type": "number", 
+            "required": false, 
+            "displayName": "total"
+        }, 
+        {
+            "type": "string", 
+            "enum": [
+                0, 
+                1, 
+                2, 
+                3, 
+                4, 
+                5, 
+                6
+            ], 
+            "displayName": "status", 
+            "required": false
+        }
+    ]
+}

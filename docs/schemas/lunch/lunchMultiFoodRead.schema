@@ -1,0 +1,49 @@
+{
+    "type": "object", 
+    "required": true, 
+    "displayName": "MultiFood", 
+    "properties": [
+        {
+            "type": "integer", 
+            "required": false, 
+            "displayName": "id", 
+            "description": "ID"
+        }, 
+        {
+            "type": "string", 
+            "required": true, 
+            "displayName": "name", 
+            "maxLength": 255
+        }, 
+        {
+            "type": "number", 
+            "required": false, 
+            "displayName": "amount"
+        }, 
+        {
+            "type": "number", 
+            "required": true, 
+            "displayName": "cost"
+        }, 
+        {
+            "type": "object", 
+            "required": true, 
+            "displayName": "category"
+        }, 
+        {
+            "type": "object", 
+            "required": true, 
+            "displayName": "foodType"
+        }, 
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "hasIngredients"
+        }, 
+        {
+            "type": "object", 
+            "required": true, 
+            "displayName": "quantity"
+        }
+    ]
+}

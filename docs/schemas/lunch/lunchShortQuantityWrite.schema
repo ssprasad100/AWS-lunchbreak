@@ -1,0 +1,19 @@
+{
+    "type": "object", 
+    "required": true, 
+    "displayName": "ShortQuantity", 
+    "properties": [
+        {
+            "type": "number", 
+            "required": false, 
+            "displayName": "amountMin", 
+            "description": "AmountMin"
+        }, 
+        {
+            "type": "number", 
+            "required": false, 
+            "displayName": "amountMax", 
+            "description": "AmountMax"
+        }
+    ]
+}

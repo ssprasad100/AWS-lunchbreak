@@ -1,0 +1,52 @@
+{
+    "type": "object", 
+    "required": true, 
+    "displayName": "ShortOrder", 
+    "description": "Used after placing an order for confirmation.", 
+    "properties": [
+        {
+            "type": "string", 
+            "required": true, 
+            "displayName": "store"
+        }, 
+        {
+            "type": "date", 
+            "required": true, 
+            "displayName": "pickupTime", 
+            "description": "Time of pickup", 
+            "pattern": "%Y-%m-%d %H:%M:%S"
+        }, 
+        {
+            "type": "object", 
+            "required": true, 
+            "displayName": "orderedFood", 
+            "properties": [
+                {
+                    "type": "string", 
+                    "required": false, 
+                    "displayName": "ingredients"
+                }, 
+                {
+                    "type": "number", 
+                    "required": false, 
+                    "displayName": "amount"
+                }, 
+                {
+                    "type": "string", 
+                    "required": true, 
+                    "displayName": "original"
+                }, 
+                {
+                    "type": "number", 
+                    "required": true, 
+                    "displayName": "cost"
+                }
+            ]
+        }, 
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "description"
+        }
+    ]
+}

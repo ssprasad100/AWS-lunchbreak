@@ -1,0 +1,27 @@
+{
+    "type": "object", 
+    "required": true, 
+    "displayName": "OrderedFood", 
+    "properties": [
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "ingredients"
+        }, 
+        {
+            "type": "number", 
+            "required": false, 
+            "displayName": "amount"
+        }, 
+        {
+            "type": "string", 
+            "required": true, 
+            "displayName": "original"
+        }, 
+        {
+            "type": "number", 
+            "required": true, 
+            "displayName": "cost"
+        }
+    ]
+}

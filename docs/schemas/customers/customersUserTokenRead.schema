@@ -1,0 +1,28 @@
+{
+    "type": "object", 
+    "required": true, 
+    "displayName": "UserToken", 
+    "properties": [
+        {
+            "type": "integer", 
+            "required": false, 
+            "displayName": "id", 
+            "description": "ID"
+        }, 
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "identifier"
+        }, 
+        {
+            "type": "string", 
+            "required": false, 
+            "displayName": "device"
+        }, 
+        {
+            "type": "object", 
+            "required": true, 
+            "displayName": "user"
+        }
+    ]
+}
