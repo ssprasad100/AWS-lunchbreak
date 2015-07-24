@@ -10,20 +10,19 @@ from business.serializers import (EmployeeSerializer,
                                   ShortIngredientGroupSerializer,
                                   ShortOrderSerializer, StaffSerializer,
                                   StoreSerializer)
-from customers.models import (ORDER_STATUS_PLACED, ORDER_STATUS_RECEIVED,
-                              ORDER_STATUS_STARTED, ORDER_STATUS_WAITING,
-                              Order)
+from customers.models import Order
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import validate_email
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from lunch.config import (ORDER_STATUS_PLACED, ORDER_STATUS_RECEIVED,
+                          ORDER_STATUS_STARTED, ORDER_STATUS_WAITING)
 from lunch.models import (Food, FoodCategory, FoodType, Ingredient,
                           IngredientGroup, Quantity, Store)
 from lunch.responses import BadRequest, DoesNotExist
 from lunch.serializers import (FoodTypeSerializer, HolidayPeriodSerializer,
-                               OpeningHoursSerializer,
+                               OpeningHoursSerializer, QuantitySerializer,
                                ShortFoodCategorySerializer,
-                               QuantitySerializer,
                                ShortSingleFoodSerializer)
 from lunch.views import (StoreCategoryListViewBase, getHolidayPeriods,
                          getOpeningAndHoliday, getOpeningHours)

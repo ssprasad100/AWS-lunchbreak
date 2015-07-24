@@ -55,7 +55,7 @@ class IngredientsRelationInline(admin.TabularInline):
 @admin.register(Food)
 class FoodAdmin(admin.ModelAdmin):
     list_display = ('name', 'cost', 'category', 'store', 'id',)
-    fields = list_display + ('amount', 'foodType', 'lastModified',)
+    fields = list_display + ('amount', 'foodType', 'lastModified', 'deleted',)
     readonly_fields = ('lastModified', 'id',)
     inlines = (IngredientsRelationInline,)
 

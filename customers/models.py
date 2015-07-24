@@ -2,27 +2,10 @@ import math
 
 from django.db import models
 from django.utils.functional import cached_property
-from lunch.models import (COST_GROUP_ADDITIONS, BaseToken, Food, Ingredient,
-                          Store)
+from lunch.config import (COST_GROUP_ADDITIONS, ORDER_ENDED, ORDER_STATUS,
+                          ORDER_STATUS_COMPLETED)
+from lunch.models import BaseToken, Food, Ingredient, Store
 from phonenumber_field.modelfields import PhoneNumberField
-
-ORDER_STATUS_PLACED = 0
-ORDER_STATUS_DENIED = 1
-ORDER_STATUS_RECEIVED = 2
-ORDER_STATUS_STARTED = 3
-ORDER_STATUS_WAITING = 4
-ORDER_STATUS_COMPLETED = 5
-ORDER_STATUS_NOT_COLLECTED = 6
-
-ORDER_STATUS = (
-    (ORDER_STATUS_PLACED, 'Placed'),
-    (ORDER_STATUS_DENIED, 'Denied'),
-    (ORDER_STATUS_RECEIVED, 'Received'),
-    (ORDER_STATUS_STARTED, 'Started'),
-    (ORDER_STATUS_WAITING, 'Waiting'),
-    (ORDER_STATUS_COMPLETED, 'Completed'),
-    (ORDER_STATUS_NOT_COLLECTED, 'Not collected')
-)
 
 
 class User(models.Model):
@@ -58,12 +41,22 @@ class Order(models.Model):
 
     def save(self, *args, **kwargs):
         self.total = 0
-        for f in self.orderedfood_set.all():
+        orderedFood = self.orderedfood_set.all()
+        for f in orderedFood:
             self.total += f.total
 
         if self.status == ORDER_STATUS_COMPLETED:
             self.paid = True
+
         super(Order, self).save(*args, **kwargs)
+
+        if self.status in ORDER_ENDED:
+            for f in orderedFood:
+                if f.original.deleted:
+                    f.original.delete()
+
+    def __unicode__(self):
+        return 'Order #' + str(self.id)
 
 
 class OrderedFood(models.Model):

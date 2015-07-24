@@ -7,9 +7,12 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.utils import timezone
 from django.utils.functional import cached_property
+from lunch.config import (COST_GROUP_ALWAYS, COST_GROUP_CALCULATIONS, DAYS,
+                          ICONS, INPUT_AMOUNT, INPUT_TYPES, ORDER_ENDED)
 from lunch.exceptions import (AddressNotFound, IngredientGroupMaxExceeded,
-                              IngredientGroupsMinimumNotMet, InvalidFoodTypeAmount,
-                              InvalidIngredientLinking, InvalidStoreLinking)
+                              IngredientGroupsMinimumNotMet,
+                              InvalidFoodTypeAmount, InvalidIngredientLinking,
+                              InvalidStoreLinking)
 
 
 class LunchbreakManager(models.Manager):
@@ -87,48 +90,6 @@ class LunchbreakManager(models.Manager):
                 ) DESC,
                 (lunch_food.id = %d) DESC,
                 lunch_food.cost ASC;''') % (original.foodType.id, original.store.id, ingredientsIn, original.id,))[0]
-
-COST_GROUP_ALWAYS = 0
-COST_GROUP_ADDITIONS = 1
-
-COST_GROUP_CALCULATIONS = (
-    (0, 'Altijd de groepsprijs'),
-    (1, 'Duurder bij toevoegen, zelfde bij aftrekken')
-)
-
-
-ICONS = (
-    (0, 'Onbekend'),
-    # 1xx StoreCategories
-    (100, 'Slager'),
-    (101, 'Bakker'),
-    (102, 'Broodjeszaak'),
-    # 2xx Ingredients
-    (200, 'Tomaten'),
-    # 3xx FoodTypes
-    (300, 'Broodje')
-)
-
-
-DAYS = (
-    (0, 'Zondag'),
-    (1, 'Maandag'),
-    (2, 'Dinsdag'),
-    (3, 'Woensdag'),
-    (4, 'Donderdag'),
-    (5, 'Vrijdag'),
-    (6, 'Zaterdag')
-)
-
-INPUT_AMOUNT = 0
-INPUT_SI_VARIABLE = 1
-INPUT_SI_SET = 2
-
-INPUT_TYPES = (
-    (INPUT_AMOUNT, 'Aantal'),
-    (INPUT_SI_VARIABLE, 'Aanpasbaar o.b.v. SI-eenheid'),
-    (INPUT_SI_SET, 'Vaste hoeveelheid o.b.v. SI-eenheid'),
-)
 
 
 class StoreCategory(models.Model):
@@ -388,6 +349,7 @@ class Food(models.Model):
     ingredients = models.ManyToManyField(Ingredient, through='IngredientRelation', blank=True)
     store = models.ForeignKey(Store)
 
+    deleted = models.BooleanField(default=False)
     objects = LunchbreakManager()
 
     class Meta:
@@ -413,7 +375,18 @@ class Food(models.Model):
             raise InvalidFoodTypeAmount()
         if self.category.store_id != self.store_id:
             raise InvalidStoreLinking()
+
         super(Food, self).save(*args, **kwargs)
+
+        if self.deleted:
+            self.delete()
+
+    def delete(self, *args, **kwargs):
+        if self.orderedfood_set.exclude(order__status__in=ORDER_ENDED).count() == 0:
+            super(Food, self).delete(*args, **kwargs)
+        elif not self.deleted:
+            self.deleted = True
+            self.save()
 
     def __unicode__(self):
         return self.name

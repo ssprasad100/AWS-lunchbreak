@@ -2,27 +2,24 @@ import math
 
 from customers.exceptions import AmountInvalid, CostCheckFailed
 from customers.models import Order, OrderedFood, User, UserToken
+from lunch.config import INPUT_SI_SET, INPUT_SI_VARIABLE
 from lunch.exceptions import BadRequest
-from lunch.models import (INPUT_SI_SET, INPUT_SI_VARIABLE, Food,
-                          IngredientGroup, Store)
-from lunch.serializers import (HolidayPeriodSerializer,
-                               IngredientGroupSerializer,
-                               OpeningHoursSerializer, StoreSerializer,
-                               TokenSerializer)
+from lunch.models import Food, IngredientGroup, Store
+from lunch import serializers as lunchSerializers
 from rest_framework import serializers
 
 
-class StoreHeartSerializer(StoreSerializer):
+class StoreHeartSerializer(lunchSerializers.StoreSerializer):
     hearted = serializers.BooleanField()
 
     class Meta:
         model = Store
-        fields = StoreSerializer.Meta.fields + ('hearted',)
-        read_only_fields = StoreSerializer.Meta.fields + ('hearted',)
+        fields = lunchSerializers.StoreSerializer.Meta.fields + ('hearted',)
+        read_only_fields = lunchSerializers.StoreSerializer.Meta.fields + ('hearted',)
 
 
 class OrderedFoodSerializer(serializers.ModelSerializer):
-    ingredientGroups = IngredientGroupSerializer(many=True, read_only=True)
+    ingredientGroups = lunchSerializers.IngredientGroupSerializer(many=True, read_only=True)
 
     class Meta:
         model = OrderedFood
@@ -36,6 +33,14 @@ class OrderedFoodPriceSerializer(serializers.ModelSerializer):
         model = OrderedFood
         fields = ('ingredients', 'amount', 'original',)
         write_only_fields = fields
+
+
+class SingleFoodSerializer(lunchSerializers.ShortSingleFoodSerializer):
+
+    class Meta:
+        model = lunchSerializers.ShortSingleFoodSerializer.Meta.model
+        fields = ('id', 'name', 'description', 'amount', 'cost', 'ingredientGroups', 'ingredients', 'category', 'foodType', 'store', 'quantity', 'store',)
+        read_only_fields = ('id', 'ingredientGroups',)
 
 
 class ShortOrderSerializer(serializers.ModelSerializer):
@@ -114,7 +119,7 @@ class ShortOrderSerializer(serializers.ModelSerializer):
 class OrderSerializer(serializers.ModelSerializer):
     '''Used for listing a specific or all orders.'''
 
-    store = StoreSerializer(read_only=True)
+    store = lunchSerializers.StoreSerializer(read_only=True)
     orderedfood = OrderedFoodSerializer(many=True, read_only=True, source='orderedfood_set')
 
     class Meta:
@@ -134,10 +139,10 @@ class UserSerializer(serializers.ModelSerializer):
         write_only_fields = ('phone', 'pin', 'device',)
 
 
-class UserTokenSerializer(TokenSerializer):
+class UserTokenSerializer(lunchSerializers.TokenSerializer):
     user = UserSerializer()
 
     class Meta:
         model = UserToken
-        fields = TokenSerializer.Meta.fields + ('user',)
-        read_only_fields = TokenSerializer.Meta.read_only_fields + ('user',)
+        fields = lunchSerializers.TokenSerializer.Meta.fields + ('user',)
+        read_only_fields = lunchSerializers.TokenSerializer.Meta.read_only_fields + ('user',)

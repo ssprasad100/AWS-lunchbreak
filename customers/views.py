@@ -2,8 +2,9 @@ from customers.authentication import CustomerAuthentication
 from customers.digits import Digits
 from customers.models import Heart, Order, OrderedFood, User, UserToken
 from customers.serializers import (OrderedFoodPriceSerializer, OrderSerializer,
-                                   ShortOrderSerializer, StoreHeartSerializer,
-                                   UserSerializer, UserTokenSerializer)
+                                   ShortOrderSerializer, SingleFoodSerializer,
+                                   StoreHeartSerializer, UserSerializer,
+                                   UserTokenSerializer)
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -11,8 +12,8 @@ from lunch.exceptions import LunchbreakException
 from lunch.models import Food, IngredientGroup, Store, tokenGenerator
 from lunch.responses import BadRequest
 from lunch.serializers import (HolidayPeriodSerializer, MultiFoodSerializer,
-                               OpeningHoursSerializer, ShortStoreSerializer,
-                               SingleFoodSerializer, OpenSerializer)
+                               OpeningHoursSerializer, OpenSerializer,
+                               ShortStoreSerializer)
 from lunch.views import (StoreCategoryListViewBase, getHolidayPeriods,
                          getOpeningAndHoliday, getOpeningHours)
 from rest_framework import generics, status
@@ -106,7 +107,7 @@ class FoodListView(generics.ListAPIView):
 
     def get_queryset(self):
         if 'store_id' in self.kwargs:
-            return Food.objects.filter(store_id=self.kwargs['store_id']).order_by('-category__priority', 'category__name', 'name')
+            return Food.objects.filter(store_id=self.kwargs['store_id'], deleted=False).order_by('-category__priority', 'category__name', 'name')
 
 
 class FoodRetrieveView(generics.RetrieveAPIView):
@@ -116,6 +117,9 @@ class FoodRetrieveView(generics.RetrieveAPIView):
     queryset = Food.objects.all()
 
     authentication_classes = (CustomerAuthentication,)
+
+    def get_queryset(self):
+        return Food.objects.filter(deleted=False)
 
 
 class OrderView(generics.ListCreateAPIView):
@@ -152,8 +156,8 @@ class OrderPriceView(generics.CreateAPIView):
     serializer_class = OrderedFoodPriceSerializer
 
     def post(self, request, format=None):
-        '''    Return the price of the food.
-        '''    priceSerializer = OrderedFoodPriceSerializer(data=request.data, many=True)
+        '''Return the price of the food.'''
+        priceSerializer = OrderedFoodPriceSerializer(data=request.data, many=True)
         if priceSerializer.is_valid():
             result = []
             for priceCheck in priceSerializer.validated_data:

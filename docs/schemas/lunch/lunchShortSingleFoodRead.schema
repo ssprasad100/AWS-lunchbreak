@@ -112,6 +112,11 @@
             "type": "object", 
             "required": true, 
             "displayName": "quantity"
+        }, 
+        {
+            "type": "boolean", 
+            "required": false, 
+            "displayName": "deleted"
         }
     ]
 }
