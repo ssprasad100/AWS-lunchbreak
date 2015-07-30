@@ -3,7 +3,7 @@ from datetime import timedelta
 
 import requests
 from customers.exceptions import MinTimeExceeded, PastOrderDenied, StoreClosed
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import models
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -189,12 +189,17 @@ class OpeningHours(models.Model):
     class Meta:
         verbose_name_plural = 'Opening hours'
 
-    def __unicode__(self):
-        return '%s. %s - %s' % (self.day, self.opening, self.closing,)
+    def clean(self):
+        if self.opening >= self.closing:
+            raise ValidationError('Opening needs to be before closing.')
 
     def save(self, *args, **kwargs):
+        self.clean()
         self.store.save()
         super(OpeningHours, self).save(*args, **kwargs)
+
+    def __unicode__(self):
+        return '%s. %s - %s' % (self.day, self.opening, self.closing,)
 
 
 class HolidayPeriod(models.Model):
@@ -206,12 +211,17 @@ class HolidayPeriod(models.Model):
 
     closed = models.BooleanField(default=True)
 
-    def __unicode__(self):
-        return '%s tot %s %s' % (self.start, self.end, 'gesloten' if self.closed else 'open',)
+    def clean(self):
+        if self.start >= self.end:
+            raise ValidationError('Start needs to be before end.')
 
     def save(self, *args, **kwargs):
+        self.clean()
         self.store.save()
         super(HolidayPeriod, self).save(*args, **kwargs)
+
+    def __unicode__(self):
+        return '%s tot %s %s' % (self.start, self.end, 'gesloten' if self.closed else 'open',)
 
 
 class FoodType(models.Model):

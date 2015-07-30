@@ -1,5 +1,7 @@
+import datetime
+
 from lunch.exceptions import AddressNotFound
-from lunch.models import Store
+from lunch.models import HolidayPeriod, OpeningHours, Store
 from rest_framework.test import APITestCase
 
 
@@ -52,3 +54,58 @@ class LunchbreakTests(APITestCase):
 
         for needle in needles:
             self.assertIn(needle, haystack)
+
+    def testOpeningHours(self):
+        store = Store(name='valid', country='Belgie', province='Oost-Vlaanderen', city='Wetteren', postcode='9230', street='Dendermondesteenweg', number=10)
+        store.save()
+
+        oh = OpeningHours(store=store, day=0, opening='00:00', closing='00:00')
+        try:
+            oh.save()
+        except:
+            try:
+                oh.closing = '00:01'
+                oh.save()
+            except Exception as e:
+                self.fail(e)
+        else:
+            self.fail()
+
+    def testHolidayPeriod(self):
+        store = Store(name='valid', country='Belgie', province='Oost-Vlaanderen', city='Wetteren', postcode='9230', street='Dendermondesteenweg', number=10)
+        store.save()
+
+        now = datetime.datetime.now()
+        hp = HolidayPeriod(store=store, description='description', start=now, end=now)
+        try:
+            hp.save()
+        except:
+            try:
+                tomorrow = now + datetime.timedelta(days=1)
+                hp.end = tomorrow
+                hp.save()
+            except Exception as e:
+                self.fail(e)
+        else:
+            self.fail()
+
+    def testStoreLastModified(self):
+        '''Test whether updating OpeningHours and HolidayPeriod objects updates the Store.'''
+        store = Store(name='valid', country='Belgie', province='Oost-Vlaanderen', city='Wetteren', postcode='9230', street='Dendermondesteenweg', number=10)
+        store.save()
+
+        firstModified = store.lastModified
+
+        oh = OpeningHours(store=store, day=0, opening='00:00', closing='01:00')
+        oh.save()
+
+        secondModified = store.lastModified
+
+        self.assertGreater(secondModified, firstModified)
+
+        now = datetime.datetime.now()
+        tomorrow = now + datetime.timedelta(days=1)
+        hp = HolidayPeriod(store=store, description='description', start=now, end=tomorrow)
+        hp.save()
+
+        self.assertGreater(store.lastModified, secondModified)
