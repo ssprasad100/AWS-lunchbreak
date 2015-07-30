@@ -226,9 +226,9 @@ class HolidayPeriod(models.Model):
 
 class FoodType(models.Model):
     name = models.CharField(max_length=255)
-    icon = models.PositiveIntegerField(choices=ICONS, default=0)
+    icon = models.PositiveIntegerField(choices=ICONS, default=ICONS[0][0])
     quantifier = models.CharField(max_length=255, blank=True, null=True)
-    inputType = models.PositiveIntegerField(choices=INPUT_TYPES, default=0)
+    inputType = models.PositiveIntegerField(choices=INPUT_TYPES, default=INPUT_TYPES[0][0])
 
     def isValidAmount(self, amount, quantity=None):
         return amount > 0 \
@@ -249,8 +249,13 @@ class IngredientGroup(models.Model):
     priority = models.PositiveIntegerField(default=0)
     cost = models.DecimalField(default=-1, max_digits=7, decimal_places=2)
 
-    def __unicode__(self):
-        return self.name
+    def clean(self):
+        if self.minimum > self.maximum:
+            raise ValidationError('Minimum cannot be higher than maximum.')
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super(IngredientGroup, self).save(*args, **kwargs)
 
     @staticmethod
     def checkIngredients(ingredients, food):
@@ -293,6 +298,9 @@ class IngredientGroup(models.Model):
     @cached_property
     def ingredients(self):
         return self.ingredient_set.all()
+
+    def __unicode__(self):
+        return self.name
 
 
 class Ingredient(models.Model):

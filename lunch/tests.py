@@ -1,7 +1,9 @@
 import datetime
 
+from django.core.exceptions import ValidationError
 from lunch.exceptions import AddressNotFound
-from lunch.models import HolidayPeriod, OpeningHours, Store
+from lunch.models import (FoodType, HolidayPeriod, IngredientGroup,
+                          OpeningHours, Store)
 from rest_framework.test import APITestCase
 
 
@@ -62,7 +64,7 @@ class LunchbreakTests(APITestCase):
         oh = OpeningHours(store=store, day=0, opening='00:00', closing='00:00')
         try:
             oh.save()
-        except:
+        except ValidationError:
             try:
                 oh.closing = '00:01'
                 oh.save()
@@ -79,7 +81,7 @@ class LunchbreakTests(APITestCase):
         hp = HolidayPeriod(store=store, description='description', start=now, end=now)
         try:
             hp.save()
-        except:
+        except ValidationError:
             try:
                 tomorrow = now + datetime.timedelta(days=1)
                 hp.end = tomorrow
@@ -109,3 +111,26 @@ class LunchbreakTests(APITestCase):
         hp.save()
 
         self.assertGreater(store.lastModified, secondModified)
+
+    def testIngredientGroup(self):
+        store = Store(name='valid', country='Belgie', province='Oost-Vlaanderen', city='Wetteren', postcode='9230', street='Dendermondesteenweg', number=10)
+        store.save()
+
+        foodType = FoodType(name='type')
+        foodType.save()
+
+        group = IngredientGroup(name='group', foodType=foodType, store=store, maximum=0, minimum=1)
+
+        try:
+            group.save()
+        except ValidationError:
+            try:
+                group.minimum = 0
+                group.save()
+
+                group.maximum = 1
+                group.save()
+            except Exception as e:
+                self.fail(e)
+        else:
+            self.fail()
