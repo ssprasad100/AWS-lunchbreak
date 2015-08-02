@@ -345,10 +345,15 @@ class Quantity(models.Model):
         unique_together = ('foodType', 'store',)
         verbose_name_plural = 'Quantities'
 
-    def save(self, *args, **kwargs):
+    def clean(self):
+        if self.amountMin > self.amountMax:
+            raise ValidationError('Amount maximum need to be greater or equal to its minimum.')
         if not self.foodType.isValidAmount(self.amountMin) \
             or not self.foodType.isValidAmount(self.amountMax):
             raise InvalidFoodTypeAmount()
+
+    def save(self, *args, **kwargs):
+        self.clean()
         super(Quantity, self).save(*args, **kwargs)
 
     def __unicode__(self):

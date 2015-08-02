@@ -164,7 +164,7 @@ class Base:
                 'propagate': False,
             },
             'opbeat': {
-                'level': 'DEBUG',
+                'level': 'WARN',
                 'handlers': ['console'],
                 'propagate': False,
             },

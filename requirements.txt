@@ -9,7 +9,7 @@ djangorestframework-jsonp==1.0.0
 ecdsa==0.13
 Fabric==1.10.2
 MySQL-python==1.2.5
-opbeat==2.0.1
+opbeat==3.0.4
 paramiko==1.15.2
 pathtools==0.1.2
 phonenumbers==7.0.7

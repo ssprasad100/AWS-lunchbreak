@@ -3,8 +3,10 @@ import datetime
 from django.core.exceptions import ValidationError
 from lunch.exceptions import AddressNotFound
 from lunch.models import (FoodType, HolidayPeriod, IngredientGroup,
-                          OpeningHours, Store)
+                          OpeningHours, Quantity, Store)
 from rest_framework.test import APITestCase
+
+from .config import INPUT_AMOUNT, INPUT_SI_SET, INPUT_SI_VARIABLE
 
 
 class LunchbreakTests(APITestCase):
@@ -134,3 +136,74 @@ class LunchbreakTests(APITestCase):
                 self.fail(e)
         else:
             self.fail()
+
+        def testQuantity(self):
+            foodType = FoodType(name='type')
+            foodType.save()
+
+            store = Store(name='valid', country='Belgie', province='Oost-Vlaanderen', city='Wetteren', postcode='9230', street='Dendermondesteenweg', number=10)
+            store.save()
+
+            quantity = Quantity(foodType=foodType, store=store, amountMin=1, amountMax=0)
+            try:
+                quantity.save()
+            except ValidationError:
+                try:
+                    quantity.amountMin = 0
+                    quantity.amountMax = 1
+                    quantity.save()
+                except Exception as e:
+                    self.fail(e)
+            else:
+                self.fail()
+
+        def testFoodType(self):
+            store = Store(name='valid', country='Belgie', province='Oost-Vlaanderen', city='Wetteren', postcode='9230', street='Dendermondesteenweg', number=10)
+            store.save()
+
+            foodType = FoodType(name='type')
+            foodType.save()
+
+            quantity = Quantity(foodType=foodType, store=store, amountMin=0, amountMax=10)
+            quantity.save()
+
+            inputTypes = [
+                {
+                    'type': INPUT_AMOUNT,
+                    'float': False,
+                    'integer': True
+                }, {
+                    'type': INPUT_SI_SET,
+                    'float': True,
+                    'integer': True
+                }, {
+                    'type': INPUT_SI_VARIABLE,
+                    'float': True,
+                    'integer': True
+                }
+            ]
+
+            for it in inputTypes:
+                foodType.inputType = it['type']
+
+                self.assertEqual(foodType.isValidAmount(1), it['integer'])
+                self.assertEqual(foodType.isValidAmount(1.5), it['float'])
+
+                quantity.amountMin = 1.5
+                quantity.amountMax = 9.5
+
+                try:
+                    quantity.save()
+                except ValidationError as ve:
+                    if it['float']:
+                        self.fail(ve)
+                    elif it['integer']:
+                        quantity.amountMin = 1
+                        quantity.amountMax = 9
+
+                        try:
+                            quantity.save()
+                        except Exception as e:
+                            self.fail(e)
+
+
