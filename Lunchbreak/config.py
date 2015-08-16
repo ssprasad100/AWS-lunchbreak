@@ -124,7 +124,9 @@ class Base:
 
         'TEST_REQUEST_RENDERER_CLASSES': [
             'rest_framework.renderers.JSONRenderer',
-        ]
+        ],
+
+        'DEFAULT_VERSIONING_CLASS': 'lunch.versioning.HeaderVersioning'
     }
 
     OPBEAT = {
