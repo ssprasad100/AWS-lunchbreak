@@ -2,9 +2,9 @@ import os
 import random
 
 from fabric.api import abort, env, local, run, settings
-from fabric.context_managers import cd, hide, lcd, prefix
+from fabric.context_managers import cd, hide, prefix
 from fabric.contrib import files
-from fabric.operations import put, reboot
+from fabric.operations import reboot
 from fabric.utils import warn
 from Lunchbreak.config import Base, Beta, Development, Staging
 
@@ -285,18 +285,6 @@ def uwsgi():
     run('service uwsgi restart')
 
 
-def updateDocs():
-    destination = '/srv/users/serverpilot/apps/lunchbreakdocs/public/%s/' % BRANCH
-    env.host_string = '%s@%s' % ('serverpilot', 'docs.lunchbreakapp.be',)
-
-    with hide('running'):
-        with lcd('docs'):
-            local('make clean html')
-            run('rm -rf %s' % destination)
-            run('mkdir -p %s' % destination)
-            put('_build/html/*', destination)
-
-
 def deploy():
     prerequisites()
 
@@ -332,7 +320,6 @@ def deploy():
     nginx()
     run('%s start' % NGINX)
 
-    updateDocs()
     opbeatRelease()
 
 
