@@ -116,6 +116,16 @@ class ShortOrderSerializer(serializers.ModelSerializer):
         write_only_fields = ('description',)
 
 
+class ShortOrderSerializerOld(ShortOrderSerializer):
+    total = serializers.DecimalField(source='eventualTotal', max_digits=7, decimal_places=2, read_only=True)
+
+    class Meta:
+        model = Order
+        fields = ('id', 'store', 'pickupTime', 'paid', 'total', 'orderedFood', 'status', 'description',)
+        read_only_fields = ('id', 'paid', 'total', 'status',)
+        write_only_fields = ('description',)
+
+
 class OrderSerializer(serializers.ModelSerializer):
     '''Used for listing a specific or all orders.'''
 
@@ -126,6 +136,15 @@ class OrderSerializer(serializers.ModelSerializer):
         model = Order
         fields = ('id', 'store', 'orderedTime', 'pickupTime', 'status', 'paid', 'total', 'confirmedTotal', 'orderedfood', 'description',)
         read_only_fields = ('id', 'store', 'orderedTime', 'pickupTime', 'status', 'paid', 'total', 'confirmedTotal', 'orderedfood', 'description',)
+
+class OrderSerializerOld(OrderSerializer):
+    total = serializers.DecimalField(source='eventualTotal', max_digits=7, decimal_places=2, read_only=True)
+
+    class Meta:
+        model = Order
+        fields = ('id', 'store', 'orderedTime', 'pickupTime', 'status', 'paid', 'total', 'orderedfood', 'description',)
+        read_only_fields = ('id', 'store', 'orderedTime', 'pickupTime', 'status', 'paid', 'total', 'orderedfood', 'description',)
+
 
 
 class UserSerializer(serializers.ModelSerializer):

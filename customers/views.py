@@ -2,9 +2,10 @@ from customers.authentication import CustomerAuthentication
 from customers.digits import Digits
 from customers.models import Heart, Order, OrderedFood, User, UserToken
 from customers.serializers import (OrderedFoodPriceSerializer, OrderSerializer,
-                                   ShortOrderSerializer, SingleFoodSerializer,
-                                   StoreHeartSerializer, UserSerializer,
-                                   UserTokenSerializer)
+                                   OrderSerializerOld, ShortOrderSerializer,
+                                   ShortOrderSerializerOld,
+                                   SingleFoodSerializer, StoreHeartSerializer,
+                                   UserSerializer, UserTokenSerializer)
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -126,7 +127,12 @@ class OrderView(generics.ListCreateAPIView):
     '''Place an order and list a specific or all of the user's orders.'''
 
     authentication_classes = (CustomerAuthentication,)
-    serializer_class = ShortOrderSerializer
+
+    def get_serializer_class(self):
+        if self.request.version > 1:
+            return ShortOrderSerializer
+        else:
+            return ShortOrderSerializerOld
 
     def get_queryset(self):
         return Order.objects.filter(user=self.request.user).order_by('-pickupTime')
@@ -147,8 +153,13 @@ class OrderRetrieveView(generics.RetrieveAPIView):
     '''Retrieve a single order.'''
 
     authentication_classes = (CustomerAuthentication,)
-    serializer_class = OrderSerializer
     queryset = Order.objects.all()
+
+    def get_serializer_class(self):
+        if self.request.version > 1:
+            return OrderSerializer
+        else:
+            return OrderSerializerOld
 
 
 class OrderPriceView(generics.CreateAPIView):

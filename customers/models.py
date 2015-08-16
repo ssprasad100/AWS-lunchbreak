@@ -56,6 +56,10 @@ class Order(models.Model):
                 if f.original.deleted:
                     f.original.delete()
 
+    @cached_property
+    def eventualTotal(self):  # Used for older API versions towards customers
+        return self.confirmedTotal if self.confirmedTotal is not None else self.total
+
     def __unicode__(self):
         return 'Order #' + str(self.id)
 
