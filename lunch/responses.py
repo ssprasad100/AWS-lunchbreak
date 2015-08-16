@@ -41,6 +41,6 @@ class DoesNotExist(LunchbreakResponse):
 
 
 class WrongAPIVersion(LunchbreakResponse):
-    status_code = status.HTTP_404_NOT_FOUND
+    status_code = status.HTTP_301_MOVED_PERMANENTLY
     code = WRONG_API_VERSION
     information = 'API Version not supported.'

@@ -37,6 +37,7 @@ class Order(models.Model):
     status = models.PositiveIntegerField(choices=ORDER_STATUS, default=0)
     paid = models.BooleanField(default=False)
     total = models.DecimalField(decimal_places=2, max_digits=7, default=0)
+    confirmedTotal = models.DecimalField(decimal_places=2, max_digits=7, default=None, null=True)
     description = models.TextField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
