@@ -318,7 +318,8 @@ def deploy():
     uwsgi()
     nginx()
 
-    opbeatRelease()
+    if CONFIG['OPBEAT_RELEASE']:
+        opbeatRelease()
 
 
 def opbeatRelease():

@@ -26,3 +26,5 @@ DATABASES = {
         'PORT': '3306'
     }
 }
+
+OPBEAT_RELEASE = OPBEAT_RELEASE if 'OPBEAT_RELEASE' in globals() else False
