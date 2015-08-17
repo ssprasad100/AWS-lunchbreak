@@ -3,7 +3,7 @@ import os
 
 include(
     'base.py',
-    optional('versions/%s.py' % os.environ.get('DJANGO_SETTINGS_VERSION')),
+    optional('branches/%s.py' % os.environ.get('DJANGO_SETTINGS_BRANCH')),
     'final.py',
 
     scope=globals()

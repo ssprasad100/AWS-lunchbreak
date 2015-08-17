@@ -6,7 +6,6 @@ from fabric.context_managers import cd, hide, prefix
 from fabric.contrib import files
 from fabric.operations import reboot
 from fabric.utils import warn
-from Lunchbreak.config import Base, Beta, Development, Staging
 
 PACKAGES = [
     'git',
@@ -23,31 +22,27 @@ PACKAGES = [
 PIP_PACKAGES = ['uwsgi', 'virtualenvwrapper']
 
 BRANCH = os.environ.get('TRAVIS_BRANCH') or local('git rev-parse --abbrev-ref HEAD', capture=True)
-CONFIGS = {
-    'master': Base,
-    'beta': Beta,
-    'staging': Staging,
-    'development': Development
-}
-CONFIG = CONFIGS[BRANCH]
-BRANCH = CONFIG.BRANCH
+os.environ.setdefault('DJANGO_SETTINGS_BRANCH', BRANCH)
+
+from Lunchbreak.settings import *
+
+CONFIG = globals()
 
 NGINX = '/etc/init.d/nginx'
 
 USER = BRANCH
 HOME = '/home/%s' % USER
-PATH = '%s/%s' % (HOME, CONFIG.HOST,)
+PATH = '%s/%s' % (HOME, CONFIG['HOST'],)
 
-MYSQL_USER = CONFIG.DATABASES['default']['USER']
-MYSQL_DATABASE = CONFIG.DATABASES['default']['NAME']
-MYSQL_HOST = CONFIG.DATABASES['default']['HOST']
+MYSQL_USER = CONFIG['DATABASES']['default']['USER']
+MYSQL_DATABASE = CONFIG['DATABASES']['default']['NAME']
+MYSQL_HOST = CONFIG['DATABASES']['default']['HOST']
 MYSQL_USER_PASSWORD = None
 
 MYSQL_ROOT_PASSWORD_VAR = 'MYSQL_ROOT_PASSWORD'
-MYSQL_ROOT_PASSWORD = os.environ.get(MYSQL_ROOT_PASSWORD_VAR)
-MYSQL_ROOT_PASSWORD = 'password' if MYSQL_ROOT_PASSWORD is None else MYSQL_ROOT_PASSWORD  # Root password will be edited manually if needed
+MYSQL_ROOT_PASSWORD = 'password'
 
-env.host_string = '%s@%s' % ('root', CONFIG.HOST,)
+env.host_string = '%s@%s' % ('root', CONFIG['HOST'],)
 env.shell = '/bin/bash -c -l'
 
 characters = 'ABCDEFGHIJKLMNOPQRSTUVWabcdefghijklmnopqrstuvwxyz0123456789'
@@ -74,7 +69,8 @@ def getPublicKey(home):
     return run('cat %s/.ssh/id_rsa.pub' % home)
 
 
-def runQuery(query, user='root', password=MYSQL_ROOT_PASSWORD):
+def runQuery(query, user='root', password=None):
+    password = password if password is not None else MYSQL_ROOT_PASSWORD
     with hide('stdout'):
         return run('mysql -u %s  --password="%s" -e \'%s\'' % (user, password, query,))
 
@@ -105,9 +101,9 @@ def installations(rebooted=False):
         run('echo PURGE | debconf-communicate mysql-server')
 
         timezoneFile = '/etc/timezone'
-        correctTimezone = run('cat %s' % timezoneFile) == CONFIG.TIME_ZONE
+        correctTimezone = run('cat %s' % timezoneFile) == CONFIG['TIME_ZONE']
         if not correctTimezone:
-            run('echo "%s" | tee %s' % (CONFIG.TIME_ZONE, timezoneFile,))
+            run('echo "%s" | tee %s' % (CONFIG['TIME_ZONE'], timezoneFile,))
             run('dpkg-reconfigure --frontend noninteractive tzdata')
 
         if files.exists('/var/run/reboot-required.pkgs'):  # File exists if a reboot is required after an installation
@@ -168,30 +164,30 @@ def updateProject():
             with hide('stdout'):
                 run('pip install -r requirements.txt')
 
-                setSysvar('DJANGO_CONFIGURATION', CONFIG.__name__)
+                setSysvar('DJANGO_SETTINGS_BRANCH', BRANCH)
                 setSysvar('DJANGO_SETTINGS_MODULE', 'Lunchbreak.settings')
 
                 run('python manage.py migrate --noinput')
-                staticRoot = '%s/%s%s' % (HOME, CONFIG.HOST, CONFIG.STATIC_RELATIVE,)
+                staticRoot = '%s/%s%s' % (HOME, CONFIG['HOST'], CONFIG['STATIC_RELATIVE'],)
                 if not files.exists(staticRoot):
-                    run('mkdir "%s"' % staticRoot)
+                    run('mkdir -p "%s"' % staticRoot)
                 run('python manage.py collectstatic --noinput -c')
 
 
 def mysql():
-    env.host_string = '%s@%s' % ('root', CONFIG.HOST,)
+    env.host_string = '%s@%s' % ('root', CONFIG['HOST'],)
     # key_buffer is deprecated and generates warnings, must be changed to key_buffer_size
     files.sed('/etc/mysql/my.cnf', r'key_buffer\s+', 'key_buffer_size ')
     run('service mysql restart')
 
-    env.host_string = '%s@%s' % (USER, CONFIG.HOST,)
+    env.host_string = '%s@%s' % (USER, CONFIG['HOST'],)
 
     global MYSQL_USER_PASSWORD
-    MYSQL_USER_PASSWORD = getSysvar(CONFIG.DB_PASS_VAR)
+    MYSQL_USER_PASSWORD = getSysvar(CONFIG['DB_PASS_VAR'])
 
     if MYSQL_USER_PASSWORD is None:  # User probably doesn't exist
-        MYSQL_USER_PASSWORD = generateString(50)
-        setSysvar(CONFIG.DB_PASS_VAR, MYSQL_USER_PASSWORD)
+        MYSQL_USER_PASSWORD = generateString(32)
+        setSysvar(CONFIG['DB_PASS_VAR'], MYSQL_USER_PASSWORD)
 
         runQuery('CREATE DATABASE %s;' % MYSQL_DATABASE)
         runQuery('CREATE USER "%s"@"%s" IDENTIFIED BY "%s";' % (MYSQL_USER, MYSQL_HOST, MYSQL_USER_PASSWORD,))
@@ -202,13 +198,13 @@ def mysql():
 def nginx():
     nginxDir = '/etc/nginx'
     sslDir = '%s/ssl' % nginxDir
-    availableFile = '%s/sites-available/%s' % (nginxDir, CONFIG.HOST,)
+    availableFile = '%s/sites-available/%s' % (nginxDir, CONFIG['HOST'],)
     enabledDir = '%s/sites-enabled/' % nginxDir
 
     # Don't send Nginx version number in error pages and server header
     files.uncomment('%s/nginx.conf' % nginxDir, 'server_tokens off;')
 
-    if CONFIG.SSL:
+    if CONFIG['SSL']:
         if not files.exists(sslDir):
             run('mkdir -p %s' % sslDir)
         if not files.exists('%s/lunchbreak.key' % sslDir)\
@@ -222,23 +218,25 @@ def nginx():
     if files.exists(defaultConfig):
         run('rm %s' % defaultConfig)
     # Copy Lunchbreak's default site configuration
-    protocol = 'https' if CONFIG.SSL else 'http'
+    protocol = 'https' if CONFIG['SSL'] else 'http'
     run('cp %s/default/nginx-%s %s' % (PATH, protocol, availableFile,))
 
     aVariables = {
         'upstream': BRANCH,
-        'port': CONFIG.PORT,
-        'domain': CONFIG.HOST,
+        'port': CONFIG['PORT'],
+        'domain': CONFIG['HOST'],
         'path': PATH,
-        'static_url': CONFIG.STATIC_URL,
-        'static_relative': CONFIG.STATIC_RELATIVE,
+        'static_url': CONFIG['STATIC_URL'],
+        'static_relative': CONFIG['STATIC_RELATIVE'],
         'ssl_path': sslDir
     }
     sedFile(availableFile, aVariables)
 
     # Link the available site configuration with the enabled one
-    if not files.exists('%s%s' % (enabledDir, CONFIG.HOST,)):
+    if not files.exists('%s%s' % (enabledDir, CONFIG['HOST'],)):
         run('ln -s %s %s' % (availableFile, enabledDir,))
+
+    run('%s restart' % NGINX)
 
 
 def uwsgi():
@@ -260,16 +258,16 @@ def uwsgi():
     virtualenv = '%s/.virtualenvs/%s' % (HOME, BRANCH,)
 
     iniVariables = {
-        'host': CONFIG.HOST,
+        'host': CONFIG['HOST'],
         'path': PATH,
         'virtualenv': virtualenv,
-        'configuration': CONFIG.__name__,
-        'password_var': CONFIG.DB_PASS_VAR,
+        'branch': BRANCH,
+        'password_var': CONFIG['DB_PASS_VAR'],
         'password': MYSQL_USER_PASSWORD
     }
     sedFile(iniFile, iniVariables)
 
-    run('mv %s %s/%s.ini' % (iniFile, apps, CONFIG.HOST,))
+    run('mv %s %s/%s.ini' % (iniFile, apps, CONFIG['HOST'],))
 
     configFile = 'uwsgi.conf'
     initFolder = '/etc/init/'
@@ -306,19 +304,19 @@ def deploy():
     run('ssh-keyscan -H github.com > %s/.ssh/known_hosts' % HOME)
     run('chown -R %s:%s %s/.ssh' % (USER, USER, HOME,))
 
-    run('%s stop' % NGINX)
+    global MYSQL_ROOT_PASSWORD
+    MYSQL_ROOT_PASSWORD = getSysvar(MYSQL_ROOT_PASSWORD_VAR)
 
     # Use that account via SSH now
-    env.host_string = '%s@%s' % (USER, CONFIG.HOST,)
+    env.host_string = '%s@%s' % (USER, CONFIG['HOST'],)
 
     updateProject()
 
     # We need root privileges
-    env.host_string = '%s@%s' % ('root', CONFIG.HOST,)
+    env.host_string = '%s@%s' % ('root', CONFIG['HOST'],)
 
     uwsgi()
     nginx()
-    run('%s start' % NGINX)
 
     opbeatRelease()
 
