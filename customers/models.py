@@ -65,7 +65,7 @@ class Order(models.Model):
 
 
 class OrderedFood(models.Model):
-    ingredients = models.ManyToManyField(Ingredient, null=True, blank=True)
+    ingredients = models.ManyToManyField(Ingredient, blank=True)
     amount = models.DecimalField(decimal_places=3, max_digits=7, default=1)
     foodAmount = models.DecimalField(decimal_places=3, max_digits=7, default=1)
     cost = models.DecimalField(decimal_places=2, max_digits=7)
