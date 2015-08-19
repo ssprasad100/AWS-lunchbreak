@@ -11,7 +11,7 @@ INVALID_INGREDIENT_LINKING = 607
 INVALID_FOODTYPE_AMOUNT = 608
 
 
-def lunchbreakExceptionHandler(exception):
+def lunchbreakExceptionHandler(exception, context):
     response = Response()
     response.data = {'error': {}}
     if exception is None:
