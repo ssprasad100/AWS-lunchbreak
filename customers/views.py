@@ -138,7 +138,8 @@ class OrderView(generics.ListCreateAPIView):
         return Order.objects.filter(user=self.request.user).order_by('-pickupTime')
 
     def create(self, request, *args, **kwargs):
-        orderSerializer = ShortOrderSerializer(data=request.data, context={'user': request.user})
+        serializerClass = self.get_serializer_class()
+        orderSerializer = serializerClass(data=request.data, context={'user': request.user})
         if orderSerializer.is_valid():
             try:
                 orderSerializer.save()
