@@ -10,10 +10,12 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from lunch.exceptions import LunchbreakException
-from lunch.models import Food, IngredientGroup, Store, tokenGenerator
+from lunch.models import (Food, FoodCategory, IngredientGroup, Store,
+                          tokenGenerator)
 from lunch.responses import BadRequest
-from lunch.serializers import (HolidayPeriodSerializer, MultiFoodSerializer,
-                               OpeningHoursSerializer, OpenSerializer,
+from lunch.serializers import (FoodCategorySerializer, HolidayPeriodSerializer,
+                               MultiFoodSerializer, OpeningHoursSerializer,
+                               OpenSerializer, ShortFoodCategorySerializer,
                                ShortStoreSerializer)
 from lunch.views import (StoreCategoryListViewBase, getHolidayPeriods,
                          getOpeningAndHoliday, getOpeningHours)
@@ -108,7 +110,13 @@ class FoodListView(generics.ListAPIView):
 
     def get_queryset(self):
         if 'store_id' in self.kwargs:
-            return Food.objects.filter(store_id=self.kwargs['store_id'], deleted=False).order_by('-category__priority', 'category__name', 'name')
+            return Food.objects.filter(
+                store_id=self.kwargs['store_id'],
+                deleted=False).order_by('-category__priority', 'category__name', 'name')
+        elif 'foodcategory_id' in self.kwargs:
+            return Food.objects.filter(
+                category_id=self.kwargs['foodcategory_id'],
+                deleted=False).order_by('-category__priority','category__name', 'name')
 
 
 class FoodRetrieveView(generics.RetrieveAPIView):
@@ -121,6 +129,26 @@ class FoodRetrieveView(generics.RetrieveAPIView):
 
     def get_queryset(self):
         return Food.objects.filter(deleted=False)
+
+
+class FoodCategoryListView(generics.ListAPIView):
+    ''' List all food categories. '''
+
+    authentication_classes = (CustomerAuthentication,)
+    serializer_class = ShortFoodCategorySerializer
+    pagination_class = None
+
+    def get_queryset(self):
+        if 'store_id' in self.kwargs:
+            return FoodCategory.objects.filter(store_id=self.kwargs['store_id']).order_by('-priority', 'name')
+
+
+class FoodCategoryRetrieveView(generics.RetrieveAPIView):
+    ''' List all food categories. '''
+
+    authentication_classes = (CustomerAuthentication,)
+    serializer_class = FoodCategorySerializer
+    queryset = FoodCategory.objects.all()
 
 
 class OrderView(generics.ListCreateAPIView):
