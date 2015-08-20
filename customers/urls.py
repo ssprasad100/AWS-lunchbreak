@@ -4,12 +4,16 @@ from customers import views
 urlpatterns = patterns('',
     url(r'^food/(?P<pk>\d+)/$', views.FoodRetrieveView.as_view()),
     url(r'^food/store/(?P<store_id>\d+)/$', views.FoodListView.as_view()),
+    url(r'^food/category/(?P<foodcategory_id>\d+)/$', views.FoodListView.as_view()),
+
+    url(r'^foodcategory/(?P<pk>\d+)/$', views.FoodCategoryRetrieveView.as_view()),
 
     url(r'^order/$', views.OrderView.as_view()),
     url(r'^order/(?P<pk>\d+)/$', views.OrderRetrieveView.as_view()),
     url(r'^order/price/$', views.OrderPriceView.as_view()),
 
     url(r'^store/(?P<pk>\d+)/$', views.StoreHeartView.as_view()),
+    url(r'^store/(?P<store_id>\d+)/foodcategories/$', views.FoodCategoryListView.as_view()),
     url(r'^store/(?P<option>heart|unheart)/(?P<pk>\d+)/$', views.StoreHeartView.as_view()),
     url(r'^store/holiday/(?P<store_id>\d+)/$', views.HolidayPeriodListView.as_view()),
     url(r'^store/hours/(?P<store_id>\d+)/$', views.OpeningHoursListView.as_view()),
