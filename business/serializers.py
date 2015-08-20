@@ -13,7 +13,7 @@ class StoreSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Store
-        fields = ('id', 'name', 'city', 'street', 'latitude', 'longitude', 'categories', 'heartsCount', 'country', 'province', 'city', 'postcode', 'street', 'number', 'minTime', 'costCalculation',)
+        fields = ('id', 'name', 'city', 'street', 'latitude', 'longitude', 'categories', 'heartsCount', 'country', 'province', 'city', 'postcode', 'street', 'number', 'minTime', 'orderTime', 'costCalculation',)
         read_only_fields = ('id', 'latitude', 'longitude', 'heartsCount', 'categories',)
 
 

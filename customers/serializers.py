@@ -1,11 +1,12 @@
 import math
 
-from customers.exceptions import AmountInvalid, CostCheckFailed
+from customers.exceptions import (AmountInvalid, CostCheckFailed,
+                                  MinDaysExceeded)
 from customers.models import Order, OrderedFood, User, UserToken
+from lunch import serializers as lunchSerializers
 from lunch.config import INPUT_SI_SET, INPUT_SI_VARIABLE
 from lunch.exceptions import BadRequest
 from lunch.models import Food, IngredientGroup, Store
-from lunch import serializers as lunchSerializers
 from rest_framework import serializers
 
 
@@ -77,6 +78,8 @@ class ShortOrderSerializer(serializers.ModelSerializer):
         try:
             for f in orderedFood:
                 original = f['original']
+                if not original.canOrder(pickupTime):
+                    raise MinDaysExceeded()
                 amount = f['amount'] if 'amount' in f else 1
                 self.amountCheck(original, amount)
                 cost = f['cost']

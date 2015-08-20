@@ -10,7 +10,6 @@ admin.site.register(StoreCategory)
 class IngredientAdmin(admin.ModelAdmin):
     list_display = ('foodType', 'store', 'amountMin', 'amountMax', 'id',)
     readonly_fields = ('id', 'lastModified',)
-    fields = ('foodType', 'store', 'amountMin', 'amountMax',) + readonly_fields
 
 
 @admin.register(Store)
@@ -23,21 +22,18 @@ class StoreAdmin(admin.ModelAdmin):
 class OpeningHoursAdmin(admin.ModelAdmin):
     list_display = ('store', 'day', 'opening', 'closing', 'id',)
     readonly_fields = ('id',)
-    fields = ('store', 'day', 'opening', 'closing',) + readonly_fields
 
 
 @admin.register(HolidayPeriod)
 class HolidayPeriodAdmin(admin.ModelAdmin):
     list_display = ('store', 'description', 'start', 'end', 'closed', 'id',)
     readonly_fields = ('id',)
-    fields = ('store', 'description', 'start', 'end', 'closed',) + readonly_fields
 
 
 @admin.register(FoodCategory)
 class FoodCategoryAdmin(admin.ModelAdmin):
     list_display = ('name', 'priority', 'store', 'id',)
     readonly_fields = ('id',)
-    fields = ('name', 'priority', 'store',) + readonly_fields
 
 
 @admin.register(FoodType)
@@ -55,20 +51,17 @@ class IngredientsRelationInline(admin.TabularInline):
 @admin.register(Food)
 class FoodAdmin(admin.ModelAdmin):
     list_display = ('name', 'cost', 'category', 'store', 'id',)
-    fields = list_display + ('amount', 'foodType', 'lastModified', 'deleted',)
     readonly_fields = ('lastModified', 'id',)
     inlines = (IngredientsRelationInline,)
 
 
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
-    list_display =('name', 'cost', 'group', 'store', 'id',)
+    list_display = ('name', 'cost', 'group', 'store', 'id',)
     readonly_fields = ('id', 'lastModified',)
-    fields = ('name', 'cost', 'group', 'icon', 'store',) + readonly_fields
 
 
 @admin.register(IngredientGroup)
 class IngredientGroupAdmin(admin.ModelAdmin):
     list_display = ('name', 'maximum', 'minimum', 'priority', 'cost', 'foodType', 'store', 'id',)
-    fields = list_display
     readonly_fields = ('id',)

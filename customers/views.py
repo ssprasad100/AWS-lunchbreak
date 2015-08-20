@@ -12,6 +12,7 @@ from django.utils import timezone
 from lunch.exceptions import LunchbreakException
 from lunch.models import (Food, FoodCategory, IngredientGroup, Store,
                           tokenGenerator)
+from lunch.pagination import SimplePagination
 from lunch.responses import BadRequest
 from lunch.serializers import (FoodCategorySerializer, HolidayPeriodSerializer,
                                MultiFoodSerializer, OpeningHoursSerializer,
@@ -116,7 +117,13 @@ class FoodListView(generics.ListAPIView):
         elif 'foodcategory_id' in self.kwargs:
             return Food.objects.filter(
                 category_id=self.kwargs['foodcategory_id'],
-                deleted=False).order_by('-category__priority','category__name', 'name')
+                deleted=False).order_by('-category__priority', 'category__name', 'name')
+
+    @property
+    def pagination_class(self):
+        if 'foodcategory_id' in self.kwargs:
+            return None
+        return SimplePagination
 
 
 class FoodRetrieveView(generics.RetrieveAPIView):

@@ -27,7 +27,7 @@ class StoreSerializer(ShortStoreSerializer):
 
     class Meta:
         model = ShortStoreSerializer.Meta.model
-        fields = ShortStoreSerializer.Meta.fields + ('country', 'province', 'city', 'postcode', 'street', 'number', 'minTime',)
+        fields = ShortStoreSerializer.Meta.fields + ('country', 'province', 'city', 'postcode', 'street', 'number', 'minTime', 'orderTime',)
         read_only_fields = ShortStoreSerializer.Meta.read_only_fields
 
 
@@ -146,7 +146,7 @@ class MultiFoodSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Food
-        fields = ('id', 'name', 'amount', 'cost', 'category', 'foodType', 'hasIngredients', 'quantity',)
+        fields = ('id', 'name', 'amount', 'cost', 'category', 'foodType', 'hasIngredients', 'quantity', 'minDays',)
         read_only_fields = ('id', 'hasIngredients',)
 
 

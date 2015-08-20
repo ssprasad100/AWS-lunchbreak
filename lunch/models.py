@@ -1,5 +1,5 @@
 import random
-from datetime import timedelta
+from datetime import datetime, time, timedelta
 
 import requests
 from customers.exceptions import MinTimeExceeded, PastOrderDenied, StoreClosed
@@ -119,6 +119,7 @@ class Store(models.Model):
 
     categories = models.ManyToManyField(StoreCategory)
     minTime = models.PositiveIntegerField(default=60)
+    orderTime = models.TimeField(default=time(hour=12))
     hearts = models.ManyToManyField('customers.User', through='customers.Heart', blank=True)
     costCalculation = models.PositiveIntegerField(choices=COST_GROUP_CALCULATIONS, default=COST_GROUP_ALWAYS)
 
@@ -166,7 +167,7 @@ class Store(models.Model):
 
         if not openHoliday:
             # datetime.weekday(): return monday 0 - sunday 6
-            # atetime.strftime('%w'): return sunday 0 - monday 6
+            # datetime.strftime('%w'): return sunday 0 - monday 6
             pickupDay = pickupTime.strftime('%w')
             openingHours = OpeningHours.objects.filter(store=store, day=pickupDay)
             pTime = pickupTime.time()
@@ -366,6 +367,7 @@ class Food(models.Model):
     amount = models.DecimalField(decimal_places=3, max_digits=7, default=1)
     cost = models.DecimalField(decimal_places=2, max_digits=7)
     foodType = models.ForeignKey(FoodType)
+    minDays = models.PositiveIntegerField(default=0)
     lastModified = models.DateTimeField(auto_now=True)
 
     category = models.ForeignKey(FoodCategory)
@@ -392,6 +394,13 @@ class Food(models.Model):
             return Quantity.objects.get(foodType_id=self.foodType_id, store_id=self.store_id)
         except ObjectDoesNotExist:
             return None
+
+    def canOrder(self, pickupTime):
+        return self.minDays == 0 \
+            or (
+                pickupTime - datetime.now() > timedelta(days=self.minDays)
+                and datetime.now().time() < self.store.orderTime
+            )
 
     def save(self, *args, **kwargs):
         if not self.foodType.isValidAmount(self.amount):

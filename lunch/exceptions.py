@@ -45,7 +45,7 @@ class LunchbreakException(APIException):
             super(LunchbreakException, self).__init__(detail)
 
     def getResponse(self):
-        return lunchbreakExceptionHandler(self)
+        return lunchbreakExceptionHandler(self, None)
 
 
 class BadRequest(LunchbreakException):

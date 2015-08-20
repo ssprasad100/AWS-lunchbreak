@@ -9,6 +9,7 @@ PASTORDER_DENIED = 702
 DIGITS_UNAVAILABLE = 703
 STORE_CLOSED = 704
 AMOUNT_INVALID = 705
+MINDAYS_EXCEEDED = 706
 
 DIGITS_UNKNOWN = -1
 DIGITS_LEGACY_ERROR = 0
@@ -102,3 +103,9 @@ class AmountInvalid(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
     code = AMOUNT_INVALID
     information = 'The amount is invalid.'
+
+
+class MinDaysExceeded(LunchbreakException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    code = MINDAYS_EXCEEDED
+    information = 'An order must be placed earlier.'
