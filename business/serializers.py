@@ -19,12 +19,13 @@ class StoreSerializer(serializers.ModelSerializer):
 
 class BusinessTokenSerializer(TokenSerializer):
     password = serializers.CharField(max_length=255, write_only=True)
-    device = serializers.CharField(max_length=255, write_only=True)
+    name = serializers.CharField(max_length=255, write_only=True)
+    device = serializers.CharField(max_length=255, write_only=True, required=False)
 
     class Meta:
         model = BaseToken
-        fields = TokenSerializer.Meta.fields + ('password', 'device',)
-        write_only_fields = ('password', 'device',)
+        fields = TokenSerializer.Meta.fields + ('password', 'name', 'device',)
+        write_only_fields = ('password', 'name', 'device',)
         read_only_fields = TokenSerializer.Meta.read_only_fields
 
 

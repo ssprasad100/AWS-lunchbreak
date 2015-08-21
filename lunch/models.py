@@ -9,11 +9,13 @@ from django.db import models
 from django.utils import timezone
 from django.utils.functional import cached_property
 from lunch.config import (COST_GROUP_ALWAYS, COST_GROUP_CALCULATIONS, DAYS,
-                          ICONS, INPUT_AMOUNT, INPUT_TYPES, ORDER_ENDED)
+                          ICONS, INPUT_AMOUNT, INPUT_TYPES, ORDER_ENDED,
+                          TOKEN_IDENTIFIER_CHARS, TOKEN_IDENTIFIER_LENGTH)
 from lunch.exceptions import (AddressNotFound, IngredientGroupMaxExceeded,
                               IngredientGroupsMinimumNotMet,
                               InvalidFoodTypeAmount, InvalidIngredientLinking,
                               InvalidStoreLinking)
+from push_notifications.models import BareDevice
 
 
 class LunchbreakManager(models.Manager):
@@ -445,17 +447,13 @@ class IngredientRelation(models.Model):
         super(IngredientRelation, self).save(*args, **kwargs)
 
 
-IDENTIFIER_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWabcdefghijklmnopqrstuvwxyz0123456789'
-IDENTIFIER_LENGTH = 64
-
-
 def tokenGenerator():
-    return ''.join(random.choice(IDENTIFIER_CHARS) for a in xrange(IDENTIFIER_LENGTH))
+        return ''.join(random.choice(TOKEN_IDENTIFIER_CHARS) for a in xrange(TOKEN_IDENTIFIER_LENGTH))
 
 
-class BaseToken(models.Model):
-    identifier = models.CharField(max_length=IDENTIFIER_LENGTH, default=tokenGenerator)
-    device = models.CharField(max_length=255)
+class BaseToken(BareDevice):
+    name = models.CharField(max_length=255)
+    identifier = models.CharField(max_length=TOKEN_IDENTIFIER_LENGTH, default=tokenGenerator)
 
     class Meta:
         abstract = True
