@@ -7,7 +7,7 @@ admin.site.register(StoreCategory)
 
 
 @admin.register(Quantity)
-class IngredientAdmin(admin.ModelAdmin):
+class QuantityAdmin(admin.ModelAdmin):
     list_display = ('foodType', 'store', 'amountMin', 'amountMax', 'id',)
     readonly_fields = ('id', 'lastModified',)
 
@@ -57,11 +57,9 @@ class FoodAdmin(admin.ModelAdmin):
 
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
-    list_display = ('name', 'cost', 'group', 'store', 'id',)
-    readonly_fields = ('id', 'lastModified',)
+    list_display = ('name', 'group', 'store',)
 
 
 @admin.register(IngredientGroup)
 class IngredientGroupAdmin(admin.ModelAdmin):
     list_display = ('name', 'maximum', 'minimum', 'priority', 'cost', 'foodType', 'store', 'id',)
-    readonly_fields = ('id',)

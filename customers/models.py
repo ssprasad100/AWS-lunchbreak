@@ -1,11 +1,18 @@
 import math
 
+from customers.digits import Digits
+from customers.exceptions import DigitsException
 from django.db import models
+from django.utils import timezone
 from django.utils.functional import cached_property
 from lunch.config import (COST_GROUP_ADDITIONS, ORDER_ENDED, ORDER_STATUS,
                           ORDER_STATUS_COMPLETED)
-from lunch.models import BaseToken, Food, Ingredient, Store
+from lunch.models import BaseToken, Food, Ingredient, Store, tokenGenerator
+from lunch.responses import BadRequest, DoesNotExist
 from phonenumber_field.modelfields import PhoneNumberField
+from push_notifications.models import SERVICE_APNS
+from rest_framework import status
+from rest_framework.response import Response
 
 
 class User(models.Model):
@@ -18,6 +25,81 @@ class User(models.Model):
 
     def __unicode__(self):
         return self.name if self.name else unicode(self.phone)
+
+    @staticmethod
+    def digitsRegister(digits, phone):
+        try:
+            digits.register(phone)
+            return True
+        except DigitsException:
+            return User.signIn(digits, phone)
+
+    @staticmethod
+    def digitsLogin(digits, phone):
+        content = digits.signin(phone)
+        return {
+            'digitsId': content['login_verification_user_id'],
+            'requestId': content['login_verification_request_id']
+        }
+
+    @staticmethod
+    def register(phone):
+        digits = Digits()
+        try:
+            user = User.objects.get(phone=phone)
+
+            if user.confirmedAt:
+                digitsResult = User.digitsLogin(digits, phone)
+            else:
+                digitsResult = User.digitsRegister(digits, phone)
+
+            if digitsResult and type(digitsResult) is dict:
+                user.digitsId = digitsResult['digitsId']
+                user.requestId = digitsResult['requestId']
+            user.save()
+
+            if user.name:
+                return Response(status=status.HTTP_200_OK)
+            return Response(status=status.HTTP_201_CREATED)
+        except User.DoesNotExist:
+            digitsRegistration = User.digitsRegister(digits, phone)
+            if digitsRegistration:
+                user = User(phone=phone)
+                if type(digitsRegistration) is dict:
+                    user.digitsId = digitsRegistration['digitsId']
+                    user.requestId = digitsRegistration['requestId']
+                user.save()
+                return Response(status=status.HTTP_201_CREATED)
+
+    @staticmethod
+    def login(phone, pin, name, token):
+        digits = Digits()
+        try:
+            user = User.objects.get(phone=phone)
+
+            if not user.name:
+                if not name:
+                    return BadRequest()
+                user.name = name
+
+            if not user.confirmedAt:
+                user.confirmedAt = timezone.now()
+
+            # User just got registered in the Digits database
+            if not user.requestId and not user.digitsId:
+                user.digitsId = digits.confirmRegistration(phone, pin)['id']
+            else:
+                digits.confirmSignin(user.requestId, user.digitsId, pin)
+
+            user.save()
+            return UserToken.tokenResponse(
+                user=user,
+                name=token['name'],
+                service=token['service'],
+                registration_id=token['registration_id']
+            )
+        except User.DoesNotExist:
+            return DoesNotExist()
 
 
 class Heart(models.Model):
@@ -119,5 +201,35 @@ class OrderedFood(models.Model):
         return cost
 
 
+class UserTokenManager(models.Manager):
+    def createToken(self, user, name, active=True, service=SERVICE_APNS, registration_id=''):
+        # Active parameter is for backwards compatibility with the old login system.
+        # Needs to be removed together with the old login system.
+        token, created = self.get_or_create(
+            user=user,
+            service=service,
+            registration_id=registration_id,
+            active=active
+        )
+        if not created:
+            token.identifier = tokenGenerator()
+        token.save()
+        return (token, created,)
+
+
 class UserToken(BaseToken):
     user = models.ForeignKey(User)
+
+    objects = UserTokenManager()
+
+    @staticmethod
+    def tokenResponse(user, name, service=SERVICE_APNS, registration_id=''):
+        from customers.serializers import UserTokenSerializer
+        token, created = UserToken.objects.createToken(
+            user=user,
+            name=name,
+            service=service,
+            registration_id=registration_id
+        )
+        tokenSerializer = UserTokenSerializer(token)
+        return Response(tokenSerializer.data, status=(status.HTTP_201_CREATED if created else status.HTTP_200_OK))

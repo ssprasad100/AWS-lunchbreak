@@ -140,6 +140,7 @@ class OrderSerializer(serializers.ModelSerializer):
         fields = ('id', 'store', 'orderedTime', 'pickupTime', 'status', 'paid', 'total', 'confirmedTotal', 'orderedfood', 'description',)
         read_only_fields = ('id', 'store', 'orderedTime', 'pickupTime', 'status', 'paid', 'total', 'confirmedTotal', 'orderedfood', 'description',)
 
+
 class OrderSerializerOld(OrderSerializer):
     total = serializers.DecimalField(source='eventualTotal', max_digits=7, decimal_places=2, read_only=True)
 
@@ -148,6 +149,31 @@ class OrderSerializerOld(OrderSerializer):
         fields = ('id', 'store', 'orderedTime', 'pickupTime', 'status', 'paid', 'total', 'orderedfood', 'description',)
         read_only_fields = ('id', 'store', 'orderedTime', 'pickupTime', 'status', 'paid', 'total', 'orderedfood', 'description',)
 
+
+class UserRegisterSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ('phone',)
+        write_only_fields = ('phone',)
+
+
+class UserTokenLoginSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = UserToken
+        fields = ('name', 'service', 'registration_id',)
+        write_only_fields = ('name', 'service', 'registration_id',)
+
+
+class UserLoginSerializer(serializers.ModelSerializer):
+    pin = serializers.CharField(write_only=True)
+    token = UserTokenLoginSerializer(write_only=True)
+
+    class Meta:
+        model = User
+        fields = ('phone', 'name', 'pin', 'token',)
+        write_only_fields = ('phone', 'name', 'pin', 'token',)
 
 
 class UserSerializer(serializers.ModelSerializer):

@@ -5,20 +5,15 @@ from customers.serializers import (OrderedFoodPriceSerializer, OrderSerializer,
                                    OrderSerializerOld, ShortOrderSerializer,
                                    ShortOrderSerializerOld,
                                    SingleFoodSerializer, StoreHeartSerializer,
+                                   UserLoginSerializer, UserRegisterSerializer,
                                    UserSerializer, UserTokenSerializer)
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from lunch.config import DEMO_PHONE
 from lunch.exceptions import LunchbreakException
-from lunch.models import (Food, FoodCategory, IngredientGroup, Store,
-                          tokenGenerator)
-<<<<<<< HEAD
-<<<<<<< 4821f3d380c959f263f2d390b68dfeaae6c0780f
+from lunch.models import Food, FoodCategory, IngredientGroup, Store
 from lunch.pagination import SimplePagination
-=======
->>>>>>> Added FoodCategory requests.
-=======
->>>>>>> a45678160e8a29d4bad2f3423a3bfd5af0139d31
 from lunch.responses import BadRequest
 from lunch.serializers import (FoodCategorySerializer, HolidayPeriodSerializer,
                                MultiFoodSerializer, OpeningHoursSerializer,
@@ -242,6 +237,48 @@ class UserTokenView(generics.ListAPIView):
         return UserToken.objects.filter(user=self.request.user)
 
 
+class UserRegisterView(generics.CreateAPIView):
+
+    serializer_class = UserRegisterSerializer
+
+    def create(self, request, *args, **kwargs):
+        registerSerializer = UserRegisterView.serializer_class(data=request.data)
+        phone = request.data.get('phone', False)
+        if registerSerializer.is_valid():
+            return User.register(phone)
+        elif phone == DEMO_PHONE:
+            return Response(status=status.HTTP_200_OK)
+        return BadRequest(registerSerializer.errors)
+
+
+class UserLoginView(generics.CreateAPIView):
+
+    serializer_class = UserLoginSerializer
+
+    def create(self, request, *args, **kwargs):
+        loginSerializer = UserLoginView.serializer_class(data=request.data)
+        phone = request.data.get('phone', False)
+        if loginSerializer.is_valid():
+            pin = request.data['pin']
+            name = request.data.get('name', None)
+            token = request.data.get('token', None)
+            print token
+            return User.login(phone, pin, name, token)
+        elif (phone == DEMO_PHONE
+            and 'deviceName' in request.data
+            and 'pin' in request.data):
+            try:
+                demoUser = User.objects.get(
+                    phone=phone,
+                    requestId=request.data['pin'],
+                    digitsId='demo'
+                )
+                self.createGetToken(demoUser, request.data['deviceName'])
+            except User.DoesNotExist:
+                pass
+        return BadRequest(loginSerializer.errors)
+
+
 class UserView(generics.CreateAPIView):
 
     serializer_class = UserSerializer
@@ -274,11 +311,8 @@ class UserView(generics.CreateAPIView):
             return Response(status=status.HTTP_200_OK)
         return Response(status=status.HTTP_201_CREATED)
 
-    def createGetToken(self, user, device, name):
-        token, created = UserToken.objects.get_or_create(device=device, user=user)
-        if not created:
-            token.identifier = tokenGenerator()
-        token.save()
+    def createGetToken(self, user, name):
+        token, created = UserToken.objects.createToken(user, name, active=False)
         tokenSerializer = UserTokenSerializer(token)
         return Response(tokenSerializer.data, status=(status.HTTP_201_CREATED if created else status.HTTP_200_OK))
 
@@ -340,16 +374,16 @@ class UserView(generics.CreateAPIView):
                             success = True
 
                         if success:
-                            return self.createGetToken(user, device, name)
-        elif request.data.get('phone', False) == '+32411111111':
+                            return UserToken.tokenResponse(user, device)
+        elif request.data.get('phone', False) == DEMO_PHONE:
             if 'pin' not in request.data:
                 return Response(status=status.HTTP_200_OK)
 
             if 'device' in request.data:
                 try:
-                    demoUser = User.objects.get(phone=request.data['phone'], requestId=request.data['pin'], digitsId='demo', )
+                    demoUser = User.objects.get(phone=request.data['phone'], requestId=request.data['pin'], digitsId='demo')
                 except ObjectDoesNotExist:
                     pass
                 else:
-                    return self.createGetToken(demoUser, request.data['device'], 'demo')
+                    return UserToken.tokenResponse(demoUser, request.data['device'])
         return BadRequest(userSerializer.errors)

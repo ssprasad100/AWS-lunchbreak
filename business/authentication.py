@@ -23,7 +23,8 @@ class BusinessAuthentication(TokenAuthentication):
 
         rawPassword = request.data['password']
         modelId = request.data[cls.MODEL_NAME]
-        device = request.data['device']
+        nameKey = 'name' if request.version > 2 else 'device'
+        name = request.data[nameKey]
 
         try:
             model = cls.MODEL.objects.get(id=modelId)
@@ -31,7 +32,7 @@ class BusinessAuthentication(TokenAuthentication):
             return DoesNotExist('%s does not exist.' % cls.MODEL_NAME.capitalize())
 
         if model.checkPassword(rawPassword):
-            arguments = {'device': device, cls.MODEL_NAME: model}
+            arguments = {'name': name, cls.MODEL_NAME: model}
             token, created = cls.TOKEN_MODEL.objects.get_or_create(**arguments)
             if not created:
                 token.identifier = tokenGenerator()

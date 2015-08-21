@@ -22,4 +22,4 @@ class OrderAdmin(admin.ModelAdmin):
 
 @admin.register(UserToken)
 class UserTokenAdmin(admin.ModelAdmin):
-    list_display = ('identifier', 'device', 'user',)
+    list_display = ('identifier', 'user',)

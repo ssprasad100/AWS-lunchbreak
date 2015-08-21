@@ -154,5 +154,5 @@ class TokenSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = BaseToken
-        fields = ('id', 'identifier', 'device',)
-        read_only_fields = ('id', 'identifier', 'device',)
+        fields = ('id', 'identifier', 'name', 'service', 'registration_id', 'active',)
+        read_only_fields = ('id', 'identifier', 'name', 'service', 'registration_id', 'active',)

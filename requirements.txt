@@ -19,3 +19,4 @@ PyYAML==3.11
 requests==2.7.0
 six==1.9.0
 watchdog==0.8.3
+-e git+git@github.com:AndreasBackx/django-push-notifications.git#egg=django-push-notifications

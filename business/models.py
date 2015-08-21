@@ -1,12 +1,13 @@
 from django.contrib.auth.hashers import check_password, make_password
 from django.db import models
 from django.utils.functional import cached_property
-from lunch.models import BaseToken, IDENTIFIER_LENGTH, Store
+from lunch.config import TOKEN_IDENTIFIER_LENGTH
+from lunch.models import BaseToken, Store
 
 
 class PasswordModel(models.Model):
     password = models.CharField(max_length=255)
-    passwordReset = models.CharField(max_length=IDENTIFIER_LENGTH, null=True, default=None)
+    passwordReset = models.CharField(max_length=TOKEN_IDENTIFIER_LENGTH, null=True, default=None)
 
     class Meta:
         abstract = True
