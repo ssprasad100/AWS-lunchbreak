@@ -12,10 +12,7 @@ from django.utils import timezone
 from lunch.exceptions import LunchbreakException
 from lunch.models import (Food, FoodCategory, IngredientGroup, Store,
                           tokenGenerator)
-<<<<<<< 4821f3d380c959f263f2d390b68dfeaae6c0780f
 from lunch.pagination import SimplePagination
-=======
->>>>>>> Added FoodCategory requests.
 from lunch.responses import BadRequest
 from lunch.serializers import (FoodCategorySerializer, HolidayPeriodSerializer,
                                MultiFoodSerializer, OpeningHoursSerializer,
