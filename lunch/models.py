@@ -3,6 +3,7 @@ from datetime import datetime, time, timedelta
 
 import requests
 from customers.exceptions import MinTimeExceeded, PastOrderDenied, StoreClosed
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import models
 from django.utils import timezone
@@ -125,13 +126,19 @@ class Store(models.Model):
 
     lastModified = models.DateTimeField(auto_now=True)
 
-    GEOCODING_URL = 'https://maps.googleapis.com/maps/api/geocode/json'
-    GEOCODING_KEY = 'AIzaSyCHgip4CE_6DMxP506uDRIQy_nQisuHAQI'
-    ADDRESS_FORMAT = '%s,+%s,+%s+%s,+%s+%s'
-
     def save(self, *args, **kwargs):
-        address = self.ADDRESS_FORMAT % (self.country, self.province, self.street, self.number, self.postcode, self.city,)
-        response = requests.get(self.GEOCODING_URL, params={'address': address, 'key': self.GEOCODING_KEY})
+        address = '{country},+{province},+{street}+{number},+{postcode}+{city}'.format(
+            country=self.country,
+            province=self.province,
+            street=self.street,
+            number=self.number,
+            postcode=self.postcode,
+            city=self.city,
+            )
+        response = requests.get(
+            'https://maps.googleapis.com/maps/api/geocode/json',
+            params={'address': address, 'key': settings.GOOGLE_CLOUD_SECRET}
+            )
         result = response.json()
 
         if not result['results']:
