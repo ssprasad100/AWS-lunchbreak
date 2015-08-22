@@ -6,4 +6,4 @@ class HeaderVersioning(BaseVersioning):
     allowed_versions = [1, 2]
 
     def determine_version(self, request, *args, **kwargs):
-        return request.META.get('HTTP_X_VERSION', HeaderVersioning.default_version)
+        return int(request.META.get('HTTP_X_VERSION', HeaderVersioning.default_version))
