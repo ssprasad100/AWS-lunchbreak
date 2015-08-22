@@ -207,6 +207,7 @@ class UserTokenManager(models.Manager):
         # Needs to be removed together with the old login system.
         token, created = self.get_or_create(
             user=user,
+            name=name,
             service=service,
             registration_id=registration_id,
             active=active
@@ -223,13 +224,16 @@ class UserToken(BaseToken):
     objects = UserTokenManager()
 
     @staticmethod
-    def tokenResponse(user, name, service=SERVICE_APNS, registration_id=''):
-        from customers.serializers import UserTokenSerializer
+    def tokenResponse(user, name, service=SERVICE_APNS, registration_id='', old=False):
+        from customers.serializers import UserTokenSerializer, UserTokenSerializerOld
         token, created = UserToken.objects.createToken(
             user=user,
             name=name,
             service=service,
             registration_id=registration_id
         )
-        tokenSerializer = UserTokenSerializer(token)
+        if old:
+            tokenSerializer = UserTokenSerializerOld(token)
+        else:
+            tokenSerializer = UserTokenSerializer(token)
         return Response(tokenSerializer.data, status=(status.HTTP_201_CREATED if created else status.HTTP_200_OK))
