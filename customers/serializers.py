@@ -194,3 +194,13 @@ class UserTokenSerializer(lunchSerializers.TokenSerializer):
         model = UserToken
         fields = lunchSerializers.TokenSerializer.Meta.fields + ('user',)
         read_only_fields = lunchSerializers.TokenSerializer.Meta.read_only_fields + ('user',)
+
+
+class UserTokenSerializerOld(serializers.ModelSerializer):
+    device = serializers.CharField(source='name', read_only=True)
+    user = UserSerializer()
+
+    class Meta:
+        model = UserToken
+        fields = ('id', 'identifier', 'device', 'user',)
+        read_only_fields = fields

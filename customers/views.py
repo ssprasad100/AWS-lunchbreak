@@ -374,7 +374,7 @@ class UserView(generics.CreateAPIView):
                             success = True
 
                         if success:
-                            return UserToken.tokenResponse(user, device)
+                            return UserToken.tokenResponse(user, device, old=True)
         elif request.data.get('phone', False) == DEMO_PHONE:
             if 'pin' not in request.data:
                 return Response(status=status.HTTP_200_OK)
