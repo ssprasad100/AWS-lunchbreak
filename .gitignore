@@ -12,3 +12,5 @@ _build
 *.key
 *.pem
 *.cer
+.tox
+.python-version

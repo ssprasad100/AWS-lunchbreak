@@ -1,5 +1,6 @@
-import datetime
+from datetime import datetime, timedelta
 
+from customers.exceptions import MinTimeExceeded, PastOrderDenied, StoreClosed
 from django.core.exceptions import ValidationError
 from lunch.exceptions import AddressNotFound
 from lunch.models import (FoodType, HolidayPeriod, IngredientGroup,
@@ -79,13 +80,13 @@ class LunchbreakTests(APITestCase):
         store = Store(name='valid', country='Belgie', province='Oost-Vlaanderen', city='Wetteren', postcode='9230', street='Dendermondesteenweg', number=10)
         store.save()
 
-        now = datetime.datetime.now()
+        now = datetime.now()
         hp = HolidayPeriod(store=store, description='description', start=now, end=now)
         try:
             hp.save()
         except ValidationError:
             try:
-                tomorrow = now + datetime.timedelta(days=1)
+                tomorrow = now + timedelta(days=1)
                 hp.end = tomorrow
                 hp.save()
             except Exception as e:
@@ -107,8 +108,8 @@ class LunchbreakTests(APITestCase):
 
         self.assertGreater(secondModified, firstModified)
 
-        now = datetime.datetime.now()
-        tomorrow = now + datetime.timedelta(days=1)
+        now = datetime.now()
+        tomorrow = now + timedelta(days=1)
         hp = HolidayPeriod(store=store, description='description', start=now, end=tomorrow)
         hp.save()
 
@@ -205,3 +206,56 @@ class LunchbreakTests(APITestCase):
                             quantity.save()
                         except Exception as e:
                             self.fail(e)
+
+    def testStoreCheckOpen(self):
+        store = Store(name='valid', country='Belgie', province='Oost-Vlaanderen', city='Wetteren', postcode='9230', street='Dendermondesteenweg', number=10, minTime=0)
+        store.save()
+
+        today = datetime.now()
+        today = today.replace(hour=0, minute=0, second=0, microsecond=0)
+
+        # PastOrderDenied
+        self.assertRaises(PastOrderDenied, Store.checkOpen, store, today, today + timedelta(hours=1))
+
+        # MinTimeExceeded
+        minutes = 15
+        openingMinutes = minutes * 2
+        closingHours = 10
+        store.minTime = minutes
+
+        opening = (today + timedelta(minutes=openingMinutes))
+        closing = (opening + timedelta(hours=closingHours))
+        day = opening.strftime('%w')
+        oh = OpeningHours(store=store, day=day, opening=opening, closing=closing)
+        oh.save()
+        self.assertRaises(MinTimeExceeded, Store.checkOpen, store, opening + timedelta(minutes=minutes - 1), opening)
+
+        # Before and after opening hours
+        before = opening - timedelta(minutes=1)
+        between = opening + timedelta(hours=closingHours / 2)
+        after = closing + timedelta(hours=1)
+        end = after + timedelta(hours=1)
+
+        self.assertRaises(StoreClosed, Store.checkOpen, store, before, today)
+        self.assertIsNone(Store.checkOpen(store, between, today))
+        self.assertRaises(StoreClosed, Store.checkOpen, store, after, today)
+
+        hp = HolidayPeriod(store=store, start=today, end=end, closed=True)
+        hp.save()
+        self.assertRaises(StoreClosed, Store.checkOpen, store, before, today)
+
+        self.assertRaises(StoreClosed, Store.checkOpen, store, between, today)
+        self.assertRaises(StoreClosed, Store.checkOpen, store, after, today)
+
+        hp.closed = False
+        hp.save()
+        self.assertIsNone(Store.checkOpen(store, before, today))
+        self.assertIsNone(Store.checkOpen(store, between, today))
+        self.assertIsNone(Store.checkOpen(store, after, today))
+
+        hp.closed = True
+        hp.end = between
+        hp.save()
+        self.assertRaises(StoreClosed, Store.checkOpen, store, before, today)
+        self.assertRaises(StoreClosed, Store.checkOpen, store, between, today)
+        self.assertIsNone(Store.checkOpen(store, between + timedelta(minutes=1), today))

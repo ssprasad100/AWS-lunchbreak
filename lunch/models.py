@@ -159,22 +159,28 @@ class Store(models.Model):
         return self.hearts.count()
 
     @staticmethod
-    def checkOpen(store, pickupTime):
-        if pickupTime < timezone.now():
+    def checkOpen(store, pickupTime, now=None):
+        now = timezone.now() if now is None else now
+
+        if pickupTime < now:
             raise PastOrderDenied()
 
-        if pickupTime - timezone.now() < timedelta(minutes=store.minTime):
+        if pickupTime - now < timedelta(minutes=store.minTime):
             raise MinTimeExceeded()
 
         holidayPeriods = HolidayPeriod.objects.filter(store=store, start__lte=pickupTime, end__gte=pickupTime)
 
-        openHoliday = False
+        closed = False
         for holidayPeriod in holidayPeriods:
             if not holidayPeriod.closed:
-                openHoliday = True
                 break
+            else:
+                closed = True
+        else:
+            # Open stores are
+            if closed:
+                raise StoreClosed()
 
-        if not openHoliday:
             # datetime.weekday(): return monday 0 - sunday 6
             # datetime.strftime('%w'): return sunday 0 - monday 6
             pickupDay = pickupTime.strftime('%w')
