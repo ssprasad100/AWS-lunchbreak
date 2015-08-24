@@ -120,7 +120,7 @@ class Order(models.Model):
     paid = models.BooleanField(default=False)
     total = models.DecimalField(decimal_places=2, max_digits=7, default=0)
     confirmedTotal = models.DecimalField(decimal_places=2, max_digits=7, default=None, null=True)
-    description = models.TextField(null=True, blank=True)
+    description = models.TextField(blank=True)
 
     def save(self, *args, **kwargs):
         self.total = 0
@@ -154,6 +154,7 @@ class OrderedFood(models.Model):
     order = models.ForeignKey(Order)
     original = models.ForeignKey(Food)
     useOriginal = models.BooleanField(default=False)
+    comment = models.TextField(blank=True)
 
     class Meta:
         verbose_name_plural = 'Ordered food'

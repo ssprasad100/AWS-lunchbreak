@@ -24,7 +24,7 @@ class OrderedFoodSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = OrderedFood
-        fields = ('id', 'ingredients', 'amount', 'foodAmount', 'order', 'original', 'ingredientGroups', 'cost', 'useOriginal',)
+        fields = ('id', 'ingredients', 'amount', 'foodAmount', 'order', 'original', 'ingredientGroups', 'cost', 'useOriginal', 'comment',)
         read_only_fields = ('id', 'foodAmount', 'order', 'ingredientGroups', 'useOriginal',)
 
 
@@ -63,7 +63,7 @@ class ShortOrderSerializer(serializers.ModelSerializer):
         pickupTime = validated_data['pickupTime']
         orderedFood = validated_data['orderedFood']
         store = validated_data['store']
-        description = validated_data.get('description', None)
+        description = validated_data.get('description', '')
 
         if len(orderedFood) == 0:
             raise BadRequest('orderedFood empty.')
@@ -84,8 +84,16 @@ class ShortOrderSerializer(serializers.ModelSerializer):
                 self.amountCheck(original, amount)
                 cost = f['cost']
                 foodAmount = original.amount if original.foodType.inputType == INPUT_SI_SET else 1
+                comment = f['comment'] if 'comment' in f and original.canComment else ''
 
-                orderedF = OrderedFood(amount=amount, foodAmount=foodAmount, cost=cost, order=order, original=original)
+                orderedF = OrderedFood(
+                    amount=amount,
+                    foodAmount=foodAmount,
+                    cost=cost,
+                    order=order,
+                    original=original,
+                    comment=comment
+                )
 
                 if 'ingredients' in f:
                     orderedF.save()

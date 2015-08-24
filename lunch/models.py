@@ -377,12 +377,13 @@ class Food(models.Model):
     cost = models.DecimalField(decimal_places=2, max_digits=7)
     foodType = models.ForeignKey(FoodType)
     minDays = models.PositiveIntegerField(default=0)
-    lastModified = models.DateTimeField(auto_now=True)
+    canComment = models.BooleanField(default=False)
 
     category = models.ForeignKey(FoodCategory)
     ingredients = models.ManyToManyField(Ingredient, through='IngredientRelation', blank=True)
     store = models.ForeignKey(Store)
 
+    lastModified = models.DateTimeField(auto_now=True)
     deleted = models.BooleanField(default=False)
     objects = LunchbreakManager()
 

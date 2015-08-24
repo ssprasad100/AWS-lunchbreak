@@ -76,7 +76,7 @@ class OrderedFoodSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = OrderedFood
-        fields = ('id', 'ingredients', 'amount', 'original', 'cost', 'useOriginal',)
+        fields = ('id', 'ingredients', 'amount', 'original', 'cost', 'useOriginal', 'canComment',)
         read_only_fields = fields
 
 
