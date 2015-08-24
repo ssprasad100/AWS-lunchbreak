@@ -452,7 +452,7 @@ def tokenGenerator():
 
 
 class BaseToken(BareDevice):
-    name = models.CharField(max_length=255)
+    device = models.CharField(max_length=255)
     identifier = models.CharField(max_length=TOKEN_IDENTIFIER_LENGTH, default=tokenGenerator)
 
     class Meta:

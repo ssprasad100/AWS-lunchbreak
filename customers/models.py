@@ -94,7 +94,7 @@ class User(models.Model):
             user.save()
             return UserToken.tokenResponse(
                 user=user,
-                name=token['name'],
+                device=token['device'],
                 service=token['service'],
                 registration_id=token['registration_id']
             )
@@ -202,12 +202,12 @@ class OrderedFood(models.Model):
 
 
 class UserTokenManager(models.Manager):
-    def createToken(self, user, name, active=True, service=SERVICE_APNS, registration_id=''):
+    def createToken(self, user, device, active=True, service=SERVICE_APNS, registration_id=''):
         # Active parameter is for backwards compatibility with the old login system.
         # Needs to be removed together with the old login system.
         token, created = self.get_or_create(
             user=user,
-            name=name,
+            device=device,
             service=service,
             registration_id=registration_id,
             active=active
@@ -224,16 +224,13 @@ class UserToken(BaseToken):
     objects = UserTokenManager()
 
     @staticmethod
-    def tokenResponse(user, name, service=SERVICE_APNS, registration_id='', old=False):
-        from customers.serializers import UserTokenSerializer, UserTokenSerializerOld
+    def tokenResponse(user, device, service=SERVICE_APNS, registration_id=''):
+        from customers.serializers import UserTokenSerializer
         token, created = UserToken.objects.createToken(
             user=user,
-            name=name,
+            device=device,
             service=service,
             registration_id=registration_id
         )
-        if old:
-            tokenSerializer = UserTokenSerializerOld(token)
-        else:
-            tokenSerializer = UserTokenSerializer(token)
+        tokenSerializer = UserTokenSerializer(token)
         return Response(tokenSerializer.data, status=(status.HTTP_201_CREATED if created else status.HTTP_200_OK))

@@ -262,10 +262,10 @@ class UserLoginView(generics.CreateAPIView):
             pin = request.data['pin']
             name = request.data.get('name', None)
             token = request.data.get('token', None)
-            print token
             return User.login(phone, pin, name, token)
         elif (phone == DEMO_PHONE
-            and 'deviceName' in request.data
+            and 'token' in request.data
+            and 'device' in request.data['token']
             and 'pin' in request.data):
             try:
                 demoUser = User.objects.get(
@@ -273,7 +273,7 @@ class UserLoginView(generics.CreateAPIView):
                     requestId=request.data['pin'],
                     digitsId='demo'
                 )
-                self.createGetToken(demoUser, request.data['deviceName'])
+                return UserView.createGetToken(demoUser, request['token']['device'])
             except User.DoesNotExist:
                 pass
         return BadRequest(loginSerializer.errors)
@@ -311,8 +311,9 @@ class UserView(generics.CreateAPIView):
             return Response(status=status.HTTP_200_OK)
         return Response(status=status.HTTP_201_CREATED)
 
-    def createGetToken(self, user, name):
-        token, created = UserToken.objects.createToken(user, name, active=False)
+    @staticmethod
+    def createGetToken(self, user, device):
+        token, created = UserToken.objects.createToken(user, device, active=False)
         tokenSerializer = UserTokenSerializer(token)
         return Response(tokenSerializer.data, status=(status.HTTP_201_CREATED if created else status.HTTP_200_OK))
 
@@ -374,7 +375,7 @@ class UserView(generics.CreateAPIView):
                             success = True
 
                         if success:
-                            return UserToken.tokenResponse(user, device, old=True)
+                            return UserToken.tokenResponse(user, device)
         elif request.data.get('phone', False) == DEMO_PHONE:
             if 'pin' not in request.data:
                 return Response(status=status.HTTP_200_OK)

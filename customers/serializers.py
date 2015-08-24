@@ -162,8 +162,8 @@ class UserTokenLoginSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserToken
-        fields = ('name', 'service', 'registration_id',)
-        write_only_fields = ('name', 'service', 'registration_id',)
+        fields = ('device', 'service', 'registration_id',)
+        write_only_fields = ('device', 'service', 'registration_id',)
 
 
 class UserLoginSerializer(serializers.ModelSerializer):
@@ -194,13 +194,3 @@ class UserTokenSerializer(lunchSerializers.TokenSerializer):
         model = UserToken
         fields = lunchSerializers.TokenSerializer.Meta.fields + ('user',)
         read_only_fields = lunchSerializers.TokenSerializer.Meta.read_only_fields + ('user',)
-
-
-class UserTokenSerializerOld(serializers.ModelSerializer):
-    device = serializers.CharField(source='name', read_only=True)
-    user = UserSerializer()
-
-    class Meta:
-        model = UserToken
-        fields = ('id', 'identifier', 'device', 'user',)
-        read_only_fields = fields
