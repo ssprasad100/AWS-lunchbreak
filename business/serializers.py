@@ -19,14 +19,12 @@ class StoreSerializer(serializers.ModelSerializer):
 
 class BusinessTokenSerializer(TokenSerializer):
     password = serializers.CharField(max_length=255, write_only=True)
-    name = serializers.CharField(max_length=255, write_only=True)
-    device = serializers.CharField(max_length=255, write_only=True, required=False)
 
     class Meta:
         model = BaseToken
-        fields = TokenSerializer.Meta.fields + ('password', 'name', 'device',)
-        write_only_fields = ('password', 'name', 'device',)
-        read_only_fields = TokenSerializer.Meta.read_only_fields
+        fields = TokenSerializer.Meta.fields + ('password',)
+        write_only_fields = ('password',)
+        read_only_fields = ('id', 'identifier', 'active',)
 
 
 class StaffSerializer(serializers.ModelSerializer):
@@ -34,9 +32,8 @@ class StaffSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Staff
-        fields = ('id', 'store', 'password',)
+        fields = ('id', 'store',)
         read_only_fields = ('id',)
-        write_only_fields = ('password',)
 
 
 class StaffTokenSerializer(BusinessTokenSerializer):
@@ -45,6 +42,7 @@ class StaffTokenSerializer(BusinessTokenSerializer):
         model = StaffToken
         fields = BusinessTokenSerializer.Meta.fields + ('staff',)
         read_only_fields = BusinessTokenSerializer.Meta.read_only_fields
+        write_only_fields = BusinessTokenSerializer.Meta.write_only_fields
 
 
 class EmployeeSerializer(serializers.ModelSerializer):
@@ -62,6 +60,7 @@ class EmployeeTokenSerializer(BusinessTokenSerializer):
         model = EmployeeToken
         fields = BusinessTokenSerializer.Meta.fields + ('employee',)
         read_only_fields = BusinessTokenSerializer.Meta.read_only_fields
+        write_only_fields = BusinessTokenSerializer.Meta.write_only_fields
 
 
 class PrivateUserSerializer(serializers.ModelSerializer):
