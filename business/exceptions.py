@@ -1,4 +1,4 @@
-from lunch.exceptions import LunchbreakException
+from Lunchbreak.exceptions import LunchbreakException
 from rest_framework import status
 
 INVALID_DATE = 802

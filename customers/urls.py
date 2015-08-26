@@ -27,5 +27,5 @@ urlpatterns = patterns('',
 
     url(r'^user/$', views.UserView.as_view()),
     url(r'^user/register/$', views.UserRegisterView.as_view(), name='user-registration'),
-    url(r'^user/login/$', views.UserLoginView.as_view())
+    url(r'^user/login/$', views.UserLoginView.as_view(), name='user-login')
 )

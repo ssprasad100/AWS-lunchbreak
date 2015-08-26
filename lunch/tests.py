@@ -6,13 +6,13 @@ from django.test.utils import override_settings
 from lunch.exceptions import AddressNotFound
 from lunch.models import (FoodType, HolidayPeriod, IngredientGroup,
                           OpeningHours, Quantity, Store)
-from rest_framework.test import APITestCase
+from Lunchbreak.test import LunchbreakTestCase
 
 from .config import INPUT_AMOUNT, INPUT_SI_SET, INPUT_SI_VARIABLE
 
 
 @override_settings(TESTING=True)
-class LunchbreakTests(APITestCase):
+class LunchbreakTests(LunchbreakTestCase):
 
     def testAddressNotFound(self):
         ''' Test for the AddressNotFound exception. '''

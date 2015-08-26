@@ -1,4 +1,4 @@
-from lunch.responses import LunchbreakResponse
+from Lunchbreak.responses import LunchbreakResponse
 from rest_framework import status
 
 INVALID_EMAIL = 800

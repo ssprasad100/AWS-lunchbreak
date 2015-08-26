@@ -4,7 +4,7 @@ import urllib
 
 import requests
 from customers.exceptions import DigitsException
-from lunch.exceptions import LunchbreakException
+from Lunchbreak.exceptions import LunchbreakException
 
 
 class Digits:

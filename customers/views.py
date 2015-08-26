@@ -1,4 +1,5 @@
 from customers.authentication import CustomerAuthentication
+from customers.config import DEMO_DIGITS_ID, DEMO_PHONE
 from customers.digits import Digits
 from customers.models import Heart, Order, OrderedFood, User, UserToken
 from customers.serializers import (OrderedFoodPriceSerializer, OrderSerializer,
@@ -10,8 +11,6 @@ from customers.serializers import (OrderedFoodPriceSerializer, OrderSerializer,
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
-from lunch.config import DEMO_PHONE
-from lunch.exceptions import LunchbreakException
 from lunch.models import Food, FoodCategory, IngredientGroup, Store
 from lunch.pagination import SimplePagination
 from lunch.responses import BadRequest
@@ -21,6 +20,7 @@ from lunch.serializers import (FoodCategorySerializer, HolidayPeriodSerializer,
                                ShortStoreSerializer)
 from lunch.views import (StoreCategoryListViewBase, getHolidayPeriods,
                          getOpeningAndHoliday, getOpeningHours)
+from Lunchbreak.exceptions import LunchbreakException
 from rest_framework import generics, status
 from rest_framework.response import Response
 
@@ -271,9 +271,9 @@ class UserLoginView(generics.CreateAPIView):
                 demoUser = User.objects.get(
                     phone=phone,
                     requestId=request.data['pin'],
-                    digitsId='demo'
+                    digitsId=DEMO_DIGITS_ID
                 )
-                return UserView.createGetToken(demoUser, request['token']['device'])
+                return UserView.createGetToken(demoUser, request.data['token']['device'])
             except User.DoesNotExist:
                 pass
         return BadRequest(loginSerializer.errors)
@@ -312,7 +312,7 @@ class UserView(generics.CreateAPIView):
         return Response(status=status.HTTP_201_CREATED)
 
     @staticmethod
-    def createGetToken(self, user, device):
+    def createGetToken(user, device):
         token, created = UserToken.objects.createToken(user, device, active=False)
         tokenSerializer = UserTokenSerializer(token)
         return Response(tokenSerializer.data, status=(status.HTTP_201_CREATED if created else status.HTTP_200_OK))

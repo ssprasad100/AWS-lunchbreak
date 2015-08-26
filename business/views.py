@@ -10,13 +10,13 @@ from business.serializers import (EmployeeSerializer,
                                   ShortIngredientGroupSerializer,
                                   ShortOrderSerializer, StaffSerializer,
                                   StoreSerializer)
+from customers.config import (ORDER_STATUS_PLACED, ORDER_STATUS_RECEIVED,
+                              ORDER_STATUS_STARTED, ORDER_STATUS_WAITING)
 from customers.models import Order
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import validate_email
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
-from lunch.config import (ORDER_STATUS_PLACED, ORDER_STATUS_RECEIVED,
-                          ORDER_STATUS_STARTED, ORDER_STATUS_WAITING)
 from lunch.models import (Food, FoodCategory, FoodType, Ingredient,
                           IngredientGroup, Quantity, Store)
 from lunch.responses import BadRequest, DoesNotExist

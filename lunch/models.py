@@ -2,6 +2,7 @@ import random
 from datetime import datetime, time, timedelta
 
 import requests
+from customers.config import ORDER_ENDED
 from customers.exceptions import MinTimeExceeded, PastOrderDenied, StoreClosed
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
@@ -9,7 +10,7 @@ from django.db import models
 from django.utils import timezone
 from django.utils.functional import cached_property
 from lunch.config import (COST_GROUP_ALWAYS, COST_GROUP_CALCULATIONS, DAYS,
-                          ICONS, INPUT_AMOUNT, INPUT_TYPES, ORDER_ENDED,
+                          ICONS, INPUT_AMOUNT, INPUT_TYPES,
                           TOKEN_IDENTIFIER_CHARS, TOKEN_IDENTIFIER_LENGTH)
 from lunch.exceptions import (AddressNotFound, IngredientGroupMaxExceeded,
                               IngredientGroupsMinimumNotMet,

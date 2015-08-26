@@ -1,6 +1,6 @@
 import logging
 
-from lunch.exceptions import LunchbreakException
+from Lunchbreak.exceptions import LunchbreakException
 from rest_framework import status
 
 COSTCHECK_FAILED = 700
@@ -10,6 +10,7 @@ DIGITS_UNAVAILABLE = 703
 STORE_CLOSED = 704
 AMOUNT_INVALID = 705
 MINDAYS_EXCEEDED = 706
+USER_NAME_EMPTY = 707
 
 DIGITS_UNKNOWN = -1
 DIGITS_LEGACY_ERROR = 0
@@ -109,3 +110,9 @@ class MinDaysExceeded(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
     code = MINDAYS_EXCEEDED
     information = 'An order must be placed earlier.'
+
+
+class UserNameEmpty(LunchbreakException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    code = USER_NAME_EMPTY
+    information = 'A user needs a name for logging in.'

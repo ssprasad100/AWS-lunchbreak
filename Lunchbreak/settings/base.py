@@ -98,7 +98,7 @@ REST_FRAMEWORK = {
 
     'COERCE_DECIMAL_TO_STRING': False,
 
-    'EXCEPTION_HANDLER': 'lunch.exceptions.lunchbreakExceptionHandler',
+    'EXCEPTION_HANDLER': 'Lunchbreak.exceptions.lunchbreakExceptionHandler',
 
     'TEST_REQUEST_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',

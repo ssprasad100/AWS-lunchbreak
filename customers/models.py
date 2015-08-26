@@ -1,15 +1,15 @@
 import math
 
+from customers.config import ORDER_ENDED, ORDER_STATUS, ORDER_STATUS_COMPLETED
 from customers.digits import Digits
-from customers.exceptions import DigitsException
+from customers.exceptions import DigitsException, UserNameEmpty
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
 from django.utils.functional import cached_property
-from lunch.config import (COST_GROUP_ADDITIONS, ORDER_ENDED, ORDER_STATUS,
-                          ORDER_STATUS_COMPLETED)
+from lunch.config import COST_GROUP_ADDITIONS
 from lunch.models import BaseToken, Food, Ingredient, Store, tokenGenerator
-from lunch.responses import BadRequest, DoesNotExist
+from lunch.responses import DoesNotExist
 from phonenumber_field.modelfields import PhoneNumberField
 from push_notifications.models import SERVICE_APNS
 from rest_framework import status
@@ -83,11 +83,10 @@ class User(models.Model):
 
             if not user.name:
                 if not name:
-                    return BadRequest()
-                user.name = name
+                    return UserNameEmpty().getResponse()
 
-            if not user.confirmedAt:
-                user.confirmedAt = timezone.now()
+            if name:
+                user.name = name
 
             if not settings.TESTING:
                 digits = Digits()
@@ -96,6 +95,9 @@ class User(models.Model):
                     user.digitsId = digits.confirmRegistration(phone, pin)['id']
                 else:
                     digits.confirmSignin(user.requestId, user.digitsId, pin)
+
+            if not user.confirmedAt:
+                user.confirmedAt = timezone.now()
 
             user.save()
             return UserToken.tokenResponse(
@@ -219,8 +221,11 @@ class UserTokenManager(models.Manager):
             registration_id=registration_id,
             active=active
         )
+
+        # Refresh the identifier if a token already exists
         if not created:
             token.identifier = tokenGenerator()
+
         token.save()
         return (token, created,)
 
