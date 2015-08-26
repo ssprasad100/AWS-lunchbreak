@@ -49,9 +49,8 @@ class EmployeeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Employee
-        fields = ('id', 'name', 'password', 'owner',)
+        fields = ('id', 'name', 'owner',)
         read_only_fields = ('id',)
-        write_only_fields = ('password',)
 
 
 class EmployeeTokenSerializer(BusinessTokenSerializer):
