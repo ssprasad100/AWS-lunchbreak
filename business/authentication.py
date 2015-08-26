@@ -66,7 +66,7 @@ class BusinessAuthentication(TokenAuthentication):
         model.passwordReset = tokenGenerator()
         model.save()
         subject, from_email = 'Lunchbreak password reset', settings.EMAIL_FROM
-        url = 'http://%s/v1/business/reset/%s/%s/%s' % (settings.HOST, cls.MODEL_NAME, to_email, model.passwordReset,)
+        url = 'http://%s/business/reset/%s/%s/%s' % (settings.HOST, cls.MODEL_NAME, to_email, model.passwordReset,)
 
         templateArguments = {
             'name': model.name,

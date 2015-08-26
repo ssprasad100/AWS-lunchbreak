@@ -2,6 +2,7 @@ import math
 
 from customers.digits import Digits
 from customers.exceptions import DigitsException
+from django.conf import settings
 from django.db import models
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -48,32 +49,35 @@ class User(models.Model):
         try:
             user = User.objects.get(phone=phone)
 
-            if user.confirmedAt:
-                digitsResult = User.digitsLogin(digits, phone)
-            else:
-                digitsResult = User.digitsRegister(digits, phone)
+            if not settings.TESTING:
+                if user.confirmedAt:
+                    digitsResult = User.digitsLogin(digits, phone)
+                else:
+                    digitsResult = User.digitsRegister(digits, phone)
 
-            if digitsResult and type(digitsResult) is dict:
-                user.digitsId = digitsResult['digitsId']
-                user.requestId = digitsResult['requestId']
+                if digitsResult and type(digitsResult) is dict:
+                    user.digitsId = digitsResult['digitsId']
+                    user.requestId = digitsResult['requestId']
             user.save()
 
             if user.name:
                 return Response(status=status.HTTP_200_OK)
             return Response(status=status.HTTP_201_CREATED)
         except User.DoesNotExist:
-            digitsRegistration = User.digitsRegister(digits, phone)
-            if digitsRegistration:
-                user = User(phone=phone)
-                if type(digitsRegistration) is dict:
-                    user.digitsId = digitsRegistration['digitsId']
-                    user.requestId = digitsRegistration['requestId']
-                user.save()
+            if not settings.TESTING:
+                digitsRegistration = User.digitsRegister(digits, phone)
+                if digitsRegistration:
+                    user = User(phone=phone)
+                    if type(digitsRegistration) is dict:
+                        user.digitsId = digitsRegistration['digitsId']
+                        user.requestId = digitsRegistration['requestId']
+                    user.save()
+                    return Response(status=status.HTTP_201_CREATED)
+            else:
                 return Response(status=status.HTTP_201_CREATED)
 
     @staticmethod
     def login(phone, pin, name, token):
-        digits = Digits()
         try:
             user = User.objects.get(phone=phone)
 
@@ -85,11 +89,13 @@ class User(models.Model):
             if not user.confirmedAt:
                 user.confirmedAt = timezone.now()
 
-            # User just got registered in the Digits database
-            if not user.requestId and not user.digitsId:
-                user.digitsId = digits.confirmRegistration(phone, pin)['id']
-            else:
-                digits.confirmSignin(user.requestId, user.digitsId, pin)
+            if not settings.TESTING:
+                digits = Digits()
+                # User just got registered in the Digits database
+                if not user.requestId and not user.digitsId:
+                    user.digitsId = digits.confirmRegistration(phone, pin)['id']
+                else:
+                    digits.confirmSignin(user.requestId, user.digitsId, pin)
 
             user.save()
             return UserToken.tokenResponse(

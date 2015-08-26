@@ -169,3 +169,5 @@ PUSH_NOTIFICATIONS_SETTINGS = {
         'GCM_API_KEY': GOOGLE_CLOUD_SECRET,
         'APNS_CERTIFICATE': '/path/to/your/certificate.pem',
 }
+
+TESTING = False

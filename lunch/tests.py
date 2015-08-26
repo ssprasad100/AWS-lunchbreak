@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 
 from customers.exceptions import MinTimeExceeded, PastOrderDenied, StoreClosed
 from django.core.exceptions import ValidationError
+from django.test.utils import override_settings
 from lunch.exceptions import AddressNotFound
 from lunch.models import (FoodType, HolidayPeriod, IngredientGroup,
                           OpeningHours, Quantity, Store)
@@ -10,10 +11,8 @@ from rest_framework.test import APITestCase
 from .config import INPUT_AMOUNT, INPUT_SI_SET, INPUT_SI_VARIABLE
 
 
+@override_settings(TESTING=True)
 class LunchbreakTests(APITestCase):
-
-    def setUp(self):
-        super(LunchbreakTests, self).setUp()
 
     def testAddressNotFound(self):
         ''' Test for the AddressNotFound exception. '''
