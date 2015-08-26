@@ -76,7 +76,7 @@ def runQuery(query, user='root', password=None):
 
 
 def prerequisites():
-    local('python manage.py test lunch')
+    local('tox')
 
 
 def sedFile(f, variables):

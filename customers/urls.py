@@ -14,7 +14,7 @@ urlpatterns = patterns('',
 
     url(r'^store/(?P<pk>\d+)/$', views.StoreHeartView.as_view()),
     url(r'^store/(?P<store_id>\d+)/foodcategories/$', views.FoodCategoryListView.as_view()),
-    url(r'^store/(?P<option>heart|unheart)/(?P<pk>\d+)/$', views.StoreHeartView.as_view()),
+    url(r'^store/(?P<option>heart|unheart)/(?P<pk>\d+)/$', views.StoreHeartView.as_view(), name='store-heart'),
     url(r'^store/holiday/(?P<store_id>\d+)/$', views.HolidayPeriodListView.as_view()),
     url(r'^store/hours/(?P<store_id>\d+)/$', views.OpeningHoursListView.as_view()),
     url(r'^store/nearby/(?P<latitude>-?\d+.?\d*)/(?P<longitude>-?\d+.?\d*)/$', views.StoreMultiView.as_view()),

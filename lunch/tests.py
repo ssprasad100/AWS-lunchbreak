@@ -16,13 +16,27 @@ class LunchbreakTests(LunchbreakTestCase):
 
     def testAddressNotFound(self):
         ''' Test for the AddressNotFound exception. '''
-        invalidStore = Store(name='test', country='nonexisting', province='nonexisting', city='nonexisting', postcode='nonexisting', street='nonexisting', number=5)
-        validStore = Store(name='valid', country='Belgie', province='Oost-Vlaanderen', city='Wetteren', postcode='9230', street='Dendermondesteenweg', number=10)
         try:
-            invalidStore.save()
+            Store.objects.create(
+                name='test',
+                country='nonexisting',
+                province='nonexisting',
+                city='nonexisting',
+                postcode='nonexisting',
+                street='nonexisting',
+                number=5
+            )
         except AddressNotFound:
             try:
-                validStore.save()
+                Store.objects.create(
+                    name='valid',
+                    country='Belgie',
+                    province='Oost-Vlaanderen',
+                    city='Wetteren',
+                    postcode='9230',
+                    street='Dendermondesteenweg',
+                    number=10
+                )
             except AddressNotFound:
                 self.fail()
         else:
@@ -32,15 +46,42 @@ class LunchbreakTests(LunchbreakTestCase):
         ''' Test whether LunchbreakManager.nearby returns the right stores. '''
         Store.objects.all().delete()
 
-        centerStore = Store(name='center', country='Belgie', province='Oost-Vlaanderen', city='Wetteren', postcode='9230', street='Dendermondesteenweg', number=10)
-        underTwoKmStore = Store(name='1,34km', country='Belgie', province='Oost-Vlaanderen', city='Wetteren', postcode='9230', street='Wegvoeringstraat', number=47)
-        underFiveKmStore = Store(name='4,79km', country='Belgie', province='Oost-Vlaanderen', city='Wetteren', postcode='9230', street='Wetterensteenweg', number=1)
-        underEightKmStore = Store(name='7,95km', country='Belgie', province='Oost-Vlaanderen', city='Melle', postcode='9090', street='Wellingstraat', number=1)
-
-        centerStore.save()
-        underTwoKmStore.save()
-        underFiveKmStore.save()
-        underEightKmStore.save()
+        centerStore = Store.objects.create(
+            name='center',
+            country='Belgie',
+            province='Oost-Vlaanderen',
+            city='Wetteren',
+            postcode='9230',
+            street='Dendermondesteenweg',
+            number=10
+        )
+        underTwoKmStore = Store.objects.create(
+            name='1,34km',
+            country='Belgie',
+            province='Oost-Vlaanderen',
+            city='Wetteren',
+            postcode='9230',
+            street='Wegvoeringstraat',
+            number=47
+        )
+        underFiveKmStore = Store.objects.create(
+            name='4,79km',
+            country='Belgie',
+            province='Oost-Vlaanderen',
+            city='Wetteren',
+            postcode='9230',
+            street='Wetterensteenweg',
+            number=1
+        )
+        underEightKmStore = Store.objects.create(
+            name='7,95km',
+            country='Belgie',
+            province='Oost-Vlaanderen',
+            city='Melle',
+            postcode='9090',
+            street='Wellingstraat',
+            number=1
+        )
 
         lat = centerStore.latitude
         lon = centerStore.longitude
@@ -60,10 +101,22 @@ class LunchbreakTests(LunchbreakTestCase):
             self.assertIn(needle, haystack)
 
     def testOpeningHours(self):
-        store = Store(name='valid', country='Belgie', province='Oost-Vlaanderen', city='Wetteren', postcode='9230', street='Dendermondesteenweg', number=10)
-        store.save()
+        store = Store.objects.create(
+            name='valid',
+            country='Belgie',
+            province='Oost-Vlaanderen',
+            city='Wetteren',
+            postcode='9230',
+            street='Dendermondesteenweg',
+            number=10
+        )
+        oh = OpeningHours(
+                store=store,
+                day=0,
+                opening='00:00',
+                closing='00:00'
+            )
 
-        oh = OpeningHours(store=store, day=0, opening='00:00', closing='00:00')
         try:
             oh.save()
         except ValidationError:
@@ -76,11 +129,25 @@ class LunchbreakTests(LunchbreakTestCase):
             self.fail()
 
     def testHolidayPeriod(self):
-        store = Store(name='valid', country='Belgie', province='Oost-Vlaanderen', city='Wetteren', postcode='9230', street='Dendermondesteenweg', number=10)
-        store.save()
+        store = Store.objects.create(
+            name='valid',
+            country='Belgie',
+            province='Oost-Vlaanderen',
+            city='Wetteren',
+            postcode='9230',
+            street='Dendermondesteenweg',
+            number=10
+        )
 
         now = datetime.now()
-        hp = HolidayPeriod(store=store, description='description', start=now, end=now)
+
+        hp = HolidayPeriod(
+            store=store,
+            description='description',
+            start=now,
+            end=now
+        )
+
         try:
             hp.save()
         except ValidationError:
@@ -95,13 +162,23 @@ class LunchbreakTests(LunchbreakTestCase):
 
     def testStoreLastModified(self):
         '''Test whether updating OpeningHours and HolidayPeriod objects updates the Store.'''
-        store = Store(name='valid', country='Belgie', province='Oost-Vlaanderen', city='Wetteren', postcode='9230', street='Dendermondesteenweg', number=10)
-        store.save()
+        store = Store.objects.create(
+            name='valid',
+            country='Belgie',
+            province='Oost-Vlaanderen',
+            city='Wetteren',
+            postcode='9230',
+            street='Dendermondesteenweg',
+            number=10
+        )
 
         firstModified = store.lastModified
 
-        oh = OpeningHours(store=store, day=0, opening='00:00', closing='01:00')
-        oh.save()
+        OpeningHours.objects.create(
+            store=store, day=0,
+            opening='00:00',
+            closing='01:00'
+        )
 
         secondModified = store.lastModified
 
@@ -109,19 +186,35 @@ class LunchbreakTests(LunchbreakTestCase):
 
         now = datetime.now()
         tomorrow = now + timedelta(days=1)
-        hp = HolidayPeriod(store=store, description='description', start=now, end=tomorrow)
-        hp.save()
+        HolidayPeriod.objects.create(
+            store=store,
+            description='description',
+            start=now,
+            end=tomorrow
+        )
 
         self.assertGreater(store.lastModified, secondModified)
 
     def testIngredientGroup(self):
-        store = Store(name='valid', country='Belgie', province='Oost-Vlaanderen', city='Wetteren', postcode='9230', street='Dendermondesteenweg', number=10)
-        store.save()
+        store = Store.objects.create(
+            name='valid',
+            country='Belgie',
+            province='Oost-Vlaanderen',
+            city='Wetteren',
+            postcode='9230',
+            street='Dendermondesteenweg',
+            number=10
+        )
 
-        foodType = FoodType(name='type')
-        foodType.save()
+        foodType = FoodType.objects.create(name='type')
 
-        group = IngredientGroup(name='group', foodType=foodType, store=store, maximum=0, minimum=1)
+        group = IngredientGroup(
+            name='group',
+            foodType=foodType,
+            store=store,
+            maximum=0,
+            minimum=1
+        )
 
         try:
             group.save()
@@ -138,15 +231,25 @@ class LunchbreakTests(LunchbreakTestCase):
             self.fail()
 
         def testQuantity(self):
-            foodType = FoodType(name='type')
-            foodType.save()
+            foodType = FoodType.objects.create(name='type')
 
-            store = Store(name='valid', country='Belgie', province='Oost-Vlaanderen', city='Wetteren', postcode='9230', street='Dendermondesteenweg', number=10)
-            store.save()
+            store = Store.objects.create(
+                name='valid',
+                country='Belgie',
+                province='Oost-Vlaanderen',
+                city='Wetteren',
+                postcode='9230',
+                street='Dendermondesteenweg',
+                number=10
+            )
 
-            quantity = Quantity(foodType=foodType, store=store, amountMin=1, amountMax=0)
             try:
-                quantity.save()
+                quantity = Quantity.objects.create(
+                    foodType=foodType,
+                    store=store,
+                    amountMin=1,
+                    amountMax=0
+                )
             except ValidationError:
                 try:
                     quantity.amountMin = 0
@@ -158,14 +261,24 @@ class LunchbreakTests(LunchbreakTestCase):
                 self.fail()
 
         def testFoodType(self):
-            store = Store(name='valid', country='Belgie', province='Oost-Vlaanderen', city='Wetteren', postcode='9230', street='Dendermondesteenweg', number=10)
-            store.save()
+            store = Store.objects.create(
+                name='valid',
+                country='Belgie',
+                province='Oost-Vlaanderen',
+                city='Wetteren',
+                postcode='9230',
+                street='Dendermondesteenweg',
+                number=10
+            )
 
-            foodType = FoodType(name='type')
-            foodType.save()
+            foodType = FoodType.objects.create(name='type')
 
-            quantity = Quantity(foodType=foodType, store=store, amountMin=0, amountMax=10)
-            quantity.save()
+            quantity = Quantity.objects.create(
+                foodType=foodType,
+                store=store,
+                amountMin=0,
+                amountMax=10
+            )
 
             inputTypes = [
                 {
@@ -207,8 +320,15 @@ class LunchbreakTests(LunchbreakTestCase):
                             self.fail(e)
 
     def testStoreCheckOpen(self):
-        store = Store(name='valid', country='Belgie', province='Oost-Vlaanderen', city='Wetteren', postcode='9230', street='Dendermondesteenweg', number=10, minTime=0)
-        store.save()
+        store = Store.objects.create(
+            name='valid',
+            country='Belgie',
+            province='Oost-Vlaanderen',
+            city='Wetteren',
+            postcode='9230',
+            street='Dendermondesteenweg',
+            number=10
+        )
 
         today = datetime.now()
         today = today.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -225,8 +345,12 @@ class LunchbreakTests(LunchbreakTestCase):
         opening = (today + timedelta(minutes=openingMinutes))
         closing = (opening + timedelta(hours=closingHours))
         day = opening.strftime('%w')
-        oh = OpeningHours(store=store, day=day, opening=opening, closing=closing)
-        oh.save()
+        OpeningHours.objects.create(
+            store=store,
+            day=day,
+            opening=opening,
+            closing=closing
+        )
         self.assertRaises(MinTimeExceeded, Store.checkOpen, store, opening + timedelta(minutes=minutes - 1), opening)
 
         # Before and after opening hours
@@ -239,8 +363,12 @@ class LunchbreakTests(LunchbreakTestCase):
         self.assertIsNone(Store.checkOpen(store, between, today))
         self.assertRaises(StoreClosed, Store.checkOpen, store, after, today)
 
-        hp = HolidayPeriod(store=store, start=today, end=end, closed=True)
-        hp.save()
+        hp = HolidayPeriod.objects.create(
+            store=store,
+            start=today,
+            end=end,
+            closed=True
+        )
         self.assertRaises(StoreClosed, Store.checkOpen, store, before, today)
 
         self.assertRaises(StoreClosed, Store.checkOpen, store, between, today)

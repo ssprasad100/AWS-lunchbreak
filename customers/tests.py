@@ -1,17 +1,23 @@
+from customers import views
 from customers.config import DEMO_DIGITS_ID, DEMO_PHONE
 from customers.exceptions import UserNameEmpty
-from customers.models import User, UserToken
+from customers.models import Heart, User, UserToken
 from django.core.urlresolvers import reverse
+from django.http import Http404
 from django.test.utils import override_settings
 from lunch.exceptions import BadRequest, DoesNotExist
+from lunch.models import Store
 from Lunchbreak.test import LunchbreakTestCase
 from push_notifications.models import SERVICE_APNS
 from rest_framework import status
+from rest_framework.test import APIRequestFactory, force_authenticate
 
 
 @override_settings(TESTING=True)
 class CustomersTests(LunchbreakTestCase):
 
+    PHONE_USER = '+32472907604'
+    NAME_USER = 'Meneer Aardappel'
     FORMAT = 'json'
     VALID_PHONE = '+32472907605'
     INVALID_PHONE = '+123456789'
@@ -20,6 +26,14 @@ class CustomersTests(LunchbreakTestCase):
     NAME_ALTERNATE = 'Mevrouw De Bolle'
     DEVICE = 'Test device'
     REGISTRATION_ID = '123456789'
+
+    def setUp(self):
+        super(CustomersTests, self).setUp()
+        self.factory = APIRequestFactory()
+        self.user = User.objects.create(
+            phone=CustomersTests.PHONE_USER,
+            name=CustomersTests.NAME_USER
+        )
 
     def testRegistration(self):
         url = reverse('user-registration')
@@ -136,3 +150,41 @@ class CustomersTests(LunchbreakTestCase):
         self.assertEqual(UserToken.objects.filter(user=demo).count(), 1)
 
         demo.delete()
+
+    def authenticateRequest(self, request, view, *args, **kwargs):
+        force_authenticate(request, user=self.user)
+        return view.as_view()(request, *args, **kwargs)
+
+    def testHearting(self):
+        store = Store.objects.create(
+            name='valid',
+            country='Belgie',
+            province='Oost-Vlaanderen',
+            city='Wetteren',
+            postcode='9230',
+            street='Dendermondesteenweg',
+            number=10
+        )
+
+        heartKwargs = {'option': 'heart', 'pk': store.id}
+        heartUrl = reverse('store-heart', kwargs=heartKwargs)
+        unheartKwargs = {'option': 'unheart', 'pk': store.id}
+        unheartUrl = reverse('store-heart', kwargs=unheartKwargs)
+
+        request = self.factory.patch(heartUrl, {}, format=CustomersTests.FORMAT)
+        response = self.authenticateRequest(request, views.StoreHeartView, **heartKwargs)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Heart.objects.filter(user=self.user).count(), 1)
+
+        request = self.factory.patch(heartUrl, {}, format=CustomersTests.FORMAT)
+        response = self.authenticateRequest(request, views.StoreHeartView, **heartKwargs)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(Heart.objects.filter(user=self.user).count(), 1)
+
+        request = self.factory.patch(unheartUrl, {}, format=CustomersTests.FORMAT)
+        response = self.authenticateRequest(request, views.StoreHeartView, **unheartKwargs)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(Heart.objects.filter(user=self.user).count(), 0)
+
+        request = self.factory.patch(unheartUrl, {}, format=CustomersTests.FORMAT)
+        self.assertRaises(Http404, self.authenticateRequest, request, views.StoreHeartView, **unheartKwargs)
