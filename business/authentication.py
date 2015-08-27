@@ -79,7 +79,7 @@ class BusinessAuthentication(TokenAuthentication):
 
         subject, from_email = 'Lunchbreak wachtwoord herstellen', settings.EMAIL_FROM
 
-        url = 'lunchbreakstore://{model}/{email}/{passwordReset}'.format(
+        url = 'lunchbreakstore://reset/{model}/{email}/{passwordReset}'.format(
             model=cls.MODEL_NAME,
             email=to_email,
             passwordReset=model.passwordReset
