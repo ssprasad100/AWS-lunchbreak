@@ -340,9 +340,9 @@ class Ingredient(models.Model):
 
 
 class FoodCategory(models.Model):
-    store = models.ForeignKey(Store)
     name = models.CharField(max_length=255)
     priority = models.PositiveIntegerField(default=0)
+    store = models.ForeignKey(Store)
 
     class Meta:
         verbose_name_plural = 'Food categories'
@@ -379,7 +379,7 @@ class Quantity(models.Model):
 
 class Food(models.Model):
     name = models.CharField(max_length=255)
-    description = models.TextField(null=True, blank=True)
+    description = models.TextField(blank=True)
     amount = models.DecimalField(decimal_places=3, max_digits=7, default=1)
     cost = models.DecimalField(decimal_places=2, max_digits=7)
     foodType = models.ForeignKey(FoodType)

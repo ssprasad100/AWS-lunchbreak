@@ -8,7 +8,7 @@ urlpatterns = patterns('',
 
     url(r'^foodcategory/(?P<pk>\d+)/$', views.FoodCategoryRetrieveView.as_view()),
 
-    url(r'^order/$', views.OrderView.as_view()),
+    url(r'^order/$', views.OrderView.as_view(), name='order'),
     url(r'^order/(?P<pk>\d+)/$', views.OrderRetrieveView.as_view()),
     url(r'^order/price/$', views.OrderPriceView.as_view()),
 

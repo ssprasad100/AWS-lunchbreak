@@ -1,12 +1,18 @@
+from datetime import timedelta
+
 from customers import views
-from customers.config import DEMO_DIGITS_ID, DEMO_PHONE
+from customers.config import DEMO_DIGITS_ID, DEMO_PHONE, ORDER_STATUS_COMPLETED
 from customers.exceptions import UserNameEmpty
-from customers.models import Heart, User, UserToken
+from customers.models import Heart, Order, OrderedFood, User, UserToken
+from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.test.utils import override_settings
+from django.utils import timezone
 from lunch.exceptions import BadRequest, DoesNotExist
-from lunch.models import Store
+from lunch.models import (Food, FoodCategory, FoodType, HolidayPeriod,
+                          Ingredient, IngredientGroup, IngredientRelation,
+                          Store)
 from Lunchbreak.test import LunchbreakTestCase
 from push_notifications.models import SERVICE_APNS
 from rest_framework import status
@@ -34,6 +40,91 @@ class CustomersTests(LunchbreakTestCase):
             phone=CustomersTests.PHONE_USER,
             name=CustomersTests.NAME_USER
         )
+
+        self.store = Store.objects.create(
+            name='CustomersTests',
+            country='Belgie',
+            province='Oost-Vlaanderen',
+            city='Wetteren',
+            postcode='9230',
+            street='Dendermondesteenweg',
+            number=10
+        )
+
+        self.foodType = FoodType.objects.create(
+            name='FoodType test'
+        )
+
+        self.foodCategory = FoodCategory.objects.create(
+            name='FoodCategory test',
+            store=self.store
+        )
+
+        self.ingredientGroup = IngredientGroup.objects.create(
+            name='IngredientGroup test',
+            foodType=self.foodType,
+            store=self.store
+        )
+
+        self.food = Food.objects.create(
+            name='Food test',
+            cost=1.00,
+            foodType=self.foodType,
+            category=self.foodCategory,
+            store=self.store
+        )
+
+        IngredientRelation.objects.bulk_create([
+            IngredientRelation(
+                ingredient=Ingredient.objects.create(
+                    name='Ingredient 1',
+                    group=self.ingredientGroup,
+                    store=self.store
+                ),
+                food=self.food
+            ),
+            IngredientRelation(
+                ingredient=Ingredient.objects.create(
+                    name='Ingredient 2',
+                    group=self.ingredientGroup,
+                    store=self.store
+                ),
+                food=self.food
+            ),
+            IngredientRelation(
+                ingredient=Ingredient.objects.create(
+                    name='Ingredient 3',
+                    group=self.ingredientGroup,
+                    store=self.store
+                ),
+                food=self.food
+            ),
+            IngredientRelation(
+                ingredient=Ingredient.objects.create(
+                    name='Ingredient 4',
+                    group=self.ingredientGroup,
+                    store=self.store
+                ),
+                food=self.food
+            ),
+            IngredientRelation(
+                ingredient=Ingredient.objects.create(
+                    name='Ingredient 5',
+                    group=self.ingredientGroup,
+                    store=self.store
+                ),
+                food=self.food
+            )
+        ])
+
+        HolidayPeriod.objects.bulk_create([
+            HolidayPeriod(
+                store=self.store,
+                start=timezone.now() - timedelta(days=10),
+                end=timezone.now() + timedelta(days=10),
+                closed=False
+            )
+        ])
 
     def testRegistration(self):
         url = reverse('user-registration')
@@ -156,19 +247,9 @@ class CustomersTests(LunchbreakTestCase):
         return view.as_view()(request, *args, **kwargs)
 
     def testHearting(self):
-        store = Store.objects.create(
-            name='valid',
-            country='Belgie',
-            province='Oost-Vlaanderen',
-            city='Wetteren',
-            postcode='9230',
-            street='Dendermondesteenweg',
-            number=10
-        )
-
-        heartKwargs = {'option': 'heart', 'pk': store.id}
+        heartKwargs = {'option': 'heart', 'pk': self.store.id}
         heartUrl = reverse('store-heart', kwargs=heartKwargs)
-        unheartKwargs = {'option': 'unheart', 'pk': store.id}
+        unheartKwargs = {'option': 'unheart', 'pk': self.store.id}
         unheartUrl = reverse('store-heart', kwargs=unheartKwargs)
 
         request = self.factory.patch(heartUrl, {}, format=CustomersTests.FORMAT)
@@ -188,3 +269,56 @@ class CustomersTests(LunchbreakTestCase):
 
         request = self.factory.patch(unheartUrl, {}, format=CustomersTests.FORMAT)
         self.assertRaises(Http404, self.authenticateRequest, request, views.StoreHeartView, **unheartKwargs)
+
+    def duplicateModel(self, model):
+        oldPk = model.pk
+        model.pk = None
+        model.save()
+        return (model, model.__class__.objects.get(pk=oldPk),)
+
+    def testOrder(self):
+        '''
+        Test whether an order's total, paid and marked Food's are deleted on save.
+        '''
+
+        self.food, original = self.duplicateModel(self.food)
+
+        content = {
+            'pickupTime': (timezone.now() + timedelta(days=1)).strftime(settings.DATETIME_FORMAT),
+            'store': self.store.id,
+            'orderedFood': [
+                {
+                    'original': original.id,
+                    'cost': original.cost,
+                    'amount': original.amount
+                },
+                {
+                    'original': original.id,
+                    'cost': original.cost,
+                    'amount': original.amount
+                }
+            ]
+        }
+        url = reverse('order')
+
+        request = self.factory.post(url, content, format=CustomersTests.FORMAT)
+        response = self.authenticateRequest(request, views.OrderView)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        order = Order.objects.get(id=response.data['id'])
+        self.assertEqual(order.total, original.cost * 2)
+        self.assertFalse(order.paid)
+
+        order.status = ORDER_STATUS_COMPLETED
+        order.save()
+        self.assertTrue(order.paid)
+
+        request = self.factory.post(url, content, format=CustomersTests.FORMAT)
+        response = self.authenticateRequest(request, views.OrderView)
+        order = Order.objects.get(id=response.data['id'])
+
+        original.delete()
+        self.assertTrue(original.deleted)
+        order.status = ORDER_STATUS_COMPLETED
+        order.save()
+        self.assertRaises(Food.DoesNotExist, Food.objects.get, id=original.id)
+        self.assertEqual(OrderedFood.objects.filter(order=order).count(), 0)
