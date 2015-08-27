@@ -53,8 +53,11 @@ class Order(models.Model):
 
         if self.status in ORDER_ENDED:
             for f in orderedFood:
-                if f.original.deleted:
-                    f.original.delete()
+                try:
+                    if f.original.deleted:
+                        f.original.delete()
+                except Food.DoesNotExist:
+                    pass
 
     @cached_property
     def eventualTotal(self):  # Used for older API versions towards customers
