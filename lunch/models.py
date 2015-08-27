@@ -389,7 +389,7 @@ class Food(models.Model):
 
     @cached_property
     def ingredientGroups(self):
-        return self.foodType.ingredientgroup_set.all()
+        return self.foodType.ingredientgroup_set.filter(store_id=self.store_id)
 
     @cached_property
     def hasIngredients(self):
