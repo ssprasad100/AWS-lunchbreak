@@ -3,10 +3,6 @@ import os
 
 TRAVIS_BRANCH = os.environ.get('TRAVIS_BRANCH')
 
-print TRAVIS_BRANCH
-
-print os.environ.get('MYSQL_ROOT_PASSWORD')
-
 if TRAVIS_BRANCH is None:
     include(
         'base.py',

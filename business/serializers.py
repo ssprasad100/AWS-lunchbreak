@@ -1,5 +1,7 @@
-from business.models import Employee, EmployeeToken, Staff, StaffToken
+from business.models import (Employee, EmployeeToken, PasswordModel, Staff,
+                             StaffToken)
 from customers.models import Order, OrderedFood, User
+from lunch.config import TOKEN_IDENTIFIER_LENGTH
 from lunch.exceptions import InvalidStoreLinking
 from lunch.models import (BaseToken, Food, Ingredient, IngredientGroup,
                           IngredientRelation, Store)
@@ -15,6 +17,48 @@ class StoreSerializer(serializers.ModelSerializer):
         model = Store
         fields = ('id', 'name', 'city', 'street', 'latitude', 'longitude', 'categories', 'heartsCount', 'country', 'province', 'city', 'postcode', 'street', 'number', 'minTime', 'orderTime', 'costCalculation',)
         read_only_fields = ('id', 'latitude', 'longitude', 'heartsCount', 'categories',)
+
+
+class EmployeePasswordRequestSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Employee
+        fields = ('id',)
+        write_only_fields = fields
+
+
+class StaffPasswordRequestSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Staff
+        fields = ('email',)
+        write_only_fields = fields
+
+
+class PasswordSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(max_length=255, write_only=True)
+    passwordReset = serializers.CharField(max_length=TOKEN_IDENTIFIER_LENGTH, write_only=True)
+
+    class Meta:
+        model = PasswordModel
+        fields = ('password', 'passwordReset', 'email',)
+        write_only_fields = fields
+
+
+class EmployeePasswordSerializer(PasswordSerializer):
+
+    class Meta:
+        model = Employee
+        fields = PasswordSerializer.Meta.fields
+        write_only_fields = PasswordSerializer.Meta.write_only_fields
+
+
+class StaffPasswordSerializer(PasswordSerializer):
+
+    class Meta:
+        model = Staff
+        fields = PasswordSerializer.Meta.fields
+        write_only_fields = PasswordSerializer.Meta.write_only_fields
 
 
 class BusinessTokenSerializer(TokenSerializer):

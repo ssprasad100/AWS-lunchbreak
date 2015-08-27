@@ -1,6 +1,9 @@
+from business.exceptions import IncorrectPassword, InvalidEmail
 from business.models import Employee, EmployeeToken, Staff, StaffToken
-from business.responses import IncorrectPassword, InvalidEmail
-from business.serializers import EmployeeTokenSerializer, StaffTokenSerializer
+from business.serializers import (EmployeePasswordRequestSerializer,
+                                  EmployeeTokenSerializer,
+                                  StaffPasswordRequestSerializer,
+                                  StaffTokenSerializer)
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.mail import BadHeaderError, EmailMultiAlternatives
@@ -46,27 +49,41 @@ class BusinessAuthentication(TokenAuthentication):
             token.save()
             tokenSerializer = cls.TOKEN_SERIALIZER(token)
             return Response(tokenSerializer.data, status=(status.HTTP_201_CREATED if created else status.HTTP_200_OK))
-        return IncorrectPassword()
+        return IncorrectPassword().getResponse()
 
     @classmethod
-    def requestPasswordReset(cls, request, to_email=None, model=None):
-        if to_email is not None and model is None:
+    def requestPasswordReset(cls, request):
+        serializer = cls.REQUEST_SERIALIZER(data=request.data)
+        if not serializer.is_valid():
+            return BadRequest(serializer.errors)
+
+        if cls.MODEL_NAME == 'employee':
             try:
-                validate_email(to_email)
-            except ValidationError:
-                return InvalidEmail()
+                model = cls.MODEL.objects.get(id=request.data['id'])
+                to_email = model.staff.email
+            except cls.MODEL.DoesNotExist:
+                return DoesNotExist()
+        else:
+            to_email = request.data['email']
 
             try:
+                validate_email(to_email)
                 model = cls.MODEL.objects.get(email=to_email)
-            except ObjectDoesNotExist:
-                return InvalidEmail('Email address not found.')
-        elif model is None:
-            return BadRequest()
+            except ValidationError:
+                return InvalidEmail().getResponse()
+            except cls.MODEL.DoesNotExist:
+                return InvalidEmail('Email address not found.').getResponse()
 
         model.passwordReset = tokenGenerator()
         model.save()
-        subject, from_email = 'Lunchbreak password reset', settings.EMAIL_FROM
-        url = 'http://%s/business/reset/%s/%s/%s' % (settings.HOST, cls.MODEL_NAME, to_email, model.passwordReset,)
+
+        subject, from_email = 'Lunchbreak wachtwoord herstellen', settings.EMAIL_FROM
+
+        url = 'lunchbreakstore://{model}/{email}/{passwordReset}'.format(
+            model=cls.MODEL_NAME,
+            email=to_email,
+            passwordReset=model.passwordReset
+        )
 
         templateArguments = {
             'name': model.name,
@@ -90,6 +107,7 @@ class StaffAuthentication(BusinessAuthentication):
     MODEL_NAME = 'staff'
     TOKEN_MODEL = StaffToken
     TOKEN_SERIALIZER = StaffTokenSerializer
+    REQUEST_SERIALIZER = StaffPasswordRequestSerializer
 
 
 class EmployeeAuthentication(BusinessAuthentication):
@@ -97,3 +115,4 @@ class EmployeeAuthentication(BusinessAuthentication):
     MODEL_NAME = 'employee'
     TOKEN_MODEL = EmployeeToken
     TOKEN_SERIALIZER = EmployeeTokenSerializer
+    REQUEST_SERIALIZER = EmployeePasswordRequestSerializer

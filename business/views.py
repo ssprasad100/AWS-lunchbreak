@@ -1,8 +1,8 @@
 from business.authentication import EmployeeAuthentication, StaffAuthentication
-from business.exceptions import InvalidDatetime
+from business.exceptions import (InvalidDatetime, InvalidEmail,
+                                 InvalidPasswordReset)
 from business.models import Employee, Staff
 from business.permissions import StoreOwnerPermission
-from business.responses import InvalidEmail
 from business.serializers import (EmployeeSerializer,
                                   IngredientGroupSerializer,
                                   IngredientSerializer, OrderSerializer,
@@ -13,7 +13,7 @@ from business.serializers import (EmployeeSerializer,
 from customers.config import (ORDER_STATUS_PLACED, ORDER_STATUS_RECEIVED,
                               ORDER_STATUS_STARTED, ORDER_STATUS_WAITING)
 from customers.models import Order
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -71,20 +71,8 @@ class EmployeeView(generics.ListAPIView):
     def get_queryset(self):
         return Employee.objects.filter(staff=self.request.user)
 
-    def post(self, request, format=None):
+    def post(self, request, *args, **kwargs):
         return EmployeeAuthentication.login(request)
-
-
-class EmployeeRequestResetView(APIView):
-    authentication_classes = (StaffAuthentication,)
-
-    def get(self, request, employee_id, format=None):
-        staff = request.user
-        try:
-            employee = Employee.objects.get(id=employee_id, staff=staff)
-        except ObjectDoesNotExist:
-            return DoesNotExist()
-        return EmployeeAuthentication.requestPasswordReset(request, staff.email, employee)
 
 
 class FoodListView(generics.ListAPIView):
@@ -102,7 +90,7 @@ class FoodListView(generics.ListAPIView):
 class FoodView(FoodListView, generics.CreateAPIView):
     permission_classes = (StoreOwnerPermission,)
 
-    def post(self, request, format=None, datetime=None):
+    def post(self, request, datetime=None, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save(store=request.user.staff.store)
@@ -235,7 +223,7 @@ class StaffMultiView(generics.ListAPIView):
             return Staff.objects.all()
         raise MethodNotAllowed(self.request.method)
 
-    def post(self, request, format=None):
+    def post(self, request, *args, **kwargs):
         return StaffAuthentication.login(request)
 
 
@@ -248,32 +236,38 @@ class StaffSingleView(generics.RetrieveAPIView):
         return Staff.objects.filter(id=self.request.user.id)
 
 
-class StaffRequestResetView(APIView):
-    def get(self, request, email, format=None):
-        return StaffAuthentication.requestPasswordReset(request, email)
+class ResetRequestView(generics.CreateAPIView):
+
+    def post(self, request, authentication, *args, **kwargs):
+        return authentication.requestPasswordReset(request)
 
 
-class StaffResetView(APIView):
-    def post(self, request, email, passwordReset, format=None):
-        try:
-            validate_email(email)
-            staff = Staff.objects.get(email=email)
-        except ValidationError:
-            return InvalidEmail()
-        except ObjectDoesNotExist:
-            return InvalidEmail('Email address not found.')
+class PasswordResetView(generics.CreateAPIView):
 
-        if staff.passwordReset is None or 'password' not in request.data:
-            return BadRequest()
-        elif staff.passwordReset != passwordReset:
-            staff.passwordReset = None
-            staff.save()
-            return BadRequest()
-        else:
-            staff.passwordReset = None
-            staff.setPassword(request.data['password'])
-            staff.save()
+    def post(self, request, model, tokenModel, serializerClass, employee=False, *args, **kwargs):
+        passwordSerializer = serializerClass(data=request.data)
+        if passwordSerializer.is_valid():
+            email = request.data['email']
+            passwordReset = request.data['passwordReset']
+
+            try:
+                validate_email(email)
+                if employee:
+                    m = model.objects.get(staff__email=email, passwordReset=passwordReset)
+                else:
+                    m = model.objects.get(email=email, passwordReset=passwordReset)
+            except ValidationError:
+                return InvalidEmail().getResponse()
+            except model.DoesNotExist:
+                return InvalidPasswordReset().getResponse()
+
+            m.passwordReset = None
+            m.setPassword(request.data['password'])
+            m.save()
+
+            tokenModel.objects.filter(**{model.__name__.lower(): m}).delete()
             return Response(status=status.HTTP_200_OK)
+        return BadRequest(passwordSerializer.errors)
 
 
 class StoreOpenView(generics.ListAPIView):

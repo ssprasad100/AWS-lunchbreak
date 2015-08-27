@@ -14,7 +14,7 @@ class TokenAuthentication(authentication.BaseAuthentication):
         try:
             arguments = {self.MODEL_NAME + '_id': modelId, 'identifier': identifier, 'device': device}
             modelToken = self.TOKEN_MODEL.objects.get(**arguments)
-        except:
+        except self.TOKEN_MODEL.DoesNotExist:
             raise AuthenticationFailed('%sToken not found.' % self.MODEL_NAME.capitalize())
 
         return (getattr(modelToken, self.MODEL_NAME), None)
