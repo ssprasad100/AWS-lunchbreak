@@ -324,6 +324,7 @@ class Ingredient(models.Model):
     name = models.CharField(max_length=255)
     cost = models.DecimalField(default=0, max_digits=7, decimal_places=2)
     icon = models.PositiveIntegerField(choices=ICONS, default=0)
+    alwaysVisible = models.BooleanField(default=False)
 
     group = models.ForeignKey(IngredientGroup)
     store = models.ForeignKey(Store)

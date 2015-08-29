@@ -60,7 +60,7 @@ class NestedIngredientSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Ingredient
-        fields = ('id', 'name', 'cost', 'icon', 'store',)
+        fields = ('id', 'name', 'cost', 'icon', 'alwaysVisible', 'store',)
         read_only_fields = ('id',)
 
 
@@ -126,12 +126,19 @@ class ShortSingleFoodSerializer(serializers.ModelSerializer):
     ingredientGroups = IngredientGroupSerializer(many=True, read_only=True)
     category = ShortFoodCategorySerializer(many=False)
     foodType = FoodTypeSerializer(many=False)
-    ingredients = ShortIngredientRelationSerializer(source='ingredientrelation_set', many=True)
+    ingredients = ShortIngredientRelationSerializer(many=True)
     quantity = ShortQuantitySerializer(many=False)
 
     def create(self, validated_data):
         ingredients = Ingredient.objects.filter(id__in=validated_data['ingredients'])
-        return Food(name=validated_data['name'], cost=validated_data['cost'], ingredients=ingredients, store=validated_data['store'], category=validated_data['category'], icon=validated_data['icon'])
+        return Food(
+            name=validated_data['name'],
+            cost=validated_data['cost'],
+            ingredients=ingredients,
+            store=validated_data['store'],
+            category=validated_data['category'],
+            icon=validated_data['icon']
+        )
 
     class Meta:
         model = Food

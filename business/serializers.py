@@ -226,7 +226,7 @@ class IngredientSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Ingredient
-        fields = ('id', 'name', 'cost', 'icon', 'group',)
+        fields = ('id', 'name', 'cost', 'icon', 'alwaysVisible', 'group',)
         read_only_fields = ('id',)
 
 

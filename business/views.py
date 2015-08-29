@@ -19,7 +19,7 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from lunch.models import (Food, FoodCategory, FoodType, Ingredient,
                           IngredientGroup, Quantity, Store)
-from lunch.responses import BadRequest, DoesNotExist
+from lunch.responses import BadRequest
 from lunch.serializers import (FoodTypeSerializer, HolidayPeriodSerializer,
                                OpeningHoursSerializer, QuantitySerializer,
                                ShortFoodCategorySerializer,
@@ -29,7 +29,6 @@ from lunch.views import (StoreCategoryListViewBase, getHolidayPeriods,
 from rest_framework import generics, status
 from rest_framework.exceptions import MethodNotAllowed
 from rest_framework.response import Response
-from rest_framework.views import APIView
 
 AVAILABLE_STATUSES = [ORDER_STATUS_PLACED, ORDER_STATUS_RECEIVED, ORDER_STATUS_STARTED, ORDER_STATUS_WAITING]
 
