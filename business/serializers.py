@@ -5,8 +5,7 @@ from lunch.config import TOKEN_IDENTIFIER_LENGTH
 from lunch.exceptions import InvalidStoreLinking
 from lunch.models import (BaseToken, Food, Ingredient, IngredientGroup,
                           IngredientRelation, Store)
-from lunch.serializers import (ShortIngredientRelationSerializer,
-                               TokenSerializer)
+from lunch import serializers as lunchSerializers
 from rest_framework import serializers
 
 
@@ -61,12 +60,12 @@ class StaffPasswordSerializer(PasswordSerializer):
         write_only_fields = PasswordSerializer.Meta.write_only_fields
 
 
-class BusinessTokenSerializer(TokenSerializer):
+class BusinessTokenSerializer(lunchSerializers.TokenSerializer):
     password = serializers.CharField(max_length=255, write_only=True)
 
     class Meta:
         model = BaseToken
-        fields = TokenSerializer.Meta.fields + ('password',)
+        fields = lunchSerializers.TokenSerializer.Meta.fields + ('password',)
         write_only_fields = ('password',)
         read_only_fields = ('id', 'identifier', 'active',)
 
@@ -158,7 +157,7 @@ class IngredientRelationSerializer(serializers.ModelSerializer):
 
 
 class ShortFoodSerializer(serializers.ModelSerializer):
-    ingredients = ShortIngredientRelationSerializer(source='ingredientrelation_set', many=True, required=False, read_only=True)
+    ingredients = lunchSerializers.ShortIngredientRelationSerializer(source='ingredientrelation_set', many=True, required=False, read_only=True)
     ingredientRelations = IngredientRelationSerializer(source='ingredientrelation_set', many=True, required=False, write_only=True)
 
     class Meta:
@@ -237,3 +236,11 @@ class IngredientGroupSerializer(serializers.ModelSerializer):
         model = IngredientGroup
         fields = ('id', 'name', 'maximum', 'minimum', 'ingredients', 'priority', 'cost', 'foodType',)
         read_only_fields = ('id', 'ingredients',)
+
+
+class SingleFoodSerializer(lunchSerializers.SingleFoodSerializer):
+
+    class Meta:
+        model = lunchSerializers.SingleFoodSerializer.Meta.model
+        fields = lunchSerializers.SingleFoodSerializer.Meta.fields + ('deleted',)
+        read_only_fields = lunchSerializers.SingleFoodSerializer.Meta.read_only_fields

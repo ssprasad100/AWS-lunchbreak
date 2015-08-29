@@ -8,8 +8,8 @@ from business.serializers import (EmployeeSerializer,
                                   IngredientSerializer, OrderSerializer,
                                   ShortFoodSerializer,
                                   ShortIngredientGroupSerializer,
-                                  ShortOrderSerializer, StaffSerializer,
-                                  StoreSerializer)
+                                  ShortOrderSerializer, SingleFoodSerializer,
+                                  StaffSerializer, StoreSerializer)
 from customers.config import (ORDER_STATUS_PLACED, ORDER_STATUS_RECEIVED,
                               ORDER_STATUS_STARTED, ORDER_STATUS_WAITING)
 from customers.models import Order
@@ -22,8 +22,7 @@ from lunch.models import (Food, FoodCategory, FoodType, Ingredient,
 from lunch.responses import BadRequest
 from lunch.serializers import (FoodTypeSerializer, HolidayPeriodSerializer,
                                OpeningHoursSerializer, QuantitySerializer,
-                               ShortFoodCategorySerializer,
-                               ShortSingleFoodSerializer)
+                               ShortFoodCategorySerializer)
 from lunch.views import (StoreCategoryListViewBase, getHolidayPeriods,
                          getOpeningAndHoliday, getOpeningHours)
 from rest_framework import generics, status
@@ -79,11 +78,18 @@ class FoodListView(generics.ListAPIView):
     serializer_class = ShortFoodSerializer
 
     def get_queryset(self):
-        result = Food.objects.filter(store=self.request.user.staff.store)
         since = getSince(self.request, self.kwargs)
         if since is not None:
-            return result.filter(lastModified__gte=since)
-        return result
+            result = Food.objects.filter(
+                store=self.request.user.staff.store,
+                lastModified__gte=since
+            )
+        else:
+            result = Food.objects.filter(
+                store=self.request.user.staff.store
+            )
+
+        return result.order_by('-priority', 'name')
 
 
 class FoodView(FoodListView, generics.CreateAPIView):
@@ -106,7 +112,7 @@ class FoodSingleView(generics.RetrieveUpdateDestroyAPIView):
 
     def get_serializer_class(self, *args, **kwargs):
         if self.request.method == 'GET':
-            return ShortSingleFoodSerializer
+            return SingleFoodSerializer
         else:
             return ShortFoodSerializer
 
@@ -130,11 +136,17 @@ class IngredientSingleView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (StoreOwnerPermission,)
 
     def get_queryset(self):
-        result = Ingredient.objects.filter(store=self.request.user.staff.store)
         since = getSince(self.request, self.kwargs)
         if since is not None:
-            return result.filter(lastModified__gte=since)
-        return result
+            result = Ingredient.objects.filter(
+                store=self.request.user.staff.store,
+                lastModified__gte=since
+            )
+        else:
+            result = Ingredient.objects.filter(
+                store=self.request.user.staff.store
+            )
+        return result.order_by('-priority', 'name')
 
 
 class FoodCategoryMultiView(ListCreateStoreView):
@@ -187,19 +199,23 @@ class OrderListView(generics.ListAPIView):
     serializer_class = ShortOrderSerializer
 
     def get_queryset(self):
-        result = Order.objects.filter(store=self.request.user.staff.store, status__in=AVAILABLE_STATUSES)
+        filters = {
+            'store': self.request.user.staff.store,
+            'status__in': AVAILABLE_STATUSES
+        }
+
         if self.request.method == 'GET':
             since = getSince(self.request, self.kwargs, methodCheck=True)
 
             if 'option' in self.kwargs and self.kwargs['option'] == 'pickupTime':
-                result = result.order_by('pickupTime')
                 if since is not None:
-                    result = result.filter(pickupTime__gt=since)
+                    filters['pickupTime__gt'] = since
+                return Order.objects.filter(**filters).order_by('pickupTime')
             else:
-                result = result.order_by('-orderedTime')
                 if since is not None:
-                    result = result.filter(orderedTime__gt=since)
-        return result
+                    filters['orderedTime__gt'] = since
+                return Order.objects.filter(**filters).order_by('-orderedTime')
+        return Order.objects.filter(**filters)
 
 
 class OrderUpdateView(generics.RetrieveUpdateAPIView):
@@ -207,7 +223,10 @@ class OrderUpdateView(generics.RetrieveUpdateAPIView):
     serializer_class = OrderSerializer
 
     def get_queryset(self):
-        return Order.objects.filter(store=self.request.user.staff.store, status__in=AVAILABLE_STATUSES)
+        return Order.objects.filter(
+            store=self.request.user.staff.store,
+            status__in=AVAILABLE_STATUSES
+        )
 
 
 class StaffMultiView(generics.ListAPIView):
@@ -216,7 +235,11 @@ class StaffMultiView(generics.ListAPIView):
     def get_queryset(self):
         proximity = self.kwargs['proximity'] if 'proximity' in self.kwargs else 5
         if 'latitude' in self.kwargs and 'longitude' in self.kwargs:
-            stores = Store.objects.nearby(self.kwargs['latitude'], self.kwargs['longitude'], proximity)
+            stores = Store.objects.nearby(
+                self.kwargs['latitude'],
+                self.kwargs['longitude'],
+                proximity
+            )
             return Staff.objects.filter(store__in=stores)
         elif self.request.method != 'GET':
             return Staff.objects.all()

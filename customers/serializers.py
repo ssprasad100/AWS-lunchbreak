@@ -36,14 +36,6 @@ class OrderedFoodPriceSerializer(serializers.ModelSerializer):
         write_only_fields = fields
 
 
-class SingleFoodSerializer(lunchSerializers.ShortSingleFoodSerializer):
-
-    class Meta:
-        model = lunchSerializers.ShortSingleFoodSerializer.Meta.model
-        fields = ('id', 'name', 'description', 'amount', 'cost', 'ingredientGroups', 'ingredients', 'category', 'foodType', 'minDays', 'store', 'quantity', 'store',)
-        read_only_fields = ('id', 'ingredientGroups',)
-
-
 class ShortOrderSerializer(serializers.ModelSerializer):
     '''Used after placing an order for confirmation.'''
 

@@ -5,7 +5,7 @@ import requests
 from customers.config import ORDER_ENDED
 from customers.exceptions import MinTimeExceeded, PastOrderDenied, StoreClosed
 from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -386,6 +386,7 @@ class Food(models.Model):
     foodType = models.ForeignKey(FoodType)
     minDays = models.PositiveIntegerField(default=0)
     canComment = models.BooleanField(default=False)
+    priority = models.BigIntegerField(default=0)
 
     category = models.ForeignKey(FoodCategory)
     ingredients = models.ManyToManyField(Ingredient, through='IngredientRelation', blank=True)
@@ -400,7 +401,9 @@ class Food(models.Model):
 
     @cached_property
     def ingredientGroups(self):
-        return self.foodType.ingredientgroup_set.filter(store_id=self.store_id).order_by('-priority', 'name')
+        return self.foodType.ingredientgroup_set.filter(
+            store_id=self.store_id
+        ).order_by('-priority', 'name')
 
     @cached_property
     def hasIngredients(self):
@@ -410,7 +413,7 @@ class Food(models.Model):
     def quantity(self):
         try:
             return Quantity.objects.get(foodType_id=self.foodType_id, store_id=self.store_id)
-        except ObjectDoesNotExist:
+        except Quantity.DoesNotExist:
             return None
 
     def canOrder(self, pickupTime):

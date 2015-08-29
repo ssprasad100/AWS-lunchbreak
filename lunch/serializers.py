@@ -122,28 +122,41 @@ class QuantitySerializer(ShortQuantitySerializer):
         read_only_fields = ShortQuantitySerializer.Meta.read_only_fields
 
 
-class ShortSingleFoodSerializer(serializers.ModelSerializer):
+class SingleFoodSerializer(serializers.ModelSerializer):
     ingredientGroups = IngredientGroupSerializer(many=True, read_only=True)
     category = ShortFoodCategorySerializer(many=False)
     foodType = FoodTypeSerializer(many=False)
     ingredients = ShortIngredientRelationSerializer(many=True)
     quantity = ShortQuantitySerializer(many=False)
 
-    def create(self, validated_data):
-        ingredients = Ingredient.objects.filter(id__in=validated_data['ingredients'])
-        return Food(
-            name=validated_data['name'],
-            cost=validated_data['cost'],
-            ingredients=ingredients,
-            store=validated_data['store'],
-            category=validated_data['category'],
-            icon=validated_data['icon']
-        )
-
     class Meta:
         model = Food
-        fields = ('id', 'name', 'description', 'amount', 'cost', 'ingredientGroups', 'ingredients', 'category', 'foodType', 'store', 'quantity', 'deleted',)
-        read_only_fields = ('id', 'ingredientGroups',)
+        fields = (
+            'id',
+            'name',
+            'description',
+            'amount',
+            'cost',
+            'foodType',
+            'minDays',
+            'canComment',
+            'priority',
+
+            'category',
+            'ingredients',
+            'store',
+
+            'lastModified',
+            # 'deleted',
+
+            'ingredientGroups',
+            'quantity',
+        )
+        read_only_fields = (
+            'id',
+            'ingredientGroups',
+            'lastModified',
+        )
 
 
 class MultiFoodSerializer(serializers.ModelSerializer):
@@ -153,7 +166,7 @@ class MultiFoodSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Food
-        fields = ('id', 'name', 'amount', 'cost', 'category', 'foodType', 'hasIngredients', 'quantity', 'minDays',)
+        fields = ('id', 'name', 'amount', 'cost', 'category', 'foodType', 'priority', 'hasIngredients', 'quantity', 'minDays',)
         read_only_fields = ('id', 'hasIngredients',)
 
 

@@ -5,9 +5,9 @@ from customers.models import Heart, Order, OrderedFood, User, UserToken
 from customers.serializers import (OrderedFoodPriceSerializer, OrderSerializer,
                                    OrderSerializerOld, ShortOrderSerializer,
                                    ShortOrderSerializerOld,
-                                   SingleFoodSerializer, StoreHeartSerializer,
-                                   UserLoginSerializer, UserRegisterSerializer,
-                                   UserSerializer, UserTokenSerializer)
+                                   StoreHeartSerializer, UserLoginSerializer,
+                                   UserRegisterSerializer, UserSerializer,
+                                   UserTokenSerializer)
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -17,7 +17,7 @@ from lunch.responses import BadRequest
 from lunch.serializers import (FoodCategorySerializer, HolidayPeriodSerializer,
                                MultiFoodSerializer, OpeningHoursSerializer,
                                OpenSerializer, ShortFoodCategorySerializer,
-                               ShortStoreSerializer)
+                               ShortStoreSerializer, SingleFoodSerializer)
 from lunch.views import (StoreCategoryListViewBase, getHolidayPeriods,
                          getOpeningAndHoliday, getOpeningHours)
 from Lunchbreak.exceptions import LunchbreakException
@@ -112,14 +112,21 @@ class FoodListView(generics.ListAPIView):
 
     def get_queryset(self):
         if 'store_id' in self.kwargs:
-            return Food.objects.filter(
+            result = Food.objects.filter(
                 store_id=self.kwargs['store_id'],
-                deleted=False).order_by('-category__priority', 'category__name', 'name')
+                deleted=False
+            )
         elif 'foodcategory_id' in self.kwargs:
-            return Food.objects.filter(
+            result = Food.objects.filter(
                 category_id=self.kwargs['foodcategory_id'],
                 deleted=False
-            ).order_by('-category__priority', 'category__name', 'name')
+            )
+        return result.order_by(
+            '-category__priority',
+            'category__name',
+            '-priority',
+            'name'
+        )
 
     @property
     def pagination_class(self):
@@ -131,10 +138,8 @@ class FoodListView(generics.ListAPIView):
 class FoodRetrieveView(generics.RetrieveAPIView):
     '''Retrieve a specific food.'''
 
-    serializer_class = SingleFoodSerializer
-    queryset = Food.objects.all()
-
     authentication_classes = (CustomerAuthentication,)
+    serializer_class = SingleFoodSerializer
 
     def get_queryset(self):
         return Food.objects.filter(deleted=False)
@@ -149,7 +154,9 @@ class FoodCategoryListView(generics.ListAPIView):
 
     def get_queryset(self):
         if 'store_id' in self.kwargs:
-            return FoodCategory.objects.filter(store_id=self.kwargs['store_id']).order_by('-priority', 'name')
+            return FoodCategory.objects.filter(
+                store_id=self.kwargs['store_id']
+            ).order_by('-priority', 'name')
 
 
 class FoodCategoryRetrieveView(generics.RetrieveAPIView):
