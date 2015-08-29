@@ -153,7 +153,10 @@ class Store(models.Model):
         super(Store, self).save(*args, **kwargs)
 
     def __unicode__(self):
-        return self.name + ', ' + self.city
+        return '{name}, {city}'.format(
+            name=self.name,
+            city=self.city
+        )
 
     @cached_property
     def heartsCount(self):
@@ -216,7 +219,11 @@ class OpeningHours(models.Model):
         super(OpeningHours, self).save(*args, **kwargs)
 
     def __unicode__(self):
-        return '%s. %s - %s' % (self.day, self.opening, self.closing,)
+        return '{day} {opening}-{closing}'.format(
+            day=self.get_day_display(),
+            opening=self.opening,
+            closing=self.closing
+        )
 
 
 class HolidayPeriod(models.Model):
@@ -238,7 +245,11 @@ class HolidayPeriod(models.Model):
         super(HolidayPeriod, self).save(*args, **kwargs)
 
     def __unicode__(self):
-        return '%s tot %s %s' % (self.start, self.end, 'gesloten' if self.closed else 'open',)
+        return '{start}-{end} {state}'.format(
+            start=self.start,
+            end=self.end,
+            state='closed' if self.closed else 'open'
+        )
 
 
 class FoodType(models.Model):
@@ -337,7 +348,11 @@ class Ingredient(models.Model):
         super(Ingredient, self).save(*args, **kwargs)
 
     def __unicode__(self):
-        return unicode(self.id) + '. ' + self.name + ' (' + unicode(self.group) + ')'
+        return '#{id} {name} ({group})'.format(
+            id=self.id,
+            name=self.name,
+            group=self.group
+        )
 
 
 class FoodCategory(models.Model):
@@ -375,7 +390,10 @@ class Quantity(models.Model):
         super(Quantity, self).save(*args, **kwargs)
 
     def __unicode__(self):
-        return unicode(self.amountMin) + '-' + unicode(self.amountMax)
+        return '{amountMin}-{amountMax}'.format(
+            amountMin=self.amountMin,
+            amountMax=self.amountMax
+        )
 
 
 class Food(models.Model):
@@ -469,3 +487,6 @@ class BaseToken(BareDevice):
 
     class Meta:
         abstract = True
+
+    def __unicode__(self):
+        return self.device

@@ -25,7 +25,10 @@ class User(models.Model):
     confirmedAt = models.DateField(blank=True, null=True)
 
     def __unicode__(self):
-        return self.name if self.name else unicode(self.phone)
+        return '{name} {phone}'.format(
+            name=self.name,
+            phone=self.phone
+        )
 
     @staticmethod
     def digitsRegister(digits, phone):
@@ -118,6 +121,12 @@ class Heart(models.Model):
     class Meta:
         unique_together = ('user', 'store',)
 
+    def __unicode__(self):
+        return '{user}, {store}'.format(
+            user=self.user,
+            store=self.store
+        )
+
 
 class Order(models.Model):
     user = models.ForeignKey(User)
@@ -154,7 +163,10 @@ class Order(models.Model):
         return self.confirmedTotal if self.confirmedTotal is not None else self.total
 
     def __unicode__(self):
-        return 'Order #' + str(self.id)
+        return '{user} {id}'.format(
+            user=self.user,
+            id=self.id
+        )
 
 
 class OrderedFood(models.Model):
@@ -212,6 +224,9 @@ class OrderedFood(models.Model):
 
         return cost
 
+    def __unicode__(self):
+        return unicode(self.original)
+
 
 class UserTokenManager(models.Manager):
     def createToken(self, user, device, active=True, service=SERVICE_APNS, registration_id=''):
@@ -241,6 +256,7 @@ class UserToken(BaseToken):
     @staticmethod
     def tokenResponse(user, device, service=SERVICE_APNS, registration_id=''):
         from customers.serializers import UserTokenSerializer
+
         token, created = UserToken.objects.createToken(
             user=user,
             device=device,
@@ -248,4 +264,7 @@ class UserToken(BaseToken):
             registration_id=registration_id
         )
         tokenSerializer = UserTokenSerializer(token)
-        return Response(tokenSerializer.data, status=(status.HTTP_201_CREATED if created else status.HTTP_200_OK))
+        return Response(
+            tokenSerializer.data,
+            status=(status.HTTP_201_CREATED if created else status.HTTP_200_OK)
+        )
