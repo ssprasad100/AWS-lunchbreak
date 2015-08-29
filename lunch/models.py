@@ -400,7 +400,7 @@ class Food(models.Model):
 
     @cached_property
     def ingredientGroups(self):
-        return self.foodType.ingredientgroup_set.filter(store_id=self.store_id)
+        return self.foodType.ingredientgroup_set.filter(store_id=self.store_id).order_by('-priority', 'name')
 
     @cached_property
     def hasIngredients(self):
