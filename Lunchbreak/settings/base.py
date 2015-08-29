@@ -163,11 +163,4 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_FROM = 'noreply@lunchbreakapp.be'
 
-GOOGLE_CLOUD_SECRET = 'AIzaSyCHgip4CE_6DMxP506uDRIQy_nQisuHAQI'
-
-PUSH_NOTIFICATIONS_SETTINGS = {
-        'GCM_API_KEY': GOOGLE_CLOUD_SECRET,
-        'APNS_CERTIFICATE': '/path/to/your/certificate.pem',
-}
-
 TESTING = False

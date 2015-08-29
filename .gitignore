@@ -1,6 +1,6 @@
 .idea
 static
-ssl
+certificates
 
 *.sublime-project
 *.sublime-workspace

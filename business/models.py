@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.hashers import check_password, make_password
 from django.db import models
 from django.utils.functional import cached_property
@@ -37,6 +38,8 @@ class Staff(PasswordModel):
 class StaffToken(BaseToken):
     staff = models.ForeignKey(Staff)
 
+    APNS_CERTIFICATE = settings.BUSINESS_APNS_CERTIFICATE
+
 
 class Employee(PasswordModel):
     name = models.CharField(max_length=255)
@@ -49,3 +52,5 @@ class Employee(PasswordModel):
 
 class EmployeeToken(BaseToken):
     employee = models.ForeignKey(Employee)
+
+    APNS_CERTIFICATE = settings.BUSINESS_APNS_CERTIFICATE
