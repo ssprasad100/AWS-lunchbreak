@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import random
 from datetime import datetime, time, timedelta
 
@@ -137,11 +139,14 @@ class Store(models.Model):
             number=self.number,
             postcode=self.postcode,
             city=self.city,
-            )
+        )
         response = requests.get(
             'https://maps.googleapis.com/maps/api/geocode/json',
-            params={'address': address, 'key': settings.GOOGLE_CLOUD_SECRET}
-            )
+            params={
+                'address': address,
+                'key': settings.GOOGLE_CLOUD_SECRET
+            }
+        )
         result = response.json()
 
         if not result['results']:
