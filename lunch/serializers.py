@@ -126,7 +126,7 @@ class SingleFoodSerializer(serializers.ModelSerializer):
     ingredientGroups = IngredientGroupSerializer(many=True, read_only=True)
     category = ShortFoodCategorySerializer(many=False)
     foodType = FoodTypeSerializer(many=False)
-    ingredients = ShortIngredientRelationSerializer(many=True)
+    ingredients = ShortIngredientRelationSerializer(source='ingredientrelation_set', many=True)
     quantity = ShortQuantitySerializer(many=False)
 
     class Meta:
