@@ -320,7 +320,7 @@ class UserView(generics.CreateAPIView):
 
     @staticmethod
     def createGetToken(user, device):
-        token, created = UserToken.objects.createToken(user, device, active=False)
+        token, created = UserToken.objects.createToken(user, device)
         tokenSerializer = UserTokenSerializer(token)
         return Response(tokenSerializer.data, status=(status.HTTP_201_CREATED if created else status.HTTP_200_OK))
 
@@ -382,7 +382,7 @@ class UserView(generics.CreateAPIView):
                             success = True
 
                         if success:
-                            return UserToken.tokenResponse(user, device)
+                            return UserView.createGetToken(user, device)
         elif request.data.get('phone', False) == DEMO_PHONE:
             if 'pin' not in request.data:
                 return Response(status=status.HTTP_200_OK)
@@ -393,5 +393,5 @@ class UserView(generics.CreateAPIView):
                 except ObjectDoesNotExist:
                     pass
                 else:
-                    return UserToken.tokenResponse(demoUser, request.data['device'])
+                    return UserView.createGetToken(demoUser, request.data['device'])
         return BadRequest(userSerializer.errors)

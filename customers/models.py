@@ -11,7 +11,7 @@ from lunch.config import COST_GROUP_ADDITIONS
 from lunch.models import BaseToken, Food, Ingredient, Store, tokenGenerator
 from lunch.responses import DoesNotExist
 from phonenumber_field.modelfields import PhoneNumberField
-from push_notifications.models import SERVICE_APNS
+from push_notifications.models import SERVICE_INACTIVE
 from rest_framework import status
 from rest_framework.response import Response
 
@@ -229,15 +229,14 @@ class OrderedFood(models.Model):
 
 
 class UserTokenManager(models.Manager):
-    def createToken(self, user, device, active=True, service=SERVICE_APNS, registration_id=''):
+    def createToken(self, user, device, service=SERVICE_INACTIVE, registration_id=''):
         # Active parameter is for backwards compatibility with the old login system.
         # Needs to be removed together with the old login system.
         token, created = self.get_or_create(
             user=user,
             device=device,
             service=service,
-            registration_id=registration_id,
-            active=active
+            registration_id=registration_id
         )
 
         # Refresh the identifier if a token already exists
@@ -254,7 +253,7 @@ class UserToken(BaseToken):
     objects = UserTokenManager()
 
     @staticmethod
-    def tokenResponse(user, device, service=SERVICE_APNS, registration_id=''):
+    def tokenResponse(user, device, service=SERVICE_INACTIVE, registration_id=''):
         from customers.serializers import UserTokenSerializer
 
         token, created = UserToken.objects.createToken(
