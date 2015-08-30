@@ -194,48 +194,55 @@ class IngredientRelationSerializer(serializers.ModelSerializer):
 
 
 class ShortFoodSerializer(serializers.ModelSerializer):
-    ingredients = lunchSerializers.ShortIngredientRelationSerializer(source='ingredientrelation_set', many=True, required=False, read_only=True)
-    ingredientRelations = IngredientRelationSerializer(source='ingredientrelation_set', many=True, required=False, write_only=True)
+    ingredients = lunchSerializers.ShortIngredientRelationSerializer(
+        source='ingredientrelation_set',
+        many=True,
+        required=False,
+        read_only=True
+    )
+    ingredientRelations = IngredientRelationSerializer(
+        source='ingredientrelation_set',
+        many=True,
+        required=False,
+        write_only=True
+    )
 
     class Meta:
         model = Food
-        fields = ('id', 'name', 'description', 'amount', 'category', 'foodType', 'minDays', 'cost', 'ingredients', 'category', 'ingredientRelations',)
-        read_only_fields = ('id', 'ingredients',)
-        write_only_fields = ('ingredientRelations',)
+        fields = (
+            'id',
+            'name',
+            'description',
+            'amount',
+            'cost',
+            'foodType',
+            'minDays',
+            'canComment',
+            'priority',
+
+            'category',
+            'ingredients',
+            # 'store',
+
+            'ingredientRelations',
+        )
+        read_only_fields = (
+            'id',
+            'ingredients',
+        )
+        write_only_fields = (
+            'ingredientRelations',
+        )
 
     def createOrUpdate(self, validated_data, food=None):
         update = food is not None
+        relations = validated_data.pop('ingredientrelation_set', None)
         if not update:
-            name = validated_data['name']
-            description = validated_data.get('description', None)
-            amount = validated_data.get('amount', 1)
-            category = validated_data['category']
-            foodType = validated_data['foodType']
-            minDays = validated_data['minDays']
-            cost = validated_data['cost']
-            store = validated_data['store']
-
-            food = Food(
-                name=name,
-                description=description,
-                amount=amount,
-                category=category,
-                foodType=foodType,
-                minDays=minDays,
-                cost=cost,
-                store=store
-                )
+            food = Food(**validated_data)
         else:
-            food.name = validated_data.get('name', food.name)
-            food.description = validated_data.get('description', food.description)
-            food.amount = validated_data.get('amount', food.amount)
-            food.category = validated_data.get('category', food.category)
-            food.foodType = validated_data.get('foodType', food.foodType)
-            food.minDays = validated_data.get('minDays', food.minDays)
-            food.cost = validated_data.get('cost', food.cost)
-            food.store = validated_data.get('store', food.store)
+            for key, value in validated_data.iteritems():
+                setattr(food, key, value)
 
-        relations = validated_data.get('ingredientrelation_set', None)
         if relations is not None:
             for relation in relations:
                 if relation['ingredient'].store_id != food.store.id:
