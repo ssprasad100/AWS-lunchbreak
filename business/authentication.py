@@ -12,6 +12,7 @@ from django.template.loader import render_to_string
 from lunch.authentication import TokenAuthentication
 from lunch.models import tokenGenerator
 from lunch.responses import BadRequest, DoesNotExist
+from push_notifications.models import SERVICE_INACTIVE
 from rest_framework import status
 from rest_framework.response import Response
 
@@ -27,8 +28,8 @@ class BusinessAuthentication(TokenAuthentication):
         rawPassword = request.data['password']
         modelId = request.data[cls.MODEL_NAME]
         device = request.data['device']
-        registrationId = request.data['registration_id']
-        service = request.data['service']
+        registrationId = request.data.get('registration_id', '')
+        service = request.data.get('service', SERVICE_INACTIVE)
         device = request.data['device']
 
         try:
