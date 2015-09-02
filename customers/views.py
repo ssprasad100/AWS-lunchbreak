@@ -295,7 +295,8 @@ class UserTokenUpdateView(generics.UpdateAPIView):
     def update(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
-            request.auth.registration_id = request.data['registration_id']
+            request.auth.registration_id = request.data.get('registration_id', request.auth.registration_id)
+            request.auth.service = request.data.get('service', request.auth.service)
             request.auth.save()
             return Response(
                 self.serializer_class(request.auth).data,

@@ -14,7 +14,7 @@ from lunch.models import (Food, FoodCategory, FoodType, HolidayPeriod,
                           Ingredient, IngredientGroup, IngredientRelation,
                           Store)
 from Lunchbreak.test import LunchbreakTestCase
-from push_notifications.models import SERVICE_APNS
+from push_notifications.models import SERVICE_APNS, SERVICE_GCM
 from rest_framework import status
 from rest_framework.test import APIRequestFactory, force_authenticate
 
@@ -344,20 +344,19 @@ class CustomersTests(LunchbreakTestCase):
 
         request = self.factory.patch(url, content, format=CustomersTests.FORMAT)
         response = self.authenticateRequest(request, views.UserTokenUpdateView)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         request = self.factory.put(url, content, format=CustomersTests.FORMAT)
         response = self.authenticateRequest(request, views.UserTokenUpdateView)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        registrationId = 'blab'
-        content['registration_id'] = registrationId
+        content['registration_id'] = 'blab'
 
         request = self.factory.patch(url, content, format=CustomersTests.FORMAT)
         response = self.authenticateRequest(request, views.UserTokenUpdateView)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.userToken.refresh_from_db()
-        self.assertEqual(self.userToken.registration_id, registrationId)
+        self.assertEqual(self.userToken.registration_id, content['registration_id'])
 
         self.userToken.registration_id = 'else'
         self.userToken.save()
@@ -366,4 +365,26 @@ class CustomersTests(LunchbreakTestCase):
         response = self.authenticateRequest(request, views.UserTokenUpdateView)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.userToken.refresh_from_db()
-        self.assertEqual(self.userToken.registration_id, registrationId)
+        self.assertEqual(self.userToken.registration_id, content['registration_id'])
+
+        self.userToken.service = SERVICE_APNS
+        self.userToken.save()
+        content['service'] = SERVICE_GCM
+
+        request = self.factory.patch(url, content, format=CustomersTests.FORMAT)
+        response = self.authenticateRequest(request, views.UserTokenUpdateView)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.userToken.refresh_from_db()
+        self.assertEqual(self.userToken.registration_id, content['registration_id'])
+        self.assertEqual(self.userToken.service, content['service'])
+
+        self.userToken.service = SERVICE_APNS
+        self.userToken.save()
+
+        request = self.factory.put(url, content, format=CustomersTests.FORMAT)
+        response = self.authenticateRequest(request, views.UserTokenUpdateView)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.userToken.refresh_from_db()
+        self.assertEqual(self.userToken.registration_id, content['registration_id'])
+        self.assertEqual(self.userToken.service, content['service'])
+
