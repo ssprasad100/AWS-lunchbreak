@@ -26,6 +26,7 @@ urlpatterns = patterns('',
     url(r'^token/$', views.UserTokenView.as_view()),
 
     url(r'^user/$', views.UserView.as_view()),
+    url(r'^user/token/$', views.UserTokenUpdateView.as_view(), name='user-token'),
     url(r'^user/register/$', views.UserRegisterView.as_view(), name='user-registration'),
     url(r'^user/login/$', views.UserLoginView.as_view(), name='user-login')
 )

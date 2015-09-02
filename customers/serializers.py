@@ -194,3 +194,17 @@ class UserTokenSerializer(lunchSerializers.TokenSerializer):
         model = UserToken
         fields = lunchSerializers.TokenSerializer.Meta.fields + ('user',)
         read_only_fields = lunchSerializers.TokenSerializer.Meta.read_only_fields + ('user',)
+
+
+class UserTokenUpdateSerializer(UserTokenSerializer):
+    user = UserSerializer(read_only=True)
+    registration_id = serializers.ModelField(
+        model_field=UserToken()._meta.get_field('registration_id'),
+        required=True
+    )
+
+    class Meta:
+        model = UserTokenSerializer.Meta.model
+        fields = UserTokenSerializer.Meta.fields
+        write_only_fields = ('registration_id',)
+        read_only_fields = ('id', 'identifier', 'device', 'service', 'active', 'user',)

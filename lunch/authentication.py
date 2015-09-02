@@ -17,4 +17,4 @@ class TokenAuthentication(authentication.BaseAuthentication):
         except self.TOKEN_MODEL.DoesNotExist:
             raise AuthenticationFailed('%sToken not found.' % self.MODEL_NAME.capitalize())
 
-        return (getattr(modelToken, self.MODEL_NAME), None)
+        return (getattr(modelToken, self.MODEL_NAME), modelToken)

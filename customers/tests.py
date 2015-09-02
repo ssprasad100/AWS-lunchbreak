@@ -36,9 +36,18 @@ class CustomersTests(LunchbreakTestCase):
     def setUp(self):
         super(CustomersTests, self).setUp()
         self.factory = APIRequestFactory()
+
         self.user = User.objects.create(
             phone=CustomersTests.PHONE_USER,
             name=CustomersTests.NAME_USER
+        )
+
+        self.userToken = UserToken.objects.create(
+            identifier='something',
+            device='something',
+            user=self.user,
+            registration_id='something',
+            service=SERVICE_APNS
         )
 
         self.store = Store.objects.create(
@@ -243,7 +252,7 @@ class CustomersTests(LunchbreakTestCase):
         demo.delete()
 
     def authenticateRequest(self, request, view, *args, **kwargs):
-        force_authenticate(request, user=self.user)
+        force_authenticate(request, user=self.user, token=self.userToken)
         return view.as_view()(request, *args, **kwargs)
 
     def testHearting(self):
@@ -322,3 +331,39 @@ class CustomersTests(LunchbreakTestCase):
         order.save()
         self.assertRaises(Food.DoesNotExist, Food.objects.get, id=original.id)
         self.assertEqual(OrderedFood.objects.filter(order=order).count(), 0)
+
+    def testTokenUpdate(self):
+        '''
+        Test whether a user can change his token's registration_id.
+        '''
+
+        self.food, original = self.duplicateModel(self.food)
+
+        content = {}
+        url = reverse('user-token')
+
+        request = self.factory.patch(url, content, format=CustomersTests.FORMAT)
+        response = self.authenticateRequest(request, views.UserTokenUpdateView)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        request = self.factory.put(url, content, format=CustomersTests.FORMAT)
+        response = self.authenticateRequest(request, views.UserTokenUpdateView)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        registrationId = 'blab'
+        content['registration_id'] = registrationId
+
+        request = self.factory.patch(url, content, format=CustomersTests.FORMAT)
+        response = self.authenticateRequest(request, views.UserTokenUpdateView)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.userToken.refresh_from_db()
+        self.assertEqual(self.userToken.registration_id, registrationId)
+
+        self.userToken.registration_id = 'else'
+        self.userToken.save()
+
+        request = self.factory.put(url, content, format=CustomersTests.FORMAT)
+        response = self.authenticateRequest(request, views.UserTokenUpdateView)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.userToken.refresh_from_db()
+        self.assertEqual(self.userToken.registration_id, registrationId)

@@ -7,7 +7,8 @@ from customers.serializers import (OrderedFoodPriceSerializer, OrderSerializer,
                                    ShortOrderSerializerOld,
                                    StoreHeartSerializer, UserLoginSerializer,
                                    UserRegisterSerializer, UserSerializer,
-                                   UserTokenSerializer)
+                                   UserTokenSerializer,
+                                   UserTokenUpdateSerializer)
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -284,6 +285,29 @@ class UserLoginView(generics.CreateAPIView):
             except User.DoesNotExist:
                 pass
         return BadRequest(loginSerializer.errors)
+
+
+class UserTokenUpdateView(generics.UpdateAPIView):
+
+    serializer_class = UserTokenUpdateSerializer
+    authentication_classes = (CustomerAuthentication,)
+
+    def update(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            request.auth.registration_id = request.data['registration_id']
+            request.auth.save()
+            return Response(
+                self.serializer_class(request.auth).data,
+                status=status.HTTP_200_OK
+            )
+        return BadRequest(serializer.errors)
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
 
 
 class UserView(generics.CreateAPIView):
