@@ -28,6 +28,15 @@ from Lunchbreak.settings import *
 
 CONFIG = globals()
 
+APNS_FOLDER = '/etc/lunchbreak/apns/'
+CERT_TYPE = 'development' if CONFIG['DEBUG'] else 'production'
+BUSINESS_APNS_CERTIFICATE = APNS_FOLDER + 'business_{certType}.pem'.format(
+    certType=CERT_TYPE
+)
+CUSTOMERS_APNS_CERTIFICATE = APNS_FOLDER + 'customers_{certType}.pem'.format(
+    certType=CERT_TYPE
+)
+
 NGINX = '/etc/init.d/nginx'
 
 USER = BRANCH
@@ -166,6 +175,8 @@ def updateProject():
 
                 setSysvar('DJANGO_SETTINGS_BRANCH', BRANCH)
                 setSysvar('DJANGO_SETTINGS_MODULE', 'Lunchbreak.settings')
+                setSysvar('BUSINESS_APNS_CERTIFICATE', BUSINESS_APNS_CERTIFICATE)
+                setSysvar('CUSTOMERS_APNS_CERTIFICATE', CUSTOMERS_APNS_CERTIFICATE)
 
                 run('python manage.py migrate --noinput')
                 staticRoot = '%s/%s%s' % (HOME, CONFIG['HOST'], CONFIG['STATIC_RELATIVE'],)
@@ -263,7 +274,9 @@ def uwsgi():
         'virtualenv': virtualenv,
         'branch': BRANCH,
         'password_var': CONFIG['DB_PASS_VAR'],
-        'password': MYSQL_USER_PASSWORD
+        'password': MYSQL_USER_PASSWORD,
+        'business_apns_certificate': BUSINESS_APNS_CERTIFICATE,
+        'customers_apns_certificate': CUSTOMERS_APNS_CERTIFICATE
     }
     sedFile(iniFile, iniVariables)
 
