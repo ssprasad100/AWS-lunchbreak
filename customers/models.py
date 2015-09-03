@@ -1,8 +1,10 @@
 import math
 
-from customers.config import ORDER_ENDED, ORDER_STATUS, ORDER_STATUS_COMPLETED
+from customers.config import (ORDER_ENDED, ORDER_STATUS,
+                              ORDER_STATUS_COMPLETED, ORDER_STATUS_WAITING)
 from customers.digits import Digits
 from customers.exceptions import DigitsException, UserNameEmpty
+from dirtyfields import DirtyFieldsMixin
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
@@ -11,7 +13,7 @@ from lunch.config import COST_GROUP_ADDITIONS
 from lunch.models import BaseToken, Food, Ingredient, Store, tokenGenerator
 from lunch.responses import DoesNotExist
 from phonenumber_field.modelfields import PhoneNumberField
-from push_notifications.models import SERVICE_INACTIVE
+from push_notifications.models import SERVICE_INACTIVE, DeviceManager
 from rest_framework import status
 from rest_framework.response import Response
 
@@ -128,7 +130,7 @@ class Heart(models.Model):
         )
 
 
-class Order(models.Model):
+class Order(models.Model, DirtyFieldsMixin):
     user = models.ForeignKey(User)
     store = models.ForeignKey(Store)
     orderedTime = models.DateTimeField(auto_now_add=True, verbose_name='Time of order')
@@ -136,7 +138,12 @@ class Order(models.Model):
     status = models.PositiveIntegerField(choices=ORDER_STATUS, default=0)
     paid = models.BooleanField(default=False)
     total = models.DecimalField(decimal_places=2, max_digits=7, default=0)
-    confirmedTotal = models.DecimalField(decimal_places=2, max_digits=7, default=None, null=True)
+    confirmedTotal = models.DecimalField(
+        decimal_places=2,
+        max_digits=7,
+        default=None,
+        null=True,
+        blank=True)
     description = models.TextField(blank=True)
 
     def save(self, *args, **kwargs):
@@ -145,12 +152,28 @@ class Order(models.Model):
         for f in orderedFood:
             self.total += f.total
 
-        if self.status == ORDER_STATUS_COMPLETED:
-            self.paid = True
+        dirty = self.is_dirty()
+        dirtyStatus = False
+
+        if dirty:
+            dirty_fields = self.get_dirty_fields()
+            dirtyStatus = dirty_fields.get('status', dirtyStatus)
+
+            if dirtyStatus:
+                if self.status == ORDER_STATUS_WAITING:
+                    self.user.usertoken_set.all().send_message(
+                        'Je bestelling bij {store} ligt klaar!'.format(
+                            store=self.store.name
+                        ),
+                        sound='default'
+                    )
+
+                if self.status == ORDER_STATUS_COMPLETED:
+                    self.paid = True
 
         super(Order, self).save(*args, **kwargs)
 
-        if self.status in ORDER_ENDED:
+        if dirtyStatus and self.status in ORDER_ENDED:
             for f in orderedFood:
                 try:
                     if f.original.deleted:
@@ -228,7 +251,7 @@ class OrderedFood(models.Model):
         return unicode(self.original)
 
 
-class UserTokenManager(models.Manager):
+class UserTokenManager(DeviceManager):
     def createToken(self, user, device, service=SERVICE_INACTIVE, registration_id=''):
         # Active parameter is for backwards compatibility with the old login system.
         # Needs to be removed together with the old login system.

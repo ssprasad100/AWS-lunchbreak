@@ -2,6 +2,7 @@ argh==0.26.1
 bcrypt==1.1.0
 cffi==0.9.0
 Django==1.8.3
+django-dirtyfields==0.7
 django-phonenumber-field==0.7.2
 django-split-settings==0.1.2
 djangorestframework==3.2.2
