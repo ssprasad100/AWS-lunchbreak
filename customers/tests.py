@@ -387,4 +387,3 @@ class CustomersTests(LunchbreakTestCase):
         self.userToken.refresh_from_db()
         self.assertEqual(self.userToken.registration_id, content['registration_id'])
         self.assertEqual(self.userToken.service, content['service'])
-

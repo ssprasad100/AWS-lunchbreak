@@ -143,7 +143,8 @@ class Order(models.Model, DirtyFieldsMixin):
         max_digits=7,
         default=None,
         null=True,
-        blank=True)
+        blank=True
+    )
     description = models.TextField(blank=True)
 
     def save(self, *args, **kwargs):
@@ -153,13 +154,14 @@ class Order(models.Model, DirtyFieldsMixin):
             self.total += f.total
 
         dirty = self.is_dirty()
-        dirtyStatus = False
+        dirtyStatus = None
 
         if dirty:
             dirty_fields = self.get_dirty_fields()
             dirtyStatus = dirty_fields.get('status', dirtyStatus)
 
-            if dirtyStatus:
+            if dirtyStatus is not None:
+
                 if self.status == ORDER_STATUS_WAITING:
                     self.user.usertoken_set.all().send_message(
                         'Je bestelling bij {store} ligt klaar!'.format(
@@ -173,7 +175,7 @@ class Order(models.Model, DirtyFieldsMixin):
 
         super(Order, self).save(*args, **kwargs)
 
-        if dirtyStatus and self.status in ORDER_ENDED:
+        if dirtyStatus is not None and self.status in ORDER_ENDED:
             for f in orderedFood:
                 try:
                     if f.original.deleted:
