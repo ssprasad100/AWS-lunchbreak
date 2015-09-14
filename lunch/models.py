@@ -439,12 +439,19 @@ class Food(models.Model):
         except Quantity.DoesNotExist:
             return None
 
-    def canOrder(self, pickupTime):
-        return self.minDays == 0 \
-            or (
-                pickupTime - datetime.now() > timedelta(days=self.minDays)
-                and datetime.now().time() < self.store.orderTime
-            )
+    def canOrder(self, pickupTime, now=None):
+        '''
+        Check whether this food can be ordered for the given day.
+        This does not check whether the Store.minTime has been exceeded!
+        '''
+        if self.minDays == 0:
+            return True
+        else:
+            now = datetime.now() if now is None else now
+            minDays = self.minDays + (1 if now.time() > self.store.orderTime else 0)
+            dayDifference = (pickupTime - now).days
+            dayDifference += 1 if (now + (pickupTime - now)).day != now.day else 0
+            return dayDifference >= minDays
 
     def save(self, *args, **kwargs):
         if not self.foodType.isValidAmount(self.amount):
