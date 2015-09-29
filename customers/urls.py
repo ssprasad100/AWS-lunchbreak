@@ -13,6 +13,7 @@ urlpatterns = patterns('',
     url(r'^order/price/$', views.OrderPriceView.as_view()),
 
     url(r'^store/(?P<pk>\d+)/$', views.StoreHeartView.as_view()),
+    url(r'^store/(?P<store_id>\d+)/header/(?P<width>\d+)/(?P<height>\d+)/$', views.StoreHeaderView.as_view()),
     url(r'^store/(?P<store_id>\d+)/foodcategories/$', views.FoodCategoryListView.as_view()),
     url(r'^store/(?P<option>heart|unheart)/(?P<pk>\d+)/$', views.StoreHeartView.as_view(), name='store-heart'),
     url(r'^store/holiday/(?P<store_id>\d+)/$', views.HolidayPeriodListView.as_view()),

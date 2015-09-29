@@ -1,7 +1,9 @@
 from django.contrib import admin
+from imagekit.admin import AdminThumbnail
 from lunch.models import (Food, FoodCategory, FoodType, HolidayPeriod,
                           Ingredient, IngredientGroup, IngredientRelation,
-                          OpeningHours, Quantity, Store, StoreCategory)
+                          OpeningHours, Quantity, Store, StoreCategory,
+                          StoreHeader)
 
 admin.site.register(StoreCategory)
 
@@ -11,6 +13,13 @@ class QuantityAdmin(admin.ModelAdmin):
     list_display = ('foodType', 'store', 'amountMin', 'amountMax', 'id',)
     readonly_fields = ('id', 'lastModified',)
 
+
+@admin.register(StoreHeader)
+class StoreAdmin(admin.ModelAdmin):
+    list_display = ('__str__', 'admin_ldpi',)
+    admin_ldpi = AdminThumbnail(image_field='ldpi')
+    readonly_fields = ('admin_ldpi', 'ldpi', 'mdpi', 'hdpi', 'xhdpi', 'xxhdpi', 'xxxhdpi',)
+    fields = ('original',) + readonly_fields
 
 @admin.register(Store)
 class StoreAdmin(admin.ModelAdmin):

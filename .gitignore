@@ -14,3 +14,5 @@ _build
 *.cer
 .tox
 .python-version
+media
+media-private

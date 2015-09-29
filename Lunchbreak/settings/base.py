@@ -1,6 +1,14 @@
 import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+MEDIA_ROOT = os.path.normpath(os.path.join(BASE_DIR, 'media'))
+MEDIA_URL = '/media/'
+PRIVATE_MEDIA_ROOT = os.path.normpath(os.path.join(BASE_DIR, 'media-private'))
+PRIVATE_MEDIA_URL = '/private/'
+PRIVATE_MEDIA_SERVER = 'private_media.servers.NginxXAccelRedirectServer'
+PRIVATE_MEDIA_PERMISSIONS = 'lunch.authentication.PrivateMediaAuthentication'
+IMAGEKIT_DEFAULT_FILE_STORAGE = 'private_media.storages.PrivateMediaStorage'
+
 
 SECRET_KEY = 'e2a86@j!uc5@z^yu=%n9)6^%w+-(pk8a6@^i!vnvxe^-w%!q8('
 
@@ -19,6 +27,10 @@ INSTALLED_APPS = (
     'push_notifications',
     'rest_framework',
     'opbeat.contrib.django',
+    'private_media',
+
+    'imagekit',
+    'polaroid',
 
     'business',
     'customers',

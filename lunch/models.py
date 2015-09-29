@@ -11,6 +11,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 from django.utils.functional import cached_property
+from imagekit.models import ImageSpecField
 from lunch.config import (COST_GROUP_ALWAYS, COST_GROUP_CALCULATIONS, DAYS,
                           ICONS, INPUT_AMOUNT, INPUT_TYPES,
                           TOKEN_IDENTIFIER_CHARS, TOKEN_IDENTIFIER_LENGTH)
@@ -18,6 +19,9 @@ from lunch.exceptions import (AddressNotFound, IngredientGroupMaxExceeded,
                               IngredientGroupsMinimumNotMet,
                               InvalidFoodTypeAmount, InvalidIngredientLinking,
                               InvalidStoreLinking)
+from lunch.specs import HDPI, LDPI, MDPI, XHDPI, XXHDPI, XXXHDPI
+from polaroid.models import Polaroid
+from private_media.storages import PrivateMediaStorage
 from push_notifications.models import BareDevice
 
 
@@ -109,10 +113,19 @@ class StoreCategory(models.Model):
         return self.name
 
 
+class StoreHeader(Polaroid):
+    original = models.ImageField(storage=PrivateMediaStorage(), upload_to='storeheader')
+    ldpi = ImageSpecField(spec=LDPI, source='original')
+    mdpi = ImageSpecField(spec=MDPI, source='original')
+    hdpi = ImageSpecField(spec=HDPI, source='original')
+    xhdpi = ImageSpecField(spec=XHDPI, source='original')
+    xxhdpi = ImageSpecField(spec=XXHDPI, source='original')
+    xxxhdpi = ImageSpecField(spec=XXXHDPI, source='original')
+
+
 class Store(models.Model):
     name = models.CharField(max_length=255)
-
-    objects = LunchbreakManager()
+    header = models.ForeignKey(StoreHeader, null=True, on_delete=models.SET_NULL)
 
     country = models.CharField(max_length=255)
     province = models.CharField(max_length=255)
@@ -130,6 +143,8 @@ class Store(models.Model):
     costCalculation = models.PositiveIntegerField(choices=COST_GROUP_CALCULATIONS, default=COST_GROUP_ALWAYS)
 
     lastModified = models.DateTimeField(auto_now=True)
+
+    objects = LunchbreakManager()
 
     def save(self, *args, **kwargs):
         address = '{country},+{province},+{street}+{number},+{postcode}+{city}'.format(

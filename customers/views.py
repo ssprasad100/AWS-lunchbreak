@@ -10,10 +10,12 @@ from customers.serializers import (OrderedFoodPriceSerializer, OrderSerializer,
                                    UserTokenSerializer,
                                    UserTokenUpdateSerializer)
 from django.core.exceptions import ObjectDoesNotExist
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from lunch.models import Food, FoodCategory, IngredientGroup, Store
 from lunch.pagination import SimplePagination
+from lunch.renderers import JPEGRenderer
 from lunch.responses import BadRequest
 from lunch.serializers import (FoodCategorySerializer, HolidayPeriodSerializer,
                                MultiFoodSerializer, OpeningHoursSerializer,
@@ -24,6 +26,7 @@ from lunch.views import (StoreCategoryListViewBase, getHolidayPeriods,
 from Lunchbreak.exceptions import LunchbreakException
 from rest_framework import generics, status
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 
 class StoreMultiView(generics.ListAPIView):
@@ -65,6 +68,19 @@ class StoreHeartView(generics.RetrieveUpdateAPIView):
             heart = get_object_or_404(Heart, store=store, user=request.user)
             heart.delete()
             return Response(status=status.HTTP_200_OK)
+
+
+class StoreHeaderView(APIView):
+
+    renderer_classes = (JPEGRenderer,)
+
+    def get(self, request, store_id, width, height):
+        store = get_object_or_404(Store, id=store_id)
+        if store.header is None:
+            raise Http404('That store does not have a header.')
+        image = store.header.retrieve_from_source('original', int(width), int(height))
+        image.open()
+        return Response(image)
 
 
 class StoreOpenView(generics.ListAPIView):

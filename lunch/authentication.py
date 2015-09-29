@@ -18,3 +18,14 @@ class TokenAuthentication(authentication.BaseAuthentication):
             raise AuthenticationFailed('%sToken not found.' % self.MODEL_NAME.capitalize())
 
         return (getattr(modelToken, self.MODEL_NAME), modelToken)
+
+
+class PrivateMediaAuthentication(object):
+
+    def has_read_permission(self, request, path):
+        from customers.authentication import CustomerAuthentication
+        try:
+            CustomerAuthentication().authenticate(request)
+            return True
+        except AuthenticationFailed:
+            return False

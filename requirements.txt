@@ -21,3 +21,8 @@ requests==2.7.0
 six==1.9.0
 watchdog==0.8.3
 -e git+git@github.com:AndreasBackx/django-push-notifications.git#egg=django-push-notifications
+django-appconf==1.0.1
+django-imagekit==3.2.7
+pilkit==1.1.13
+pillow==2.9.0
+django-private-media==0.1.3
