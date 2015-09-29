@@ -463,9 +463,19 @@ class Food(models.Model):
             return True
         else:
             now = datetime.now() if now is None else now
+            # Amount of days needed to order in advance
+            # (add 1 if it isn't before the orderTime)
             minDays = self.minDays + (1 if now.time() > self.store.orderTime else 0)
+
+            # Calculate the amount of days between pickup and now
             dayDifference = (pickupTime - now).days
-            dayDifference += 1 if (now + (pickupTime - now)).day != now.day else 0
+            dayDifference += (
+                1
+                if pickupTime.time() < now.time()
+                and (now + (pickupTime - now)).day != now.day
+                else 0
+            )
+
             return dayDifference >= minDays
 
     def save(self, *args, **kwargs):

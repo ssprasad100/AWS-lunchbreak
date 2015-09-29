@@ -387,7 +387,6 @@ class LunchbreakTests(LunchbreakTestCase):
         self.assertRaises(StoreClosed, Store.checkOpen, store, between, today)
         self.assertIsNone(Store.checkOpen(store, between + timedelta(minutes=1), today))
 
-
     def testFoodCanOrder(self):
         orderTime = time(hour=12)
 
@@ -425,59 +424,68 @@ class LunchbreakTests(LunchbreakTestCase):
         now = now.replace(hour=12, minute=0)
 
         pickupTime = datetime.now()
+        pickupTime = pickupTime.replace(hour=12, minute=0)
 
-        # Ordering without minDays should always return true
-        now -= timedelta(hours=1)
-        self.assertTrue(food.canOrder(pickupTime, now=now))
+        for i in range(2):
+            # Ordering without minDays should always return true
+            now -= timedelta(hours=1)
+            self.assertTrue(food.canOrder(pickupTime, now=now))
 
-        now += timedelta(hours=2)
-        self.assertTrue(food.canOrder(pickupTime, now=now))
+            now += timedelta(hours=2)
+            self.assertTrue(food.canOrder(pickupTime, now=now))
 
-        # Ordering before the orderTime should add 1 minDay in the background
-        # and should therefore return false if wanting to pick up the next day.
+            # Ordering before the orderTime should add 1 minDay in the background
+            # and should therefore return false if wanting to pick up the next day.
 
-        # with minDays == 1, same day order is impossible
-        food.minDays = 1
-        food.save()
-        now -= timedelta(hours=2)
-        self.assertFalse(food.canOrder(pickupTime, now=now))
+            # with minDays == 1, same day order is impossible
+            food.minDays = 1
+            food.save()
+            now -= timedelta(hours=2)
+            self.assertFalse(food.canOrder(pickupTime, now=now))
 
-        now += timedelta(hours=2)
-        self.assertFalse(food.canOrder(pickupTime, now=now))
+            now += timedelta(hours=2)
+            self.assertFalse(food.canOrder(pickupTime, now=now))
 
-        # with minDays == 1:
-        #   * ordering before orderTime should allow for next day ordering.
-        #   * ordering after orderTime should not allow for next day ordering.
-        pickupTime += timedelta(days=1)
-        now -= timedelta(hours=2)
-        self.assertTrue(food.canOrder(pickupTime, now=now))
+            # with minDays == 1:
+            #   * ordering before orderTime should allow for next day ordering.
+            #   * ordering after orderTime should not allow for next day ordering.
+            pickupTime += timedelta(days=1)
+            now -= timedelta(hours=2)
+            self.assertTrue(food.canOrder(pickupTime, now=now))
 
-        now += timedelta(hours=2)
-        self.assertFalse(food.canOrder(pickupTime, now=now))
+            now += timedelta(hours=2)
+            self.assertFalse(food.canOrder(pickupTime, now=now))
 
-        # If it's ordered for within 2 days, before/after orderTime doesn't matter
-        pickupTime += timedelta(days=1)
-        now -= timedelta(hours=2)
-        self.assertTrue(food.canOrder(pickupTime, now=now))
+            # If it's ordered for within 2 days, before/after orderTime doesn't matter
+            pickupTime += timedelta(days=1)
+            now -= timedelta(hours=2)
+            self.assertTrue(food.canOrder(pickupTime, now=now))
 
-        now += timedelta(hours=2)
-        self.assertTrue(food.canOrder(pickupTime, now=now))
+            now += timedelta(hours=2)
+            self.assertTrue(food.canOrder(pickupTime, now=now))
 
-        # with minDays == 2:
-        #   * ordering before orderTime should allow for 2 day ordering.
-        #   * ordering after orderTime should not allow for 2 day ordering.
-        food.minDays = 2
-        food.save()
-        now -= timedelta(hours=2)
-        self.assertTrue(food.canOrder(pickupTime, now=now))
+            # with minDays == 2:
+            #   * ordering before orderTime should allow for 2 day ordering.
+            #   * ordering after orderTime should not allow for 2 day ordering.
+            food.minDays = 2
+            food.save()
+            now -= timedelta(hours=2)
+            self.assertTrue(food.canOrder(pickupTime, now=now))
 
-        now += timedelta(hours=2)
-        self.assertFalse(food.canOrder(pickupTime, now=now))
+            now += timedelta(hours=2)
+            self.assertFalse(food.canOrder(pickupTime, now=now))
 
-        # If it's ordered for within 3 days, before/after orderTime doesn't matter
-        pickupTime += timedelta(days=1)
-        now -= timedelta(hours=2)
-        self.assertTrue(food.canOrder(pickupTime, now=now))
+            # If it's ordered for within 3 days, before/after orderTime doesn't matter
+            pickupTime += timedelta(days=1)
+            now -= timedelta(hours=2)
+            self.assertTrue(food.canOrder(pickupTime, now=now))
 
-        now += timedelta(hours=2)
-        self.assertTrue(food.canOrder(pickupTime, now=now))
+            now += timedelta(hours=2)
+            self.assertTrue(food.canOrder(pickupTime, now=now))
+
+            food.minDays = 0
+            food.save()
+            now = datetime.now()
+            now = now.replace(hour=12, minute=0)
+            pickupTime = datetime.now()
+            pickupTime = pickupTime.replace(hour=14, minute=0)
