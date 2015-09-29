@@ -171,6 +171,7 @@ def updateProject():
         # Use the branch as a virtualenv and migrate everything
         with prefix('workon %s' % virtualEnv):
             with hide('stdout'):
+                run('pip install --upgrade pip')
                 run('pip install -r requirements.txt')
 
                 setSysvar('DJANGO_SETTINGS_BRANCH', BRANCH)
