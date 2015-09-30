@@ -4,8 +4,11 @@ import random
 from fabric.api import abort, env, local, run, settings
 from fabric.context_managers import cd, hide, prefix
 from fabric.contrib import files
-from fabric.operations import reboot
+from fabric.operations import put, reboot
 from fabric.utils import warn
+
+PYTHON_VERSION = '2.7.10'  # Used in Pyenv
+PYTHON_VERSION_FULL = 'Python 2.7.10'  # Returned by `python --version`
 
 PACKAGES = [
     'git',
@@ -17,7 +20,18 @@ PACKAGES = [
     'libmysqlclient-dev',  # MySQL-python pip module
     'libffi-dev',  # cffi pip module
     'libpcre3',  # uWSGI internal routing support
-    'libpcre3-dev'  # uWSGI internal routing support
+    'libpcre3-dev',  # uWSGI internal routing support
+
+    # Python compiling
+    # Python readline extension
+    'libreadline6',
+    'libreadline6-dev',
+    # Python bz2 extension
+    'libbz2-dev',
+    # Python sqlite3 extension
+    'libsqlite3-dev',
+    # Python ssl extension
+    'libssl-dev',
 ]
 PIP_PACKAGES = ['uwsgi', 'virtualenvwrapper']
 
@@ -86,6 +100,7 @@ def runQuery(query, user='root', password=None):
 
 def prerequisites():
     local('tox')
+    put('default/.bash_profile', '~/.bash_profile')
 
 
 def sedFile(f, variables):
@@ -127,6 +142,28 @@ def installations(rebooted=False):
         run('apt-get -qq autoremove')
         run('apt-get -qq autoclean')
 
+
+def python():
+    with hide('stdout'):
+        # Install Pyenv
+        with settings(warn_only=True):
+            which = run('which pyenv')
+            installed = which.return_code == 0
+            if not installed:
+                run('curl -L https://raw.githubusercontent.com/yyuu/pyenv-installer/master/bin/pyenv-installer | bash')
+                run('pyenv update')
+
+        run('pyenv install -s {python_version}'.format(
+                    python_version=PYTHON_VERSION
+                )
+            )
+        run('pyenv global {python_version}'.format(
+                    python_version=PYTHON_VERSION
+                )
+            )
+
+        assert run('python --version') == PYTHON_VERSION_FULL, 'Python version not successfully installed.'
+
         # Install pip
         run('wget https://bootstrap.pypa.io/get-pip.py')
         run('python get-pip.py')
@@ -159,7 +196,7 @@ def updateProject():
 
         bash_profile = '%s/.bash_profile' % HOME
         if not files.exists(bash_profile):
-            run('cp %s/default/.bash_profile %s' % (PATH, bash_profile,))
+            put('default/.bash_profile', '~/.bash_profile')
         mysql()
 
         with settings(warn_only=True):
@@ -324,6 +361,7 @@ def deploy():
     # Use that account via SSH now
     env.host_string = '%s@%s' % (USER, CONFIG['HOST'],)
 
+    python()
     updateProject()
 
     # We need root privileges
