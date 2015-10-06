@@ -21,7 +21,6 @@ requests==2.7.0
 six==1.9.0
 watchdog==0.8.3
 -e git+git://github.com/AndreasBackx/django-push-notifications.git@1c1c17b3b1cfad84759b2c6d04a104f0b52d67c0#egg=django-push-notifications
->>>>>>> Removed edit mode from git reqs and priv media uses github.
 django-appconf==1.0.1
 django-imagekit==3.2.7
 pilkit==1.1.13
