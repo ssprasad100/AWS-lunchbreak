@@ -3,7 +3,7 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 MEDIA_ROOT = os.path.normpath(os.path.join(BASE_DIR, 'media'))
 MEDIA_URL = '/media/'
-PRIVATE_MEDIA_ROOT = '/var/media/lunchbreak/'
+PRIVATE_MEDIA_ROOT = '/media/lunchbreak/'
 PRIVATE_MEDIA_URL = '/private/'
 PRIVATE_MEDIA_SERVER = 'private_media.servers.NginxXAccelRedirectServer'
 PRIVATE_MEDIA_PERMISSIONS = 'lunch.authentication.PrivateMediaAuthentication'
