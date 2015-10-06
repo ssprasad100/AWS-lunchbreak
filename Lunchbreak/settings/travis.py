@@ -3,4 +3,3 @@ DB_USER = 'root'
 DB_PASS = ''
 
 PRIVATE_MEDIA_SERVER = 'private_media.servers.DefaultServer'
-PRIVATE_MEDIA_ROOT = '/media/lunchbreak'
