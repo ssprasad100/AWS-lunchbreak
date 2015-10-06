@@ -207,20 +207,19 @@ def updateProject():
 
         # Use the branch as a virtualenv and migrate everything
         with prefix('workon %s' % virtualEnv):
-            with hide('stdout'):
-                run('pip install --upgrade pip')
-                run('pip install -r requirements.txt')
+            run('pip install --upgrade pip')
+            run('pip install -r requirements.txt --exists-action w')
 
-                setSysvar('DJANGO_SETTINGS_BRANCH', BRANCH)
-                setSysvar('DJANGO_SETTINGS_MODULE', 'Lunchbreak.settings')
-                setSysvar('BUSINESS_APNS_CERTIFICATE', BUSINESS_APNS_CERTIFICATE)
-                setSysvar('CUSTOMERS_APNS_CERTIFICATE', CUSTOMERS_APNS_CERTIFICATE)
+            setSysvar('DJANGO_SETTINGS_BRANCH', BRANCH)
+            setSysvar('DJANGO_SETTINGS_MODULE', 'Lunchbreak.settings')
+            setSysvar('BUSINESS_APNS_CERTIFICATE', BUSINESS_APNS_CERTIFICATE)
+            setSysvar('CUSTOMERS_APNS_CERTIFICATE', CUSTOMERS_APNS_CERTIFICATE)
 
-                run('python manage.py migrate --noinput')
-                staticRoot = '%s/%s%s' % (HOME, CONFIG['HOST'], CONFIG['STATIC_RELATIVE'],)
-                if not files.exists(staticRoot):
-                    run('mkdir -p "%s"' % staticRoot)
-                run('python manage.py collectstatic --noinput -c')
+            run('python manage.py migrate --noinput')
+            staticRoot = '%s/%s%s' % (HOME, CONFIG['HOST'], CONFIG['STATIC_RELATIVE'],)
+            if not files.exists(staticRoot):
+                run('mkdir -p "%s"' % staticRoot)
+            run('python manage.py collectstatic --noinput -c')
 
 
 def mysql():
