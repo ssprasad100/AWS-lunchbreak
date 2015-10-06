@@ -32,6 +32,8 @@ PACKAGES = [
     'libsqlite3-dev',
     # Python ssl extension
     'libssl-dev',
+    # Pillow jpeg
+    'libjpeg-dev',
 ]
 PIP_PACKAGES = ['uwsgi', 'virtualenvwrapper']
 
