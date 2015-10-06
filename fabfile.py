@@ -221,8 +221,6 @@ def updateProject():
                 run('mkdir -p "%s"' % staticRoot)
             run('python manage.py collectstatic --noinput -c')
 
-            run('mkdir -p {directory}'.format(directory=CONFIG['PRIVATE_MEDIA_ROOT']))
-
 
 def mysql():
     env.host_string = '%s@%s' % ('root', CONFIG['HOST'],)
