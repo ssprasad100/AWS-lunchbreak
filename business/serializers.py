@@ -206,6 +206,7 @@ class ShortFoodSerializer(serializers.ModelSerializer):
         required=False,
         write_only=True
     )
+    orderAmount = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Food
@@ -225,10 +226,12 @@ class ShortFoodSerializer(serializers.ModelSerializer):
             # 'store',
 
             'ingredientRelations',
+            'orderAmount',
         )
         read_only_fields = (
             'id',
             'ingredients',
+            'orderAmount',
         )
         write_only_fields = (
             'ingredientRelations',

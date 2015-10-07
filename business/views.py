@@ -15,6 +15,8 @@ from customers.config import (ORDER_STATUS_PLACED, ORDER_STATUS_RECEIVED,
 from customers.models import Order
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
+from django.db.models import Count
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from lunch.models import (Food, FoodCategory, FoodType, Ingredient,
@@ -32,11 +34,11 @@ from rest_framework.response import Response
 AVAILABLE_STATUSES = [ORDER_STATUS_PLACED, ORDER_STATUS_RECEIVED, ORDER_STATUS_STARTED, ORDER_STATUS_WAITING]
 
 
-def getSince(request, kwargs, methodCheck=False):
-    if (methodCheck or request.method == 'GET') and 'datetime' in kwargs and kwargs['datetime'] is not None:
-        sinceString = kwargs['datetime']
+def getDatetime(request, kwargs, arg, methodCheck=False):
+    if (methodCheck or request.method == 'GET') and arg in kwargs and kwargs[arg] is not None:
+        datetimeString = kwargs[arg]
         try:
-            return timezone.datetime.strptime(sinceString, '%d-%m-%Y-%H-%M-%S')
+            return timezone.datetime.strptime(datetimeString, '%d-%m-%Y-%H-%M-%S')
         except ValueError:
             raise InvalidDatetime()
     return None
@@ -78,7 +80,7 @@ class FoodListView(generics.ListAPIView):
     serializer_class = ShortFoodSerializer
 
     def get_queryset(self):
-        since = getSince(self.request, self.kwargs)
+        since = getDatetime(self.request, self.kwargs, arg='since')
         if since is not None:
             result = Food.objects.filter(
                 store=self.request.user.staff.store,
@@ -117,6 +119,28 @@ class FoodSingleView(generics.RetrieveUpdateDestroyAPIView):
             return ShortFoodSerializer
 
 
+class FoodPopularView(generics.ListAPIView):
+    authentication_classes = (EmployeeAuthentication,)
+    serializer_class = ShortFoodSerializer
+
+    def get_queryset(self):
+        frm = getDatetime(self.request, self.kwargs, arg='from')
+        to = getDatetime(self.request, self.kwargs, arg='to')
+
+        if frm is not None:
+            to = to if to is not None else timezone.now()
+            print to
+            return Food.objects.filter(
+                    store_id=self.request.user.staff.store_id,
+                    orderedfood__order__pickupTime__gt=frm,
+                    orderedfood__order__pickupTime__lt=to
+                ).annotate(
+                    orderAmount=Count('orderedfood')
+                ).order_by('-orderAmount')
+        else:
+            raise Http404()
+
+
 class IngredientMultiView(ListCreateStoreView):
     authentication_classes = (EmployeeAuthentication,)
     serializer_class = IngredientSerializer
@@ -124,7 +148,7 @@ class IngredientMultiView(ListCreateStoreView):
 
     def get_queryset(self):
         result = Ingredient.objects.filter(store=self.request.user.staff.store)
-        since = getSince(self.request, self.kwargs)
+        since = getDatetime(self.request, self.kwargs, arg='datetime')
         if since is not None:
             return result.filter(lastModified__gte=since)
         return result
@@ -136,7 +160,7 @@ class IngredientSingleView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (StoreOwnerPermission,)
 
     def get_queryset(self):
-        since = getSince(self.request, self.kwargs)
+        since = getDatetime(self.request, self.kwargs, arg='datetime')
         if since is not None:
             result = Ingredient.objects.filter(
                 store=self.request.user.staff.store,
@@ -205,7 +229,7 @@ class OrderListView(generics.ListAPIView):
         }
 
         if self.request.method == 'GET':
-            since = getSince(self.request, self.kwargs, methodCheck=True)
+            since = getDatetime(self.request, self.kwargs, arg='datetime', methodCheck=True)
 
             if 'option' in self.kwargs and self.kwargs['option'] == 'pickupTime':
                 if since is not None:
