@@ -27,6 +27,7 @@ class User(models.Model):
     requestId = models.CharField(max_length=32, blank=True, null=True, verbose_name='Digits Request ID')
 
     confirmedAt = models.DateField(blank=True, null=True)
+    enabled = models.BooleanField(default=True)
 
     def __unicode__(self):
         return '{name} {phone}'.format(

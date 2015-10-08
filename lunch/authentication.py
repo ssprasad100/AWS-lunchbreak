@@ -12,7 +12,11 @@ class TokenAuthentication(authentication.BaseAuthentication):
             raise AuthenticationFailed('Not all of the headers were provided.')
 
         try:
-            arguments = {self.MODEL_NAME + '_id': modelId, 'identifier': identifier, 'device': device}
+            arguments = {
+                self.MODEL_NAME + '_id': modelId,
+                'identifier': identifier,
+                'device': device
+            }
             modelToken = self.TOKEN_MODEL.objects.get(**arguments)
         except self.TOKEN_MODEL.DoesNotExist:
             raise AuthenticationFailed('%sToken not found.' % self.MODEL_NAME.capitalize())
