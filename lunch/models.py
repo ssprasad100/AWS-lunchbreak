@@ -73,7 +73,7 @@ class LunchbreakManager(models.Manager):
                     -1
                 END''' % ','.join([str(i.id) for i in ingredients])
 
-        return Food.objects.raw(('''
+        return Food.objects.raw('''
             SELECT
                 lunch_food.id,
                 lunch_food.name,
@@ -99,7 +99,7 @@ class LunchbreakManager(models.Manager):
                         END
                 ) DESC,
                 (lunch_food.id = %d) DESC,
-                lunch_food.cost ASC;''') % (original.foodType.id, original.store.id, ingredientsIn, original.id,))[0]
+                lunch_food.cost ASC;''', [original.foodType.id, original.store.id, ingredientsIn, original.id])[0]
 
 
 class StoreCategory(models.Model):
