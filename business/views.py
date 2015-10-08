@@ -258,12 +258,14 @@ class OrderSpreadView(viewsets.ReadOnlyModelViewSet):
     authentication_classes = (EmployeeAuthentication,)
     serializer_class = OrderSpreadSerializer
 
-    def list(self, request):
+    def list(self, request, days):
         serializer = self.serializer_class(self.get_queryset(), many=True)
         return Response(serializer.data)
 
     def get_queryset(self):
         storeId = self.request.user.staff.store_id
+        days = self.kwargs['days']
+        days = days if days is not None else 7
 
         return Order.objects.raw('''
             SELECT
@@ -273,13 +275,13 @@ class OrderSpreadView(viewsets.ReadOnlyModelViewSet):
             FROM
                 customers_order
             WHERE
-                customers_order.pickupTime > NOW() - INTERVAL 1 WEEK
+                customers_order.pickupTime > NOW() - INTERVAL %s DAY
                 AND customers_order.store_id = %s
             GROUP BY
                 hour
             ORDER BY
                 hour;
-        ''', [storeId])
+        ''', [days, storeId])
 
 
 class StaffMultiView(generics.ListAPIView):
