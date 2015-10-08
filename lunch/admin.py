@@ -21,6 +21,7 @@ class StoreAdmin(admin.ModelAdmin):
     readonly_fields = ('admin_ldpi', 'ldpi', 'mdpi', 'hdpi', 'xhdpi', 'xxhdpi', 'xxxhdpi',)
     fields = ('original',) + readonly_fields
 
+
 @admin.register(Store)
 class StoreAdmin(admin.ModelAdmin):
     list_display = ('name', 'city', 'country', 'minTime', 'id',)

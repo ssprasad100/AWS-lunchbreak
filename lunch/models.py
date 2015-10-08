@@ -125,7 +125,7 @@ class StoreHeader(Polaroid):
 
 class Store(models.Model):
     name = models.CharField(max_length=255)
-    header = models.ForeignKey(StoreHeader, null=True, on_delete=models.SET_NULL)
+    header = models.ForeignKey(StoreHeader, blank=True, null=True, on_delete=models.SET_NULL)
 
     country = models.CharField(max_length=255)
     province = models.CharField(max_length=255)
@@ -143,6 +143,7 @@ class Store(models.Model):
     costCalculation = models.PositiveIntegerField(choices=COST_GROUP_CALCULATIONS, default=COST_GROUP_ALWAYS)
 
     lastModified = models.DateTimeField(auto_now=True)
+    enabled = models.BooleanField(default=True)
 
     objects = LunchbreakManager()
 

@@ -38,9 +38,18 @@ class StoreMultiView(generics.ListAPIView):
     def get_queryset(self):
         proximity = self.kwargs['proximity'] if 'proximity' in self.kwargs else 5
         if 'latitude' in self.kwargs and 'longitude' in self.kwargs:
-            return Store.objects.nearby(self.kwargs['latitude'], self.kwargs['longitude'], proximity)
+            return Store.objects.nearby(
+                self.kwargs['latitude'],
+                self.kwargs['longitude'],
+                proximity
+            ).filter(
+                enabled=True
+            )
         else:
-            return Store.objects.filter(order__user=self.request.user).order_by('-order__orderedTime').distinct()
+            return Store.objects.filter(
+                order__user=self.request.user,
+                enabled=True
+            ).order_by('-order__orderedTime').distinct()
 
 
 class StoreHeartView(generics.RetrieveUpdateAPIView):
