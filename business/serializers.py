@@ -155,6 +155,24 @@ class ShortOrderSerializer(serializers.ModelSerializer):
         )
 
 
+class OrderSpreadSerializer(serializers.BaseSerializer):
+    orderAmount = serializers.IntegerField(read_only=True)
+    hour = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        fields = (
+            'orderAmount',
+            'hour',
+        )
+        read_only_fields = fields
+
+    def to_representation(self, obj):
+        return {
+            'hour': obj.hour,
+            'orderAmount': obj.orderAmount
+        }
+
+
 class OrderSerializer(ShortOrderSerializer):
     orderedFood = OrderedFoodSerializer(many=True, read_only=True, source='orderedfood_set')
 

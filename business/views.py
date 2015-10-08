@@ -6,7 +6,7 @@ from business.permissions import StoreOwnerPermission
 from business.serializers import (EmployeeSerializer,
                                   IngredientGroupSerializer,
                                   IngredientSerializer, OrderSerializer,
-                                  ShortFoodSerializer,
+                                  OrderSpreadSerializer, ShortFoodSerializer,
                                   ShortIngredientGroupSerializer,
                                   ShortOrderSerializer, SingleFoodSerializer,
                                   StaffSerializer, StoreSerializer)
@@ -27,7 +27,7 @@ from lunch.serializers import (FoodTypeSerializer, HolidayPeriodSerializer,
                                ShortFoodCategorySerializer)
 from lunch.views import (StoreCategoryListViewBase, getHolidayPeriods,
                          getOpeningAndHoliday, getOpeningHours)
-from rest_framework import generics, status
+from rest_framework import generics, status, viewsets
 from rest_framework.exceptions import MethodNotAllowed
 from rest_framework.response import Response
 
@@ -245,12 +245,41 @@ class OrderListView(generics.ListAPIView):
 class OrderUpdateView(generics.RetrieveUpdateAPIView):
     authentication_classes = (EmployeeAuthentication,)
     serializer_class = OrderSerializer
+    pagination_class = None
 
     def get_queryset(self):
         return Order.objects.filter(
             store=self.request.user.staff.store,
             status__in=AVAILABLE_STATUSES
         )
+
+
+class OrderSpreadView(viewsets.ReadOnlyModelViewSet):
+    authentication_classes = (EmployeeAuthentication,)
+    serializer_class = OrderSpreadSerializer
+
+    def list(self, request):
+        serializer = self.serializer_class(self.get_queryset(), many=True)
+        return Response(serializer.data)
+
+    def get_queryset(self):
+        storeId = self.request.user.staff.store_id
+
+        return Order.objects.raw('''
+            SELECT
+                customers_order.*,
+                COUNT(customers_order.id) as orderAmount,
+                HOUR(customers_order.pickupTime) as hour
+            FROM
+                customers_order
+            WHERE
+                customers_order.pickupTime > NOW() - INTERVAL 1 WEEK
+                AND customers_order.store_id = %s
+            GROUP BY
+                hour
+            ORDER BY
+                hour;
+        ''', [storeId])
 
 
 class StaffMultiView(generics.ListAPIView):

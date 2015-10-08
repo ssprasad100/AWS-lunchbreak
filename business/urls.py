@@ -81,6 +81,10 @@ urlpatterns = patterns('',
         r'^order/(?P<pk>\d+)/$',
         views.OrderUpdateView.as_view()
     ),
+    url(
+        r'^order/spread/$',
+        views.OrderSpreadView.as_view({'get': 'list'})
+    ),
 
     url(
         r'^quantity/$',
