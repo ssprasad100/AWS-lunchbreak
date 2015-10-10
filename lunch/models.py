@@ -85,8 +85,8 @@ class LunchbreakManager(models.Manager):
                 LEFT JOIN
                     `lunch_ingredient` ON lunch_ingredientrelation.ingredient_id = lunch_ingredient.id
             WHERE
-                lunch_food.foodType_id = %d AND
-                lunch_food.store_id = %d
+                lunch_food.foodType_id = %s AND
+                lunch_food.store_id = %s
             GROUP BY
                 lunch_food.id
             ORDER BY
@@ -98,7 +98,7 @@ class LunchbreakManager(models.Manager):
                             %s
                         END
                 ) DESC,
-                (lunch_food.id = %d) DESC,
+                (lunch_food.id = %s) DESC,
                 lunch_food.cost ASC;''', [original.foodType.id, original.store.id, ingredientsIn, original.id])[0]
 
 
