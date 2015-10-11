@@ -16,13 +16,18 @@ class TokenAuthentication(authentication.BaseAuthentication):
                 self.MODEL_NAME + '_id': modelId,
                 'device': device
             }
-            modelToken = self.TOKEN_MODEL.objects.get(**arguments)
-            if not modelToken.checkIdentifier(identifier):
-                raise AuthenticationFailed('%sToken not found.' % self.MODEL_NAME.capitalize())
+            modelTokens = self.TOKEN_MODEL.objects.filter(**arguments)
+            for modelToken in modelTokens:
+                if modelToken.checkIdentifier(identifier):
+                    return (getattr(modelToken, self.MODEL_NAME), modelToken)
         except self.TOKEN_MODEL.DoesNotExist:
-            raise AuthenticationFailed('%sToken not found.' % self.MODEL_NAME.capitalize())
+            pass
+        raise AuthenticationFailed('{modelName}Token not found.'.format(
+            modelName=self.MODEL_NAME.capitalize()
+            )
+        )
 
-        return (getattr(modelToken, self.MODEL_NAME), modelToken)
+
 
 
 class PrivateMediaAuthentication(object):
