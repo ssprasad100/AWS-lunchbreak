@@ -280,6 +280,9 @@ class UserToken(BaseToken):
 
     objects = UserTokenManager()
 
+    def save(self, *args, **kwargs):
+        super(UserToken, self).save(*args, **kwargs)
+
     @staticmethod
     def tokenResponse(user, device, service=SERVICE_INACTIVE, registration_id=''):
         from customers.serializers import UserTokenSerializer

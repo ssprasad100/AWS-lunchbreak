@@ -6,7 +6,9 @@ from datetime import datetime, time, timedelta
 import requests
 from customers.config import ORDER_ENDED
 from customers.exceptions import MinTimeExceeded, PastOrderDenied, StoreClosed
+from dirtyfields import DirtyFieldsMixin
 from django.conf import settings
+from django.contrib.auth.hashers import check_password, make_password
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
@@ -519,12 +521,26 @@ def tokenGenerator():
         return ''.join(random.choice(TOKEN_IDENTIFIER_CHARS) for a in xrange(TOKEN_IDENTIFIER_LENGTH))
 
 
-class BaseToken(BareDevice):
+class BaseToken(BareDevice, DirtyFieldsMixin):
     device = models.CharField(max_length=255)
-    identifier = models.CharField(max_length=TOKEN_IDENTIFIER_LENGTH, default=tokenGenerator)
+    identifier = models.CharField(max_length=255)
+
+    def save(self, *args, **kwargs):
+        forceHashing = kwargs.pop('forceHashing', False)
+
+        if self.is_dirty() or forceHashing:
+            dirtyIdentifier = self.get_dirty_fields().get('identifier', None)
+
+            if dirtyIdentifier is not None or forceHashing:
+                self.identifier = make_password(self.identifier, hasher='sha1')
+
+        super(BaseToken, self).save(*args, **kwargs)
 
     class Meta:
         abstract = True
+
+    def checkIdentifier(self, rawIdentifier):
+        return check_password(rawIdentifier, self.identifier)
 
     def __unicode__(self):
         return self.device

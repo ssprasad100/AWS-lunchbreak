@@ -55,6 +55,7 @@ WSGI_APPLICATION = 'Lunchbreak.wsgi.application'
 
 PASSWORD_HASHERS = (
     'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
+    'django.contrib.auth.hashers.SHA1PasswordHasher',
 )
 
 LANGUAGE_CODE = 'nl-be'

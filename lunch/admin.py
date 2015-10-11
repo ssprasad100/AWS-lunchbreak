@@ -15,7 +15,7 @@ class QuantityAdmin(admin.ModelAdmin):
 
 
 @admin.register(StoreHeader)
-class StoreAdmin(admin.ModelAdmin):
+class StoreHeaderAdmin(admin.ModelAdmin):
     list_display = ('__str__', 'admin_ldpi',)
     admin_ldpi = AdminThumbnail(image_field='ldpi')
     readonly_fields = ('admin_ldpi', 'ldpi', 'mdpi', 'hdpi', 'xhdpi', 'xxhdpi', 'xxxhdpi',)
