@@ -1,3 +1,5 @@
+import copy
+
 from business.exceptions import IncorrectPassword, InvalidEmail
 from business.models import Employee, EmployeeToken, Staff, StaffToken
 from business.serializers import (EmployeePasswordRequestSerializer,
@@ -44,11 +46,15 @@ class BusinessAuthentication(TokenAuthentication):
                 'service': service,
                 'registration_id': registrationId,
             }
-            token, created = cls.TOKEN_MODEL.objects.get_or_create(**arguments)
-            if not created:
-                token.identifier = tokenGenerator()
-            token.save()
-            tokenSerializer = cls.TOKEN_SERIALIZER(token)
+            identifier = tokenGenerator()
+            token, created = cls.TOKEN_MODEL.objects.update_or_create(defaults={
+                'identifier': identifier
+                },
+                **arguments
+            )
+            tokenCopy = copy.copy(token)
+            tokenCopy.identifier = identifier
+            tokenSerializer = cls.TOKEN_SERIALIZER(tokenCopy)
             return Response(tokenSerializer.data, status=(status.HTTP_201_CREATED if created else status.HTTP_200_OK))
         return IncorrectPassword().getResponse()
 

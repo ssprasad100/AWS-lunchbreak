@@ -28,8 +28,6 @@ class TokenAuthentication(authentication.BaseAuthentication):
         )
 
 
-
-
 class PrivateMediaAuthentication(object):
 
     def has_read_permission(self, request, path):
