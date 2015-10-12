@@ -1,5 +1,6 @@
+from business.models import Employee, EmployeeToken, Staff, StaffToken
 from django.contrib import admin
-from business.models import Staff, Employee
+from lunch.admin import BaseTokenAdmin
 
 
 @admin.register(Staff)
@@ -30,3 +31,13 @@ class EmployeeAdmin(admin.ModelAdmin):
     list_filter = ('staff',)
     search_fields = ('name', 'staff',)
     ordering = ('staff', 'name',)
+
+
+@admin.register(StaffToken)
+class StaffTokenAdmin(BaseTokenAdmin):
+    pass
+
+
+@admin.register(EmployeeToken)
+class EmployeeToken(BaseTokenAdmin):
+    pass

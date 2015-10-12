@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 
+import copy
 import random
 from datetime import datetime, time, timedelta
 
@@ -9,7 +10,7 @@ from customers.exceptions import MinTimeExceeded, PastOrderDenied, StoreClosed
 from dirtyfields import DirtyFieldsMixin
 from django.conf import settings
 from django.contrib.auth.hashers import check_password, make_password
-from django.core.exceptions import ValidationError
+from django.core.exceptions import MultipleObjectsReturned, ValidationError
 from django.db import models
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -24,7 +25,8 @@ from lunch.exceptions import (AddressNotFound, IngredientGroupMaxExceeded,
 from lunch.specs import HDPI, LDPI, MDPI, XHDPI, XXHDPI, XXXHDPI
 from polaroid.models import Polaroid
 from private_media.storages import PrivateMediaStorage
-from push_notifications.models import BareDevice
+from push_notifications.models import (SERVICE_INACTIVE, BareDevice,
+                                       DeviceManager)
 
 
 class LunchbreakManager(models.Manager):
@@ -521,17 +523,45 @@ def tokenGenerator():
         return ''.join(random.choice(TOKEN_IDENTIFIER_CHARS) for a in xrange(TOKEN_IDENTIFIER_LENGTH))
 
 
+class BaseTokenManager(DeviceManager):
+    def createToken(self, arguments, defaults, clone=False):
+        # Active parameter is for backwards compatibility with the old login system.
+        # Needs to be removed together with the old login system.
+        rawIdentifier = tokenGenerator()
+        defaults['identifier'] = rawIdentifier
+
+        try:
+            token, created = self.update_or_create(
+                defaults=defaults,
+                **arguments
+            )
+        except MultipleObjectsReturned:
+            self.filter(**arguments).delete()
+            token, created = self.update_or_create(
+                defaults=defaults,
+                **arguments
+            )
+
+        if clone:
+            tokenCopy = copy.copy(token)
+            tokenCopy.identifier = rawIdentifier
+            return (tokenCopy, created,)
+        return (token, created,)
+
+
 class BaseToken(BareDevice, DirtyFieldsMixin):
     device = models.CharField(max_length=255)
     identifier = models.CharField(max_length=255)
 
+    objects = BaseTokenManager()
+
     def save(self, *args, **kwargs):
         forceHashing = kwargs.pop('forceHashing', False)
 
-        if self.is_dirty() or forceHashing:
+        if self.pk is None or self.is_dirty() or forceHashing:
             dirtyIdentifier = self.get_dirty_fields().get('identifier', None)
 
-            if dirtyIdentifier is not None or forceHashing:
+            if self.pk is None or dirtyIdentifier is not None or forceHashing:
                 self.identifier = make_password(self.identifier, hasher='sha1')
 
         super(BaseToken, self).save(*args, **kwargs)

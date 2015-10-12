@@ -1,6 +1,5 @@
 from __future__ import unicode_literals
 
-import copy
 import math
 
 from customers.config import (ORDER_ENDED, ORDER_STATUS,
@@ -9,15 +8,14 @@ from customers.digits import Digits
 from customers.exceptions import DigitsException, UserNameEmpty
 from dirtyfields import DirtyFieldsMixin
 from django.conf import settings
-from django.core.exceptions import MultipleObjectsReturned
 from django.db import models
 from django.utils import timezone
 from django.utils.functional import cached_property
 from lunch.config import COST_GROUP_ADDITIONS
-from lunch.models import BaseToken, Food, Ingredient, Store, tokenGenerator
+from lunch.models import BaseToken, Food, Ingredient, Store
 from lunch.responses import DoesNotExist
 from phonenumber_field.modelfields import PhoneNumberField
-from push_notifications.models import SERVICE_INACTIVE, DeviceManager
+from push_notifications.models import SERVICE_INACTIVE
 from rest_framework import status
 from rest_framework.response import Response
 
@@ -258,56 +256,22 @@ class OrderedFood(models.Model):
         return unicode(self.original)
 
 
-class UserTokenManager(DeviceManager):
-    def createToken(self, user, device, service=SERVICE_INACTIVE, registration_id='', clone=False):
-        # Active parameter is for backwards compatibility with the old login system.
-        # Needs to be removed together with the old login system.
-        arguments = {
-            'user': user,
-            'device': device,
-        }
-
-        rawIdentifier = tokenGenerator()
-
-        defaults = {
-            'identifier': rawIdentifier,
-            'registration_id': registration_id,
-            'service': service
-        }
-
-        try:
-            token, created = self.update_or_create(
-                defaults=defaults,
-                **arguments
-            )
-        except MultipleObjectsReturned:
-            self.filter(**arguments).delete()
-            token, created = self.update_or_create(
-                defaults=defaults,
-                **arguments
-            )
-
-        if clone:
-            tokenCopy = copy.copy(token)
-            tokenCopy.identifier = rawIdentifier
-            return (tokenCopy, created,)
-        return (token, created,)
-
-
 class UserToken(BaseToken):
     user = models.ForeignKey(User)
-
-    objects = UserTokenManager()
 
     @staticmethod
     def tokenResponse(user, device, service=SERVICE_INACTIVE, registration_id=''):
         from customers.serializers import UserTokenSerializer
 
         token, created = UserToken.objects.createToken(
-            user=user,
-            device=device,
-            service=service,
-            registration_id=registration_id,
+            arguments={
+                'user': user,
+                'device': device
+            },
+            defaults={
+                'registration_id': registration_id,
+                'service': service
+            },
             clone=True
         )
         tokenSerializer = UserTokenSerializer(token)

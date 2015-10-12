@@ -129,7 +129,6 @@ class FoodPopularView(generics.ListAPIView):
 
         if frm is not None:
             to = to if to is not None else timezone.now()
-            print to
             return Food.objects.filter(
                     store_id=self.request.user.staff.store_id,
                     orderedfood__order__pickupTime__gt=frm,

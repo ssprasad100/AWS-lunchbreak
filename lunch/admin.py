@@ -73,3 +73,7 @@ class IngredientAdmin(admin.ModelAdmin):
 @admin.register(IngredientGroup)
 class IngredientGroupAdmin(admin.ModelAdmin):
     list_display = ('name', 'maximum', 'minimum', 'priority', 'cost', 'foodType', 'store', 'id',)
+
+
+class BaseTokenAdmin(admin.ModelAdmin):
+    list_display =('id', 'device',)

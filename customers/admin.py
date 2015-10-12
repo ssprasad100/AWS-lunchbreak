@@ -1,5 +1,6 @@
-from customers.models import Order, OrderedFood, UserToken, User
+from customers.models import Order, OrderedFood, User, UserToken
 from django.contrib import admin
+from lunch.admin import BaseTokenAdmin
 
 
 @admin.register(OrderedFood)
@@ -21,5 +22,5 @@ class OrderAdmin(admin.ModelAdmin):
 
 
 @admin.register(UserToken)
-class UserTokenAdmin(admin.ModelAdmin):
-    list_display = ('identifier', 'user',)
+class UserTokenAdmin(BaseTokenAdmin):
+    pass

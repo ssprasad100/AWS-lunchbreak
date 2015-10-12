@@ -370,9 +370,7 @@ class UserView(generics.CreateAPIView):
 
     @staticmethod
     def createGetToken(user, device):
-        token, created = UserToken.objects.createToken(user, device, clone=True)
-        tokenSerializer = UserTokenSerializer(token)
-        return Response(tokenSerializer.data, status=(status.HTTP_201_CREATED if created else status.HTTP_200_OK))
+        return UserToken.tokenResponse(user, device)
 
     def create(self, request, *args, **kwargs):
         userSerializer = UserSerializer(data=request.data)
