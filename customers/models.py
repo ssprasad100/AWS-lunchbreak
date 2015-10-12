@@ -9,6 +9,7 @@ from customers.digits import Digits
 from customers.exceptions import DigitsException, UserNameEmpty
 from dirtyfields import DirtyFieldsMixin
 from django.conf import settings
+from django.core.exceptions import MultipleObjectsReturned
 from django.db import models
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -258,23 +259,39 @@ class OrderedFood(models.Model):
 
 
 class UserTokenManager(DeviceManager):
-    def createToken(self, user, device, service=SERVICE_INACTIVE, registration_id=''):
+    def createToken(self, user, device, service=SERVICE_INACTIVE, registration_id='', clone=False):
         # Active parameter is for backwards compatibility with the old login system.
         # Needs to be removed together with the old login system.
         arguments = {
             'user': user,
             'device': device,
-            'service': service,
-            'registration_id': registration_id
         }
-        rawIdentifier = tokenGenerator()
-        token, created = self.update_or_create(defaults={
-                'identifier': rawIdentifier
-            },
-            **arguments
-        )
 
-        return (token, created, rawIdentifier,)
+        rawIdentifier = tokenGenerator()
+
+        defaults = {
+            'identifier': rawIdentifier,
+            'registration_id': registration_id,
+            'service': service
+        }
+
+        try:
+            token, created = self.update_or_create(
+                defaults=defaults,
+                **arguments
+            )
+        except MultipleObjectsReturned:
+            self.filter(**arguments).delete()
+            token, created = self.update_or_create(
+                defaults=defaults,
+                **arguments
+            )
+
+        if clone:
+            tokenCopy = copy.copy(token)
+            tokenCopy.identifier = rawIdentifier
+            return (tokenCopy, created,)
+        return (token, created,)
 
 
 class UserToken(BaseToken):
@@ -282,22 +299,18 @@ class UserToken(BaseToken):
 
     objects = UserTokenManager()
 
-    def save(self, *args, **kwargs):
-        super(UserToken, self).save(*args, **kwargs)
-
     @staticmethod
     def tokenResponse(user, device, service=SERVICE_INACTIVE, registration_id=''):
         from customers.serializers import UserTokenSerializer
 
-        token, created, rawIdentifier = UserToken.objects.createToken(
+        token, created = UserToken.objects.createToken(
             user=user,
             device=device,
             service=service,
-            registration_id=registration_id
+            registration_id=registration_id,
+            clone=True
         )
-        tokenCopy = copy.copy(token)
-        tokenCopy.identifier = rawIdentifier
-        tokenSerializer = UserTokenSerializer(tokenCopy)
+        tokenSerializer = UserTokenSerializer(token)
         return Response(
             tokenSerializer.data,
             status=(status.HTTP_201_CREATED if created else status.HTTP_200_OK)
