@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 
+import copy
 import math
 
 from customers.config import (ORDER_ENDED, ORDER_STATUS,
@@ -111,8 +112,8 @@ class User(models.Model):
             return UserToken.tokenResponse(
                 user=user,
                 device=token['device'],
-                service=token['service'],
-                registration_id=token['registration_id']
+                service=token.get('service', SERVICE_INACTIVE),
+                registration_id=token.get('registration_id', '')
             )
         except User.DoesNotExist:
             return DoesNotExist()
@@ -260,19 +261,20 @@ class UserTokenManager(DeviceManager):
     def createToken(self, user, device, service=SERVICE_INACTIVE, registration_id=''):
         # Active parameter is for backwards compatibility with the old login system.
         # Needs to be removed together with the old login system.
-        token, created = self.get_or_create(
-            user=user,
-            device=device,
-            service=service,
-            registration_id=registration_id
+        arguments = {
+            'user': user,
+            'device': device,
+            'service': service,
+            'registration_id': registration_id
+        }
+        rawIdentifier = tokenGenerator()
+        token, created = self.update_or_create(defaults={
+                'identifier': rawIdentifier
+            },
+            **arguments
         )
 
-        # Refresh the identifier if a token already exists
-        if not created:
-            token.identifier = tokenGenerator()
-
-        token.save()
-        return (token, created,)
+        return (token, created, rawIdentifier,)
 
 
 class UserToken(BaseToken):
@@ -287,13 +289,15 @@ class UserToken(BaseToken):
     def tokenResponse(user, device, service=SERVICE_INACTIVE, registration_id=''):
         from customers.serializers import UserTokenSerializer
 
-        token, created = UserToken.objects.createToken(
+        token, created, rawIdentifier = UserToken.objects.createToken(
             user=user,
             device=device,
             service=service,
             registration_id=registration_id
         )
-        tokenSerializer = UserTokenSerializer(token)
+        tokenCopy = copy.copy(token)
+        tokenCopy.identifier = rawIdentifier
+        tokenSerializer = UserTokenSerializer(tokenCopy)
         return Response(
             tokenSerializer.data,
             status=(status.HTTP_201_CREATED if created else status.HTTP_200_OK)
