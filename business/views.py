@@ -283,6 +283,8 @@ class OrderSpreadView(viewsets.ReadOnlyModelViewSet):
             SELECT
                 customers_order.*,
                 COUNT(customers_order.id) as amount,
+                SUM(customers_order.total) as sm,
+                AVG(customers_order.total) as average,
                 {unit}(customers_order.pickupTime) as unit
             FROM
                 customers_order

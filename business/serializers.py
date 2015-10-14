@@ -182,19 +182,26 @@ class ShortOrderSerializer(serializers.ModelSerializer):
 
 class OrderSpreadSerializer(serializers.BaseSerializer):
     amount = serializers.IntegerField(read_only=True)
+    average = serializers.DecimalField(decimal_places=2, max_digits=7)
+    # 'sum' is a built-in function in Python, use 'sm' in code and return 'sum'
+    sm = serializers.DecimalField(decimal_places=2, max_digits=7)
     unit = serializers.IntegerField(read_only=True)
 
     class Meta:
         fields = (
             'amount',
+            'average',
+            'sm',
             'unit',
         )
         read_only_fields = fields
 
     def to_representation(self, obj):
         return {
-            'unit': obj.unit,
-            'amount': obj.amount
+            'amount': obj.amount,
+            'average': obj.average,
+            'sum': obj.sm,
+            'unit': obj.unit
         }
 
 
