@@ -65,18 +65,30 @@ USE_L10N = True  # Format localisation
 USE_TZ = False
 
 DATE_FORMAT = '%Y-%m-%d'
+DATE_FORMAT_URL = '%Y%m%d'
 DATE_INPUT_FORMATS = (
     DATE_FORMAT,
+    DATE_FORMAT_URL,
 )
 
 TIME_FORMAT = '%H:%M:%S'
+TIME_FORMAT_URL = '%H%M%S'
 TIME_INPUT_FORMATS = (
     TIME_FORMAT,
+    TIME_FORMAT_URL,
 )
 
-DATETIME_FORMAT = '%s %s' % (DATE_FORMAT, TIME_FORMAT,)
+DATETIME_FORMAT = '{date} {time}'.format(
+    date=DATE_FORMAT,
+    time=TIME_FORMAT
+)
+DATETIME_FORMAT_URL = '{date}T{time}'.format(
+    date=DATE_FORMAT_URL,
+    time=TIME_FORMAT_URL
+)
 DATETIME_INPUT_FORMATS = (
     DATETIME_FORMAT,
+    DATETIME_FORMAT_URL,
 )
 
 STATIC_RELATIVE = '/static/'

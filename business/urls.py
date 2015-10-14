@@ -37,7 +37,7 @@ urlpatterns = patterns('',
         views.FoodSingleView.as_view()
     ),
     url(
-        r'^food/popular/(?P<from>\d{8}T\d{6}|\d{2}-\d{2}-\d{4}-\d{2}-\d{2}-\d{2})?/(?P<to>\d{8}T\d{6}|\d{2}-\d{2}-\d{4}-\d{2}-\d{2}-\d{2})?/?$',
+        r'^food/popular/(?P<frm>\d{8}T\d{6}|\d{2}-\d{2}-\d{4}-\d{2}-\d{2}-\d{2})?/(?P<to>\d{8}T\d{6}|\d{2}-\d{2}-\d{4}-\d{2}-\d{2}-\d{2})?/?$',
         views.FoodPopularView.as_view()
     ),
 
@@ -82,7 +82,7 @@ urlpatterns = patterns('',
         views.OrderUpdateView.as_view()
     ),
     url(
-        r'^order/spread/(?P<days>\d+)?/?$',
+        r'^order/spread/(?P<frm>\d{8}T\d{6})/(?P<to>\d{8}T\d{6})?/?$',
         views.OrderSpreadView.as_view({'get': 'list'})
     ),
 

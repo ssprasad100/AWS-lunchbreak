@@ -30,6 +30,7 @@ from lunch.views import (StoreCategoryListViewBase, getHolidayPeriods,
 from rest_framework import generics, status, viewsets
 from rest_framework.exceptions import MethodNotAllowed
 from rest_framework.response import Response
+from django.conf import settings
 
 AVAILABLE_STATUSES = [ORDER_STATUS_PLACED, ORDER_STATUS_RECEIVED, ORDER_STATUS_STARTED, ORDER_STATUS_WAITING]
 
@@ -38,7 +39,7 @@ def getDatetime(request, kwargs, arg, methodCheck=False):
     if (methodCheck or request.method == 'GET') and arg in kwargs and kwargs[arg] is not None:
         datetimeString = kwargs[arg]
         try:
-            return timezone.datetime.strptime(datetimeString, '%Y%m%dT%H%M%S')
+            return timezone.datetime.strptime(datetimeString, settings.DATETIME_FORMAT_URL)
         except ValueError:
             try:
                 return timezone.datetime.strptime(datetimeString, '%d-%m-%Y-%H-%M-%S')
@@ -130,7 +131,7 @@ class FoodPopularView(generics.ListAPIView):
     serializer_class = ShortFoodSerializer
 
     def get_queryset(self):
-        frm = getDatetime(self.request, self.kwargs, arg='from')
+        frm = getDatetime(self.request, self.kwargs, arg='frm')
         to = getDatetime(self.request, self.kwargs, arg='to')
 
         if frm is not None:
@@ -263,14 +264,17 @@ class OrderSpreadView(viewsets.ReadOnlyModelViewSet):
     authentication_classes = (EmployeeAuthentication,)
     serializer_class = OrderSpreadSerializer
 
-    def list(self, request, days):
+    def list(self, request, frm, to=None):
         serializer = self.serializer_class(self.get_queryset(), many=True)
         return Response(serializer.data)
 
     def get_queryset(self):
         storeId = self.request.user.staff.store_id
-        days = self.kwargs['days']
-        days = days if days is not None else 7
+
+        frm = getDatetime(self.request, self.kwargs, arg='frm')
+        to = getDatetime(self.request, self.kwargs, arg='to')
+        if to is None:
+            to = timezone.now()
 
         return Order.objects.raw('''
             SELECT
@@ -280,13 +284,14 @@ class OrderSpreadView(viewsets.ReadOnlyModelViewSet):
             FROM
                 customers_order
             WHERE
-                customers_order.pickupTime > NOW() - INTERVAL %s DAY
+                customers_order.pickupTime > %s
+                AND customers_order.pickupTime < %s
                 AND customers_order.store_id = %s
             GROUP BY
                 hour
             ORDER BY
                 hour;
-        ''', [days, storeId])
+        ''', [frm, to, storeId])
 
 
 class StaffMultiView(generics.ListAPIView):
