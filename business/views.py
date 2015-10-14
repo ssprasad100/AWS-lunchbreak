@@ -264,11 +264,13 @@ class OrderSpreadView(viewsets.ReadOnlyModelViewSet):
     authentication_classes = (EmployeeAuthentication,)
     serializer_class = OrderSpreadSerializer
 
-    def list(self, request, frm, to=None):
+    def list(self, request, unit, frm, to=None):
         serializer = self.serializer_class(self.get_queryset(), many=True)
         return Response(serializer.data)
 
     def get_queryset(self):
+        unit = self.kwargs['unit']
+
         storeId = self.request.user.staff.store_id
 
         frm = getDatetime(self.request, self.kwargs, arg='frm')
@@ -276,11 +278,12 @@ class OrderSpreadView(viewsets.ReadOnlyModelViewSet):
         if to is None:
             to = timezone.now()
 
+        print unit
         return Order.objects.raw('''
             SELECT
                 customers_order.*,
                 COUNT(customers_order.id) as orderAmount,
-                HOUR(customers_order.pickupTime) as hour
+                {unit}(customers_order.pickupTime) as unit
             FROM
                 customers_order
             WHERE
@@ -288,10 +291,12 @@ class OrderSpreadView(viewsets.ReadOnlyModelViewSet):
                 AND customers_order.pickupTime < %s
                 AND customers_order.store_id = %s
             GROUP BY
-                hour
+                unit
             ORDER BY
-                hour;
-        ''', [frm, to, storeId])
+                unit;
+        '''.format(
+            unit=unit
+        ), [frm, to, storeId])
 
 
 class StaffMultiView(generics.ListAPIView):

@@ -82,7 +82,7 @@ urlpatterns = patterns('',
         views.OrderUpdateView.as_view()
     ),
     url(
-        r'^order/spread/(?P<frm>\d{8}T\d{6})/(?P<to>\d{8}T\d{6})?/?$',
+        r'^order/spread/(?P<unit>hour|weekday)/(?P<frm>\d{8}T\d{6})/(?P<to>\d{8}T\d{6})?/?$',
         views.OrderSpreadView.as_view({'get': 'list'})
     ),
 
