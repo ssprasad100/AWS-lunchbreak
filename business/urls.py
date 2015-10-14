@@ -29,7 +29,7 @@ urlpatterns = patterns('',
     ),
 
     url(
-        r'^food/(?P<since>[0-3][0-9]-[0-1][0-9]-20[0-9][0-9]-[0-2][0-9]-[0-5][0-9]-[0-5][0-9])?/?$',
+        r'^food/(?P<since>\d{8}T\d{6}|\d{2}-\d{2}-\d{4}-\d{2}-\d{2}-\d{2})?/?$',
         views.FoodView.as_view()
     ),
     url(
@@ -37,7 +37,7 @@ urlpatterns = patterns('',
         views.FoodSingleView.as_view()
     ),
     url(
-        r'^food/popular/(?P<from>[0-3][0-9]-[0-1][0-9]-20[0-9][0-9]-[0-2][0-9]-[0-5][0-9]-[0-5][0-9])?/(?P<to>[0-3][0-9]-[0-1][0-9]-20[0-9][0-9]-[0-2][0-9]-[0-5][0-9]-[0-5][0-9])?/?$',
+        r'^food/popular/(?P<from>\d{8}T\d{6}|\d{2}-\d{2}-\d{4}-\d{2}-\d{2}-\d{2})?/(?P<to>\d{8}T\d{6}|\d{2}-\d{2}-\d{4}-\d{2}-\d{2}-\d{2})?/?$',
         views.FoodPopularView.as_view()
     ),
 
@@ -56,7 +56,7 @@ urlpatterns = patterns('',
     ),
 
     url(
-        r'^ingredient/(?P<datetime>[0-3][0-9]-[0-1][0-9]-20[0-9][0-9]-[0-2][0-9]-[0-5][0-9]-[0-5][0-9])?/?$',
+        r'^ingredient/(?P<datetime>\d{8}T\d{6}|\d{2}-\d{2}-\d{4}-\d{2}-\d{2}-\d{2})?/?$',
         views.IngredientMultiView.as_view()
     ),
     url(
@@ -74,7 +74,7 @@ urlpatterns = patterns('',
     ),
 
     url(
-        r'^order/(?P<option>pickupTime|orderedTime)?/?(?P<datetime>[0-3][0-9]-[0-1][0-9]-20[0-9][0-9]-[0-2][0-9]-[0-5][0-9]-[0-5][0-9])?/?$',
+        r'^order/(?P<option>pickupTime|orderedTime)?/?(?P<datetime>\d{8}T\d{6}|\d{2}-\d{2}-\d{4}-\d{2}-\d{2}-\d{2})?/?$',
         views.OrderListView.as_view()
     ),
     url(

@@ -38,9 +38,12 @@ def getDatetime(request, kwargs, arg, methodCheck=False):
     if (methodCheck or request.method == 'GET') and arg in kwargs and kwargs[arg] is not None:
         datetimeString = kwargs[arg]
         try:
-            return timezone.datetime.strptime(datetimeString, '%d-%m-%Y-%H-%M-%S')
+            return timezone.datetime.strptime(datetimeString, '%Y%m%dT%H%M%S')
         except ValueError:
-            raise InvalidDatetime()
+            try:
+                return timezone.datetime.strptime(datetimeString, '%d-%m-%Y-%H-%M-%S')
+            except ValueError:
+                raise InvalidDatetime()
     return None
 
 
@@ -80,7 +83,9 @@ class FoodListView(generics.ListAPIView):
     serializer_class = ShortFoodSerializer
 
     def get_queryset(self):
+        print 'queryset'
         since = getDatetime(self.request, self.kwargs, arg='since')
+        print since
         if since is not None:
             result = Food.objects.filter(
                 store=self.request.user.staff.store,
@@ -98,6 +103,7 @@ class FoodView(FoodListView, generics.CreateAPIView):
     permission_classes = (StoreOwnerPermission,)
 
     def post(self, request, datetime=None, *args, **kwargs):
+        print datetime
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save(store=request.user.staff.store)
