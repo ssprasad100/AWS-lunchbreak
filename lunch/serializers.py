@@ -47,7 +47,7 @@ class HolidayPeriodSerializer(serializers.ModelSerializer):
 
 
 # Only here for RAML (atm)
-class OpenSerializer(serializers.Serializer):
+class HoursSerializer(serializers.Serializer):
     holidayPeriods = HolidayPeriodSerializer(many=True, read_only=True)
     openingHours = OpeningHoursSerializer(many=True, read_only=True)
 

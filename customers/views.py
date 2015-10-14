@@ -18,8 +18,9 @@ from lunch.pagination import SimplePagination
 from lunch.renderers import JPEGRenderer
 from lunch.responses import BadRequest
 from lunch.serializers import (FoodCategorySerializer, HolidayPeriodSerializer,
-                               MultiFoodSerializer, OpeningHoursSerializer,
-                               OpenSerializer, ShortFoodCategorySerializer,
+                               HoursSerializer, MultiFoodSerializer,
+                               OpeningHoursSerializer,
+                               ShortFoodCategorySerializer,
                                ShortStoreSerializer, SingleFoodSerializer)
 from lunch.views import (StoreCategoryListViewBase, getHolidayPeriods,
                          getOpeningAndHoliday, getOpeningHours)
@@ -92,11 +93,11 @@ class StoreHeaderView(APIView):
         return Response(image)
 
 
-class StoreOpenView(generics.ListAPIView):
+class StoreHoursView(generics.ListAPIView):
     '''List the opening hours and holiday periods of a store.'''
 
     authentication_classes = (CustomerAuthentication,)
-    serializer_class = OpenSerializer
+    serializer_class = HoursSerializer
     pagination_class = None
     queryset = None
 
