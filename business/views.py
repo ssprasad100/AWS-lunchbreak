@@ -278,7 +278,6 @@ class OrderSpreadView(viewsets.ReadOnlyModelViewSet):
         if to is None:
             to = timezone.now()
 
-        print unit
         return Order.objects.raw('''
             SELECT
                 customers_order.*,
