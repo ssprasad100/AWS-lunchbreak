@@ -282,7 +282,7 @@ class OrderSpreadView(viewsets.ReadOnlyModelViewSet):
         return Order.objects.raw('''
             SELECT
                 customers_order.*,
-                COUNT(customers_order.id) as orderAmount,
+                COUNT(customers_order.id) as amount,
                 {unit}(customers_order.pickupTime) as unit
             FROM
                 customers_order

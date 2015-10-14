@@ -181,12 +181,12 @@ class ShortOrderSerializer(serializers.ModelSerializer):
 
 
 class OrderSpreadSerializer(serializers.BaseSerializer):
-    orderAmount = serializers.IntegerField(read_only=True)
+    amount = serializers.IntegerField(read_only=True)
     unit = serializers.IntegerField(read_only=True)
 
     class Meta:
         fields = (
-            'orderAmount',
+            'amount',
             'unit',
         )
         read_only_fields = fields
@@ -194,7 +194,7 @@ class OrderSpreadSerializer(serializers.BaseSerializer):
     def to_representation(self, obj):
         return {
             'unit': obj.unit,
-            'orderAmount': obj.orderAmount
+            'amount': obj.amount
         }
 
 
