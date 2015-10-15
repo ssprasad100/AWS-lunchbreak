@@ -50,6 +50,9 @@ urlpatterns = patterns('',
         views.FoodCategoryListView.as_view()
     ),
     url(
+        r'^store/(?P<pk>\d+)/(?P<option>heart|unheart)/$',
+        views.StoreHeartView.as_view(), name='store-heart'),
+    url(
         r'^store/(?P<store_id>\d+)/hours/$',
         views.StoreHoursView.as_view()
     ),
@@ -61,9 +64,10 @@ urlpatterns = patterns('',
         r'^store/(?P<store_id>\d+)/openinghours/$',
         views.OpeningHoursListView.as_view()
     ),
+    # Deprecated version 3, user /store/{id}/{option}/
     url(
         r'^store/(?P<option>heart|unheart)/(?P<pk>\d+)/$',
-        views.StoreHeartView.as_view(), name='store-heart'),
+        views.StoreHeartView.as_view()),
     # Deprecated version 3, use /store/{id}/holidayperiods
     url(
         r'^store/holiday/(?P<store_id>\d+)/$',
