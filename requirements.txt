@@ -5,7 +5,7 @@ Django==1.8.3
 django-dirtyfields==0.7
 django-phonenumber-field==0.7.2
 django-split-settings==0.1.2
-djangorestframework==3.2.2
+djangorestframework==3.2.4
 djangorestframework-jsonp==1.0.0
 ecdsa==0.13
 Fabric==1.10.2

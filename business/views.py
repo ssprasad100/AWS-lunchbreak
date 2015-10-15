@@ -9,10 +9,12 @@ from business.serializers import (EmployeeSerializer,
                                   OrderSpreadSerializer, ShortFoodSerializer,
                                   ShortIngredientGroupSerializer,
                                   ShortOrderSerializer, SingleFoodSerializer,
-                                  StaffSerializer, StoreSerializer)
+                                  StaffSerializer, StoreSerializer,
+                                  StoreSerializerV3)
 from customers.config import (ORDER_STATUS_PLACED, ORDER_STATUS_RECEIVED,
                               ORDER_STATUS_STARTED, ORDER_STATUS_WAITING)
 from customers.models import Order
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.db.models import Count
@@ -30,7 +32,6 @@ from lunch.views import (StoreCategoryListViewBase, getHolidayPeriods,
 from rest_framework import generics, status, viewsets
 from rest_framework.exceptions import MethodNotAllowed
 from rest_framework.response import Response
-from django.conf import settings
 
 AVAILABLE_STATUSES = [ORDER_STATUS_PLACED, ORDER_STATUS_RECEIVED, ORDER_STATUS_STARTED, ORDER_STATUS_WAITING]
 
@@ -57,8 +58,13 @@ class ListCreateStoreView(generics.ListCreateAPIView):
 
 class StoreSingleView(generics.RetrieveUpdateAPIView):
     authentication_classes = (EmployeeAuthentication,)
-    serializer_class = StoreSerializer
     permission_classes = (StoreOwnerPermission,)
+
+    def get_serializer_class(self):
+        if self.request.version >= 4:
+            return StoreSerializer
+        else:
+            return StoreSerializerV3
 
     def get_object(self):
         return get_object_or_404(self.get_queryset())
@@ -84,9 +90,7 @@ class FoodListView(generics.ListAPIView):
     serializer_class = ShortFoodSerializer
 
     def get_queryset(self):
-        print 'queryset'
         since = getDatetime(self.request, self.kwargs, arg='since')
-        print since
         if since is not None:
             result = Food.objects.filter(
                 store=self.request.user.staff.store,
@@ -104,12 +108,11 @@ class FoodView(FoodListView, generics.CreateAPIView):
     permission_classes = (StoreOwnerPermission,)
 
     def post(self, request, datetime=None, *args, **kwargs):
-        print datetime
         serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid(raise_exception=True):
+        if serializer.is_valid():
             serializer.save(store=request.user.staff.store)
             return Response(data=serializer.data, status=status.HTTP_201_CREATED)
-        return BadRequest()
+        return BadRequest(serializer.errors)
 
 
 class FoodSingleView(generics.RetrieveUpdateDestroyAPIView):

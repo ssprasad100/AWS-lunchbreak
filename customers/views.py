@@ -5,7 +5,8 @@ from customers.models import Heart, Order, OrderedFood, User, UserToken
 from customers.serializers import (OrderedFoodPriceSerializer, OrderSerializer,
                                    OrderSerializerOld, ShortOrderSerializer,
                                    ShortOrderSerializerOld,
-                                   StoreHeartSerializer, UserLoginSerializer,
+                                   StoreHeartSerializer,
+                                   StoreHeartSerializerV3, UserLoginSerializer,
                                    UserRegisterSerializer, UserSerializer,
                                    UserTokenSerializer,
                                    UserTokenUpdateSerializer)
@@ -60,10 +61,16 @@ class StoreHeartView(generics.RetrieveUpdateAPIView):
     serializer_class = StoreHeartSerializer
     queryset = Store.objects.all()
 
+    def get_serializer_class(self):
+        if self.request.version >= 4:
+            return StoreHeartSerializer
+        else:
+            return StoreHeartSerializerV3
+
     def get(self, request, pk, **kwargs):
         store = get_object_or_404(Store, id=pk)
         store.hearted = request.user in store.hearts.all()
-        serializer = self.serializer_class(store)
+        serializer = self.get_serializer_class()(store)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     def update(self, request, pk, **kwargs):

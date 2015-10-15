@@ -1,11 +1,11 @@
 from business.models import (Employee, EmployeeToken, PasswordModel, Staff,
                              StaffToken)
 from customers.models import Order, OrderedFood, User
+from lunch import serializers as lunchSerializers
 from lunch.config import TOKEN_IDENTIFIER_LENGTH
 from lunch.exceptions import InvalidStoreLinking
 from lunch.models import (BaseToken, Food, Ingredient, IngredientGroup,
                           IngredientRelation, Store)
-from lunch import serializers as lunchSerializers
 from rest_framework import serializers
 
 
@@ -41,6 +41,19 @@ class StoreSerializer(serializers.ModelSerializer):
             'heartsCount',
             'categories',
         )
+
+
+class StoreSerializerV3(StoreSerializer):
+
+    class Meta:
+        model = Store
+        fields = StoreSerializer.Meta.fields
+        read_only_fields = StoreSerializer.Meta.read_only_fields
+
+    def save(self):
+        if 'minTime' in self.validated_data:
+            self.validated_data['minTime'] *= 60
+        super(StoreSerializer, self).save()
 
 
 class EmployeePasswordRequestSerializer(serializers.ModelSerializer):

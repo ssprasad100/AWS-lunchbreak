@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 import copy
+import math
 import random
 from datetime import datetime, time, timedelta
 
@@ -25,8 +26,7 @@ from lunch.exceptions import (AddressNotFound, IngredientGroupMaxExceeded,
 from lunch.specs import HDPI, LDPI, MDPI, XHDPI, XXHDPI, XXXHDPI
 from polaroid.models import Polaroid
 from private_media.storages import PrivateMediaStorage
-from push_notifications.models import (SERVICE_INACTIVE, BareDevice,
-                                       DeviceManager)
+from push_notifications.models import BareDevice, DeviceManager
 
 
 class LunchbreakManager(models.Manager):
@@ -141,7 +141,7 @@ class Store(models.Model):
     longitude = models.DecimalField(blank=True, decimal_places=7, max_digits=10)
 
     categories = models.ManyToManyField(StoreCategory)
-    minTime = models.PositiveIntegerField(default=60)
+    minTime = models.DurationField(default=timedelta(seconds=60))
     orderTime = models.TimeField(default=time(hour=12))
     hearts = models.ManyToManyField('customers.User', through='customers.Heart', blank=True)
     costCalculation = models.PositiveIntegerField(choices=COST_GROUP_CALCULATIONS, default=COST_GROUP_ALWAYS)
@@ -182,6 +182,10 @@ class Store(models.Model):
             name=self.name,
             city=self.city
         )
+
+    @cached_property
+    def minTimeV3(self):
+        return math.ceil(self.minTime.total_seconds() / 60)
 
     @cached_property
     def heartsCount(self):

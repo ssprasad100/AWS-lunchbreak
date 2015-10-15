@@ -19,6 +19,16 @@ class StoreHeartSerializer(lunchSerializers.StoreSerializer):
         read_only_fields = lunchSerializers.StoreSerializer.Meta.fields + ('hearted',)
 
 
+class StoreHeartSerializerV3(lunchSerializers.StoreSerializer):
+    minTime = serializers.IntegerField(source='minTimeV3')
+    hearted = serializers.BooleanField()
+
+    class Meta:
+        model = Store
+        fields = lunchSerializers.StoreSerializer.Meta.fields + ('hearted',)
+        read_only_fields = lunchSerializers.StoreSerializer.Meta.fields + ('hearted',)
+
+
 class OrderedFoodSerializer(serializers.ModelSerializer):
     ingredientGroups = lunchSerializers.IngredientGroupSerializer(many=True, read_only=True)
 
