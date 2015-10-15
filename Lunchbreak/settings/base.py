@@ -98,7 +98,7 @@ TEMPLATE_DIRS = (
     BASE_DIR + '/business/templates/',
 )
 
-APPEND_SLASH = True
+APPEND_SLASH = False
 
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': [

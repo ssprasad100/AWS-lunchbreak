@@ -3,131 +3,131 @@ from customers import views
 
 urlpatterns = patterns('',
     url(
-        r'^food/(?P<pk>\d+)/$',
+        r'^food/(?P<pk>\d+)/?$',
         views.FoodRetrieveView.as_view()
     ),
     # Version 3 deprecated, use /store/{id}/food
     url(
-        r'^food/store/(?P<store_id>\d+)/$',
+        r'^food/store/(?P<store_id>\d+)/?$',
         views.FoodListView.as_view()
     ),
     url(
-        r'^food/category/(?P<foodcategory_id>\d+)/$',
+        r'^food/category/(?P<foodcategory_id>\d+)/?$',
         views.FoodListView.as_view()
     ),
 
     url(
-        r'^foodcategory/(?P<pk>\d+)/$',
+        r'^foodcategory/(?P<pk>\d+)/?$',
         views.FoodCategoryRetrieveView.as_view()
     ),
 
     # Version 3 deprecated, use /user/order/ instead
     url(
-        r'^order/$',
+        r'^order/?$',
         views.OrderView.as_view(),
     ),
     url(
-        r'^order/(?P<pk>\d+)/$',
+        r'^order/(?P<pk>\d+)/?$',
         views.OrderRetrieveView.as_view()
     ),
     url(
-        r'^order/price/$',
+        r'^order/price/?$',
         views.OrderPriceView.as_view()
     ),
 
     url(
-        r'^store/(?P<pk>\d+)/$',
+        r'^store/(?P<pk>\d+)/?$',
         views.StoreHeartView.as_view()
     ),
     url(
-        r'^store/(?P<store_id>\d+)/food/$',
+        r'^store/(?P<store_id>\d+)/food/?$',
         views.FoodListView.as_view()
     ),
     url(
-        r'^store/(?P<store_id>\d+)/header/(?P<width>\d+)/(?P<height>\d+)/$',
+        r'^store/(?P<store_id>\d+)/header/(?P<width>\d+)/(?P<height>\d+)/?$',
         views.StoreHeaderView.as_view()
     ),
     url(
-        r'^store/(?P<store_id>\d+)/foodcategories/$',
+        r'^store/(?P<store_id>\d+)/foodcategories/?$',
         views.FoodCategoryListView.as_view()
     ),
     url(
-        r'^store/(?P<pk>\d+)/(?P<option>heart|unheart)/$',
+        r'^store/(?P<pk>\d+)/(?P<option>heart|unheart)/?$',
         views.StoreHeartView.as_view(), name='store-heart'),
     url(
-        r'^store/(?P<store_id>\d+)/hours/$',
+        r'^store/(?P<store_id>\d+)/hours/?$',
         views.StoreHoursView.as_view()
     ),
     url(
-        r'^store/(?P<store_id>\d+)/holidayperiods/$',
+        r'^store/(?P<store_id>\d+)/holidayperiods/?$',
         views.HolidayPeriodListView.as_view()
     ),
     url(
-        r'^store/(?P<store_id>\d+)/openinghours/$',
+        r'^store/(?P<store_id>\d+)/openinghours/?$',
         views.OpeningHoursListView.as_view()
     ),
     # Deprecated version 3, user /store/{id}/{option}/
     url(
-        r'^store/(?P<option>heart|unheart)/(?P<pk>\d+)/$',
+        r'^store/(?P<option>heart|unheart)/(?P<pk>\d+)/?$',
         views.StoreHeartView.as_view()),
     # Deprecated version 3, use /store/{id}/holidayperiods
     url(
-        r'^store/holiday/(?P<store_id>\d+)/$',
+        r'^store/holiday/(?P<store_id>\d+)/?$',
         views.HolidayPeriodListView.as_view()
     ),
     # Deprecated version 3, use /store/{id}/openinghours
     url(
-        r'^store/hours/(?P<store_id>\d+)/$',
+        r'^store/hours/(?P<store_id>\d+)/?$',
         views.OpeningHoursListView.as_view()
     ),
     url(
-        r'^store/nearby/(?P<latitude>-?\d+.?\d*)/(?P<longitude>-?\d+.?\d*)/$',
+        r'^store/nearby/(?P<latitude>-?\d+.?\d*)/(?P<longitude>-?\d+.?\d*)/?$',
         views.StoreMultiView.as_view()
     ),
     url(
-        r'^store/nearby/(?P<latitude>-?\d+.?\d*)/(?P<longitude>-?\d+.?\d*)/(?P<proximity>\d+.?\d*)/$',
+        r'^store/nearby/(?P<latitude>-?\d+.?\d*)/(?P<longitude>-?\d+.?\d*)/(?P<proximity>\d+.?\d*)/?$',
         views.StoreMultiView.as_view()
     ),
     # Deprecated version 3, use /store/{id}/hours
     url(
-        r'^store/open/(?P<store_id>\d+)/$',
+        r'^store/open/(?P<store_id>\d+)/?$',
         views.StoreHoursView.as_view()
     ),
     url(
-        r'^store/recent/$',
+        r'^store/recent/?$',
         views.StoreMultiView.as_view()
     ),
     url(
-        r'^storecategory/$',
+        r'^storecategory/?$',
         views.StoreCategoryListView.as_view()
     ),
 
     url(
-        r'^token/$',
+        r'^token/?$',
         views.UserTokenView.as_view()
     ),
 
     url(
-        r'^user/$',
+        r'^user/?$',
         views.UserView.as_view()
     ),
     url(
-        r'^user/token/$',
+        r'^user/token/?$',
         views.UserTokenUpdateView.as_view(),
         name='user-token'
     ),
     url(
-        r'^user/register/$',
+        r'^user/register/?$',
         views.UserRegisterView.as_view(),
         name='user-registration'
     ),
     url(
-        r'^user/login/$',
+        r'^user/login/?$',
         views.UserLoginView.as_view(),
         name='user-login'
     ),
     url(
-        r'^user/order/$',
+        r'^user/order/?$',
         views.OrderView.as_view(),
         name='order'
     ),

@@ -7,11 +7,11 @@ from django.conf.urls import patterns, url
 
 urlpatterns = patterns('',
     url(
-        r'^employee/$',
+        r'^employee/?$',
         views.EmployeeView.as_view()
     ),
     url(
-        r'^employee/reset/$',
+        r'^employee/reset/?$',
         views.PasswordResetView.as_view(),
         {
             'model': Employee,
@@ -21,7 +21,7 @@ urlpatterns = patterns('',
         }
     ),
     url(
-        r'^employee/reset/request/$',
+        r'^employee/reset/request/?$',
         views.ResetRequestView.as_view(),
         {
             'authentication': EmployeeAuthentication
@@ -33,7 +33,7 @@ urlpatterns = patterns('',
         views.FoodView.as_view()
     ),
     url(
-        r'^food/(?P<pk>\d+)/$',
+        r'^food/(?P<pk>\d+)/?$',
         views.FoodSingleView.as_view()
     ),
     url(
@@ -42,16 +42,16 @@ urlpatterns = patterns('',
     ),
 
     url(
-        r'^foodcategory/$',
+        r'^foodcategory/?$',
         views.FoodCategoryMultiView.as_view()
     ),
     url(
-        r'^foodcategory/(?P<pk>\d+)/$',
+        r'^foodcategory/(?P<pk>\d+)/?$',
         views.FoodCategorySingleView.as_view()
     ),
 
     url(
-        r'^foodtype/$',
+        r'^foodtype/?$',
         views.FoodTypeListView.as_view()
     ),
 
@@ -60,16 +60,16 @@ urlpatterns = patterns('',
         views.IngredientMultiView.as_view()
     ),
     url(
-        r'^ingredient/(?P<pk>\d+)/$',
+        r'^ingredient/(?P<pk>\d+)/?$',
         views.IngredientSingleView.as_view()
     ),
 
     url(
-        r'^ingredientgroup/$',
+        r'^ingredientgroup/?$',
         views.IngredientGroupMultiView.as_view()
     ),
     url(
-        r'^ingredientgroup/(?P<pk>\d+)/$',
+        r'^ingredientgroup/(?P<pk>\d+)/?$',
         views.IngredientGroupSingleView.as_view()
     ),
 
@@ -78,7 +78,7 @@ urlpatterns = patterns('',
         views.OrderListView.as_view()
     ),
     url(
-        r'^order/(?P<pk>\d+)/$',
+        r'^order/(?P<pk>\d+)/?$',
         views.OrderUpdateView.as_view()
     ),
     url(
@@ -87,39 +87,39 @@ urlpatterns = patterns('',
     ),
 
     url(
-        r'^quantity/$',
+        r'^quantity/?$',
         views.QuantityMultiView.as_view()
     ),
     url(
-        r'^quantity/(?P<pk>\d+)/$',
+        r'^quantity/(?P<pk>\d+)/?$',
         views.QuantitySingleView.as_view()
     ),
 
     url(
-        r'^staff/$',
+        r'^staff/?$',
         views.StaffMultiView.as_view()
     ),
     url(
-        r'^staff/(?P<pk>\d+)/$',
+        r'^staff/(?P<pk>\d+)/?$',
         views.StaffSingleView.as_view()
     ),
     url(
-        r'^staff/nearby/(?P<latitude>-?\d+.?\d*)/(?P<longitude>-?\d+.?\d*)/$',
+        r'^staff/nearby/(?P<latitude>-?\d+.?\d*)/(?P<longitude>-?\d+.?\d*)/?$',
         views.StaffMultiView.as_view()
     ),
     url(
-        r'^staff/nearby/(?P<latitude>-?\d+.?\d*)/(?P<longitude>-?\d+.?\d*)/(?P<proximity>\d+.?\d*)/$',
+        r'^staff/nearby/(?P<latitude>-?\d+.?\d*)/(?P<longitude>-?\d+.?\d*)/(?P<proximity>\d+.?\d*)/?$',
         views.StaffMultiView.as_view()
     ),
     url(
-        r'^staff/reset/request/$',
+        r'^staff/reset/request/?$',
         views.ResetRequestView.as_view(),
         {
             'authentication': StaffAuthentication
         }
     ),
     url(
-        r'^staff/reset/$',
+        r'^staff/reset/?$',
         views.PasswordResetView.as_view(),
         {
             'model': Staff,
@@ -129,24 +129,24 @@ urlpatterns = patterns('',
     ),
 
     url(
-        r'^store/$',
+        r'^store/?$',
         views.StoreSingleView.as_view()
     ),
     url(
-        r'^store/open/$',
+        r'^store/open/?$',
         views.StoreOpenView.as_view()
     ),
     url(
-        r'^store/hours/$',
+        r'^store/hours/?$',
         views.OpeningHoursListView.as_view()
     ),
     url(
-        r'^store/holiday/$',
+        r'^store/holiday/?$',
         views.HolidayPeriodListView.as_view()
     ),
 
     url(
-        r'^storecategory/$',
+        r'^storecategory/?$',
         views.StoreCategoryListView.as_view()
     ),
 )
