@@ -337,12 +337,12 @@ class LunchbreakTests(LunchbreakTestCase):
         self.assertRaises(PastOrderDenied, Store.checkOpen, store, today, today + timedelta(hours=1))
 
         # MinTimeExceeded
-        minutes = 15
-        openingMinutes = minutes * 2
+        minTime = timedelta(minutes=15)
+        openingMinTime = minTime * 2
         closingHours = 10
-        store.minTime = minutes
+        store.minTime = minTime
 
-        opening = (today + timedelta(minutes=openingMinutes))
+        opening = (today + openingMinTime)
         closing = (opening + timedelta(hours=closingHours))
         day = opening.strftime('%w')
         OpeningHours.objects.create(
@@ -351,7 +351,7 @@ class LunchbreakTests(LunchbreakTestCase):
             opening=opening,
             closing=closing
         )
-        self.assertRaises(MinTimeExceeded, Store.checkOpen, store, opening + timedelta(minutes=minutes - 1), opening)
+        self.assertRaises(MinTimeExceeded, Store.checkOpen, store, opening + minTime - timedelta(minutes=1), opening)
 
         # Before and after opening hours
         before = opening - timedelta(minutes=1)
@@ -399,7 +399,7 @@ class LunchbreakTests(LunchbreakTestCase):
             street='Dendermondesteenweg',
             number=10,
             orderTime=orderTime,
-            minTime=0
+            minTime=timedelta()
         )
 
         foodType = FoodType.objects.create(

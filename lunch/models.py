@@ -198,7 +198,7 @@ class Store(models.Model):
         if pickupTime < now:
             raise PastOrderDenied()
 
-        if pickupTime - now < timedelta(minutes=store.minTime):
+        if pickupTime - now < store.minTime:
             raise MinTimeExceeded()
 
         holidayPeriods = HolidayPeriod.objects.filter(store=store, start__lte=pickupTime, end__gte=pickupTime)
