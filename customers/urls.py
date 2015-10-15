@@ -21,9 +21,11 @@ urlpatterns = patterns('',
         views.FoodCategoryRetrieveView.as_view()
     ),
 
+    # Version 3 deprecated, use /user/order/ instead
     url(
         r'^order/$',
-        views.OrderView.as_view(), name='order'),
+        views.OrderView.as_view(),
+    ),
     url(
         r'^order/(?P<pk>\d+)/$',
         views.OrderRetrieveView.as_view()
@@ -123,5 +125,10 @@ urlpatterns = patterns('',
         r'^user/login/$',
         views.UserLoginView.as_view(),
         name='user-login'
+    ),
+    url(
+        r'^user/order/$',
+        views.OrderView.as_view(),
+        name='order'
     ),
 )
