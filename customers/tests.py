@@ -32,7 +32,7 @@ class CustomersTests(LunchbreakTestCase):
     NAME_USER = 'Meneer Aardappel'
     FORMAT = 'json'
     VALID_PHONE = '+32472907605'
-    VALID_PHONE2= '+32472907606'
+    VALID_PHONE2 = '+32472907606'
     INVALID_PHONE = '+123456789'
     PIN = '123456'
     NAME = 'Meneer De Bolle'
@@ -446,7 +446,8 @@ class CustomersTests(LunchbreakTestCase):
         reservation = Reservation.objects.create(
             user=self.user,
             store=self.store,
-            reservationTime=timezone.now() + timedelta(days=1),
+            # For some reason Travis running Python 2.7.9 saves microseconds and 2.7.10 doesn't
+            reservationTime=(timezone.now() + timedelta(days=1)).replace(microsecond=0),
             seats=self.store.maxSeats
         )
 
