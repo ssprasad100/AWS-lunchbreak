@@ -2,14 +2,26 @@
 from __future__ import unicode_literals
 
 import datetime
+from math import ceil
 
-from customers.models import Store
 from django.db import migrations, models
 
 
-def minTimeMinutesToMicroSeconds(apps, schema_editor):
+def minTimeForward(apps, schema_editor):
+    Store = apps.get_model('lunch', 'Store')
     for store in Store.objects.all():
         store.minTime = store.minTime * 60000000
+        store.save()
+
+
+def minTimeReverse(apps, schema_editor):
+    Store = apps.get_model('lunch', 'Store')
+    for store in Store.objects.all():
+        store.minTime = datetime.timedelta(
+            minutes=ceil(
+                store.minTime.total_seconds() / 60000000
+            )
+        )
         store.save()
 
 
@@ -25,5 +37,5 @@ class Migration(migrations.Migration):
             name='minTime',
             field=models.DurationField(default=datetime.timedelta(0, 60)),
         ),
-        migrations.RunPython(minTimeMinutesToMicroSeconds),
+        migrations.RunPython(minTimeForward, minTimeReverse),
     ]

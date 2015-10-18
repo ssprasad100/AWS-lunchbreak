@@ -1,9 +1,11 @@
 from customers.authentication import CustomerAuthentication
 from customers.config import DEMO_DIGITS_ID, DEMO_PHONE
 from customers.digits import Digits
-from customers.models import Heart, Order, OrderedFood, User, UserToken
+from customers.models import (Heart, Order, OrderedFood, Reservation, User,
+                              UserToken)
 from customers.serializers import (OrderedFoodPriceSerializer, OrderSerializer,
-                                   OrderSerializerOld, ShortOrderSerializer,
+                                   OrderSerializerOld, ReservationSerializer,
+                                   ShortOrderSerializer,
                                    ShortOrderSerializerOld,
                                    StoreHeartSerializer,
                                    StoreHeartSerializerV3, UserLoginSerializer,
@@ -201,6 +203,41 @@ class FoodCategoryRetrieveView(generics.RetrieveAPIView):
     queryset = FoodCategory.objects.all()
 
 
+
+class ReservationSingleView(generics.RetrieveUpdateAPIView):
+
+    authentication_classes = (CustomerAuthentication,)
+    serializer_class = ReservationSerializer
+
+    def get_queryset(self):
+        return Reservation.objects.filter(user=self.request.user)
+
+
+class ReservationMultiView(generics.ListCreateAPIView):
+
+    authentication_classes = (CustomerAuthentication,)
+    serializer_class = ReservationSerializer
+
+    def get_queryset(self):
+        return Reservation.objects.filter(user=self.request.user)
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(
+            data=request.data
+        )
+
+        if serializer.is_valid():
+            try:
+                serializer.save()
+                return Response(
+                    data=serializer.data,
+                    status=status.HTTP_201_CREATED
+                )
+            except LunchbreakException as e:
+                return e.getResponse()
+        return BadRequest(serializer.errors)
+
+
 class OrderView(generics.ListCreateAPIView):
     '''Place an order and list a specific or all of the user's orders.'''
 
@@ -217,14 +254,20 @@ class OrderView(generics.ListCreateAPIView):
 
     def create(self, request, *args, **kwargs):
         serializerClass = self.get_serializer_class()
-        orderSerializer = serializerClass(data=request.data, context={'user': request.user})
+        orderSerializer = serializerClass(
+            data=request.data,
+            context={'user': request.user}
+        )
+
         if orderSerializer.is_valid():
             try:
                 orderSerializer.save()
+                return Response(
+                    data=orderSerializer.data,
+                    status=status.HTTP_201_CREATED
+                )
             except LunchbreakException as e:
                 return e.getResponse()
-            else:
-                return Response(data=orderSerializer.data, status=status.HTTP_201_CREATED)
         return BadRequest(orderSerializer.errors)
 
 

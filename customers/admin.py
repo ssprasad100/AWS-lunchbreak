@@ -1,4 +1,4 @@
-from customers.models import Order, OrderedFood, User, UserToken
+from customers.models import Order, OrderedFood, Reservation, User, UserToken
 from django.contrib import admin
 from lunch.admin import BaseTokenAdmin
 
@@ -13,6 +13,11 @@ class OrderedFoodAdmin(admin.ModelAdmin):
 class UserAdmin(admin.ModelAdmin):
     list_display = ('name', 'phone', 'confirmedAt',)
     readonly_fields = ('digitsId', 'requestId', 'confirmedAt',)
+
+
+@admin.register(Reservation)
+class ReservationAdmin(admin.ModelAdmin):
+    readonly_fields = ('placedTime',)
 
 
 @admin.register(Order)

@@ -12,6 +12,7 @@ from dirtyfields import DirtyFieldsMixin
 from django.conf import settings
 from django.contrib.auth.hashers import check_password, make_password
 from django.core.exceptions import MultipleObjectsReturned, ValidationError
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -145,6 +146,12 @@ class Store(models.Model):
     orderTime = models.TimeField(default=time(hour=12))
     hearts = models.ManyToManyField('customers.User', through='customers.Heart', blank=True)
     costCalculation = models.PositiveIntegerField(choices=COST_GROUP_CALCULATIONS, default=COST_GROUP_ALWAYS)
+    maxSeats = models.PositiveIntegerField(
+        default=10,
+        validators=[
+            MinValueValidator(1)
+        ]
+    )
 
     lastModified = models.DateTimeField(auto_now=True)
     enabled = models.BooleanField(default=True)

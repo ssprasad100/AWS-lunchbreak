@@ -1,8 +1,9 @@
 import math
 
+from customers.config import RESERVATION_STATUS_PLACED, RESERVATION_STATUS_USER
 from customers.exceptions import (AmountInvalid, CostCheckFailed,
                                   MinDaysExceeded)
-from customers.models import Order, OrderedFood, User, UserToken
+from customers.models import Order, OrderedFood, Reservation, User, UserToken
 from lunch import serializers as lunchSerializers
 from lunch.config import INPUT_SI_SET, INPUT_SI_VARIABLE
 from lunch.exceptions import BadRequest
@@ -27,6 +28,51 @@ class StoreHeartSerializerV3(lunchSerializers.StoreSerializer):
         model = Store
         fields = lunchSerializers.StoreSerializer.Meta.fields + ('hearted',)
         read_only_fields = lunchSerializers.StoreSerializer.Meta.fields + ('hearted',)
+
+
+class ReservationSerializer(serializers.ModelSerializer):
+    user = serializers.ModelField(
+        model_field=Reservation()._meta.get_field('user'),
+        read_only=True,
+        default=serializers.CurrentUserDefault()
+    )
+    status = serializers.ChoiceField(
+        choices=RESERVATION_STATUS_USER,
+        default=serializers.CreateOnlyDefault(RESERVATION_STATUS_PLACED)
+    )
+
+    class Meta:
+        model = Reservation
+        fields = (
+            'id',
+            'user',
+            'store',
+            'seats',
+            'placedTime',
+            'reservationTime',
+            'comment',
+            'suggestion',
+            'response',
+            'status',
+        )
+        read_only_fields = (
+            'id',
+            'user',
+            'placedTime',
+            'suggestion',
+            'response',
+        )
+        write_only_fields = (
+            'store',
+            'reservationTime',
+        )
+
+    def update(self, instance, validated_data):
+        return super(ReservationSerializer, self).update(instance, validated_data={
+                'status': validated_data.get('status', instance.status),
+                'comment': validated_data.get('comment', instance.comment)
+            }
+        )
 
 
 class OrderedFoodSerializer(serializers.ModelSerializer):

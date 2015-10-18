@@ -1,9 +1,15 @@
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
 from datetime import timedelta
 
 from customers import views
-from customers.config import DEMO_DIGITS_ID, DEMO_PHONE, ORDER_STATUS_COMPLETED
-from customers.exceptions import UserNameEmpty
-from customers.models import Heart, Order, OrderedFood, User, UserToken
+from customers.config import (DEMO_DIGITS_ID, DEMO_PHONE,
+                              ORDER_STATUS_COMPLETED, RESERVATION_STATUS,
+                              RESERVATION_STATUS_USER)
+from customers.exceptions import MaxSeatsExceeded, UserNameEmpty
+from customers.models import (Heart, Order, OrderedFood, Reservation, User,
+                              UserToken)
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.http import Http404
@@ -26,6 +32,7 @@ class CustomersTests(LunchbreakTestCase):
     NAME_USER = 'Meneer Aardappel'
     FORMAT = 'json'
     VALID_PHONE = '+32472907605'
+    VALID_PHONE2= '+32472907606'
     INVALID_PHONE = '+123456789'
     PIN = '123456'
     NAME = 'Meneer De Bolle'
@@ -42,6 +49,11 @@ class CustomersTests(LunchbreakTestCase):
             name=CustomersTests.NAME_USER
         )
 
+        self.otherUser = User.objects.create(
+            phone=CustomersTests.VALID_PHONE2,
+            name=CustomersTests.NAME_ALTERNATE
+        )
+
         self.userToken = UserToken.objects.create(
             identifier='something',
             device='something',
@@ -52,7 +64,17 @@ class CustomersTests(LunchbreakTestCase):
 
         self.store = Store.objects.create(
             name='CustomersTests',
-            country='Belgie',
+            country='België',
+            province='Oost-Vlaanderen',
+            city='Wetteren',
+            postcode='9230',
+            street='Dendermondesteenweg',
+            number=10
+        )
+
+        self.otherStore = Store.objects.create(
+            name='CustomersTestsOther',
+            country='België',
             province='Oost-Vlaanderen',
             city='Wetteren',
             postcode='9230',
@@ -387,3 +409,103 @@ class CustomersTests(LunchbreakTestCase):
         self.userToken.refresh_from_db()
         self.assertEqual(self.userToken.registration_id, content['registration_id'])
         self.assertEqual(self.userToken.service, content['service'])
+
+    def testReservationCreate(self):
+        '''
+        Test whether a user can create a reservation. But cannot set specific attributes he is not allowed to.
+        '''
+
+        url = reverse('user-reservation')
+
+        content = {
+            'store': self.store.id,
+            # No need to check reservationTime, see Store.checkOpen test
+            'reservationTime': (timezone.now() + timedelta(days=1)).strftime(settings.DATETIME_FORMAT),
+            'seats': 0
+        }
+
+        request = self.factory.post(url, content, format=CustomersTests.FORMAT)
+        response = self.authenticateRequest(request, views.ReservationMultiView)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        content['seats'] = self.store.maxSeats + 1
+
+        request = self.factory.post(url, content, format=CustomersTests.FORMAT)
+        response = self.authenticateRequest(request, views.ReservationMultiView)
+        self.assertEqualException(response, MaxSeatsExceeded)
+
+        content['seats'] = self.store.maxSeats
+
+        request = self.factory.post(url, content, format=CustomersTests.FORMAT)
+        response = self.authenticateRequest(request, views.ReservationMultiView)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        Reservation.objects.all().delete()
+
+    def testReservationUpdate(self):
+        reservation = Reservation.objects.create(
+            user=self.user,
+            store=self.store,
+            reservationTime=timezone.now() + timedelta(days=1),
+            seats=self.store.maxSeats
+        )
+
+        kwargs = {'pk': reservation.id}
+        url = reverse('reservation', kwargs=kwargs)
+
+        deniedAttributes = {
+            'seats': self.store.maxSeats - 1,
+            'reservationTime': (timezone.now() + timedelta(days=2)).strftime(settings.DATETIME_FORMAT),
+            'store': self.otherStore.id,
+            'user': self.otherUser.id
+        }
+
+        for attribute, value in deniedAttributes.iteritems():
+            originalValue = getattr(reservation, attribute)
+            content = {
+                attribute: value
+            }
+
+            request = self.factory.patch(url, content, format=CustomersTests.FORMAT)
+            response = self.authenticateRequest(request, views.ReservationSingleView, **kwargs)
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+            reservation.refresh_from_db()
+            self.assertEqual(getattr(reservation, attribute), originalValue)
+
+
+        for allowedTuple in RESERVATION_STATUS_USER:
+            originalStatus = reservation.status
+            allowedStatus = allowedTuple[0]
+
+            content = {
+                'status': allowedStatus
+            }
+
+            request = self.factory.patch(url, content, format=CustomersTests.FORMAT)
+            response = self.authenticateRequest(request, views.ReservationSingleView, **kwargs)
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+            reservation.refresh_from_db()
+            self.assertEqual(reservation.status, allowedStatus)
+
+            reservation.status = originalStatus
+            reservation.save()
+
+        for deniedTuple in RESERVATION_STATUS:
+            if deniedTuple in RESERVATION_STATUS_USER:
+                continue
+
+            originalStatus = reservation.status
+            deniedStatus = deniedTuple[0]
+
+            content = {
+                'status': deniedStatus
+            }
+
+            request = self.factory.patch(url, content, format=CustomersTests.FORMAT)
+            response = self.authenticateRequest(request, views.ReservationSingleView, **kwargs)
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+            reservation.refresh_from_db()
+            self.assertEqual(reservation.status, originalStatus)

@@ -76,4 +76,4 @@ class IngredientGroupAdmin(admin.ModelAdmin):
 
 
 class BaseTokenAdmin(admin.ModelAdmin):
-    list_display =('id', 'device',)
+    list_display = ('id', 'device',)

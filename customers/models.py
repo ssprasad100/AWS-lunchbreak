@@ -3,11 +3,16 @@ from __future__ import unicode_literals
 import math
 
 from customers.config import (ORDER_ENDED, ORDER_STATUS,
-                              ORDER_STATUS_COMPLETED, ORDER_STATUS_WAITING)
+                              ORDER_STATUS_COMPLETED, ORDER_STATUS_PLACED,
+                              ORDER_STATUS_WAITING, RESERVATION_STATUS,
+                              RESERVATION_STATUS_DENIED,
+                              RESERVATION_STATUS_PLACED)
 from customers.digits import Digits
-from customers.exceptions import DigitsException, UserNameEmpty
+from customers.exceptions import (DigitsException, MaxSeatsExceeded,
+                                  UserNameEmpty)
 from dirtyfields import DirtyFieldsMixin
 from django.conf import settings
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -133,14 +138,81 @@ class Heart(models.Model):
         )
 
 
+class Reservation(models.Model):
+    user = models.ForeignKey(User)
+    store = models.ForeignKey(Store)
+
+    seats = models.PositiveIntegerField(
+        default=1,
+        validators=[
+            MinValueValidator(1)
+        ]
+    )
+    placedTime = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Time of placement'
+    )
+    reservationTime = models.DateTimeField(
+        verbose_name='Time of reservation'
+    )
+    comment = models.TextField(
+        blank=True,
+        verbose_name='Comment from user'
+    )
+
+    suggestion = models.DateTimeField(
+        null=True,
+        blank=True
+    )
+    response = models.TextField(
+        blank=True,
+        verbose_name='Response from store'
+    )
+
+    status = models.IntegerField(
+        choices=RESERVATION_STATUS,
+        default=RESERVATION_STATUS_PLACED
+    )
+
+    def clean(self, *args, **kwargs):
+        if self.seats > self.store.maxSeats:
+            raise MaxSeatsExceeded()
+
+        Store.checkOpen(self.store, self.reservationTime)
+
+        super(Reservation, self).clean(*args, **kwargs)
+
+    def save(self, *args, **kwargs):
+        self.clean()
+
+        if self.suggestion is not None:
+            self.status = RESERVATION_STATUS_DENIED
+
+        super(Reservation, self).save(*args, **kwargs)
+
+
 class Order(models.Model, DirtyFieldsMixin):
     user = models.ForeignKey(User)
     store = models.ForeignKey(Store)
-    orderedTime = models.DateTimeField(auto_now_add=True, verbose_name='Time of order')
-    pickupTime = models.DateTimeField(verbose_name='Time of pickup')
-    status = models.PositiveIntegerField(choices=ORDER_STATUS, default=0)
-    paid = models.BooleanField(default=False)
-    total = models.DecimalField(decimal_places=2, max_digits=7, default=0)
+    orderedTime = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Time of placement'
+    )
+    pickupTime = models.DateTimeField(
+        verbose_name='Time of pickup'
+    )
+    status = models.PositiveIntegerField(
+        choices=ORDER_STATUS,
+        default=ORDER_STATUS_PLACED
+    )
+    paid = models.BooleanField(
+        default=False
+    )
+    total = models.DecimalField(
+        decimal_places=2,
+        max_digits=7,
+        default=0
+    )
     confirmedTotal = models.DecimalField(
         decimal_places=2,
         max_digits=7,
@@ -148,7 +220,14 @@ class Order(models.Model, DirtyFieldsMixin):
         null=True,
         blank=True
     )
-    description = models.TextField(blank=True)
+    description = models.TextField(
+        blank=True
+    )
+    reservation = models.OneToOneField(
+        Reservation,
+        null=True,
+        blank=True
+    )
 
     def save(self, *args, **kwargs):
         self.total = 0

@@ -36,6 +36,12 @@ urlpatterns = patterns('',
     ),
 
     url(
+        r'^reservation/(?P<pk>\d+)/?$',
+        views.ReservationSingleView.as_view(),
+        name='reservation'
+    ),
+
+    url(
         r'^store/(?P<pk>\d+)/?$',
         views.StoreHeartView.as_view()
     ),
@@ -125,6 +131,11 @@ urlpatterns = patterns('',
         r'^user/login/?$',
         views.UserLoginView.as_view(),
         name='user-login'
+    ),
+    url(
+        r'^user/reservation/?$',
+        views.ReservationMultiView.as_view(),
+        name='user-reservation'
     ),
     url(
         r'^user/order/?$',
