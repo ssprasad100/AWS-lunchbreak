@@ -473,7 +473,6 @@ class CustomersTests(LunchbreakTestCase):
             reservation.refresh_from_db()
             self.assertEqual(getattr(reservation, attribute), originalValue)
 
-
         for allowedTuple in RESERVATION_STATUS_USER:
             originalStatus = reservation.status
             allowedStatus = allowedTuple[0]

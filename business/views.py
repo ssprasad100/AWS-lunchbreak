@@ -11,8 +11,9 @@ from business.serializers import (EmployeeSerializer,
                                   ShortOrderSerializer, SingleFoodSerializer,
                                   StaffSerializer, StoreSerializer,
                                   StoreSerializerV3)
-from customers.config import (ORDER_STATUS_PLACED, ORDER_STATUS_RECEIVED,
-                              ORDER_STATUS_STARTED, ORDER_STATUS_WAITING)
+from customers.config import (ORDER_STATUS_COMPLETED, ORDER_STATUS_PLACED,
+                              ORDER_STATUS_RECEIVED, ORDER_STATUS_STARTED,
+                              ORDER_STATUS_WAITING)
 from customers.models import Order
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -294,13 +295,14 @@ class OrderSpreadView(viewsets.ReadOnlyModelViewSet):
                 customers_order.pickupTime > %s
                 AND customers_order.pickupTime < %s
                 AND customers_order.store_id = %s
+                AND customers_order.status = %s
             GROUP BY
                 unit
             ORDER BY
                 unit;
         '''.format(
             unit=unit
-        ), [frm, to, storeId])
+        ), [frm, to, storeId, ORDER_STATUS_COMPLETED])
 
 
 class StaffMultiView(generics.ListAPIView):

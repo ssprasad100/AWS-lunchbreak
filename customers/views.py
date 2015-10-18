@@ -203,7 +203,6 @@ class FoodCategoryRetrieveView(generics.RetrieveAPIView):
     queryset = FoodCategory.objects.all()
 
 
-
 class ReservationSingleView(generics.RetrieveUpdateAPIView):
 
     authentication_classes = (CustomerAuthentication,)
