@@ -705,8 +705,6 @@ def tokenGenerator():
 
 class BaseTokenManager(DeviceManager):
     def createToken(self, arguments, defaults, clone=False):
-        # Active parameter is for backwards compatibility with the old login system.
-        # Needs to be removed together with the old login system.
         rawIdentifier = tokenGenerator()
         defaults['identifier'] = rawIdentifier
 

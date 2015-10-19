@@ -45,7 +45,7 @@ from Lunchbreak.settings import *
 CONFIG = globals()
 
 APNS_FOLDER = '/etc/lunchbreak/apns/'
-CERT_TYPE = 'development' if CONFIG['DEBUG'] else 'production'
+CERT_TYPE = CONFIG['CERT_TYPE']
 BUSINESS_APNS_CERTIFICATE = APNS_FOLDER + 'business_{certType}.pem'.format(
     certType=CERT_TYPE
 )
@@ -169,6 +169,7 @@ def python():
         # Install pip
         run('wget https://bootstrap.pypa.io/get-pip.py')
         run('python get-pip.py')
+        run('rm -f get-pip.py*')
 
         # Globally install pip packages
         run('pip install %s' % ' '.join(PIP_PACKAGES))

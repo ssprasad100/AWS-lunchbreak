@@ -189,3 +189,6 @@ EMAIL_USE_TLS = True
 EMAIL_FROM = 'noreply@lunchbreakapp.be'
 
 TESTING = False
+
+# What APNS certificate to use (development or production)
+CERT_TYPE = 'development'

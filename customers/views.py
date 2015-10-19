@@ -416,7 +416,6 @@ class UserTokenUpdateView(generics.UpdateAPIView):
             request.auth.service = request.data.get('service', request.auth.service)
             request.auth.save()
             return Response(
-                self.serializer_class(request.auth).data,
                 status=status.HTTP_200_OK
             )
         return BadRequest(serializer.errors)
