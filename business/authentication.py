@@ -35,7 +35,11 @@ class BusinessAuthentication(TokenAuthentication):
         try:
             model = cls.MODEL.objects.get(id=modelId)
         except ObjectDoesNotExist:
-            return DoesNotExist('%s does not exist.' % cls.MODEL_NAME.capitalize())
+            return DoesNotExist(
+                '{modelName} does not exist.'.format(
+                    modelName=cls.MODEL_NAME.capitalize()
+                )
+            )
 
         if model.checkPassword(rawPassword):
             token, created = cls.TOKEN_MODEL.objects.createToken(
@@ -52,7 +56,9 @@ class BusinessAuthentication(TokenAuthentication):
             tokenSerializer = cls.TOKEN_SERIALIZER(token)
             return Response(
                 tokenSerializer.data,
-                status=(status.HTTP_201_CREATED if created else status.HTTP_200_OK)
+                status=(
+                    status.HTTP_201_CREATED if created else status.HTTP_200_OK
+                )
             )
         return IncorrectPassword().getResponse()
 
@@ -82,7 +88,7 @@ class BusinessAuthentication(TokenAuthentication):
         model.passwordReset = tokenGenerator()
         model.save()
 
-        subject, from_email = 'Lunchbreak wachtwoord herstellen', settings.EMAIL_FROM
+        subject = 'Lunchbreak wachtwoord herstellen'
 
         url = 'lunchbreakstore://reset/{model}/{email}/{passwordReset}'.format(
             model=cls.MODEL_NAME,
@@ -97,7 +103,12 @@ class BusinessAuthentication(TokenAuthentication):
         plaintext = render_to_string('requestReset.txt', templateArguments)
         html = render_to_string('requestReset.html', templateArguments)
 
-        msg = EmailMultiAlternatives(subject, plaintext, from_email, [to_email])
+        msg = EmailMultiAlternatives(
+            subject,
+            plaintext,
+            settings.EMAIL_FROM,
+            [to_email]
+        )
         msg.attach_alternative(html, 'text/html')
 
         try:

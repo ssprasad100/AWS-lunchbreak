@@ -27,12 +27,31 @@ from rest_framework.response import Response
 
 class User(models.Model):
     phone = PhoneNumberField()
-    name = models.CharField(max_length=255, blank=True)
-    digitsId = models.CharField(unique=True, max_length=10, blank=True, null=True, verbose_name='Digits ID')
-    requestId = models.CharField(max_length=32, blank=True, null=True, verbose_name='Digits Request ID')
+    name = models.CharField(
+        max_length=255,
+        blank=True
+    )
+    digitsId = models.CharField(
+        unique=True,
+        max_length=10,
+        blank=True,
+        null=True,
+        verbose_name='Digits ID'
+    )
+    requestId = models.CharField(
+        max_length=32,
+        blank=True,
+        null=True,
+        verbose_name='Digits Request ID'
+    )
 
-    confirmedAt = models.DateField(blank=True, null=True)
-    enabled = models.BooleanField(default=True)
+    confirmedAt = models.DateField(
+        blank=True,
+        null=True
+    )
+    enabled = models.BooleanField(
+        default=True
+    )
 
     def __unicode__(self):
         return '{name} {phone}'.format(
@@ -126,7 +145,9 @@ class User(models.Model):
 class Heart(models.Model):
     user = models.ForeignKey(User)
     store = models.ForeignKey(Store)
-    added = models.DateTimeField(auto_now_add=True)
+    added = models.DateTimeField(
+        auto_now_add=True
+    )
 
     class Meta:
         unique_together = ('user', 'store',)
@@ -277,14 +298,31 @@ class Order(models.Model, DirtyFieldsMixin):
 
 
 class OrderedFood(models.Model):
-    ingredients = models.ManyToManyField(Ingredient, blank=True)
-    amount = models.DecimalField(decimal_places=3, max_digits=7, default=1)
-    foodAmount = models.DecimalField(decimal_places=3, max_digits=7, default=1)
-    cost = models.DecimalField(decimal_places=2, max_digits=7)
+    ingredients = models.ManyToManyField(
+        Ingredient,
+        blank=True
+    )
+    amount = models.DecimalField(
+        decimal_places=3,
+        max_digits=7,
+        default=1)
+    foodAmount = models.DecimalField(
+        decimal_places=3,
+        max_digits=7,
+        default=1
+    )
+    cost = models.DecimalField(
+        decimal_places=2,
+        max_digits=7
+    )
     order = models.ForeignKey(Order)
     original = models.ForeignKey(Food)
-    useOriginal = models.BooleanField(default=False)
-    comment = models.TextField(blank=True)
+    useOriginal = models.BooleanField(
+        default=False
+    )
+    comment = models.TextField(
+        blank=True
+    )
 
     class Meta:
         verbose_name_plural = 'Ordered food'

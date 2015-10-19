@@ -50,8 +50,22 @@ class Polaroid(models.Model):
 
 
 class PolaroidBase(Polaroid):
-    original = models.ImageField(upload_to='polaroid_base')
-    full_hd = ImageSpecField(source='original', spec=FullHD)
-    hd = ImageSpecField(source='original', spec=HD)
-    hq = ImageSpecField(source='original', spec=HQ)
-    lq = ImageSpecField(source='original', spec=LQ)
+    original = models.ImageField(
+        upload_to='polaroid_base'
+    )
+    full_hd = ImageSpecField(
+        source='original',
+        spec=FullHD
+    )
+    hd = ImageSpecField(
+        source='original',
+        spec=HD
+    )
+    hq = ImageSpecField(
+        source='original',
+        spec=HQ
+    )
+    lq = ImageSpecField(
+        source='original',
+        spec=LQ
+    )

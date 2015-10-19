@@ -1,18 +1,19 @@
 from django.conf.urls import patterns, url
 from customers import views
 
-urlpatterns = patterns('',
+urlpatterns = patterns(
+    '',
     url(
         r'^food/(?P<pk>\d+)/?$',
         views.FoodRetrieveView.as_view()
     ),
+    url(
+        r'^food/category/(?P<foodcategory_id>\d+)/?$',
+        views.FoodListView.as_view()
+    ),
     # Version 3 deprecated, use /store/{id}/food
     url(
         r'^food/store/(?P<store_id>\d+)/?$',
-        views.FoodListView.as_view()
-    ),
-    url(
-        r'^food/category/(?P<foodcategory_id>\d+)/?$',
         views.FoodListView.as_view()
     ),
 
@@ -41,41 +42,11 @@ urlpatterns = patterns('',
         name='reservation'
     ),
 
-    url(
-        r'^store/(?P<pk>\d+)/?$',
-        views.StoreHeartView.as_view()
-    ),
-    url(
-        r'^store/(?P<store_id>\d+)/food/?$',
-        views.FoodListView.as_view()
-    ),
-    url(
-        r'^store/(?P<store_id>\d+)/header/(?P<width>\d+)/(?P<height>\d+)/?$',
-        views.StoreHeaderView.as_view()
-    ),
-    url(
-        r'^store/(?P<store_id>\d+)/foodcategories/?$',
-        views.FoodCategoryListView.as_view()
-    ),
-    url(
-        r'^store/(?P<pk>\d+)/(?P<option>heart|unheart)/?$',
-        views.StoreHeartView.as_view(), name='store-heart'),
-    url(
-        r'^store/(?P<store_id>\d+)/hours/?$',
-        views.StoreHoursView.as_view()
-    ),
-    url(
-        r'^store/(?P<store_id>\d+)/holidayperiods/?$',
-        views.HolidayPeriodListView.as_view()
-    ),
-    url(
-        r'^store/(?P<store_id>\d+)/openinghours/?$',
-        views.OpeningHoursListView.as_view()
-    ),
     # Deprecated version 3, user /store/{id}/{option}/
     url(
         r'^store/(?P<option>heart|unheart)/(?P<pk>\d+)/?$',
-        views.StoreHeartView.as_view()),
+        views.StoreHeartView.as_view()
+    ),
     # Deprecated version 3, use /store/{id}/holidayperiods
     url(
         r'^store/holiday/(?P<store_id>\d+)/?$',
@@ -87,16 +58,54 @@ urlpatterns = patterns('',
         views.OpeningHoursListView.as_view()
     ),
     url(
-        r'^store/nearby/(?P<latitude>-?\d+.?\d*)/(?P<longitude>-?\d+.?\d*)/?$',
+        r'^store/(?P<pk>\d+)/?$',
+        views.StoreHeartView.as_view()
+    ),
+    url(
+        r'^store/(?P<pk>\d+)/(?P<option>heart|unheart)/?$',
+        views.StoreHeartView.as_view(), name='store-heart'
+    ),
+    url(
+        r'^store/(?P<store_id>\d+)/food/?$',
+        views.FoodListView.as_view()
+    ),
+    url(
+        r'^store/(?P<store_id>\d+)/foodcategories/?$',
+        views.FoodCategoryListView.as_view()
+    ),
+    url(
+        r'^store/(?P<store_id>\d+)/header/(?P<width>\d+)/(?P<height>\d+)/?$',
+        views.StoreHeaderView.as_view()
+    ),
+    url(
+        r'^store/(?P<store_id>\d+)/holidayperiods/?$',
+        views.HolidayPeriodListView.as_view()
+    ),
+    url(
+        r'^store/(?P<store_id>\d+)/hours/?$',
+        views.StoreHoursView.as_view()
+    ),
+    url(
+        r'^store/(?P<store_id>\d+)/openinghours/?$',
+        views.OpeningHoursListView.as_view()
+    ),
+    url(
+        r'^store/nearby'
+        r'/(?P<latitude>-?\d+.?\d*)'
+        r'/(?P<longitude>-?\d+.?\d*)/?$',
         views.StoreMultiView.as_view()
     ),
     url(
-        r'^store/nearby/(?P<latitude>-?\d+.?\d*)/(?P<longitude>-?\d+.?\d*)/(?P<proximity>\d+.?\d*)/?$',
+        r'^store/nearby'
+        r'/(?P<latitude>-?\d+.?\d*)'
+        r'/(?P<longitude>-?\d+.?\d*)'
+        r'/(?P<proximity>\d+.?\d*)/?$',
         views.StoreMultiView.as_view()
     ),
     # Deprecated version 3, use /store/{id}/hours
     url(
-        r'^store/open/(?P<store_id>\d+)/?$',
+        r'^store/open'
+        r'/(?P<store_id>\d+)/?$',
         views.StoreHoursView.as_view()
     ),
     url(

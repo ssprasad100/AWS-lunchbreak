@@ -58,16 +58,32 @@ class LunchbreakManager(models.Manager):
         )
         '''
         haversine_where = "{} < %s".format(haversine)
-        return self.get_queryset()\
-            .exclude(latitude=None)\
-            .exclude(longitude=None)\
-            .extra(
-                select={'distance': haversine},
-                select_params=[latitude, latitude, longitude],
-                where=[haversine_where],
-                params=[latitude, latitude, longitude, proximity],
-                order_by=['distance']
-            )
+        return self.get_queryset().exclude(
+            latitude=None
+        ).exclude(
+            longitude=None
+        ).extra(
+            select={
+                'distance': haversine
+            },
+            select_params=[
+                latitude,
+                latitude,
+                longitude
+            ],
+            where=[
+                haversine_where
+            ],
+            params=[
+                latitude,
+                latitude,
+                longitude,
+                proximity
+            ],
+            order_by=[
+                'distance'
+            ]
+        )
 
     def closestFood(self, ingredients, original):
         ingredientsIn = -1 if len(ingredients) == 0 else '''
@@ -108,8 +124,13 @@ class LunchbreakManager(models.Manager):
 
 
 class StoreCategory(models.Model):
-    name = models.CharField(max_length=255)
-    icon = models.PositiveIntegerField(choices=ICONS, default=0)
+    name = models.CharField(
+        max_length=255
+    )
+    icon = models.PositiveIntegerField(
+        choices=ICONS,
+        default=0
+    )
 
     class Meta:
         verbose_name_plural = 'Store categories'
@@ -119,33 +140,91 @@ class StoreCategory(models.Model):
 
 
 class StoreHeader(Polaroid):
-    original = models.ImageField(storage=PrivateMediaStorage(), upload_to='storeheader')
-    ldpi = ImageSpecField(spec=LDPI, source='original')
-    mdpi = ImageSpecField(spec=MDPI, source='original')
-    hdpi = ImageSpecField(spec=HDPI, source='original')
-    xhdpi = ImageSpecField(spec=XHDPI, source='original')
-    xxhdpi = ImageSpecField(spec=XXHDPI, source='original')
-    xxxhdpi = ImageSpecField(spec=XXXHDPI, source='original')
+    original = models.ImageField(
+        storage=PrivateMediaStorage(),
+        upload_to='storeheader'
+    )
+    ldpi = ImageSpecField(
+        spec=LDPI,
+        source='original'
+    )
+    mdpi = ImageSpecField(
+        spec=MDPI,
+        source='original'
+    )
+    hdpi = ImageSpecField(
+        spec=HDPI,
+        source='original'
+    )
+    xhdpi = ImageSpecField(
+        spec=XHDPI,
+        source='original'
+    )
+    xxhdpi = ImageSpecField(
+        spec=XXHDPI,
+        source='original'
+    )
+    xxxhdpi = ImageSpecField(
+        spec=XXXHDPI,
+        source='original'
+    )
 
 
 class Store(models.Model):
-    name = models.CharField(max_length=255)
-    header = models.ForeignKey(StoreHeader, blank=True, null=True, on_delete=models.SET_NULL)
+    name = models.CharField(
+        max_length=255
+    )
+    header = models.ForeignKey(
+        StoreHeader,
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL
+    )
 
-    country = models.CharField(max_length=255)
-    province = models.CharField(max_length=255)
-    city = models.CharField(max_length=255)
-    postcode = models.CharField(max_length=20, verbose_name='Postal code')
-    street = models.CharField(max_length=255)
+    country = models.CharField(
+        max_length=255
+    )
+    province = models.CharField(
+        max_length=255
+    )
+    city = models.CharField(
+        max_length=255
+    )
+    postcode = models.CharField(
+        max_length=20,
+        verbose_name='Postal code'
+    )
+    street = models.CharField(
+        max_length=255
+    )
     number = models.PositiveIntegerField()
-    latitude = models.DecimalField(blank=True, decimal_places=7, max_digits=10)
-    longitude = models.DecimalField(blank=True, decimal_places=7, max_digits=10)
+    latitude = models.DecimalField(
+        blank=True,
+        decimal_places=7,
+        max_digits=10
+    )
+    longitude = models.DecimalField(
+        blank=True,
+        decimal_places=7,
+        max_digits=10
+    )
 
     categories = models.ManyToManyField(StoreCategory)
-    minTime = models.DurationField(default=timedelta(seconds=60))
-    orderTime = models.TimeField(default=time(hour=12))
-    hearts = models.ManyToManyField('customers.User', through='customers.Heart', blank=True)
-    costCalculation = models.PositiveIntegerField(choices=COST_GROUP_CALCULATIONS, default=COST_GROUP_ALWAYS)
+    minTime = models.DurationField(
+        default=timedelta(seconds=60)
+    )
+    orderTime = models.TimeField(
+        default=time(hour=12)
+    )
+    hearts = models.ManyToManyField(
+        'customers.User',
+        through='customers.Heart',
+        blank=True
+    )
+    costCalculation = models.PositiveIntegerField(
+        choices=COST_GROUP_CALCULATIONS,
+        default=COST_GROUP_ALWAYS
+    )
     maxSeats = models.PositiveIntegerField(
         default=10,
         validators=[
@@ -153,8 +232,12 @@ class Store(models.Model):
         ]
     )
 
-    lastModified = models.DateTimeField(auto_now=True)
-    enabled = models.BooleanField(default=True)
+    lastModified = models.DateTimeField(
+        auto_now=True
+    )
+    enabled = models.BooleanField(
+        default=True
+    )
 
     objects = LunchbreakManager()
 
@@ -237,7 +320,9 @@ class Store(models.Model):
 
 class OpeningHours(models.Model):
     store = models.ForeignKey(Store)
-    day = models.PositiveIntegerField(choices=DAYS)
+    day = models.PositiveIntegerField(
+        choices=DAYS
+    )
 
     opening = models.TimeField()
     closing = models.TimeField()
@@ -264,12 +349,16 @@ class OpeningHours(models.Model):
 
 class HolidayPeriod(models.Model):
     store = models.ForeignKey(Store)
-    description = models.CharField(max_length=255)
+    description = models.CharField(
+        max_length=255
+    )
 
     start = models.DateTimeField()
     end = models.DateTimeField()
 
-    closed = models.BooleanField(default=True)
+    closed = models.BooleanField(
+        default=True
+    )
 
     def clean(self):
         if self.start >= self.end:
@@ -289,10 +378,22 @@ class HolidayPeriod(models.Model):
 
 
 class FoodType(models.Model):
-    name = models.CharField(max_length=255)
-    icon = models.PositiveIntegerField(choices=ICONS, default=ICONS[0][0])
-    quantifier = models.CharField(max_length=255, blank=True, null=True)
-    inputType = models.PositiveIntegerField(choices=INPUT_TYPES, default=INPUT_TYPES[0][0])
+    name = models.CharField(
+        max_length=255
+    )
+    icon = models.PositiveIntegerField(
+        choices=ICONS,
+        default=ICONS[0][0]
+    )
+    quantifier = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True
+    )
+    inputType = models.PositiveIntegerField(
+        choices=INPUT_TYPES,
+        default=INPUT_TYPES[0][0]
+    )
 
     def isValidAmount(self, amount, quantity=None):
         return amount > 0 \
@@ -304,14 +405,28 @@ class FoodType(models.Model):
 
 
 class IngredientGroup(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(
+        max_length=255
+    )
     foodType = models.ForeignKey(FoodType)
     store = models.ForeignKey(Store)
 
-    maximum = models.PositiveIntegerField(default=0, verbose_name='Maximum amount')
-    minimum = models.PositiveIntegerField(default=0, verbose_name='Minimum amount')
-    priority = models.PositiveIntegerField(default=0)
-    cost = models.DecimalField(default=-1, max_digits=7, decimal_places=2)
+    maximum = models.PositiveIntegerField(
+        default=0,
+        verbose_name='Maximum amount'
+    )
+    minimum = models.PositiveIntegerField(
+        default=0,
+        verbose_name='Minimum amount'
+    )
+    priority = models.PositiveIntegerField(
+        default=0
+    )
+    cost = models.DecimalField(
+        default=-1,
+        max_digits=7,
+        decimal_places=2
+    )
 
     def clean(self):
         if self.minimum > self.maximum:
@@ -368,15 +483,28 @@ class IngredientGroup(models.Model):
 
 
 class Ingredient(models.Model):
-    name = models.CharField(max_length=255)
-    cost = models.DecimalField(default=0, max_digits=7, decimal_places=2)
-    icon = models.PositiveIntegerField(choices=ICONS, default=0)
-    alwaysVisible = models.BooleanField(default=False)
+    name = models.CharField(
+        max_length=255
+    )
+    cost = models.DecimalField(
+        default=0,
+        max_digits=7,
+        decimal_places=2
+    )
+    icon = models.PositiveIntegerField(
+        choices=ICONS,
+        default=0
+    )
+    alwaysVisible = models.BooleanField(
+        default=False
+    )
 
     group = models.ForeignKey(IngredientGroup)
     store = models.ForeignKey(Store)
 
-    lastModified = models.DateTimeField(auto_now=True)
+    lastModified = models.DateTimeField(
+        auto_now=True
+    )
 
     def save(self, *args, **kwargs):
         if self.store != self.group.store:
@@ -392,8 +520,12 @@ class Ingredient(models.Model):
 
 
 class FoodCategory(models.Model):
-    name = models.CharField(max_length=255)
-    priority = models.PositiveIntegerField(default=0)
+    name = models.CharField(
+        max_length=255
+    )
+    priority = models.PositiveIntegerField(
+        default=0
+    )
     store = models.ForeignKey(Store)
 
     class Meta:
@@ -406,9 +538,19 @@ class FoodCategory(models.Model):
 class Quantity(models.Model):
     foodType = models.ForeignKey(FoodType)
     store = models.ForeignKey(Store)
-    amountMin = models.DecimalField(decimal_places=3, max_digits=7, default=1)
-    amountMax = models.DecimalField(decimal_places=3, max_digits=7, default=10)
-    lastModified = models.DateTimeField(auto_now=True)
+    amountMin = models.DecimalField(
+        decimal_places=3,
+        max_digits=7,
+        default=1
+    )
+    amountMax = models.DecimalField(
+        decimal_places=3,
+        max_digits=7,
+        default=10
+    )
+    lastModified = models.DateTimeField(
+        auto_now=True
+    )
 
     class Meta:
         unique_together = ('foodType', 'store',)
@@ -433,21 +575,46 @@ class Quantity(models.Model):
 
 
 class Food(models.Model):
-    name = models.CharField(max_length=255)
-    description = models.TextField(blank=True)
-    amount = models.DecimalField(decimal_places=3, max_digits=7, default=1)
-    cost = models.DecimalField(decimal_places=2, max_digits=7)
+    name = models.CharField(
+        max_length=255
+    )
+    description = models.TextField(
+        blank=True
+    )
+    amount = models.DecimalField(
+        decimal_places=3,
+        max_digits=7,
+        default=1
+    )
+    cost = models.DecimalField(
+        decimal_places=2,
+        max_digits=7
+    )
     foodType = models.ForeignKey(FoodType)
-    minDays = models.PositiveIntegerField(default=0)
-    canComment = models.BooleanField(default=False)
-    priority = models.BigIntegerField(default=0)
+    minDays = models.PositiveIntegerField(
+        default=0
+    )
+    canComment = models.BooleanField(
+        default=False
+    )
+    priority = models.BigIntegerField(
+        default=0
+    )
 
     category = models.ForeignKey(FoodCategory)
-    ingredients = models.ManyToManyField(Ingredient, through='IngredientRelation', blank=True)
+    ingredients = models.ManyToManyField(
+        Ingredient,
+        through='IngredientRelation',
+        blank=True
+    )
     store = models.ForeignKey(Store)
 
-    lastModified = models.DateTimeField(auto_now=True)
-    deleted = models.BooleanField(default=False)
+    lastModified = models.DateTimeField(
+        auto_now=True
+    )
+    deleted = models.BooleanField(
+        default=False
+    )
     objects = LunchbreakManager()
 
     class Meta:
@@ -519,7 +686,9 @@ class Food(models.Model):
 class IngredientRelation(models.Model):
     food = models.ForeignKey(Food)
     ingredient = models.ForeignKey(Ingredient)
-    typical = models.BooleanField(default=False)
+    typical = models.BooleanField(
+        default=False
+    )
 
     class Meta:
         unique_together = ('food', 'ingredient',)
@@ -561,8 +730,12 @@ class BaseTokenManager(DeviceManager):
 
 
 class BaseToken(BareDevice, DirtyFieldsMixin):
-    device = models.CharField(max_length=255)
-    identifier = models.CharField(max_length=255)
+    device = models.CharField(
+        max_length=255
+    )
+    identifier = models.CharField(
+        max_length=255
+    )
 
     objects = BaseTokenManager()
 

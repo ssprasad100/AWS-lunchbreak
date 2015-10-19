@@ -33,111 +33,14 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 
-class StoreMultiView(generics.ListAPIView):
-    '''List the stores.'''
+class FoodRetrieveView(generics.RetrieveAPIView):
+    '''Retrieve a specific food.'''
 
     authentication_classes = (CustomerAuthentication,)
-    serializer_class = ShortStoreSerializer
+    serializer_class = SingleFoodSerializer
 
     def get_queryset(self):
-        proximity = self.kwargs['proximity'] if 'proximity' in self.kwargs else 5
-        if 'latitude' in self.kwargs and 'longitude' in self.kwargs:
-            return Store.objects.nearby(
-                self.kwargs['latitude'],
-                self.kwargs['longitude'],
-                proximity
-            ).filter(
-                enabled=True
-            )
-        else:
-            return Store.objects.filter(
-                order__user=self.request.user,
-                enabled=True
-            ).order_by('-order__orderedTime').distinct()
-
-
-class StoreHeartView(generics.RetrieveUpdateAPIView):
-    '''Heart or unheart a store.'''
-
-    authentication_classes = (CustomerAuthentication,)
-    serializer_class = StoreHeartSerializer
-    queryset = Store.objects.all()
-
-    def get_serializer_class(self):
-        if self.request.version >= 4:
-            return StoreHeartSerializer
-        else:
-            return StoreHeartSerializerV3
-
-    def get(self, request, pk, **kwargs):
-        store = get_object_or_404(Store, id=pk)
-        store.hearted = request.user in store.hearts.all()
-        serializer = self.get_serializer_class()(store)
-        return Response(data=serializer.data, status=status.HTTP_200_OK)
-
-    def update(self, request, pk, **kwargs):
-        heart = 'option' in self.kwargs and self.kwargs['option'] == 'heart'
-        store = get_object_or_404(Store, id=pk)
-
-        if heart:
-            heart, created = Heart.objects.get_or_create(store=store, user=request.user)
-            statusCode = status.HTTP_201_CREATED if created else status.HTTP_200_OK
-            return Response(status=statusCode)
-        else:
-            heart = get_object_or_404(Heart, store=store, user=request.user)
-            heart.delete()
-            return Response(status=status.HTTP_200_OK)
-
-
-class StoreHeaderView(APIView):
-
-    renderer_classes = (JPEGRenderer,)
-
-    def get(self, request, store_id, width, height):
-        store = get_object_or_404(Store, id=store_id)
-        if store.header is None:
-            raise Http404('That store does not have a header.')
-        image = store.header.retrieve_from_source('original', int(width), int(height))
-        image.open()
-        return Response(image)
-
-
-class StoreHoursView(generics.ListAPIView):
-    '''List the opening hours and holiday periods of a store.'''
-
-    authentication_classes = (CustomerAuthentication,)
-    serializer_class = HoursSerializer
-    pagination_class = None
-    queryset = None
-
-    def get(self, request, *args, **kwargs):
-        return getOpeningAndHoliday(self.kwargs['store_id'])
-
-
-class StoreCategoryListView(StoreCategoryListViewBase):
-    authentication_classes = (CustomerAuthentication,)
-
-
-class OpeningHoursListView(generics.ListAPIView):
-    '''List the opening hours of a store.'''
-
-    authentication_classes = (CustomerAuthentication,)
-    serializer_class = OpeningHoursSerializer
-    pagination_class = None
-
-    def get_queryset(self):
-        return getOpeningHours(self.kwargs['store_id'])
-
-
-class HolidayPeriodListView(generics.ListAPIView):
-    '''List the holiday periods of a store.'''
-
-    authentication_classes = (CustomerAuthentication,)
-    serializer_class = HolidayPeriodSerializer
-    pagination_class = None
-
-    def get_queryset(self):
-        return getHolidayPeriods(self.kwargs['store_id'])
+        return Food.objects.filter(deleted=False)
 
 
 class FoodListView(generics.ListAPIView):
@@ -171,70 +74,12 @@ class FoodListView(generics.ListAPIView):
         return SimplePagination
 
 
-class FoodRetrieveView(generics.RetrieveAPIView):
-    '''Retrieve a specific food.'''
-
-    authentication_classes = (CustomerAuthentication,)
-    serializer_class = SingleFoodSerializer
-
-    def get_queryset(self):
-        return Food.objects.filter(deleted=False)
-
-
-class FoodCategoryListView(generics.ListAPIView):
-    ''' List all food categories. '''
-
-    authentication_classes = (CustomerAuthentication,)
-    serializer_class = ShortFoodCategorySerializer
-    pagination_class = None
-
-    def get_queryset(self):
-        if 'store_id' in self.kwargs:
-            return FoodCategory.objects.filter(
-                store_id=self.kwargs['store_id']
-            ).order_by('-priority', 'name')
-
-
 class FoodCategoryRetrieveView(generics.RetrieveAPIView):
     ''' List all food categories. '''
 
     authentication_classes = (CustomerAuthentication,)
     serializer_class = FoodCategorySerializer
     queryset = FoodCategory.objects.all()
-
-
-class ReservationSingleView(generics.RetrieveUpdateAPIView):
-
-    authentication_classes = (CustomerAuthentication,)
-    serializer_class = ReservationSerializer
-
-    def get_queryset(self):
-        return Reservation.objects.filter(user=self.request.user)
-
-
-class ReservationMultiView(generics.ListCreateAPIView):
-
-    authentication_classes = (CustomerAuthentication,)
-    serializer_class = ReservationSerializer
-
-    def get_queryset(self):
-        return Reservation.objects.filter(user=self.request.user)
-
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(
-            data=request.data
-        )
-
-        if serializer.is_valid():
-            try:
-                serializer.save()
-                return Response(
-                    data=serializer.data,
-                    status=status.HTTP_201_CREATED
-                )
-            except LunchbreakException as e:
-                return e.getResponse()
-        return BadRequest(serializer.errors)
 
 
 class OrderView(generics.ListCreateAPIView):
@@ -310,6 +155,136 @@ class OrderPriceView(generics.CreateAPIView):
         return BadRequest(priceSerializer.errors)
 
 
+class ReservationSingleView(generics.RetrieveUpdateAPIView):
+
+    authentication_classes = (CustomerAuthentication,)
+    serializer_class = ReservationSerializer
+
+    def get_queryset(self):
+        return Reservation.objects.filter(user=self.request.user)
+
+
+class StoreHeartView(generics.RetrieveUpdateAPIView):
+    '''Heart or unheart a store.'''
+
+    authentication_classes = (CustomerAuthentication,)
+    serializer_class = StoreHeartSerializer
+    queryset = Store.objects.all()
+
+    def get_serializer_class(self):
+        if self.request.version >= 4:
+            return StoreHeartSerializer
+        else:
+            return StoreHeartSerializerV3
+
+    def get(self, request, pk, **kwargs):
+        store = get_object_or_404(Store, id=pk)
+        store.hearted = request.user in store.hearts.all()
+        serializer = self.get_serializer_class()(store)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+    def update(self, request, pk, **kwargs):
+        heart = 'option' in self.kwargs and self.kwargs['option'] == 'heart'
+        store = get_object_or_404(Store, id=pk)
+
+        if heart:
+            heart, created = Heart.objects.get_or_create(store=store, user=request.user)
+            statusCode = status.HTTP_201_CREATED if created else status.HTTP_200_OK
+            return Response(status=statusCode)
+        else:
+            heart = get_object_or_404(Heart, store=store, user=request.user)
+            heart.delete()
+            return Response(status=status.HTTP_200_OK)
+
+
+class HolidayPeriodListView(generics.ListAPIView):
+    '''List the holiday periods of a store.'''
+
+    authentication_classes = (CustomerAuthentication,)
+    serializer_class = HolidayPeriodSerializer
+    pagination_class = None
+
+    def get_queryset(self):
+        return getHolidayPeriods(self.kwargs['store_id'])
+
+
+class OpeningHoursListView(generics.ListAPIView):
+    '''List the opening hours of a store.'''
+
+    authentication_classes = (CustomerAuthentication,)
+    serializer_class = OpeningHoursSerializer
+    pagination_class = None
+
+    def get_queryset(self):
+        return getOpeningHours(self.kwargs['store_id'])
+
+
+class FoodCategoryListView(generics.ListAPIView):
+    ''' List all food categories. '''
+
+    authentication_classes = (CustomerAuthentication,)
+    serializer_class = ShortFoodCategorySerializer
+    pagination_class = None
+
+    def get_queryset(self):
+        if 'store_id' in self.kwargs:
+            return FoodCategory.objects.filter(
+                store_id=self.kwargs['store_id']
+            ).order_by('-priority', 'name')
+
+
+class StoreHeaderView(APIView):
+
+    renderer_classes = (JPEGRenderer,)
+
+    def get(self, request, store_id, width, height):
+        store = get_object_or_404(Store, id=store_id)
+        if store.header is None:
+            raise Http404('That store does not have a header.')
+        image = store.header.retrieve_from_source('original', int(width), int(height))
+        image.open()
+        return Response(image)
+
+
+class StoreHoursView(generics.ListAPIView):
+    '''List the opening hours and holiday periods of a store.'''
+
+    authentication_classes = (CustomerAuthentication,)
+    serializer_class = HoursSerializer
+    pagination_class = None
+    queryset = None
+
+    def get(self, request, *args, **kwargs):
+        return getOpeningAndHoliday(self.kwargs['store_id'])
+
+
+class StoreMultiView(generics.ListAPIView):
+    '''List the stores.'''
+
+    authentication_classes = (CustomerAuthentication,)
+    serializer_class = ShortStoreSerializer
+
+    def get_queryset(self):
+        proximity = self.kwargs['proximity'] if 'proximity' in self.kwargs else 5
+        if 'latitude' in self.kwargs and 'longitude' in self.kwargs:
+            return Store.objects.nearby(
+                self.kwargs['latitude'],
+                self.kwargs['longitude'],
+                proximity
+            ).filter(
+                enabled=True
+            )
+        else:
+            return Store.objects.filter(
+                order__user=self.request.user,
+                enabled=True
+            ).order_by('-order__orderedTime').distinct()
+
+
+class StoreCategoryListView(StoreCategoryListViewBase):
+    authentication_classes = (CustomerAuthentication,)
+
+
 class UserTokenView(generics.ListAPIView):
     '''Return all of the Tokens for the authenticated user.'''
 
@@ -318,72 +293,6 @@ class UserTokenView(generics.ListAPIView):
 
     def get_queryset(self):
         return UserToken.objects.filter(user=self.request.user)
-
-
-class UserRegisterView(generics.CreateAPIView):
-
-    serializer_class = UserRegisterSerializer
-
-    def create(self, request, *args, **kwargs):
-        registerSerializer = UserRegisterView.serializer_class(data=request.data)
-        phone = request.data.get('phone', False)
-        if registerSerializer.is_valid():
-            return User.register(phone)
-        elif phone == DEMO_PHONE:
-            return Response(status=status.HTTP_200_OK)
-        return BadRequest(registerSerializer.errors)
-
-
-class UserLoginView(generics.CreateAPIView):
-
-    serializer_class = UserLoginSerializer
-
-    def create(self, request, *args, **kwargs):
-        loginSerializer = UserLoginView.serializer_class(data=request.data)
-        phone = request.data.get('phone', False)
-        if loginSerializer.is_valid():
-            pin = request.data['pin']
-            name = request.data.get('name', None)
-            token = request.data.get('token', None)
-            return User.login(phone, pin, name, token)
-        elif (phone == DEMO_PHONE
-            and 'token' in request.data
-            and 'device' in request.data['token']
-            and 'pin' in request.data):
-            try:
-                demoUser = User.objects.get(
-                    phone=phone,
-                    requestId=request.data['pin'],
-                    digitsId=DEMO_DIGITS_ID
-                )
-                return UserView.createGetToken(demoUser, request.data['token']['device'])
-            except User.DoesNotExist:
-                pass
-        return BadRequest(loginSerializer.errors)
-
-
-class UserTokenUpdateView(generics.UpdateAPIView):
-
-    serializer_class = UserTokenUpdateSerializer
-    authentication_classes = (CustomerAuthentication,)
-
-    def update(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid():
-            request.auth.registration_id = request.data.get('registration_id', request.auth.registration_id)
-            request.auth.service = request.data.get('service', request.auth.service)
-            request.auth.save()
-            return Response(
-                self.serializer_class(request.auth).data,
-                status=status.HTTP_200_OK
-            )
-        return BadRequest(serializer.errors)
-
-    def put(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
-
-    def patch(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
 
 
 class UserView(generics.CreateAPIView):
@@ -493,3 +402,94 @@ class UserView(generics.CreateAPIView):
                 else:
                     return UserView.createGetToken(demoUser, request.data['device'])
         return BadRequest(userSerializer.errors)
+
+
+class UserTokenUpdateView(generics.UpdateAPIView):
+
+    serializer_class = UserTokenUpdateSerializer
+    authentication_classes = (CustomerAuthentication,)
+
+    def update(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            request.auth.registration_id = request.data.get('registration_id', request.auth.registration_id)
+            request.auth.service = request.data.get('service', request.auth.service)
+            request.auth.save()
+            return Response(
+                self.serializer_class(request.auth).data,
+                status=status.HTTP_200_OK
+            )
+        return BadRequest(serializer.errors)
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+
+class UserRegisterView(generics.CreateAPIView):
+
+    serializer_class = UserRegisterSerializer
+
+    def create(self, request, *args, **kwargs):
+        registerSerializer = UserRegisterView.serializer_class(data=request.data)
+        phone = request.data.get('phone', False)
+        if registerSerializer.is_valid():
+            return User.register(phone)
+        elif phone == DEMO_PHONE:
+            return Response(status=status.HTTP_200_OK)
+        return BadRequest(registerSerializer.errors)
+
+
+class UserLoginView(generics.CreateAPIView):
+
+    serializer_class = UserLoginSerializer
+
+    def create(self, request, *args, **kwargs):
+        loginSerializer = UserLoginView.serializer_class(data=request.data)
+        phone = request.data.get('phone', False)
+        if loginSerializer.is_valid():
+            pin = request.data['pin']
+            name = request.data.get('name', None)
+            token = request.data.get('token', None)
+            return User.login(phone, pin, name, token)
+        elif(phone == DEMO_PHONE and
+                'token' in request.data and
+                'device' in request.data['token'] and
+                'pin' in request.data):
+            try:
+                demoUser = User.objects.get(
+                    phone=phone,
+                    requestId=request.data['pin'],
+                    digitsId=DEMO_DIGITS_ID
+                )
+                return UserView.createGetToken(demoUser, request.data['token']['device'])
+            except User.DoesNotExist:
+                pass
+        return BadRequest(loginSerializer.errors)
+
+
+class ReservationMultiView(generics.ListCreateAPIView):
+
+    authentication_classes = (CustomerAuthentication,)
+    serializer_class = ReservationSerializer
+
+    def get_queryset(self):
+        return Reservation.objects.filter(user=self.request.user)
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(
+            data=request.data
+        )
+
+        if serializer.is_valid():
+            try:
+                serializer.save()
+                return Response(
+                    data=serializer.data,
+                    status=status.HTTP_201_CREATED
+                )
+            except LunchbreakException as e:
+                return e.getResponse()
+        return BadRequest(serializer.errors)

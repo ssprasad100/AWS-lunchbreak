@@ -5,7 +5,8 @@ from business.serializers import (EmployeePasswordSerializer,
                                   StaffPasswordSerializer)
 from django.conf.urls import patterns, url
 
-urlpatterns = patterns('',
+urlpatterns = patterns(
+    '',
     url(
         r'^employee/?$',
         views.EmployeeView.as_view()
@@ -27,17 +28,18 @@ urlpatterns = patterns('',
             'authentication': EmployeeAuthentication
         }
     ),
-
-    url(
-        r'^food/(?P<since>\d{8}T\d{6}|\d{2}-\d{2}-\d{4}-\d{2}-\d{2}-\d{2})?/?$',
-        views.FoodView.as_view()
-    ),
     url(
         r'^food/(?P<pk>\d+)/?$',
         views.FoodSingleView.as_view()
     ),
     url(
-        r'^food/popular/(?P<frm>\d{8}T\d{6}|\d{2}-\d{2}-\d{4}-\d{2}-\d{2}-\d{2})?/(?P<to>\d{8}T\d{6}|\d{2}-\d{2}-\d{4}-\d{2}-\d{2}-\d{2})?/?$',
+        r'^food/(?P<since>\d{8}T\d{6}|\d{2}-\d{2}-\d{4}-\d{2}-\d{2}-\d{2})?/?$',
+        views.FoodView.as_view()
+    ),
+    url(
+        r'^food/popular'
+        r'/(?P<frm>\d{8}T\d{6}|\d{2}-\d{2}-\d{4}-\d{2}-\d{2}-\d{2})?'
+        r'/(?P<to>\d{8}T\d{6}|\d{2}-\d{2}-\d{4}-\d{2}-\d{2}-\d{2})?/?$',
         views.FoodPopularView.as_view()
     ),
 
@@ -56,7 +58,8 @@ urlpatterns = patterns('',
     ),
 
     url(
-        r'^ingredient/(?P<datetime>\d{8}T\d{6}|\d{2}-\d{2}-\d{4}-\d{2}-\d{2}-\d{2})?/?$',
+        r'^ingredient'
+        r'/(?P<datetime>\d{8}T\d{6}|\d{2}-\d{2}-\d{4}-\d{2}-\d{2}-\d{2})?/?$',
         views.IngredientMultiView.as_view()
     ),
     url(
@@ -74,7 +77,9 @@ urlpatterns = patterns('',
     ),
 
     url(
-        r'^order/(?P<option>pickupTime|orderedTime)?/?(?P<datetime>\d{8}T\d{6}|\d{2}-\d{2}-\d{4}-\d{2}-\d{2}-\d{2})?/?$',
+        r'^order'
+        r'/(?P<option>pickupTime|orderedTime)?'
+        r'/?(?P<datetime>\d{8}T\d{6}|\d{2}-\d{2}-\d{4}-\d{2}-\d{2}-\d{2})?/?$',
         views.OrderListView.as_view()
     ),
     url(
@@ -82,7 +87,9 @@ urlpatterns = patterns('',
         views.OrderUpdateView.as_view()
     ),
     url(
-        r'^order/spread/(?P<unit>hour|week|weekday|day|month|quarter|year|price)/(?P<frm>\d{8}T\d{6})/(?P<to>\d{8}T\d{6})?/?$',
+        r'^order/spread'
+        r'/(?P<unit>hour|week|weekday|day|month|quarter|year|price)'
+        r'/(?P<frm>\d{8}T\d{6})/(?P<to>\d{8}T\d{6})?/?$',
         views.OrderSpreadView.as_view({'get': 'list'})
     ),
 
@@ -113,19 +120,17 @@ urlpatterns = patterns('',
         views.StaffSingleView.as_view()
     ),
     url(
-        r'^staff/nearby/(?P<latitude>-?\d+.?\d*)/(?P<longitude>-?\d+.?\d*)/?$',
+        r'^staff/nearby'
+        r'/(?P<latitude>-?\d+.?\d*)'
+        r'/(?P<longitude>-?\d+.?\d*)/?$',
         views.StaffMultiView.as_view()
     ),
     url(
-        r'^staff/nearby/(?P<latitude>-?\d+.?\d*)/(?P<longitude>-?\d+.?\d*)/(?P<proximity>\d+.?\d*)/?$',
+        r'^staff/nearby'
+        r'/(?P<latitude>-?\d+.?\d*)'
+        r'/(?P<longitude>-?\d+.?\d*)'
+        r'/(?P<proximity>\d+.?\d*)/?$',
         views.StaffMultiView.as_view()
-    ),
-    url(
-        r'^staff/reset/request/?$',
-        views.ResetRequestView.as_view(),
-        {
-            'authentication': StaffAuthentication
-        }
     ),
     url(
         r'^staff/reset/?$',
@@ -136,14 +141,17 @@ urlpatterns = patterns('',
             'serializerClass': StaffPasswordSerializer
         }
     ),
+    url(
+        r'^staff/reset/request/?$',
+        views.ResetRequestView.as_view(),
+        {
+            'authentication': StaffAuthentication
+        }
+    ),
 
     url(
         r'^store/?$',
         views.StoreSingleView.as_view()
-    ),
-    url(
-        r'^store/open/?$',
-        views.StoreOpenView.as_view()
     ),
     url(
         r'^store/hours/?$',
@@ -152,6 +160,10 @@ urlpatterns = patterns('',
     url(
         r'^store/holiday/?$',
         views.HolidayPeriodListView.as_view()
+    ),
+    url(
+        r'^store/open/?$',
+        views.StoreOpenView.as_view()
     ),
 
     url(

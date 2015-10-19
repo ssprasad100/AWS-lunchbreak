@@ -111,11 +111,11 @@ class LunchbreakTests(LunchbreakTestCase):
             number=10
         )
         oh = OpeningHours(
-                store=store,
-                day=0,
-                opening='00:00',
-                closing='00:00'
-            )
+            store=store,
+            day=0,
+            opening='00:00',
+            closing='00:00'
+        )
 
         try:
             oh.save()

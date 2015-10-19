@@ -70,4 +70,3 @@ class PolaroidTestCase(TestCase):
                 height=1080
             ), (full_hd, 'full_hd',)
         )
-

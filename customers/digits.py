@@ -25,7 +25,13 @@ class Digits:
 
     @property
     def authHeader(self):
-        return 'Basic ' + base64.b64encode(urllib.quote(Digits.CONSUMER_KEY) + ':' + urllib.quote(Digits.CONSUMER_SECRET))
+        return 'Basic {base}'.format(
+            base=base64.b64encode(
+                urllib.quote(Digits.CONSUMER_KEY) +
+                ':' +
+                urllib.quote(Digits.CONSUMER_SECRET)
+            )
+        )
 
     def request(self, url, params, headers):
         '''A wrapper method for send POST requests.'''
@@ -34,7 +40,7 @@ class Digits:
             url,
             params=params,
             headers=headers
-            )
+        )
 
         content = json.loads(appTokenRequest.text)
 
@@ -61,7 +67,7 @@ class Digits:
                 Digits.ACCESS_TOKEN_URL,
                 params=params,
                 headers=headers
-                )
+            )
 
             self.appToken = content['access_token']
         return self.appToken
@@ -81,7 +87,7 @@ class Digits:
             Digits.GUEST_TOKEN_URL,
             params=params,
             headers=headers
-            )
+        )
 
         return content['guest_token']
 
@@ -117,7 +123,7 @@ class Digits:
             Digits.REGISTER_URL,
             params=params,
             headers=headers
-            )
+        )
 
         return content
 
@@ -146,7 +152,8 @@ class Digits:
         content = self.request(
             Digits.ACCOUNT_URL,
             params,
-            headers)
+            headers
+        )
 
         return content
 
@@ -175,7 +182,7 @@ class Digits:
             Digits.XAUTH_PHONE_URL,
             params=params,
             headers=headers
-            )
+        )
 
         return content
 
@@ -206,6 +213,7 @@ class Digits:
         content = self.request(
             Digits.XAUTH_CHALLENGE_URL,
             params,
-            headers)
+            headers
+        )
 
         return content

@@ -11,7 +11,10 @@ from rest_framework import serializers
 
 
 class StoreSerializer(serializers.ModelSerializer):
-    categories = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    categories = serializers.PrimaryKeyRelatedField(
+        many=True,
+        read_only=True
+    )
 
     class Meta:
         model = Store
@@ -74,12 +77,22 @@ class StaffPasswordRequestSerializer(serializers.ModelSerializer):
 
 
 class PasswordSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(max_length=255, write_only=True)
-    passwordReset = serializers.CharField(max_length=TOKEN_IDENTIFIER_LENGTH, write_only=True)
+    email = serializers.EmailField(
+        max_length=255,
+        write_only=True
+    )
+    passwordReset = serializers.CharField(
+        max_length=TOKEN_IDENTIFIER_LENGTH,
+        write_only=True
+    )
 
     class Meta:
         model = PasswordModel
-        fields = ('password', 'passwordReset', 'email',)
+        fields = (
+            'password',
+            'passwordReset',
+            'email',
+        )
         write_only_fields = fields
 
 
@@ -100,13 +113,24 @@ class StaffPasswordSerializer(PasswordSerializer):
 
 
 class BusinessTokenSerializer(lunchSerializers.TokenSerializer):
-    password = serializers.CharField(max_length=255, write_only=True)
+    password = serializers.CharField(
+        max_length=255,
+        write_only=True
+    )
 
     class Meta:
         model = BaseToken
-        fields = lunchSerializers.TokenSerializer.Meta.fields + ('password',)
-        write_only_fields = ('password',)
-        read_only_fields = ('id', 'identifier', 'active',)
+        fields = lunchSerializers.TokenSerializer.Meta.fields + (
+            'password',
+        )
+        write_only_fields = (
+            'password',
+        )
+        read_only_fields = (
+            'id',
+            'identifier',
+            'active',
+        )
 
 
 class StaffSerializer(serializers.ModelSerializer):
@@ -114,15 +138,22 @@ class StaffSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Staff
-        fields = ('id', 'store',)
-        read_only_fields = ('id',)
+        fields = (
+            'id',
+            'store',
+        )
+        read_only_fields = (
+            'id',
+        )
 
 
 class StaffTokenSerializer(BusinessTokenSerializer):
 
     class Meta:
         model = StaffToken
-        fields = BusinessTokenSerializer.Meta.fields + ('staff',)
+        fields = BusinessTokenSerializer.Meta.fields + (
+            'staff',
+        )
         read_only_fields = BusinessTokenSerializer.Meta.read_only_fields
         write_only_fields = BusinessTokenSerializer.Meta.write_only_fields
 
@@ -131,15 +162,23 @@ class EmployeeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Employee
-        fields = ('id', 'name', 'owner',)
-        read_only_fields = ('id',)
+        fields = (
+            'id',
+            'name',
+            'owner',
+        )
+        read_only_fields = (
+            'id',
+        )
 
 
 class EmployeeTokenSerializer(BusinessTokenSerializer):
 
     class Meta:
         model = EmployeeToken
-        fields = BusinessTokenSerializer.Meta.fields + ('employee',)
+        fields = BusinessTokenSerializer.Meta.fields + (
+            'employee',
+        )
         read_only_fields = BusinessTokenSerializer.Meta.read_only_fields
         write_only_fields = BusinessTokenSerializer.Meta.write_only_fields
 
@@ -152,7 +191,10 @@ class PrivateUserSerializer(serializers.ModelSerializer):
 
 
 class OrderedFoodSerializer(serializers.ModelSerializer):
-    cost = serializers.DecimalField(decimal_places=2, max_digits=7)
+    cost = serializers.DecimalField(
+        decimal_places=2,
+        max_digits=7
+    )
 
     class Meta:
         model = OrderedFood
@@ -169,7 +211,9 @@ class OrderedFoodSerializer(serializers.ModelSerializer):
 
 
 class ShortOrderSerializer(serializers.ModelSerializer):
-    user = PrivateUserSerializer(read_only=True)
+    user = PrivateUserSerializer(
+        read_only=True
+    )
 
     class Meta:
         model = Order
@@ -195,11 +239,21 @@ class ShortOrderSerializer(serializers.ModelSerializer):
 
 
 class OrderSpreadSerializer(serializers.BaseSerializer):
-    amount = serializers.IntegerField(read_only=True)
-    average = serializers.DecimalField(decimal_places=2, max_digits=7)
+    amount = serializers.IntegerField(
+        read_only=True
+    )
+    average = serializers.DecimalField(
+        decimal_places=2,
+        max_digits=7
+    )
     # 'sum' is a built-in function in Python, use 'sm' in code and return 'sum'
-    sm = serializers.DecimalField(decimal_places=2, max_digits=7)
-    unit = serializers.IntegerField(read_only=True)
+    sm = serializers.DecimalField(
+        decimal_places=2,
+        max_digits=7
+    )
+    unit = serializers.IntegerField(
+        read_only=True
+    )
 
     class Meta:
         fields = (
@@ -220,7 +274,11 @@ class OrderSpreadSerializer(serializers.BaseSerializer):
 
 
 class OrderSerializer(ShortOrderSerializer):
-    orderedFood = OrderedFoodSerializer(many=True, read_only=True, source='orderedfood_set')
+    orderedFood = OrderedFoodSerializer(
+        many=True,
+        read_only=True,
+        source='orderedfood_set'
+    )
 
     class Meta:
         model = Order
@@ -244,16 +302,32 @@ class ShortIngredientGroupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = IngredientGroup
-        fields = ('id', 'name', 'maximum', 'minimum', 'priority', 'cost', 'foodType',)
-        read_only_fields = ('id',)
+        fields = (
+            'id',
+            'name',
+            'maximum',
+            'minimum',
+            'priority',
+            'cost',
+            'foodType',
+        )
+        read_only_fields = (
+            'id',
+        )
 
 
 class IngredientRelationSerializer(serializers.ModelSerializer):
-    ingredient = serializers.PrimaryKeyRelatedField(write_only=True, queryset=Ingredient.objects.all())
+    ingredient = serializers.PrimaryKeyRelatedField(
+        write_only=True,
+        queryset=Ingredient.objects.all()
+    )
 
     class Meta:
         model = IngredientRelation
-        fields = ('ingredient', 'typical',)
+        fields = (
+            'ingredient',
+            'typical',
+        )
         write_only_fields = fields
 
 
@@ -270,7 +344,9 @@ class ShortFoodSerializer(serializers.ModelSerializer):
         required=False,
         write_only=True
     )
-    orderAmount = serializers.IntegerField(read_only=True)
+    orderAmount = serializers.IntegerField(
+        read_only=True
+    )
 
     class Meta:
         model = Food
@@ -321,7 +397,10 @@ class ShortFoodSerializer(serializers.ModelSerializer):
             if update:
                 IngredientRelation.objects.filter(food=food).delete()
             for relation in relations:
-                IngredientRelation.objects.update_or_create(food=food, **relation)
+                IngredientRelation.objects.update_or_create(
+                    food=food,
+                    **relation
+                )
 
         return food
 
@@ -336,29 +415,57 @@ class IngredientSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Ingredient
-        fields = ('id', 'name', 'cost', 'icon', 'alwaysVisible', 'group',)
-        read_only_fields = ('id',)
+        fields = (
+            'id',
+            'name',
+            'cost',
+            'icon',
+            'alwaysVisible',
+            'group',
+        )
+        read_only_fields = (
+            'id',
+        )
 
 
 class IngredientGroupSerializer(serializers.ModelSerializer):
-    ingredients = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    ingredients = serializers.PrimaryKeyRelatedField(
+        many=True,
+        read_only=True
+    )
 
     class Meta:
         model = IngredientGroup
-        fields = ('id', 'name', 'maximum', 'minimum', 'ingredients', 'priority', 'cost', 'foodType',)
-        read_only_fields = ('id', 'ingredients',)
+        fields = (
+            'id',
+            'name',
+            'maximum',
+            'minimum',
+            'ingredients',
+            'priority',
+            'cost',
+            'foodType',
+        )
+        read_only_fields = (
+            'id',
+            'ingredients',
+        )
 
 
 class SingleFoodSerializer(lunchSerializers.SingleFoodSerializer):
 
     class Meta:
         model = lunchSerializers.SingleFoodSerializer.Meta.model
-        fields = lunchSerializers.SingleFoodSerializer.Meta.fields + ('deleted',)
+        fields = lunchSerializers.SingleFoodSerializer.Meta.fields + (
+            'deleted',
+        )
         read_only_fields = lunchSerializers.SingleFoodSerializer.Meta.read_only_fields
 
 
 class ReservationSerializer(serializers.ModelSerializer):
-    user = PrivateUserSerializer(read_only=True)
+    user = PrivateUserSerializer(
+        read_only=True
+    )
     status = serializers.ChoiceField(
         choices=RESERVATION_STATUS_EMPLOYEE
     )

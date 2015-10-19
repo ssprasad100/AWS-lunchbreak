@@ -1,6 +1,7 @@
 from django.conf.urls import include, patterns, url
 
-urlpatterns = patterns('',
+urlpatterns = patterns(
+    '',
     url(
         r'business/',
         include('business.urls')

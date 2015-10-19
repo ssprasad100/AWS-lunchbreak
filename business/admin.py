@@ -6,10 +6,22 @@ from lunch.admin import BaseTokenAdmin
 @admin.register(Staff)
 class StaffAdmin(admin.ModelAdmin):
     fieldsets = (
-        (None, {
-                'fields': ('password',)
-            }),
-        (None, {'fields': ('store',)})
+        (
+            None,
+            {
+                'fields': (
+                    'password',
+                )
+            }
+        ),
+        (
+            None,
+            {
+                'fields': (
+                    'store',
+                )
+            }
+        )
     )
     readonly_fields = ('password',)
     list_display = ('store',)
@@ -21,10 +33,23 @@ class StaffAdmin(admin.ModelAdmin):
 @admin.register(Employee)
 class EmployeeAdmin(admin.ModelAdmin):
     fieldsets = (
-        (None, {
-                'fields': ('name', 'password', 'owner',)
-            }),
-        (None, {'fields': ('staff',)})
+        (
+            None, {
+                'fields': (
+                    'name',
+                    'password',
+                    'owner',
+                )
+            }
+        ),
+        (
+            None,
+            {
+                'fields': (
+                    'staff',
+                )
+            }
+        )
     )
     readonly_fields = ('password',)
     list_display = ('name', 'staff', 'owner',)
