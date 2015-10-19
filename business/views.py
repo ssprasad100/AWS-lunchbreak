@@ -6,7 +6,8 @@ from business.permissions import StoreOwnerPermission
 from business.serializers import (EmployeeSerializer,
                                   IngredientGroupSerializer,
                                   IngredientSerializer, OrderSerializer,
-                                  OrderSpreadSerializer, ShortFoodSerializer,
+                                  OrderSpreadSerializer, ReservationSerializer,
+                                  ShortFoodSerializer,
                                   ShortIngredientGroupSerializer,
                                   ShortOrderSerializer, SingleFoodSerializer,
                                   StaffSerializer, StoreSerializer,
@@ -14,7 +15,7 @@ from business.serializers import (EmployeeSerializer,
 from customers.config import (ORDER_STATUS_COMPLETED, ORDER_STATUS_PLACED,
                               ORDER_STATUS_RECEIVED, ORDER_STATUS_STARTED,
                               ORDER_STATUS_WAITING)
-from customers.models import Order
+from customers.models import Order, Reservation
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
@@ -398,6 +399,22 @@ class HolidayPeriodListView(generics.ListAPIView):
 
     def get_queryset(self):
         return getHolidayPeriods(self.request.user.staff.store_id)
+
+
+class ReservationMultiView(generics.ListAPIView):
+    authentication_classes = (EmployeeAuthentication,)
+    serializer_class = ReservationSerializer
+
+    def get_queryset(self):
+        return Reservation.objects.filter(store_id=self.request.user.staff.store_id)
+
+
+class ReservationSingleView(generics.UpdateAPIView):
+    authentication_classes = (EmployeeAuthentication,)
+    serializer_class = ReservationSerializer
+
+    def get_queryset(self):
+        return Reservation.objects.filter(store_id=self.request.user.staff.store_id)
 
 
 class QuantityMultiView(ListCreateStoreView):

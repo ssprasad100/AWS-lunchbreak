@@ -1,6 +1,7 @@
 from business.models import (Employee, EmployeeToken, PasswordModel, Staff,
                              StaffToken)
-from customers.models import Order, OrderedFood, User
+from customers.config import RESERVATION_STATUS_EMPLOYEE
+from customers.models import Order, OrderedFood, Reservation, User
 from lunch import serializers as lunchSerializers
 from lunch.config import TOKEN_IDENTIFIER_LENGTH
 from lunch.exceptions import InvalidStoreLinking
@@ -354,3 +355,31 @@ class SingleFoodSerializer(lunchSerializers.SingleFoodSerializer):
         model = lunchSerializers.SingleFoodSerializer.Meta.model
         fields = lunchSerializers.SingleFoodSerializer.Meta.fields + ('deleted',)
         read_only_fields = lunchSerializers.SingleFoodSerializer.Meta.read_only_fields
+
+
+class ReservationSerializer(serializers.ModelSerializer):
+    user = PrivateUserSerializer(read_only=True)
+    status = serializers.ChoiceField(
+        choices=RESERVATION_STATUS_EMPLOYEE
+    )
+
+    class Meta:
+        model = Reservation
+        fields = (
+            'id',
+            'user',
+            'seats',
+            'placedTime',
+            'reservationTime',
+            'comment',
+            'suggestion',
+            'response',
+            'status',
+        )
+        read_only_fields = (
+            'id',
+            'user',
+            'placedTime',
+            'reservationTime',
+            'comment',
+        )
