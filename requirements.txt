@@ -20,7 +20,7 @@ PyYAML==3.11
 requests==2.7.0
 six==1.9.0
 watchdog==0.8.3
--e git+git://github.com/AndreasBackx/django-push-notifications.git@301b915e7bf125a7546019ce2ff6cca8d478e077#egg=django-push-notifications
+-e git+git://github.com/AndreasBackx/django-push-notifications.git@562e8fd4f7d2829140ae28b3e5ebabcc8b01b21e#egg=django-push-notifications
 django-appconf==1.0.1
 django-imagekit==3.2.7
 pilkit==1.1.13
