@@ -1,8 +1,8 @@
 Beste {{ name }},
 
-Een aanvraag voor het aanpassen van het wachtwoord voor jouw account. Gelieve onderstaande link te volgen op de Lunchbreak Store iPad van de zaak om door te gaan met het aanpassen van u wachtwoord. Indien u dit niet heeft aangevraagd, gelieve deze e-mail te negeren.
+Een aanvraag voor het aanpassen van het wachtwoord voor jouw account werd aangevraagd. Gelieve onderstaande link te volgen op de Lunchbreak Store iPad van de zaak om door te gaan met het aanpassen van u wachtwoord. Indien u dit niet heeft aangevraagd, gelieve deze e-mail te negeren.
 
 {{ url }}
 
 Vriendelijke groeten,
-Het Lunchbreak team
+Het Lunchbreak Team
