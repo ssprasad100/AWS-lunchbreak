@@ -29,7 +29,8 @@ class PasswordModel(models.Model):
 class Staff(PasswordModel):
     store = models.ForeignKey(Store)
     email = models.EmailField(
-        max_length=255
+        max_length=255,
+        unique=True
     )
 
     class Meta:
