@@ -1,0 +1,12 @@
+---
+
+- name: Install Python SELinux bindings
+  apt: name=python-selinux state=present
+
+- name: Test to see if SELinux is running
+  command: getenforce
+  register: sestatus
+  changed_when: false
+
+- name: Create the user for the branch
+  user: name={{ user }} shell=/bin/bash group=web
