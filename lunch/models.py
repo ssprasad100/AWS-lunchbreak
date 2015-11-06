@@ -4,6 +4,7 @@ import copy
 import math
 import random
 from datetime import datetime, time, timedelta
+from decimal import Decimal
 
 import requests
 from customers.config import ORDER_ENDED
@@ -221,10 +222,6 @@ class Store(models.Model):
         through='customers.Heart',
         blank=True
     )
-    costCalculation = models.PositiveIntegerField(
-        choices=COST_GROUP_CALCULATIONS,
-        default=COST_GROUP_ALWAYS
-    )
     maxSeats = models.PositiveIntegerField(
         default=10,
         validators=[
@@ -335,7 +332,7 @@ class OpeningHours(models.Model):
             raise ValidationError('Opening needs to be before closing.')
 
     def save(self, *args, **kwargs):
-        self.clean()
+        self.full_clean()
         self.store.save()
         super(OpeningHours, self).save(*args, **kwargs)
 
@@ -365,7 +362,7 @@ class HolidayPeriod(models.Model):
             raise ValidationError('Start needs to be before end.')
 
     def save(self, *args, **kwargs):
-        self.clean()
+        self.full_clean()
         self.store.save()
         super(HolidayPeriod, self).save(*args, **kwargs)
 
@@ -423,9 +420,16 @@ class IngredientGroup(models.Model):
         default=0
     )
     cost = models.DecimalField(
-        default=-1,
+        default=0,
+        validators=[
+            MinValueValidator(0)
+        ],
         max_digits=7,
         decimal_places=2
+    )
+    costCalculation = models.PositiveIntegerField(
+        choices=COST_GROUP_CALCULATIONS,
+        default=COST_GROUP_ALWAYS
     )
 
     def clean(self):
@@ -433,7 +437,7 @@ class IngredientGroup(models.Model):
             raise ValidationError('Minimum cannot be higher than maximum.')
 
     def save(self, *args, **kwargs):
-        self.clean()
+        self.full_clean()
         super(IngredientGroup, self).save(*args, **kwargs)
 
     @staticmethod
@@ -564,7 +568,7 @@ class Quantity(models.Model):
             raise InvalidFoodTypeAmount()
 
     def save(self, *args, **kwargs):
-        self.clean()
+        self.full_clean()
         super(Quantity, self).save(*args, **kwargs)
 
     def __unicode__(self):

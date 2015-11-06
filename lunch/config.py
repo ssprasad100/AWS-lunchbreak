@@ -1,9 +1,11 @@
 COST_GROUP_ALWAYS = 0
 COST_GROUP_ADDITIONS = 1
+COST_GROUP_BOTH = 2
 
 COST_GROUP_CALCULATIONS = (
     (COST_GROUP_ALWAYS, 'Altijd de groepsprijs'),
-    (COST_GROUP_ADDITIONS, 'Duurder bij toevoegen, zelfde bij aftrekken')
+    (COST_GROUP_ADDITIONS, 'Duurder bij toevoegen, zelfde bij aftrekken'),
+    (COST_GROUP_BOTH, 'Duurder bij toevoegen, goedkoper bij aftrekken')
 )
 
 ICONS = (

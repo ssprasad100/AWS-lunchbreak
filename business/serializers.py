@@ -35,7 +35,6 @@ class StoreSerializer(serializers.ModelSerializer):
             'number',
             'minTime',
             'orderTime',
-            'costCalculation',
             'enabled',
         )
         read_only_fields = (
@@ -422,6 +421,7 @@ class IngredientSerializer(serializers.ModelSerializer):
             'icon',
             'alwaysVisible',
             'group',
+            'costCalculation',
         )
         read_only_fields = (
             'id',
@@ -445,6 +445,7 @@ class IngredientGroupSerializer(serializers.ModelSerializer):
             'priority',
             'cost',
             'foodType',
+            'costCalculation',
         )
         read_only_fields = (
             'id',

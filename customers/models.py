@@ -16,7 +16,7 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils import timezone
 from django.utils.functional import cached_property
-from lunch.config import COST_GROUP_ADDITIONS
+from lunch.config import COST_GROUP_ADDITIONS, COST_GROUP_BOTH
 from lunch.models import BaseToken, Food, Ingredient, Store
 from lunch.responses import DoesNotExist
 from phonenumber_field.modelfields import PhoneNumberField
@@ -210,7 +210,7 @@ class Reservation(models.Model):
         super(Reservation, self).clean(*args, **kwargs)
 
     def save(self, *args, **kwargs):
-        self.clean()
+        self.full_clean()
 
         if self.suggestion is not None:
             self.status = RESERVATION_STATUS_DENIED
@@ -345,26 +345,23 @@ class OrderedFood(models.Model):
     def calculateCost(orderedIngredients, food):
         foodIngredients = food.ingredients.all()
         foodGroups = food.ingredientGroups
-        add = food.store.costCalculation == COST_GROUP_ADDITIONS if isinstance(food, Food) else False
 
         orderedGroups = []
         cost = food.cost
+
         for ingredient in orderedIngredients:
             if ingredient not in foodIngredients:
-                if ingredient.group.cost < 0:
+                if ingredient.group.costCalculation in [COST_GROUP_BOTH, COST_GROUP_ADDITIONS]:
                     cost += ingredient.cost
-                else:
-                    if add:
-                        cost += ingredient.cost
-                    elif ingredient.group not in foodGroups:
-                        cost += ingredient.group.cost
+                elif ingredient.group not in foodGroups:
+                    cost += ingredient.group.cost
             if ingredient.group not in orderedGroups:
                 orderedGroups.append(ingredient.group)
 
         removedGroups = []
         for ingredient in foodIngredients:
             if ingredient not in orderedIngredients:
-                if ingredient.group.cost < 0:
+                if ingredient.group.costCalculation == COST_GROUP_BOTH:
                     cost -= ingredient.cost
                 elif ingredient.group not in removedGroups:
                     removedGroups.append(ingredient.group)
