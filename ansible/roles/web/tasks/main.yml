@@ -1,0 +1,7 @@
+---
+
+- name: Install Nginx
+  apt: name=nginx state=present
+
+- name: Create the user for the branch
+  user: name={{ user }} shell=/bin/bash group=web

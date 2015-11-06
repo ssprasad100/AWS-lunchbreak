@@ -1,0 +1,13 @@
+---
+- hosts: all
+  remote_user: root
+
+  tasks:
+    - name: Install MySQL
+      apt: name=mysql state=present
+
+    - name: Create database
+      mysql_db: db={{ mysql_database }} state=present
+
+    - name: Create database user
+      mysql_user: user={{ mysql_user }} password={{ mysql_password }} priv={{ mysql_database}}.* state=present
