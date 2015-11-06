@@ -9,7 +9,7 @@ from customers.config import (ORDER_ENDED, ORDER_STATUS,
                               RESERVATION_STATUS_PLACED)
 from customers.digits import Digits
 from customers.exceptions import (DigitsException, MaxSeatsExceeded,
-                                  UserNameEmpty)
+                                  UserDisabled, UserNameEmpty)
 from dirtyfields import DirtyFieldsMixin
 from django.conf import settings
 from django.core.validators import MinValueValidator
@@ -81,6 +81,9 @@ class User(models.Model):
         try:
             user = User.objects.get(phone=phone)
 
+            if not user.enabled:
+                return UserDisabled().getResponse()
+
             if not settings.TESTING:
                 if user.confirmedAt:
                     digitsResult = User.digitsLogin(digits, phone)
@@ -112,6 +115,9 @@ class User(models.Model):
     def login(phone, pin, name, token):
         try:
             user = User.objects.get(phone=phone)
+
+            if not user.enabled:
+                return UserDisabled().getResponse()
 
             if not user.name:
                 if not name:
