@@ -101,7 +101,7 @@ def runQuery(query, user='root', password=None):
 
 
 def prerequisites():
-    local('tox')
+    local('tox -e py27')
     put('default/.bash_profile', '~/.bash_profile')
 
 

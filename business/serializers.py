@@ -4,7 +4,6 @@ from customers.config import RESERVATION_STATUS_EMPLOYEE
 from customers.models import Order, OrderedFood, Reservation, User
 from lunch import serializers as lunchSerializers
 from lunch.config import TOKEN_IDENTIFIER_LENGTH
-from lunch.exceptions import InvalidStoreLinking
 from lunch.models import (BaseToken, Food, Ingredient, IngredientGroup,
                           IngredientRelation, Store)
 from rest_framework import serializers
