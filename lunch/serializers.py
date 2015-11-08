@@ -198,6 +198,7 @@ class FoodTypeSerializer(serializers.ModelSerializer):
             'icon',
             'quantifier',
             'inputType',
+            'customisable',
         )
         read_only_fields = (
             'id',
