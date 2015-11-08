@@ -339,12 +339,18 @@ class OrderedFood(models.Model):
 
     @cached_property
     def total(self):
-        return math.ceil((self.cost * self.amount * self.foodAmount) * 100) / 100.0
+        return math.ceil(
+            (self.cost * self.amount * self.foodAmount) * 100
+        ) / 100.0
 
     @staticmethod
     def calculateCost(orderedIngredients, food):
-        foodIngredients = food.ingredients.all()
-        foodGroups = food.ingredientGroups
+        foodIngredients = food.ingredients.select_related('group').all()
+
+        foodGroups = []
+        for ingredient in foodIngredients:
+            if ingredient.selected and ingredient.group not in foodGroups:
+                foodGroups.append(ingredient.group)
 
         orderedGroups = []
         cost = food.cost

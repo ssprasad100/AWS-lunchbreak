@@ -262,7 +262,9 @@ class IngredientGroupMultiView(ListCreateStoreView):
     pagination_class = None
 
     def get_queryset(self):
-        return IngredientGroup.objects.filter(store=self.request.user.staff.store)
+        return IngredientGroup.objects.filter(
+            store=self.request.user.staff.store
+        )
 
 
 class IngredientGroupSingleView(generics.RetrieveUpdateDestroyAPIView):
@@ -271,7 +273,9 @@ class IngredientGroupSingleView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (StoreOwnerPermission,)
 
     def get_queryset(self):
-        return IngredientGroup.objects.filter(store=self.request.user.staff.store)
+        return IngredientGroup.objects.filter(
+            store=self.request.user.staff.store
+        )
 
 
 class OrderListView(generics.ListAPIView):

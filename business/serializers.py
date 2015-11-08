@@ -325,6 +325,7 @@ class IngredientRelationSerializer(serializers.ModelSerializer):
         model = IngredientRelation
         fields = (
             'ingredient',
+            'selected',
             'typical',
         )
         write_only_fields = fields

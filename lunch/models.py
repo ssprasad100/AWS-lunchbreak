@@ -4,7 +4,6 @@ import copy
 import math
 import random
 from datetime import datetime, time, timedelta
-from decimal import Decimal
 
 import requests
 from customers.config import ORDER_ENDED
@@ -15,6 +14,7 @@ from django.contrib.auth.hashers import check_password, make_password
 from django.core.exceptions import MultipleObjectsReturned, ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.db.models.signals import m2m_changed
 from django.utils import timezone
 from django.utils.functional import cached_property
 from imagekit.models import ImageSpecField
@@ -87,6 +87,9 @@ class LunchbreakManager(models.Manager):
         )
 
     def closestFood(self, ingredients, original):
+        if not original.foodType.customisable:
+            return original
+
         ingredientsIn = -1 if len(ingredients) == 0 else '''
             CASE WHEN lunch_ingredient.id IN (%s)
                 THEN
@@ -97,13 +100,12 @@ class LunchbreakManager(models.Manager):
 
         return Food.objects.raw('''
             SELECT
-                lunch_food.id,
-                lunch_food.name,
-                lunch_food.cost
+                lunch_food.*
             FROM
                 `lunch_food`
                 LEFT JOIN
-                    `lunch_ingredientrelation` ON lunch_food.id = lunch_ingredientrelation.food_id AND lunch_ingredientrelation.typical = 1
+                    `lunch_ingredientrelation` ON lunch_food.id = lunch_ingredientrelation.food_id
+                    AND lunch_ingredientrelation.typical = 1
                 LEFT JOIN
                     `lunch_ingredient` ON lunch_ingredientrelation.ingredient_id = lunch_ingredient.id
             WHERE
@@ -120,8 +122,14 @@ class LunchbreakManager(models.Manager):
                             %s
                         END
                 ) DESC,
-                (lunch_food.id = %s) DESC,
-                lunch_food.cost ASC;''', [original.foodType.id, original.store.id, ingredientsIn, original.id])[0]
+                lunch_food.id = %s DESC,
+                lunch_food.cost ASC;
+            ''', [
+            original.foodType.id,
+            original.store.id,
+            ingredientsIn,
+            original.id
+        ])[0]
 
 
 class StoreCategory(models.Model):
@@ -347,7 +355,8 @@ class OpeningHours(models.Model):
 class HolidayPeriod(models.Model):
     store = models.ForeignKey(Store)
     description = models.CharField(
-        max_length=255
+        max_length=255,
+        blank=True
     )
 
     start = models.DateTimeField()
@@ -390,6 +399,9 @@ class FoodType(models.Model):
     inputType = models.PositiveIntegerField(
         choices=INPUT_TYPES,
         default=INPUT_TYPES[0][0]
+    )
+    customisable = models.BooleanField(
+        default=False
     )
 
     def isValidAmount(self, amount, quantity=None):
@@ -486,7 +498,7 @@ class IngredientGroup(models.Model):
         return self.name
 
 
-class Ingredient(models.Model):
+class Ingredient(models.Model, DirtyFieldsMixin):
     name = models.CharField(
         max_length=255
     )
@@ -499,9 +511,6 @@ class Ingredient(models.Model):
         choices=ICONS,
         default=0
     )
-    alwaysVisible = models.BooleanField(
-        default=False
-    )
 
     group = models.ForeignKey(IngredientGroup)
     store = models.ForeignKey(Store)
@@ -513,6 +522,12 @@ class Ingredient(models.Model):
     def save(self, *args, **kwargs):
         if self.store != self.group.store:
             raise InvalidStoreLinking()
+
+        dirty_fields = self.get_dirty_fields(check_relationship=True)
+        if 'group' in dirty_fields:
+            for food in self.food_set.all():
+                food.updateTypicalIngredients()
+
         super(Ingredient, self).save(*args, **kwargs)
 
     def __unicode__(self):
@@ -542,6 +557,7 @@ class FoodCategory(models.Model):
 class Quantity(models.Model):
     foodType = models.ForeignKey(FoodType)
     store = models.ForeignKey(Store)
+
     amountMin = models.DecimalField(
         decimal_places=3,
         max_digits=7,
@@ -552,6 +568,7 @@ class Quantity(models.Model):
         max_digits=7,
         default=10
     )
+
     lastModified = models.DateTimeField(
         auto_now=True
     )
@@ -611,6 +628,10 @@ class Food(models.Model):
         through='IngredientRelation',
         blank=True
     )
+    ingredientGroups = models.ManyToManyField(
+        IngredientGroup,
+        blank=True
+    )
     store = models.ForeignKey(Store)
 
     lastModified = models.DateTimeField(
@@ -625,21 +646,42 @@ class Food(models.Model):
         verbose_name_plural = 'Food'
 
     @cached_property
-    def ingredientGroups(self):
-        return self.foodType.ingredientgroup_set.filter(
-            store_id=self.store_id
-        ).order_by('-priority', 'name')
-
-    @cached_property
     def hasIngredients(self):
         return self.ingredients.count() > 0
 
     @cached_property
     def quantity(self):
         try:
-            return Quantity.objects.get(foodType_id=self.foodType_id, store_id=self.store_id)
+            return Quantity.objects.get(
+                foodType_id=self.foodType_id,
+                store_id=self.store_id
+            )
         except Quantity.DoesNotExist:
             return None
+
+    @staticmethod
+    def ingredientChange(sender, instance, action, reverse, model, pk_set, using, **kwargs):
+        if len(action) > 4 and action[:4] == 'post':
+            print instance.__class__
+            if isinstance(instance, Food):
+                instance.updateTypicalIngredients()
+            elif instance.__class__ in [Ingredient, IngredientGroup]:
+                for food in instance.food_set.all():
+                    food.updateTypicalIngredients()
+
+    def updateTypicalIngredients(self):
+        ingredientGroups = self.ingredientGroups.all()
+        ingredientRelations = self.ingredientrelation_set.select_related('ingredient__group').all()
+
+        for ingredientRelation in ingredientRelations:
+            ingredient = ingredientRelation.ingredient
+            if ingredient.group not in ingredientGroups:
+                if not ingredientRelation.typical:
+                    ingredientRelation.typical = True
+                    ingredientRelation.save()
+            elif ingredientRelation.typical:
+                ingredientRelation.typical = False
+                ingredientRelation.save()
 
     def canOrder(self, pickupTime, now=None):
         '''
@@ -687,9 +729,12 @@ class Food(models.Model):
         return self.name
 
 
-class IngredientRelation(models.Model):
+class IngredientRelation(models.Model, DirtyFieldsMixin):
     food = models.ForeignKey(Food)
     ingredient = models.ForeignKey(Ingredient)
+    selected = models.BooleanField(
+        default=False
+    )
     typical = models.BooleanField(
         default=False
     )
@@ -700,7 +745,15 @@ class IngredientRelation(models.Model):
     def save(self, *args, **kwargs):
         if self.food.store_id != self.ingredient.store_id:
             raise InvalidStoreLinking()
+
+        dirty_fields = self.get_dirty_fields(check_relationship=True)
+        if 'ingredient' in dirty_fields:
+            self.food.updateTypicalIngredients()
+
         super(IngredientRelation, self).save(*args, **kwargs)
+
+    def __unicode__(self):
+        return unicode(self.ingredient)
 
 
 def tokenGenerator():
@@ -760,3 +813,7 @@ class BaseToken(BareDevice, DirtyFieldsMixin):
 
     def __unicode__(self):
         return self.device
+
+
+m2m_changed.connect(Food.ingredientChange, sender=Food.ingredientGroups.through)
+m2m_changed.connect(Food.ingredientChange, sender=Food.ingredients.through)
