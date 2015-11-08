@@ -135,7 +135,6 @@ class ShortIngredientRelationSerializer(serializers.HyperlinkedModelSerializer):
         fields = (
             'id',
             'selected',
-            'typical',
         )
         read_only_fields = (
             'id',

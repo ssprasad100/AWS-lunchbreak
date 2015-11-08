@@ -662,7 +662,6 @@ class Food(models.Model):
     @staticmethod
     def ingredientChange(sender, instance, action, reverse, model, pk_set, using, **kwargs):
         if len(action) > 4 and action[:4] == 'post':
-            print instance.__class__
             if isinstance(instance, Food):
                 instance.updateTypicalIngredients()
             elif instance.__class__ in [Ingredient, IngredientGroup]:

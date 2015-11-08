@@ -326,7 +326,6 @@ class IngredientRelationSerializer(serializers.ModelSerializer):
         fields = (
             'ingredient',
             'selected',
-            'typical',
         )
         write_only_fields = fields
 
@@ -363,7 +362,7 @@ class ShortFoodSerializer(serializers.ModelSerializer):
 
             'category',
             'ingredients',
-            # 'store',
+            'ingredientGroups',
 
             'ingredientRelations',
             'orderAmount',
@@ -380,18 +379,11 @@ class ShortFoodSerializer(serializers.ModelSerializer):
     def createOrUpdate(self, validated_data, food=None):
         update = food is not None
         relations = validated_data.pop('ingredientrelation_set', None)
+
         if not update:
-            food = Food(**validated_data)
+            food = super(ShortFoodSerializer, self).create(validated_data)
         else:
-            for key, value in validated_data.iteritems():
-                setattr(food, key, value)
-
-        if relations is not None:
-            for relation in relations:
-                if relation['ingredient'].store_id != food.store.id:
-                    raise InvalidStoreLinking()
-
-        food.save()
+            food = super(ShortFoodSerializer, self).update(food, validated_data)
 
         if relations is not None:
             if update:
@@ -421,7 +413,6 @@ class IngredientSerializer(serializers.ModelSerializer):
             'cost',
             'icon',
             'group',
-            'costCalculation',
         )
         read_only_fields = (
             'id',
@@ -445,7 +436,6 @@ class IngredientGroupSerializer(serializers.ModelSerializer):
             'priority',
             'cost',
             'foodType',
-            'costCalculation',
         )
         read_only_fields = (
             'id',
