@@ -345,11 +345,14 @@ class OrderedFood(models.Model):
 
     @staticmethod
     def calculateCost(orderedIngredients, food):
-        foodIngredients = food.ingredients.select_related('group').all()
+        foodIngredientRelations = food.ingredientrelation_set.select_related('ingredient__group').all()
 
+        foodIngredients = []
         foodGroups = []
-        for ingredient in foodIngredients:
-            if ingredient.selected and ingredient.group not in foodGroups:
+        for ingredientRelation in foodIngredientRelations:
+            ingredient = ingredientRelation.ingredient
+            foodIngredients.append(ingredient)
+            if ingredientRelation.selected and ingredient.group not in foodGroups:
                 foodGroups.append(ingredient.group)
 
         orderedGroups = []
