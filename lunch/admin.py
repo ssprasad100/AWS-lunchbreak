@@ -115,12 +115,6 @@ class FoodTypeAdmin(admin.ModelAdmin):
     readonly_fields = (
         'id',
     )
-    fields = (
-        'name',
-        'icon',
-        'quantifier',
-        'inputType',
-    ) + readonly_fields
 
 
 class IngredientsRelationInline(admin.TabularInline):
