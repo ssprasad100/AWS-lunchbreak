@@ -420,7 +420,6 @@ class IngredientSerializer(serializers.ModelSerializer):
             'name',
             'cost',
             'icon',
-            'alwaysVisible',
             'group',
             'costCalculation',
         )

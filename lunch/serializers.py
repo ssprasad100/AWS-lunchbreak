@@ -118,7 +118,6 @@ class NestedIngredientSerializer(serializers.ModelSerializer):
             'name',
             'cost',
             'icon',
-            'alwaysVisible',
             'store',
         )
         read_only_fields = (
