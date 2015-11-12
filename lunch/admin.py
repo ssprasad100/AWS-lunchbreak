@@ -107,7 +107,6 @@ class FoodCategoryAdmin(admin.ModelAdmin):
 class FoodTypeAdmin(admin.ModelAdmin):
     list_display = (
         'name',
-        'icon',
         'quantifier',
         'inputType',
         'id',

@@ -410,7 +410,6 @@ class IngredientSerializer(serializers.ModelSerializer):
             'id',
             'name',
             'cost',
-            'icon',
             'group',
         )
         read_only_fields = (

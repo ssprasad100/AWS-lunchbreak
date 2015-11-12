@@ -117,8 +117,27 @@ class NestedIngredientSerializer(serializers.ModelSerializer):
             'id',
             'name',
             'cost',
-            'icon',
-            'store',
+        )
+        read_only_fields = (
+            'id',
+        )
+
+
+class IngredientRelationSerializer(serializers.HyperlinkedModelSerializer):
+    id = serializers.ReadOnlyField(
+        source='ingredient.id'
+    )
+    name = serializers.CharField(
+        read_only=True,
+        source='ingredient.name'
+    )
+
+    class Meta:
+        model = IngredientRelation
+        fields = (
+            'id',
+            'selected',
+            'name',
         )
         read_only_fields = (
             'id',
@@ -194,7 +213,6 @@ class FoodTypeSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'name',
-            'icon',
             'quantifier',
             'inputType',
             'customisable',
@@ -241,7 +259,7 @@ class SingleFoodSerializer(serializers.ModelSerializer):
     foodType = FoodTypeSerializer(
         many=False
     )
-    ingredients = ShortIngredientRelationSerializer(
+    ingredients = IngredientRelationSerializer(
         source='ingredientrelation_set',
         many=True
     )

@@ -138,7 +138,7 @@ class StoreCategory(models.Model):
     )
     icon = models.PositiveIntegerField(
         choices=ICONS,
-        default=0
+        default=ICONS[0][0]
     )
 
     class Meta:
@@ -387,10 +387,6 @@ class FoodType(models.Model):
     name = models.CharField(
         max_length=255
     )
-    icon = models.PositiveIntegerField(
-        choices=ICONS,
-        default=ICONS[0][0]
-    )
     quantifier = models.CharField(
         max_length=255,
         blank=True,
@@ -506,10 +502,6 @@ class Ingredient(models.Model, DirtyFieldsMixin):
         default=0,
         max_digits=7,
         decimal_places=2
-    )
-    icon = models.PositiveIntegerField(
-        choices=ICONS,
-        default=0
     )
 
     group = models.ForeignKey(IngredientGroup)
