@@ -124,20 +124,18 @@ class NestedIngredientSerializer(serializers.ModelSerializer):
 
 
 class IngredientRelationSerializer(serializers.HyperlinkedModelSerializer):
+    # Temporary for older API versions not supporting the new
     id = serializers.ReadOnlyField(
         source='ingredient.id'
     )
-    name = serializers.CharField(
-        read_only=True,
-        source='ingredient.name'
-    )
+    ingredient = NestedIngredientSerializer()
 
     class Meta:
         model = IngredientRelation
         fields = (
             'id',
             'selected',
-            'name',
+            'ingredient',
         )
         read_only_fields = (
             'id',
