@@ -40,7 +40,15 @@ class FoodRetrieveView(generics.RetrieveAPIView):
     serializer_class = SingleFoodSerializer
 
     def get_queryset(self):
-        return Food.objects.filter(deleted=False)
+        return Food.objects.select_related(
+            'foodType',
+            'category',
+        ).filter(
+            deleted=False
+        ).prefetch_related(
+            'ingredientrelation_set__ingredient',
+            'ingredientGroups',
+        )
 
 
 class FoodListView(generics.ListAPIView):

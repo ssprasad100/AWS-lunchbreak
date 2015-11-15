@@ -117,6 +117,7 @@ class NestedIngredientSerializer(serializers.ModelSerializer):
             'id',
             'name',
             'cost',
+            'group',
         )
         read_only_fields = (
             'id',
@@ -158,10 +159,7 @@ class ShortIngredientRelationSerializer(serializers.HyperlinkedModelSerializer):
         )
 
 
-class IngredientGroupSerializer(serializers.ModelSerializer):
-    ingredients = NestedIngredientSerializer(
-        many=True
-    )
+class ShortIngredientGroupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = IngredientGroup
@@ -170,7 +168,6 @@ class IngredientGroupSerializer(serializers.ModelSerializer):
             'name',
             'maximum',
             'minimum',
-            'ingredients',
             'priority',
             'cost',
             'foodType',
@@ -178,6 +175,19 @@ class IngredientGroupSerializer(serializers.ModelSerializer):
         read_only_fields = (
             'id',
         )
+
+
+class IngredientGroupSerializer(ShortIngredientGroupSerializer):
+    ingredients = NestedIngredientSerializer(
+        many=True
+    )
+
+    class Meta:
+        model = ShortIngredientGroupSerializer.Meta.model
+        fields = ShortIngredientGroupSerializer.Meta.fields + (
+            'ingredients',
+        )
+        read_only_fields = ShortIngredientGroupSerializer.Meta.read_only_fields
 
 
 class ShortFoodCategorySerializer(serializers.ModelSerializer):
@@ -247,7 +257,7 @@ class QuantitySerializer(ShortQuantitySerializer):
 
 
 class SingleFoodSerializer(serializers.ModelSerializer):
-    ingredientGroups = IngredientGroupSerializer(
+    ingredientGroups = ShortIngredientGroupSerializer(
         many=True,
         read_only=True
     )
@@ -283,7 +293,6 @@ class SingleFoodSerializer(serializers.ModelSerializer):
             'store',
 
             'lastModified',
-            # 'deleted',
 
             'ingredientGroups',
             'quantity',
@@ -293,6 +302,30 @@ class SingleFoodSerializer(serializers.ModelSerializer):
             'ingredientGroups',
             'lastModified',
         )
+
+    def to_representation(self, obj):
+        result = super(SingleFoodSerializer, self).to_representation(obj)
+
+        addedIngredientRelations = []
+        ingredientGroups = obj.ingredientGroups.all().prefetch_related(
+            'ingredient_set'
+        )
+        for ingredientGroup in ingredientGroups:
+            ingredients = ingredientGroup.ingredient_set.all()
+            for ingredient in ingredients:
+                addedIngredientRelations.append(
+                    IngredientRelation(ingredient=ingredient)
+                )
+
+        serializer = IngredientRelationSerializer(
+            many=True
+        )
+        relationRepresentation = serializer.to_representation(addedIngredientRelations
+        )
+
+        result['ingredients'] += relationRepresentation
+
+        return result
 
 
 class MultiFoodSerializer(serializers.ModelSerializer):
