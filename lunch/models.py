@@ -206,7 +206,9 @@ class Store(models.Model):
     street = models.CharField(
         max_length=255
     )
-    number = models.PositiveIntegerField()
+    number = models.CharField(
+        max_length=10
+    )
     latitude = models.DecimalField(
         blank=True,
         decimal_places=7,
