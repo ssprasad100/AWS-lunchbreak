@@ -424,6 +424,21 @@ class UserSerializer(serializers.ModelSerializer):
         )
 
 
+class MultiUserTokenSerializer(lunchSerializers.MultiTokenSerializer):
+    user = UserSerializer(
+        read_only=True
+    )
+
+    class Meta:
+        model = UserToken
+        fields = lunchSerializers.MultiTokenSerializer.Meta.fields + (
+            'user',
+        )
+        read_only_fields = lunchSerializers.MultiTokenSerializer.Meta.read_only_fields + (
+            'user',
+        )
+
+
 class UserTokenSerializer(lunchSerializers.TokenSerializer):
     user = UserSerializer()
 

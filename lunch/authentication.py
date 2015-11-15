@@ -16,7 +16,11 @@ class TokenAuthentication(authentication.BaseAuthentication):
                 self.MODEL_NAME + '_id': modelId,
                 'device': device
             }
-            modelTokens = self.TOKEN_MODEL.objects.filter(**arguments)
+            modelTokens = self.TOKEN_MODEL.objects.select_related(
+                self.MODEL_NAME
+            ).filter(
+                **arguments
+            )
             for modelToken in modelTokens:
                 if modelToken.checkIdentifier(identifier):
                     return (getattr(modelToken, self.MODEL_NAME), modelToken)

@@ -641,10 +641,12 @@ class Food(models.Model):
 
     @cached_property
     def hasIngredients(self):
+        # TODO Optimise this.
         return self.ingredients.count() > 0
 
     @cached_property
     def quantity(self):
+        # TODO Optimise this.
         try:
             return Quantity.objects.get(
                 foodType_id=self.foodType_id,

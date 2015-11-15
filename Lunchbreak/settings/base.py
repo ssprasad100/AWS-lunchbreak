@@ -9,7 +9,6 @@ PRIVATE_MEDIA_SERVER = 'private_media.servers.NginxXAccelRedirectServer'
 PRIVATE_MEDIA_PERMISSIONS = 'lunch.authentication.PrivateMediaAuthentication'
 IMAGEKIT_DEFAULT_FILE_STORAGE = 'private_media.storages.PrivateMediaStorage'
 
-
 SECRET_KEY = 'e2a86@j!uc5@z^yu=%n9)6^%w+-(pk8a6@^i!vnvxe^-w%!q8('
 
 DEBUG = False
@@ -46,7 +45,6 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-
 )
 
 ROOT_URLCONF = 'Lunchbreak.urls'
@@ -159,7 +157,6 @@ LOGGING = {
         'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
-            'formatter': 'verbose'
         }
     },
     'loggers': {
@@ -177,6 +174,13 @@ LOGGING = {
             'level': 'DEBUG',
             'handlers': ['console'],
             'propagate': False,
+        },
+        'qinspect': {
+            'handlers': [
+                'console'
+            ],
+            'level': 'DEBUG',
+            'propagate': True,
         },
     },
 }

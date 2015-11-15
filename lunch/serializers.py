@@ -320,8 +320,7 @@ class SingleFoodSerializer(serializers.ModelSerializer):
         serializer = IngredientRelationSerializer(
             many=True
         )
-        relationRepresentation = serializer.to_representation(addedIngredientRelations
-        )
+        relationRepresentation = serializer.to_representation(addedIngredientRelations)
 
         result['ingredients'] += relationRepresentation
 
@@ -359,13 +358,12 @@ class MultiFoodSerializer(serializers.ModelSerializer):
         )
 
 
-class TokenSerializer(serializers.ModelSerializer):
+class MultiTokenSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = BaseToken
         fields = (
             'id',
-            'identifier',
             'device',
             'service',
             'registration_id',
@@ -376,6 +374,17 @@ class TokenSerializer(serializers.ModelSerializer):
             'identifier',
             'device',
             'service',
-            'registration_id',
             'active',
+        )
+
+
+class TokenSerializer(MultiTokenSerializer):
+
+    class Meta:
+        model = MultiTokenSerializer.Meta.model
+        fields = MultiTokenSerializer.Meta.fields + (
+            'identifier',
+        )
+        read_only_fields = MultiTokenSerializer.Meta.read_only_fields + (
+            'identifier',
         )

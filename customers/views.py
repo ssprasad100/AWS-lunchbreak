@@ -10,7 +10,7 @@ from customers.serializers import (OrderedFoodPriceSerializer, OrderSerializer,
                                    StoreHeartSerializer,
                                    StoreHeartSerializerV3, UserLoginSerializer,
                                    UserRegisterSerializer, UserSerializer,
-                                   UserTokenSerializer,
+                                   MultiUserTokenSerializer,
                                    UserTokenUpdateSerializer)
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404
@@ -68,7 +68,12 @@ class FoodListView(generics.ListAPIView):
                 category_id=self.kwargs['foodcategory_id'],
                 deleted=False
             )
-        return result.order_by(
+        return result.select_related(
+            'category',
+            'foodType',
+        ).prefetch_related(
+            'ingredients',  # Food.hasIngredients
+        ).order_by(
             '-category__priority',
             'category__name',
             '-priority',
@@ -87,7 +92,9 @@ class FoodCategoryRetrieveView(generics.RetrieveAPIView):
 
     authentication_classes = (CustomerAuthentication,)
     serializer_class = FoodCategorySerializer
-    queryset = FoodCategory.objects.all()
+    queryset = FoodCategory.objects.select_related(
+        'store',
+    ).all()
 
 
 class OrderView(generics.ListCreateAPIView):
@@ -102,13 +109,21 @@ class OrderView(generics.ListCreateAPIView):
             return ShortOrderSerializerOld
 
     def get_queryset(self):
-        return Order.objects.filter(user=self.request.user).order_by('-pickupTime')
+        return Order.objects.select_related(
+            'store',
+        ).filter(
+            user=self.request.user
+        ).order_by(
+            '-pickupTime'
+        )
 
     def create(self, request, *args, **kwargs):
         serializerClass = self.get_serializer_class()
         orderSerializer = serializerClass(
             data=request.data,
-            context={'user': request.user}
+            context={
+                'user': request.user
+            }
         )
 
         if orderSerializer.is_valid():
@@ -127,7 +142,9 @@ class OrderRetrieveView(generics.RetrieveAPIView):
     '''Retrieve a single order.'''
 
     authentication_classes = (CustomerAuthentication,)
-    queryset = Order.objects.all()
+    queryset = Order.objects.select_related(
+        'store',
+    ).all()
 
     def get_serializer_class(self):
         if self.request.version > 1:
@@ -196,11 +213,18 @@ class StoreHeartView(generics.RetrieveUpdateAPIView):
         store = get_object_or_404(Store, id=pk)
 
         if heart:
-            heart, created = Heart.objects.get_or_create(store=store, user=request.user)
+            heart, created = Heart.objects.get_or_create(
+                store=store,
+                user=request.user
+            )
             statusCode = status.HTTP_201_CREATED if created else status.HTTP_200_OK
             return Response(status=statusCode)
         else:
-            heart = get_object_or_404(Heart, store=store, user=request.user)
+            heart = get_object_or_404(
+                Heart,
+                store=store,
+                user=request.user
+            )
             heart.delete()
             return Response(status=status.HTTP_200_OK)
 
@@ -283,10 +307,14 @@ class StoreMultiView(generics.ListAPIView):
                 enabled=True
             )
         else:
-            return Store.objects.filter(
+            return Store.objects.prefetch_related(
+                'categories',
+            ).filter(
                 order__user=self.request.user,
                 enabled=True
-            ).order_by('-order__orderedTime').distinct()
+            ).order_by(
+                '-order__orderedTime'
+            ).distinct()
 
 
 class StoreCategoryListView(StoreCategoryListViewBase):
@@ -297,10 +325,14 @@ class UserTokenView(generics.ListAPIView):
     '''Return all of the Tokens for the authenticated user.'''
 
     authentication_classes = (CustomerAuthentication,)
-    serializer_class = UserTokenSerializer
+    serializer_class = MultiUserTokenSerializer
 
     def get_queryset(self):
-        return UserToken.objects.filter(user=self.request.user)
+        return UserToken.objects.select_related(
+            'user',
+        ).filter(
+            user=self.request.user
+        )
 
 
 class UserView(generics.CreateAPIView):
