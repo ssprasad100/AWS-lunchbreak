@@ -67,6 +67,9 @@ class EmployeePasswordRequestSerializer(serializers.ModelSerializer):
 
 
 class StaffPasswordRequestSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(
+        max_length=255
+    )
 
     class Meta:
         model = Staff
