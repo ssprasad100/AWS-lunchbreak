@@ -368,6 +368,7 @@ class ShortFoodSerializer(serializers.ModelSerializer):
 
             'ingredientRelations',
             'orderAmount',
+            'deleted',
         )
         read_only_fields = (
             'id',
