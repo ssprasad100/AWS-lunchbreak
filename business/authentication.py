@@ -5,7 +5,7 @@ from business.serializers import (EmployeePasswordRequestSerializer,
                                   StaffPasswordRequestSerializer,
                                   StaffTokenSerializer)
 from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.exceptions import ValidationError
 from django.core.mail import BadHeaderError, EmailMultiAlternatives
 from django.core.validators import validate_email
 from django.template.loader import render_to_string
@@ -34,7 +34,7 @@ class BusinessAuthentication(TokenAuthentication):
 
         try:
             model = cls.MODEL.objects.get(id=modelId)
-        except ObjectDoesNotExist:
+        except cls.MODEL.DoesNotExist:
             return DoesNotExist(
                 '{modelName} does not exist.'.format(
                     modelName=cls.MODEL_NAME.capitalize()
