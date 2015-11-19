@@ -16,3 +16,5 @@ _build
 .python-version
 media
 media-private
+
+.vagrant/
