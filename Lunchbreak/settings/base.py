@@ -30,6 +30,7 @@ INSTALLED_APPS = (
 
     'imagekit',
     'polaroid',
+    'raml',
 
     'business',
     'customers',
