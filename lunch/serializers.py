@@ -310,12 +310,15 @@ class SingleFoodSerializer(serializers.ModelSerializer):
         ingredientGroups = obj.ingredientGroups.all().prefetch_related(
             'ingredient_set'
         )
+        objIngredients = obj.ingredients.all()
+
         for ingredientGroup in ingredientGroups:
             ingredients = ingredientGroup.ingredient_set.all()
             for ingredient in ingredients:
-                addedIngredientRelations.append(
-                    IngredientRelation(ingredient=ingredient)
-                )
+                if ingredient not in objIngredients:
+                    addedIngredientRelations.append(
+                        IngredientRelation(ingredient=ingredient)
+                    )
 
         serializer = IngredientRelationSerializer(
             many=True
