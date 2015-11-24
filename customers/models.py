@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 import math
 
+from business.models import StaffToken
 from customers.config import (ORDER_ENDED, ORDER_STATUS,
                               ORDER_STATUS_COMPLETED, ORDER_STATUS_PLACED,
                               ORDER_STATUS_WAITING, RESERVATION_STATUS,
@@ -262,6 +263,14 @@ class Order(models.Model, DirtyFieldsMixin):
         for f in orderedFood:
             self.total += f.total
 
+        if self.pk is None:
+            StaffToken.objects.filter(
+                staff__store_id=self.store_id
+            ).send_message(
+                'Er is een nieuwe bestelling binnengekomen!',
+                sound='default'
+            )
+
         dirty = self.is_dirty()
         dirtyStatus = None
 
@@ -270,7 +279,6 @@ class Order(models.Model, DirtyFieldsMixin):
             dirtyStatus = dirty_fields.get('status', dirtyStatus)
 
             if dirtyStatus is not None:
-
                 if self.status == ORDER_STATUS_WAITING:
                     self.user.usertoken_set.all().send_message(
                         'Je bestelling bij {store} ligt klaar!'.format(
