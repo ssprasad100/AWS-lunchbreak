@@ -32,6 +32,7 @@ INSTALLED_APPS = (
     'polaroid',
     'raml',
 
+    'django_gocardless',
     'business',
     'customers',
     'lunch',
@@ -61,7 +62,7 @@ LANGUAGE_CODE = 'nl-be'
 TIME_ZONE = 'Europe/Brussels'
 USE_I18N = True  # Translate localisation
 USE_L10N = True  # Format localisation
-USE_TZ = False
+USE_TZ = True
 
 DATE_FORMAT = '%Y-%m-%d'
 DATE_FORMAT_URL = '%Y%m%d'
@@ -197,3 +198,29 @@ TESTING = False
 
 # What APNS certificate to use (development or production)
 CERT_TYPE = 'development'
+
+GOCARDLESS = {
+    'access_token': 'fGTKM_yaVZ7t-twTQ9uTJWo6Gy6f8nK70kGgjQTr',
+    'environment': 'sandbox',
+    'app': {
+        'redirect_uri': 'lunchbreakstore://gocardless/redirect',
+        'client_id': '',
+        'client_secret': '',
+        'oauth_baseurl': {
+            'live': 'https://connect.gocardless.com',
+            'sandbox': 'https://connect-sandbox.gocardless.com'
+        }
+    },
+    'app_redirect': {
+        'success': 'lunchbreakstore://gocardless/redirectflow/success',
+        'error': {
+            'default': 'lunchbreakstore://gocardless/redirectflow/error',
+            'invalid': 'lunchbreakstore://gocardless/redirectflow/error/invalid',
+            'incomplete': 'lunchbreakstore://gocardless/redirectflow/error/incomplete',
+            'completed': 'lunchbreakstore://gocardless/redirectflow/error/completed',
+        }
+    }
+    # 'redirectflow': {
+    #     'success_redirect_url': 'lunchbreakstore://gocardless/redirectflow/success'
+    # }
+}

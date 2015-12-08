@@ -117,7 +117,7 @@ class OrderView(generics.ListCreateAPIView):
             '-pickupTime'
         )
 
-    def create(self, request, *args, **kwargs):
+    def create(self, request, pay=False, *args, **kwargs):
         serializerClass = self.get_serializer_class()
         orderSerializer = serializerClass(
             data=request.data,
@@ -128,6 +128,9 @@ class OrderView(generics.ListCreateAPIView):
 
         if orderSerializer.is_valid():
             try:
+                if pay:
+                    pass
+
                 orderSerializer.save()
                 return Response(
                     data=orderSerializer.data,
@@ -339,7 +342,8 @@ class UserView(generics.CreateAPIView):
 
     serializer_class = UserSerializer
 
-    # For all these methods a try-except is not needed since a DigitsException is generated which will provide everything
+    # For all these methods a try-except is not needed because
+    # a DigitsException is generated which will provide everything
     def register(self, digits, phone):
         try:
             digits.register(phone)

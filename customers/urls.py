@@ -147,7 +147,7 @@ urlpatterns = patterns(
         name='user-reservation'
     ),
     url(
-        r'^user/order/?$',
+        r'^user/order(/(?P<pay>pay))?/?$',
         views.OrderView.as_view(),
         name='order'
     ),

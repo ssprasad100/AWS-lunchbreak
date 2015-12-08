@@ -26,3 +26,4 @@ django-imagekit==3.2.7
 pilkit==1.1.13
 pillow==2.9.0
 -e git+git://github.com/RacingTadpole/django-private-media.git@7510f2f63ddf0653679b4134a0542cd78317a5c8#egg=django-private-media
+gocardless_pro==0.1.2
