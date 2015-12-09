@@ -8,25 +8,11 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.crypto import get_random_string
-from django_gocardless.exceptions import (DjangoGoCardlessException,
-                                          ExchangeAuthorisationException)
 from gocardless_pro.errors import GoCardlessProError
 
-SCHEMES = (
-    ('autogiro', 'Autogiro',),
-    ('bacs', 'Bacs',),
-    ('sepa_core', 'Sepa Core',),
-    ('sepa_cor1', 'Sepa Cor1',),
-)
-
-MANDATE_STATUSES = (
-    ('pending_submission', 'Pending submission',),
-    ('submitted', 'Submitted',),
-    ('active', 'Active',),
-    ('failed', 'Failed',),
-    ('cancelled', 'Cancelled',),
-    ('expired', 'Expired',),
-)
+from .config import MANDATE_STATUSES, SCHEMES
+from .exceptions import (DjangoGoCardlessException,
+                         ExchangeAuthorisationException)
 
 
 class Merchant(models.Model):
@@ -259,6 +245,51 @@ class Mandate(models.Model):
 
     def __unicode__(self):
         return self.id
+
+    @classmethod
+    def created(cls, instance, event, **kwargs):
+        instance.status = MANDATE_STATUSES[0][0]
+        instance.save()
+
+    @classmethod
+    def submitted(cls, instance, event, **kwargs):
+        instance.status = MANDATE_STATUSES[1][0]
+        instance.save()
+
+    @classmethod
+    def active(cls, instance, event, **kwargs):
+        instance.status = MANDATE_STATUSES[2][0]
+        instance.save()
+
+    @classmethod
+    def reinstated(cls, instance, event, **kwargs):
+        instance.status = MANDATE_STATUSES[2][0]
+        instance.save()
+
+    @classmethod
+    def transferred(cls, instance, event, **kwargs):
+        # TODO Update customer_bank_account
+        pass
+
+    @classmethod
+    def cancelled(cls, instance, event, **kwargs):
+        instance.status = MANDATE_STATUSES[4][0]
+        instance.save()
+
+    @classmethod
+    def failed(cls, instance, event, **kwargs):
+        instance.status = MANDATE_STATUSES[3][0]
+        instance.save()
+
+    @classmethod
+    def expired(cls, instance, event, **kwargs):
+        instance.status = MANDATE_STATUSES[5][0]
+        instance.save()
+
+    @classmethod
+    def resubmission_requested(cls, instance, event, **kwargs):
+        instance.status = MANDATE_STATUSES[0][0]
+        instance.save()
 
 
 class RedirectFlow(models.Model):

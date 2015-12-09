@@ -1,0 +1,39 @@
+from .models import Mandate
+from .signals import *
+
+mandate_created.connect(
+    Mandate.created,
+    dispatch_uid='django_gocardless_mandate_created'
+)
+mandate_submitted.connect(
+    Mandate.submitted,
+    dispatch_uid='django_gocardless_mandate_submitted'
+)
+mandate_active.connect(
+    Mandate.active,
+    dispatch_uid='django_gocardless_mandate_active'
+)
+mandate_reinstated.connect(
+    Mandate.reinstated,
+    dispatch_uid='django_gocardless_mandate_reinstated'
+)
+mandate_transferred.connect(
+    Mandate.transferred,
+    dispatch_uid='django_gocardless_mandate_transferred'
+)
+mandate_cancelled.connect(
+    Mandate.cancelled,
+    dispatch_uid='django_gocardless_mandate_cancelled'
+)
+mandate_failed.connect(
+    Mandate.failed,
+    dispatch_uid='django_gocardless_mandate_failed'
+)
+mandate_expired.connect(
+    Mandate.expired,
+    dispatch_uid='django_gocardless_mandate_expired'
+)
+mandate_resubmission_requested.connect(
+    Mandate.resubmission_requested,
+    dispatch_uid='django_gocardless_mandate_resubmission_requested'
+)
