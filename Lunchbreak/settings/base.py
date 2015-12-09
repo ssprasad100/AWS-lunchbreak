@@ -219,8 +219,8 @@ GOCARDLESS = {
             'incomplete': 'lunchbreakstore://gocardless/redirectflow/error/incomplete',
             'completed': 'lunchbreakstore://gocardless/redirectflow/error/completed',
         }
+    },
+    'webhook': {
+        'secret': 'UqNOZ-Zplk3ODIke8VldT9jKCM4TIkc0AIAFTWAx',
     }
-    # 'redirectflow': {
-    #     'success_redirect_url': 'lunchbreakstore://gocardless/redirectflow/success'
-    # }
 }

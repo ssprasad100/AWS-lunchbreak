@@ -1,11 +1,18 @@
+import hashlib
+import hmac
+import json
+
 from django.conf import settings
 from django.http import HttpResponse
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import RedirectView, View
-from django_gocardless.exceptions import (BadRequest,
-                                          DjangoGoCardlessException,
-                                          RedirectFlowAlreadyCompleted,
-                                          RedirectFlowIncomplete)
-from django_gocardless.models import RedirectFlow
+from gocardless_pro.resources import Event
+
+from .exceptions import (BadRequest, DjangoGoCardlessException,
+                         RedirectFlowAlreadyCompleted, RedirectFlowIncomplete)
+from .handlers import EventHandler
+from .models import RedirectFlow
 
 
 class RedirectFlowCreateView(RedirectView):
@@ -45,3 +52,52 @@ class RedirectFlowSuccessView(View):
                     response['Location'] = settings.GOCARDLESS['app_redirect']['error']['default']
 
         return response
+
+
+class CSRFExemptView(View):
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, *args, **kwargs):
+        return super(CSRFExemptView, self).dispatch(*args, **kwargs)
+
+
+class WebhookView(CSRFExemptView):
+
+    INVALID_TOKEN = 498
+
+    def post(self, request, *args, **kwargs):
+        try:
+            webhook_signature = request.META.get('HTTP_WEBHOOK_SIGNATURE', None)
+
+            if webhook_signature is None:
+                return HttpResponse(
+                    status=self.INVALID_TOKEN
+                )
+
+            calculated_signature = hmac.new(
+                settings.GOCARDLESS['webhook']['secret'],
+                msg=request.body,
+                digestmod=hashlib.sha256
+            ).hexdigest()
+
+            if not hmac.compare_digest(calculated_signature, webhook_signature):
+                return HttpResponse(
+                    status=self.INVALID_TOKEN
+                )
+
+            data = json.loads(request.body)
+            events = data.get('events', None)
+
+            if events is not None and isinstance(events, list):
+                for event in events:
+                    EventHandler(Event(event, None))
+
+                return HttpResponse(
+                    status=200
+                )
+        except ValueError:
+            pass
+
+        return HttpResponse(
+            status=400
+        )

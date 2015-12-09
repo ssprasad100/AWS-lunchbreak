@@ -13,4 +13,10 @@ urlpatterns = patterns(
         views.RedirectFlowSuccessView.as_view(),
         name='gocardless_redirectflow_success'
     ),
+
+    url(
+        r'^webhook/?$',
+        views.WebhookView.as_view(),
+        name='gocardless_webhook'
+    ),
 )
