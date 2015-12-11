@@ -35,6 +35,10 @@ class BadRequest(DjangoGoCardlessException):
     pass
 
 
+class UnsupportedEvent(DjangoGoCardlessException):
+    pass
+
+
 exception_reasons = {
     'redirect_flow_incomplete': RedirectFlowIncomplete,
     'redirect_flow_already_completed': RedirectFlowAlreadyCompleted,

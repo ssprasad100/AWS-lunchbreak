@@ -1,26 +1,22 @@
 from gocardless_pro.resources import Event
 
+from .exceptions import UnsupportedEvent
 from .signals import *
-from .models import Mandate
 
 
 class EventHandler(object):
 
-    RESOURCE_TYPES = {
+    ACTIONS = {
         'mandates': {
-            'actions': {
-                'created': mandate_created,
-                'submitted': mandate_submitted,
-                'active': mandate_active,
-                'reinstated': mandate_reinstated,
-                'transferred': mandate_transferred,
-                'cancelled': mandate_cancelled,
-                'failed': mandate_failed,
-                'expired': mandate_expired,
-                'resubmission_requested': mandate_resubmission_requested,
-            },
-            'model': Mandate,
-            'link': 'mandate',
+            'created': mandate_created,
+            'submitted': mandate_submitted,
+            'active': mandate_active,
+            'reinstated': mandate_reinstated,
+            'transferred': mandate_transferred,
+            'cancelled': mandate_cancelled,
+            'failed': mandate_failed,
+            'expired': mandate_expired,
+            'resubmission_requested': mandate_resubmission_requested,
         }
     }
 
@@ -28,26 +24,48 @@ class EventHandler(object):
         if not isinstance(event, Event):
             raise ValueError('The EventHandler needs to be provided with an Event object.')
 
-        if event.resource_type not in self.RESOURCE_TYPES:
-            raise ValueError('Unsupported resource_type.')
+        if event.resource_type not in self.ACTIONS:
+            raise UnsupportedEvent('Unsupported resource_type: ' + event.resource_type)
 
-        resource_type = self.RESOURCE_TYPES[event.resource_type]
-        actions = resource_type['actions']
+        actions = self.ACTIONS[event.resource_type]
 
         if event.action not in actions:
-            raise ValueError('Unsupported action.')
+            raise UnsupportedEvent('Unsupported action: ' + event.action)
 
         signal = actions[event.action]
-        model = resource_type['model']
-        link = resource_type['link']
-        identifier = getattr(event.links, link)
+        arguments = {}
 
-        model_instance, created = model.objects.get_or_create(
-            id=identifier
-        )
+        for link in signal.providing_args:
+            if link not in LINK_MODELS:
+                continue
+
+            identifier = getattr(event.links, link)
+            argument_model = LINK_MODELS[link]
+
+            if isinstance(argument_model, dict):
+                model = argument_model['model']
+                where = {
+                    argument_model['where_field']: identifier
+                }
+                argument = argument_model['argument']
+            else:
+                model = argument_model
+                where = {
+                    'id': identifier
+                }
+                argument = link
+
+            if identifier is not None:
+                model_instance, created = model.objects.get_or_create(
+                    **where
+                )
+            else:
+                model_instance = None
+
+            arguments[argument] = model_instance
 
         signal.send(
             sender=self.__class__,
-            instance=model_instance,
-            event=event
+            event=event,
+            **arguments
         )

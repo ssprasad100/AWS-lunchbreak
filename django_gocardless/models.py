@@ -93,7 +93,6 @@ class Merchant(models.Model):
 class Customer(models.Model):
     id = models.CharField(
         primary_key=True,
-        blank=True,
         null=False,
         max_length=255
     )
@@ -171,7 +170,6 @@ class Customer(models.Model):
 class CustomerBankAccount(models.Model):
     id = models.CharField(
         primary_key=True,
-        blank=True,
         null=False,
         max_length=255
     )
@@ -194,7 +192,9 @@ class CustomerBankAccount(models.Model):
     currency = models.CharField(
         max_length=3
     )
-    enabled = models.BooleanField()
+    enabled = models.BooleanField(
+        default=False
+    )
 
     customer = models.ForeignKey(
         Customer,
@@ -247,49 +247,49 @@ class Mandate(models.Model):
         return self.id
 
     @classmethod
-    def created(cls, instance, event, **kwargs):
-        instance.status = MANDATE_STATUSES[0][0]
-        instance.save()
+    def created(cls, mandate, event, **kwargs):
+        mandate.status = MANDATE_STATUSES[0][0]
+        mandate.save()
 
     @classmethod
-    def submitted(cls, instance, event, **kwargs):
-        instance.status = MANDATE_STATUSES[1][0]
-        instance.save()
+    def submitted(cls, mandate, event, **kwargs):
+        mandate.status = MANDATE_STATUSES[1][0]
+        mandate.save()
 
     @classmethod
-    def active(cls, instance, event, **kwargs):
-        instance.status = MANDATE_STATUSES[2][0]
-        instance.save()
+    def active(cls, mandate, event, **kwargs):
+        mandate.status = MANDATE_STATUSES[2][0]
+        mandate.save()
 
     @classmethod
-    def reinstated(cls, instance, event, **kwargs):
-        instance.status = MANDATE_STATUSES[2][0]
-        instance.save()
+    def reinstated(cls, mandate, event, **kwargs):
+        mandate.status = MANDATE_STATUSES[2][0]
+        mandate.save()
 
     @classmethod
-    def transferred(cls, instance, event, **kwargs):
-        # TODO Update customer_bank_account
+    def transferred(cls, mandate, event, previous_customer_bank_account, new_customer_bank_account, **kwargs):
+        # TODO Update customer bank account
         pass
 
     @classmethod
-    def cancelled(cls, instance, event, **kwargs):
-        instance.status = MANDATE_STATUSES[4][0]
-        instance.save()
+    def cancelled(cls, mandate, event, **kwargs):
+        mandate.status = MANDATE_STATUSES[4][0]
+        mandate.save()
 
     @classmethod
-    def failed(cls, instance, event, **kwargs):
-        instance.status = MANDATE_STATUSES[3][0]
-        instance.save()
+    def failed(cls, mandate, event, **kwargs):
+        mandate.status = MANDATE_STATUSES[3][0]
+        mandate.save()
 
     @classmethod
-    def expired(cls, instance, event, **kwargs):
-        instance.status = MANDATE_STATUSES[5][0]
-        instance.save()
+    def expired(cls, mandate, event, **kwargs):
+        mandate.status = MANDATE_STATUSES[5][0]
+        mandate.save()
 
     @classmethod
-    def resubmission_requested(cls, instance, event, **kwargs):
-        instance.status = MANDATE_STATUSES[0][0]
-        instance.save()
+    def resubmission_requested(cls, mandate, event, **kwargs):
+        mandate.status = MANDATE_STATUSES[0][0]
+        mandate.save()
 
 
 class RedirectFlow(models.Model):
