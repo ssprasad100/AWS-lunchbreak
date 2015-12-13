@@ -10,7 +10,10 @@ from django.db import models
 from django.utils.crypto import get_random_string
 from gocardless_pro.errors import GoCardlessProError
 
-from .config import MANDATE_STATUSES, SCHEMES
+from .config import (CURRENCIES, MANDATE_STATUSES, PAYMENT_STATUSES,
+                     PAYOUT_STATUSES, SCHEMES, SUBSCRIPTION_DAY_OF_MONTH,
+                     SUBSCRIPTION_INTERVAL_UNIT, SUBSCRIPTION_MONTHS,
+                     SUBSCRIPTION_STATUSES)
 from .exceptions import (DjangoGoCardlessException,
                          ExchangeAuthorisationException)
 
@@ -93,7 +96,6 @@ class Merchant(models.Model):
 class Customer(models.Model):
     id = models.CharField(
         primary_key=True,
-        null=False,
         max_length=255
     )
     address_line1 = models.CharField(
@@ -122,8 +124,7 @@ class Customer(models.Model):
         blank=True
     )
     created_at = models.DateTimeField(
-        null=True,
-        blank=True
+        null=True
     )
     email = models.EmailField(
         blank=True
@@ -170,7 +171,6 @@ class Customer(models.Model):
 class CustomerBankAccount(models.Model):
     id = models.CharField(
         primary_key=True,
-        null=False,
         max_length=255
     )
     account_holder_name = models.CharField(
@@ -186,11 +186,11 @@ class CustomerBankAccount(models.Model):
         max_length=2
     )
     created_at = models.DateTimeField(
-        null=True,
-        blank=True
+        null=True
     )
     currency = models.CharField(
-        max_length=3
+        max_length=3,
+        choices=CURRENCIES
     )
     enabled = models.BooleanField(
         default=False
@@ -216,12 +216,10 @@ class Mandate(models.Model):
         max_length=255
     )
     created_at = models.DateTimeField(
-        null=True,
-        blank=True
+        null=True
     )
     next_possible_charge_date = models.DateField(
-        null=True,
-        blank=True
+        null=True
     )
     reference = models.CharField(
         max_length=255,
@@ -234,8 +232,8 @@ class Mandate(models.Model):
     )
     status = models.CharField(
         max_length=255,
-        blank=True,
-        choices=MANDATE_STATUSES
+        choices=MANDATE_STATUSES,
+        default=MANDATE_STATUSES[0][0]
     )
 
     customer_bank_account = models.ForeignKey(
@@ -295,12 +293,10 @@ class Mandate(models.Model):
 class RedirectFlow(models.Model):
     id = models.CharField(
         primary_key=True,
-        null=False,
         max_length=255
     )
     created_at = models.DateTimeField(
-        null=True,
-        blank=True
+        null=True
     )
     description = models.TextField(
         blank=True
@@ -422,6 +418,161 @@ class RedirectFlow(models.Model):
             pass
 
         self.save()
+
+    def __unicode__(self):
+        return self.id
+
+
+class Payout(models.Model):
+    id = models.CharField(
+        primary_key=True,
+        max_length=255
+    )
+    amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2
+    )
+    created_At = models.DateTimeField(
+        null=True
+    )
+    currency = models.CharField(
+        max_length=3,
+        choices=CURRENCIES
+    )
+    reference = models.CharField(
+        max_length=140,
+        blank=True
+    )
+    status = models.CharField(
+        max_length=255,
+        choices=PAYOUT_STATUSES,
+        blank=True
+    )
+
+    merchant = models.ForeignKey(
+        Merchant,
+        null=True
+    )
+
+    def __unicode__(self):
+        return self.id
+
+
+class Subscription(models.Model):
+    id = models.CharField(
+        primary_key=True,
+        max_length=255
+    )
+    amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2
+    )
+    count = models.PositiveIntegerField(
+        null=True
+    )
+    created_At = models.DateTimeField(
+        null=True
+    )
+    currency = models.CharField(
+        max_length=3,
+        choices=CURRENCIES
+    )
+    day_of_month = models.IntegerField(
+        choices=SUBSCRIPTION_DAY_OF_MONTH,
+        null=True
+    )
+    end_date = models.DateField(
+        null=True
+    )
+    interval = models.PositiveIntegerField(
+        default=1
+    )
+    interval_unit = models.CharField(
+        max_length=255,
+        choices=SUBSCRIPTION_INTERVAL_UNIT
+    )
+    month = models.CharField(
+        max_length=255,
+        choices=SUBSCRIPTION_MONTHS,
+        blank=True
+    )
+    name = models.CharField(
+        max_length=255,
+        blank=True
+    )
+    payment_reference = models.CharField(
+        max_length=140,
+        blank=True
+    )
+    start_date = models.DateField(
+        null=True
+    )
+    status = models.CharField(
+        max_length=255,
+        choices=SUBSCRIPTION_STATUSES,
+        default=SUBSCRIPTION_STATUSES[0][0]
+    )
+
+    mandate = models.ForeignKey(
+        Mandate
+    )
+
+    def __unicode__(self):
+        return self.name if self.name else self.id
+
+    @property
+    def upcoming_payments(self):
+        raise NotImplementedError('Future payments are not yet implemented.')
+
+
+class Payment(models.Model):
+    id = models.CharField(
+        primary_key=True,
+        max_length=255
+    )
+    amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2
+    )
+    amount_refunded = models.DecimalField(
+        max_digits=12,
+        decimal_places=2
+    )
+    charge_date = models.DateField(
+        null=True
+    )
+    created_At = models.DateTimeField(
+        null=True
+    )
+    currency = models.CharField(
+        max_length=3,
+        choices=CURRENCIES
+    )
+    description = models.TextField(
+        blank=True
+    )
+    reference = models.CharField(
+        max_length=140,
+        blank=True
+    )
+    status = models.CharField(
+        max_length=255,
+        choices=PAYMENT_STATUSES,
+        default=PAYMENT_STATUSES[0][0]
+    )
+
+    mandate = models.ForeignKey(
+        Mandate,
+        null=True
+    )
+    payout = models.ForeignKey(
+        Payout,
+        null=True
+    )
+    subscription = models.ForeignKey(
+        Subscription,
+        null=True
+    )
 
     def __unicode__(self):
         return self.id
