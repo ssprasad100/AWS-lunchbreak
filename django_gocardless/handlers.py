@@ -35,6 +35,9 @@ class EventHandler(object):
             'created': subscription_created,
             'payment_created': subscription_payment_created,
             'cancelled': subscription_cancelled,
+        },
+        'payouts': {
+            'paid': payout_paid,
         }
     }
 

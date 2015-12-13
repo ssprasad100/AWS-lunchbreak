@@ -542,6 +542,11 @@ class Payout(models.Model, GCCacheMixin):
     def __unicode__(self):
         return self.id
 
+    @classmethod
+    def paid(cls, payout, event, merchant, **kwargs):
+        payout.status = PAYOUT_STATUSES[1][0]
+        payout.save()
+
 
 class Subscription(models.Model, GCOriginMixin):
 
@@ -751,7 +756,7 @@ class Refund(models.Model, GCCacheMixin):
         decimal_places=2,
         null=True
     )
-    created_At = models.DateTimeField(
+    created_at = models.DateTimeField(
         null=True
     )
     currency = models.CharField(
