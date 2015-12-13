@@ -18,7 +18,59 @@ from .exceptions import (DjangoGoCardlessException,
                          ExchangeAuthorisationException)
 
 
+class GCCacheMixin(object):
+
+    '''
+    Models that are cached for ease of use. These can be out of date with the
+    GoCardless database and should therefore provide a way to sync with the
+    GoCardless database. The `id` of the model should always be in sync if in
+    the GoCardless database.
+    '''
+
+    def fetch(self, *args, **kwargs):
+        raise NotImplementedError(
+            '{cls} needs to implement required methods.'.format(
+                cls=self.__class__.__name__
+            )
+        )
+
+
+class GCOriginMixin(GCCacheMixin):
+
+    '''
+    Models that are not only cached for ease of use, but should be able to be
+    created from this server using the GoCardless API.
+    '''
+
+    @classmethod
+    def create(cls, *args, **kwargs):
+        raise NotImplementedError(
+            '{cls} needs to implement required methods.'.format(
+                cls=cls.__name__
+            )
+        )
+
+    def update(self, *args, **kwargs):
+        raise NotImplementedError(
+            '{cls} needs to implement required methods.'.format(
+                cls=self.__class__.__name__
+            )
+        )
+
+
 class Merchant(models.Model):
+
+    '''
+    GoCardless account accessed through OAuth. Other GoCardless models
+    referencing a merchant mean that they belong to this merchant. If no
+    merchant is referenced, the GoCardless information in the Django settings
+    is used. Any GoCardless account is referred to as a merchant.
+
+    This is not represented specifically anywhere in the GoCardless API. This
+    is a virtual representation of the OAuth layer used to control other
+    GoCardless accounts.
+    '''
+
     access_token = models.CharField(
         max_length=255
     )
@@ -93,7 +145,14 @@ class Merchant(models.Model):
             raise ExchangeAuthorisationException()
 
 
-class Customer(models.Model):
+class Customer(models.Model, GCCacheMixin):
+
+    '''
+    Customer objects hold the contact details for a customer. A customer can
+    have several customer bank accounts, which in turn can have several Direct
+    Debit mandates.
+    '''
+
     id = models.CharField(
         primary_key=True,
         max_length=255
@@ -114,10 +173,10 @@ class Customer(models.Model):
         max_length=255,
         blank=True
     )
-    # Required unless family_name and given_name are provided.
     company_name = models.CharField(
         max_length=255,
-        blank=True
+        blank=True,
+        help_text='Required unless family_name and given_name are provided.'
     )
     country_code = models.CharField(
         max_length=2,
@@ -168,7 +227,13 @@ class Customer(models.Model):
             return self.family_name + ' ' + self.first_name
 
 
-class CustomerBankAccount(models.Model):
+class CustomerBankAccount(models.Model, GCCacheMixin):
+
+    '''
+    Customer Bank Accounts hold the bank details of a customer. They always
+    belong to a customer, and may be linked to several Direct Debit mandates.
+    '''
+
     id = models.CharField(
         primary_key=True,
         max_length=255
@@ -209,7 +274,12 @@ class CustomerBankAccount(models.Model):
         )
 
 
-class Mandate(models.Model):
+class Mandate(models.Model, GCCacheMixin):
+
+    '''
+    Mandates represent the Direct Debit mandate with a customer.
+    '''
+
     id = models.CharField(
         primary_key=True,
         blank=True,
@@ -290,7 +360,15 @@ class Mandate(models.Model):
         mandate.save()
 
 
-class RedirectFlow(models.Model):
+class RedirectFlow(models.Model, GCOriginMixin):
+
+    '''
+    Redirect flows enable you to use GoCardless Pro's hosted payment pages to
+    set up mandates with your customers. These pages are fully compliant and
+    have been translated into Dutch, French, German, Italian, Portuguese,
+    Spanish and Swedish.
+    '''
+
     id = models.CharField(
         primary_key=True,
         max_length=255
@@ -423,7 +501,14 @@ class RedirectFlow(models.Model):
         return self.id
 
 
-class Payout(models.Model):
+class Payout(models.Model, GCCacheMixin):
+
+    '''
+    Payouts represent transfers from GoCardless to a creditor. Each payout
+    contains the funds collected from one or many payments. Payouts are created
+    automatically after a payment has been successfully collected.
+    '''
+
     id = models.CharField(
         primary_key=True,
         max_length=255
@@ -458,7 +543,12 @@ class Payout(models.Model):
         return self.id
 
 
-class Subscription(models.Model):
+class Subscription(models.Model, GCOriginMixin):
+
+    '''
+    Subscriptions create payments according to a schedule.
+    '''
+
     id = models.CharField(
         primary_key=True,
         max_length=255
@@ -525,7 +615,13 @@ class Subscription(models.Model):
         raise NotImplementedError('Future payments are not yet implemented.')
 
 
-class Payment(models.Model):
+class Payment(models.Model, GCOriginMixin):
+
+    '''
+    Payment objects represent payments from a customer to a creditor, taken
+    against a Direct Debit mandate.
+    '''
+
     id = models.CharField(
         primary_key=True,
         max_length=255
