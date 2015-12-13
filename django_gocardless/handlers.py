@@ -38,6 +38,11 @@ class EventHandler(object):
         },
         'payouts': {
             'paid': payout_paid,
+        },
+        'refunds': {
+            'created': refund_created,
+            'paid': refund_paid,
+            'refund_settled': refund_settled,
         }
     }
 

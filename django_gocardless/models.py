@@ -776,3 +776,15 @@ class Refund(models.Model, GCCacheMixin):
 
     def __unicode__(self):
         return self.id
+
+    @classmethod
+    def created(cls, refund, event, merchant, **kwargs):
+        refund.fetch()
+
+    @classmethod
+    def paid(cls, refund, event, merchant, **kwargs):
+        pass
+
+    @classmethod
+    def settled(cls, refund, event, merchant, **kwargs):
+        pass

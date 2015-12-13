@@ -1,7 +1,7 @@
 from django.dispatch import Signal
 
 from .models import (CustomerBankAccount, Mandate, Merchant, Payment, Payout,
-                     Subscription)
+                     Refund, Subscription)
 
 LINK_MODELS = {
     'mandate': Mandate,
@@ -14,7 +14,8 @@ LINK_MODELS = {
     },
     'payment': Payment,
     'subscription': Subscription,
-    'payout': Payout
+    'payout': Payout,
+    'refund': Refund
 }
 
 mandate_created = Signal(
@@ -186,6 +187,28 @@ subscription_cancelled = Signal(
 payout_paid = Signal(
     providing_args=[
         'payout',
+        'event',
+        'merchant',
+    ]
+)
+
+refund_created = Signal(
+    providing_args=[
+        'refund',
+        'event',
+        'merchant',
+    ]
+)
+refund_paid = Signal(
+    providing_args=[
+        'refund',
+        'event',
+        'merchant',
+    ]
+)
+refund_settled = Signal(
+    providing_args=[
+        'refund',
         'event',
         'merchant',
     ]

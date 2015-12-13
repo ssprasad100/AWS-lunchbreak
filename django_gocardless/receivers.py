@@ -1,4 +1,4 @@
-from .models import Mandate, Payment, Payout, Subscription
+from .models import Mandate, Payment, Payout, Refund, Subscription
 from .signals import *
 
 mandate_created.connect(
@@ -99,4 +99,17 @@ subscription_cancelled.connect(
 payout_paid.connect(
     Payout.paid,
     dispatch_uid='dgc_payout_paid'
+)
+
+refund_created.connect(
+    Refund.created,
+    dispatch_uid='dgc_refund_created'
+)
+refund_paid.connect(
+    Refund.paid,
+    dispatch_uid='dgc_refund_paid'
+)
+refund_settled.connect(
+    Refund.settled,
+    dispatch_uid='dgc_refund_settled'
 )
