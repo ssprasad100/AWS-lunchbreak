@@ -82,3 +82,16 @@ payment_resubmission_requested.connect(
     Payment.resubmission_requested,
     dispatch_uid='dgc_payment_resubmission_requested'
 )
+
+subscription_created.connect(
+    Subscription.created,
+    dispatch_uid='dgc_subscription_created'
+)
+subscription_payment_created.connect(
+    Subscription.created,
+    dispatch_uid='dgc_subscription_payment_created'
+)
+subscription_cancelled.connect(
+    Subscription.created,
+    dispatch_uid='dgc_subscription_cancelled'
+)

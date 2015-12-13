@@ -30,6 +30,11 @@ class EventHandler(object):
             'late_failure_settled': payment_late_failure_settled,
             'chargeback_settled': payment_chargeback_settled,
             'resubmission_requested': payment_resubmission_requested,
+        },
+        'subscriptions': {
+            'created': subscription_created,
+            'payment_created': subscription_payment_created,
+            'cancelled': subscription_cancelled,
         }
     }
 

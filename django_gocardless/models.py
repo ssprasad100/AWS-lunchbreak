@@ -614,6 +614,18 @@ class Subscription(models.Model, GCOriginMixin):
     def upcoming_payments(self):
         raise NotImplementedError('Future payments are not yet implemented.')
 
+    @classmethod
+    def created(cls, subscription, event, merchant):
+        subscription.fetch()
+
+    @classmethod
+    def payment_created(cls, subscription, event, merchant):
+        subscription.fetch()
+
+    @classmethod
+    def cancelled(cls, subscription, event, merchant):
+        subscription.status = SUBSCRIPTION_STATUSES[4][0]
+
 
 class Payment(models.Model, GCOriginMixin):
 
