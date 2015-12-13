@@ -615,15 +615,15 @@ class Subscription(models.Model, GCOriginMixin):
         raise NotImplementedError('Future payments are not yet implemented.')
 
     @classmethod
-    def created(cls, subscription, event, merchant):
+    def created(cls, subscription, event, merchant, **kwargs):
         subscription.fetch()
 
     @classmethod
-    def payment_created(cls, subscription, event, merchant):
+    def payment_created(cls, subscription, event, merchant, **kwargs):
         subscription.fetch()
 
     @classmethod
-    def cancelled(cls, subscription, event, merchant):
+    def cancelled(cls, subscription, event, merchant, **kwargs):
         subscription.status = SUBSCRIPTION_STATUSES[4][0]
 
 
@@ -686,50 +686,88 @@ class Payment(models.Model, GCOriginMixin):
         return self.id
 
     @classmethod
-    def created(cls, payment, event, merchant):
+    def created(cls, payment, event, merchant, **kwargs):
         payment.fetch()
 
     @classmethod
-    def submitted(cls, payment, event, merchant):
+    def submitted(cls, payment, event, merchant, **kwargs):
         payment.status = PAYMENT_STATUSES[1][0]
         payment.save()
 
     @classmethod
-    def confirmed(cls, payment, event, merchant):
+    def confirmed(cls, payment, event, merchant, **kwargs):
         payment.status = PAYMENT_STATUSES[2][0]
         payment.save()
 
     @classmethod
-    def cancelled(cls, payment, event, merchant):
+    def cancelled(cls, payment, event, merchant, **kwargs):
         payment.status = PAYMENT_STATUSES[6][0]
         payment.save()
 
     @classmethod
-    def failed(cls, payment, event, merchant):
+    def failed(cls, payment, event, merchant, **kwargs):
         payment.status = PAYMENT_STATUSES[3][0]
         payment.save()
 
     @classmethod
-    def charged_back(cls, payment, event, merchant):
+    def charged_back(cls, payment, event, merchant, **kwargs):
         payment.status = PAYMENT_STATUSES[4][0]
         payment.save()
 
     @classmethod
-    def chargeback_cancelled(cls, payment, event, merchant):
+    def chargeback_cancelled(cls, payment, event, merchant, **kwargs):
         payment.fetch()
 
     @classmethod
-    def paid_out(cls, payment, event, merchant):
+    def paid_out(cls, payment, event, merchant, **kwargs):
         payment.fetch()
 
     @classmethod
-    def late_failure_settled(cls, payment, event, merchant):
+    def late_failure_settled(cls, payment, event, merchant, **kwargs):
         cls.failed(payment, event, merchant)
 
     @classmethod
-    def chargeback_settled(cls, payment, event, merchant):
+    def chargeback_settled(cls, payment, event, merchant, **kwargs):
         cls.charged_back(payment, event, merchant)
 
     @classmethod
-    def resubmission_requested(cls, payment, event, merchant):
+    def resubmission_requested(cls, payment, event, merchant, **kwargs):
         cls.submitted(payment, event, merchant)
+
+
+class Refund(models.Model, GCCacheMixin):
+
+    '''
+    Refund objects represent (partial) refunds of a payment back to the
+    customer.
+    '''
+
+    id = models.CharField(
+        primary_key=True,
+        max_length=255
+    )
+    amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        null=True
+    )
+    created_At = models.DateTimeField(
+        null=True
+    )
+    currency = models.CharField(
+        max_length=3,
+        choices=CURRENCIES,
+        blank=True
+    )
+    reference = models.CharField(
+        max_length=140,
+        blank=True
+    )
+
+    payment = models.ForeignKey(
+        Payment,
+        null=True
+    )
+
+    def __unicode__(self):
+        return self.id
