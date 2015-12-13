@@ -17,6 +17,19 @@ class EventHandler(object):
             'failed': mandate_failed,
             'expired': mandate_expired,
             'resubmission_requested': mandate_resubmission_requested,
+        },
+        'payments': {
+            'created': payment_created,
+            'submitted': payment_submitted,
+            'confirmed': payment_confirmed,
+            'cancelled': payment_cancelled,
+            'failed': payment_failed,
+            'charged_back': payment_charged_back,
+            'chargeback_cancelled': payment_chargeback_cancelled,
+            'paid_out': payment_paid_out,
+            'late_failure_settled': payment_late_failure_settled,
+            'chargeback_settled': payment_chargeback_settled,
+            'resubmission_requested': payment_resubmission_requested,
         }
     }
 
@@ -45,7 +58,7 @@ class EventHandler(object):
             if isinstance(argument_model, dict):
                 model = argument_model['model']
                 where = {
-                    argument_model['where_field']: identifier
+                    argument_model['id_field']: identifier
                 }
                 argument = argument_model['argument']
             else:

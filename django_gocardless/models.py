@@ -672,3 +672,52 @@ class Payment(models.Model, GCOriginMixin):
 
     def __unicode__(self):
         return self.id
+
+    @classmethod
+    def created(cls, payment, event, merchant):
+        payment.fetch()
+
+    @classmethod
+    def submitted(cls, payment, event, merchant):
+        payment.status = PAYMENT_STATUSES[1][0]
+        payment.save()
+
+    @classmethod
+    def confirmed(cls, payment, event, merchant):
+        payment.status = PAYMENT_STATUSES[2][0]
+        payment.save()
+
+    @classmethod
+    def cancelled(cls, payment, event, merchant):
+        payment.status = PAYMENT_STATUSES[6][0]
+        payment.save()
+
+    @classmethod
+    def failed(cls, payment, event, merchant):
+        payment.status = PAYMENT_STATUSES[3][0]
+        payment.save()
+
+    @classmethod
+    def charged_back(cls, payment, event, merchant):
+        payment.status = PAYMENT_STATUSES[4][0]
+        payment.save()
+
+    @classmethod
+    def chargeback_cancelled(cls, payment, event, merchant):
+        payment.fetch()
+
+    @classmethod
+    def paid_out(cls, payment, event, merchant):
+        payment.fetch()
+
+    @classmethod
+    def late_failure_settled(cls, payment, event, merchant):
+        cls.failed(payment, event, merchant)
+
+    @classmethod
+    def chargeback_settled(cls, payment, event, merchant):
+        cls.charged_back(payment, event, merchant)
+
+    @classmethod
+    def resubmission_requested(cls, payment, event, merchant):
+        cls.submitted(payment, event, merchant)

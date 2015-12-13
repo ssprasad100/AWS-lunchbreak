@@ -1,6 +1,6 @@
-import django.dispatch
+from django.dispatch import Signal
 
-from .models import CustomerBankAccount, Mandate, Merchant
+from .models import CustomerBankAccount, Mandate, Merchant, Payment
 
 LINK_MODELS = {
     'mandate': Mandate,
@@ -8,40 +8,41 @@ LINK_MODELS = {
     'new_customer_bank_account': CustomerBankAccount,
     'organisation': {
         'model': Merchant,
-        'where_field': 'organisation_id',
+        'id_field': 'organisation_id',
         'argument': 'organisation',
-    }
+    },
+    'payment': Payment
 }
 
-mandate_created = django.dispatch.Signal(
+mandate_created = Signal(
     providing_args=[
         'mandate',
         'event',
         'merchant',
     ]
 )
-mandate_submitted = django.dispatch.Signal(
+mandate_submitted = Signal(
     providing_args=[
         'mandate',
         'event',
         'merchant',
     ]
 )
-mandate_active = django.dispatch.Signal(
+mandate_active = Signal(
     providing_args=[
         'mandate',
         'event',
         'merchant',
     ]
 )
-mandate_reinstated = django.dispatch.Signal(
+mandate_reinstated = Signal(
     providing_args=[
         'mandate',
         'event',
         'merchant',
     ]
 )
-mandate_transferred = django.dispatch.Signal(
+mandate_transferred = Signal(
     providing_args=[
         'mandate',
         'event',
@@ -50,30 +51,108 @@ mandate_transferred = django.dispatch.Signal(
         'new_customer_bank_account',
     ]
 )
-mandate_cancelled = django.dispatch.Signal(
+mandate_cancelled = Signal(
     providing_args=[
         'mandate',
         'event',
         'merchant',
     ]
 )
-mandate_failed = django.dispatch.Signal(
+mandate_failed = Signal(
     providing_args=[
         'mandate',
         'event',
         'merchant',
     ]
 )
-mandate_expired = django.dispatch.Signal(
+mandate_expired = Signal(
     providing_args=[
         'mandate',
         'event',
         'merchant',
     ]
 )
-mandate_resubmission_requested = django.dispatch.Signal(
+mandate_resubmission_requested = Signal(
     providing_args=[
         'mandate',
+        'event',
+        'merchant',
+    ]
+)
+
+payment_created = Signal(
+    providing_args=[
+        'payment',
+        'event',
+        'merchant',
+    ]
+)
+payment_submitted = Signal(
+    providing_args=[
+        'payment',
+        'event',
+        'merchant',
+    ]
+)
+payment_confirmed = Signal(
+    providing_args=[
+        'payment',
+        'event',
+        'merchant',
+    ]
+)
+payment_cancelled = Signal(
+    providing_args=[
+        'payment',
+        'event',
+        'merchant',
+    ]
+)
+payment_failed = Signal(
+    providing_args=[
+        'payment',
+        'event',
+        'merchant',
+    ]
+)
+payment_charged_back = Signal(
+    providing_args=[
+        'payment',
+        'event',
+        'merchant',
+    ]
+)
+payment_chargeback_cancelled = Signal(
+    providing_args=[
+        'payment',
+        'event',
+        'merchant',
+    ]
+)
+payment_paid_out = Signal(
+    providing_args=[
+        'payment',
+        'event',
+        'merchant',
+    ]
+)
+payment_late_failure_settled = Signal(
+    providing_args=[
+        'payment',
+        'event',
+        'merchant',
+    ]
+)
+payment_chargeback_settled = Signal(
+    providing_args=[
+        'payment',
+        'event',
+        'merchant',
+    ]
+)
+payment_resubmission_requested = Signal(
+    providing_args=[
+        'payment',
         'event',
         'merchant',
     ]

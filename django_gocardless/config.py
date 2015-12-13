@@ -21,6 +21,7 @@ MANDATE_STATUSES = (
 )
 
 PAYMENT_STATUSES = (
+    ('pending_submission', 'Pending submission'),
     ('submitted', 'Submitted'),
     ('confirmed', 'Confirmed'),
     ('failed', 'Failed'),
