@@ -39,6 +39,10 @@ class UnsupportedEvent(DjangoGoCardlessException):
     pass
 
 
+class UnsupportedLinks(DjangoGoCardlessException):
+    pass
+
+
 exception_reasons = {
     'redirect_flow_incomplete': RedirectFlowIncomplete,
     'redirect_flow_already_completed': RedirectFlowAlreadyCompleted,

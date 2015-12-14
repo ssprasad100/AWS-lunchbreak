@@ -8,6 +8,7 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.crypto import get_random_string
+from django.utils.functional import cached_property
 from gocardless_pro.errors import GoCardlessProError
 
 from .config import (CURRENCIES, MANDATE_STATUSES, PAYMENT_STATUSES,
@@ -27,12 +28,60 @@ class GCCacheMixin(object):
     the GoCardless database.
     '''
 
-    def fetch(self, *args, **kwargs):
+    API_MAPPING = {
+        'Customer': 'customers',
+        'CustomerBankAccount': 'customer_bank_account',
+        'Mandate': 'mandates',
+        'RedirectFlow': 'redirect_flows',
+        'Payout': 'payouts',
+        'Subscription': 'subscriptions',
+        'Payment': 'payments',
+        'Refund': 'refunds',
+    }
+
+    @cached_property
+    def merchant(self):
         raise NotImplementedError(
-            '{cls} needs to implement required methods.'.format(
+            '{cls} needs to implement the merchant property.'.format(
                 cls=self.__class__.__name__
             )
         )
+
+    @cached_property
+    def client(self):
+        access_token = self.merchant.access_token \
+            if self.merchant is not None \
+            else settings.GOCARDLESS['access_token']
+
+        return gocardless_pro.Client(
+            access_token=access_token,
+            environment=settings.GOCARDLESS['environment']
+        )
+
+    @cached_property
+    def api(self):
+        class_name = self.__class__.__name__
+        return getattr(self.client, self.API_MAPPING[class_name])
+
+    def fetch(self, *args, **kwargs):
+        from .utils import model_from_links
+
+        fields = self.__class__._meta.get_fields()
+        new = self.api.get(self.id)
+
+        for field in fields:
+            value = '' if issubclass(field.__class__, models.CharField) else None
+            temp = None
+
+            if hasattr(new, field.name):
+                temp = getattr(new, field.name)
+            elif hasattr(new, 'links') and hasattr(new.links, field.name):
+                temp = model_from_links(new.links, field.name)
+
+            value = temp if temp is not None else value
+            setattr(self, field.name, value)
+
+        self.save(*args, **kwargs)
 
 
 class GCOriginMixin(GCCacheMixin):
@@ -208,7 +257,7 @@ class Customer(models.Model, GCCacheMixin):
         max_length=255,
         blank=True
     )
-    swedish_identifity_number = models.CharField(
+    swedish_identity_number = models.CharField(
         max_length=255,
         blank=True
     )
@@ -222,9 +271,9 @@ class Customer(models.Model, GCCacheMixin):
 
     def __unicode__(self):
         if not self.company_name:
-            return self.company_name
-        else:
             return self.family_name + ' ' + self.first_name
+        else:
+            return self.company_name
 
 
 class CustomerBankAccount(models.Model, GCCacheMixin):
@@ -273,6 +322,10 @@ class CustomerBankAccount(models.Model, GCCacheMixin):
             id=self.id
         )
 
+    @cached_property
+    def merchant(self):
+        return self.customer.merchant if self.customer is not None else None
+
 
 class Mandate(models.Model, GCCacheMixin):
 
@@ -313,6 +366,10 @@ class Mandate(models.Model, GCCacheMixin):
 
     def __unicode__(self):
         return self.id
+
+    @cached_property
+    def merchant(self):
+        return self.customer_bank_account.merchant if self.customer_bank_account is not None else None
 
     @classmethod
     def created(cls, mandate, event, **kwargs):
@@ -411,6 +468,10 @@ class RedirectFlow(models.Model, GCOriginMixin):
         null=True,
         blank=True
     )
+
+    @cached_property
+    def merchant(self):
+        return self.customer.merchant if self.customer is not None else None
 
     @classmethod
     def create(cls, description=''):
@@ -615,6 +676,10 @@ class Subscription(models.Model, GCOriginMixin):
     def __unicode__(self):
         return self.name if self.name else self.id
 
+    @cached_property
+    def merchant(self):
+        return self.mandate.merchant if self.mandate is not None else None
+
     @property
     def upcoming_payments(self):
         raise NotImplementedError('Future payments are not yet implemented.')
@@ -689,6 +754,10 @@ class Payment(models.Model, GCOriginMixin):
 
     def __unicode__(self):
         return self.id
+
+    @cached_property
+    def merchant(self):
+        return self.mandate.merchant if self.mandate is not None else None
 
     @classmethod
     def created(cls, payment, event, merchant, **kwargs):
@@ -776,6 +845,10 @@ class Refund(models.Model, GCCacheMixin):
 
     def __unicode__(self):
         return self.id
+
+    @cached_property
+    def merchant(self):
+        return self.payment.merchant if self.payment is not None else None
 
     @classmethod
     def created(cls, refund, event, merchant, **kwargs):

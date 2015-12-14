@@ -1,23 +1,5 @@
 from django.dispatch import Signal
 
-from .models import (CustomerBankAccount, Mandate, Merchant, Payment, Payout,
-                     Refund, Subscription)
-
-LINK_MODELS = {
-    'mandate': Mandate,
-    'previous_customer_bank_account': CustomerBankAccount,
-    'new_customer_bank_account': CustomerBankAccount,
-    'organisation': {
-        'model': Merchant,
-        'id_field': 'organisation_id',
-        'argument': 'organisation',
-    },
-    'payment': Payment,
-    'subscription': Subscription,
-    'payout': Payout,
-    'refund': Refund
-}
-
 mandate_created = Signal(
     providing_args=[
         'mandate',
