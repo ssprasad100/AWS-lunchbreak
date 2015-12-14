@@ -11,10 +11,10 @@ from django.utils.crypto import get_random_string
 from django.utils.functional import cached_property
 from gocardless_pro.errors import GoCardlessProError
 
-from .config import (CURRENCIES, MANDATE_STATUSES, PAYMENT_STATUSES,
-                     PAYOUT_STATUSES, SCHEMES, SUBSCRIPTION_DAY_OF_MONTH,
-                     SUBSCRIPTION_INTERVAL_UNIT, SUBSCRIPTION_MONTHS,
-                     SUBSCRIPTION_STATUSES)
+from .config import (CLIENT_PROPERTIES, CURRENCIES, MANDATE_STATUSES,
+                     PAYMENT_STATUSES, PAYOUT_STATUSES, SCHEMES,
+                     SUBSCRIPTION_DAY_OF_MONTH, SUBSCRIPTION_INTERVAL_UNIT,
+                     SUBSCRIPTION_MONTHS, SUBSCRIPTION_STATUSES)
 from .exceptions import (DjangoGoCardlessException,
                          ExchangeAuthorisationException)
 
@@ -27,17 +27,6 @@ class GCCacheMixin(object):
     GoCardless database. The `id` of the model should always be in sync if in
     the GoCardless database.
     '''
-
-    API_MAPPING = {
-        'Customer': 'customers',
-        'CustomerBankAccount': 'customer_bank_account',
-        'Mandate': 'mandates',
-        'RedirectFlow': 'redirect_flows',
-        'Payout': 'payouts',
-        'Subscription': 'subscriptions',
-        'Payment': 'payments',
-        'Refund': 'refunds',
-    }
 
     @cached_property
     def merchant(self):
@@ -61,7 +50,7 @@ class GCCacheMixin(object):
     @cached_property
     def api(self):
         class_name = self.__class__.__name__
-        return getattr(self.client, self.API_MAPPING[class_name])
+        return getattr(self.client, CLIENT_PROPERTIES[class_name])
 
     def fetch(self, *args, **kwargs):
         from .utils import model_from_links
@@ -271,7 +260,10 @@ class Customer(models.Model, GCCacheMixin):
 
     def __unicode__(self):
         if not self.company_name:
-            return self.family_name + ' ' + self.first_name
+            if not self.family_name and not self.first_name:
+                return self.family_name + ' ' + self.first_name
+            else:
+                return self.id
         else:
             return self.company_name
 

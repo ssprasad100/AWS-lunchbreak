@@ -1,3 +1,14 @@
+CLIENT_PROPERTIES = {
+    'Customer': 'customers',
+    'CustomerBankAccount': 'customer_bank_accounts',
+    'Mandate': 'mandates',
+    'RedirectFlow': 'redirect_flows',
+    'Payout': 'payouts',
+    'Subscription': 'subscriptions',
+    'Payment': 'payments',
+    'Refund': 'refunds',
+}
+
 SCHEMES = (
     ('autogiro', 'Autogiro',),
     ('bacs', 'Bacs',),

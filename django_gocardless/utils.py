@@ -26,7 +26,7 @@ def model_from_links(links, attr):
             )
         )
 
-    identifier = getattr(links, attr)
+    identifier = links[attr] if type(links) is dict else getattr(links, attr)
     argument_model = LINKS_MODELS[attr]
 
     if isinstance(argument_model, dict):
