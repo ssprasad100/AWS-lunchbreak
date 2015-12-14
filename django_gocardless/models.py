@@ -52,24 +52,26 @@ class GCCacheMixin(object):
         class_name = self.__class__.__name__
         return getattr(self.client, CLIENT_PROPERTIES[class_name])
 
-    def fetch(self, *args, **kwargs):
+    def from_resource(self, resource):
         from .utils import model_from_links
 
         fields = self.__class__._meta.get_fields()
-        new = self.api.get(self.id)
 
         for field in fields:
             value = '' if issubclass(field.__class__, models.CharField) else None
             temp = None
 
-            if hasattr(new, field.name):
-                temp = getattr(new, field.name)
-            elif hasattr(new, 'links') and hasattr(new.links, field.name):
-                temp = model_from_links(new.links, field.name)
+            if hasattr(resource, field.name):
+                temp = getattr(resource, field.name)
+            elif hasattr(resource, 'links') and hasattr(resource.links, field.name):
+                temp = model_from_links(resource.links, field.name)
 
             value = temp if temp is not None else value
             setattr(self, field.name, value)
 
+    def fetch(self, *args, **kwargs):
+        resource = self.api.get(self.id)
+        self.from_resource(resource)
         self.save(*args, **kwargs)
 
 
@@ -83,14 +85,14 @@ class GCOriginMixin(GCCacheMixin):
     @classmethod
     def create(cls, *args, **kwargs):
         raise NotImplementedError(
-            '{cls} needs to implement required methods.'.format(
+            '{cls} needs to implement the create method.'.format(
                 cls=cls.__name__
             )
         )
 
     def update(self, *args, **kwargs):
         raise NotImplementedError(
-            '{cls} needs to implement required methods.'.format(
+            '{cls} needs to implement the update method.'.format(
                 cls=self.__class__.__name__
             )
         )
@@ -469,7 +471,7 @@ class RedirectFlow(models.Model, GCOriginMixin):
         return self.customer.merchant if self.customer is not None else None
 
     @classmethod
-    def create(cls, description=''):
+    def create(cls, description='', *args, **kwargs):
         redirectflow = cls(
             session_token='SESS_{random}'.format(
                 random=get_random_string(length=56)
@@ -477,13 +479,10 @@ class RedirectFlow(models.Model, GCOriginMixin):
             description=description
         )
 
-        client = gocardless_pro.Client(
-            access_token=settings.GOCARDLESS['access_token'],
-            environment=settings.GOCARDLESS['environment']
-        )
+        client = redirectflow.client
 
         protocol = 'https' if settings.SSL else 'http'
-        response = client.redirect_flows.create(
+        resource = client.redirect_flows.create(
             params={
                 'session_token': redirectflow.session_token,
                 'description': description,
@@ -495,63 +494,20 @@ class RedirectFlow(models.Model, GCOriginMixin):
             }
         )
 
-        redirectflow.id = response.id
-        redirectflow.description = response.description
-        redirectflow.scheme = response.scheme
-        redirectflow.redirect_url = response.redirect_url
-        redirectflow.created_at = response.created_at
-
-        redirectflow.save()
+        redirectflow.from_resource(resource)
+        redirectflow.save(*args, **kwargs)
 
         return redirectflow
 
-    def complete(self):
-        client = gocardless_pro.Client(
-            access_token=settings.GOCARDLESS['access_token'],
-            environment=settings.GOCARDLESS['environment']
+    def complete(self, *args, **kwargs):
+        resource = self.client.redirect_flows.complete(
+            self.id,
+            params={
+                'session_token': self.session_token
+            }
         )
-
-        try:
-            response = client.redirect_flows.complete(
-                self.id,
-                params={
-                    'session_token': self.session_token
-                }
-            )
-        except GoCardlessProError as e:
-            raise DjangoGoCardlessException(e)
-
-        try:
-            customer = response.links.customer
-
-            if customer:
-                self.customer, created = Customer.objects.get_or_create(
-                    id=customer
-                )
-        except AttributeError:
-            pass
-
-        try:
-            customer_bank_account = response.links.customer_bank_account
-
-            if customer_bank_account:
-                self.customer_bank_account, created = CustomerBankAccount.objects.get_or_create(
-                    id=customer_bank_account
-                )
-        except AttributeError:
-            pass
-
-        try:
-            mandate = response.links.mandate
-
-            if mandate:
-                self.mandate, created = Mandate.objects.get_or_create(
-                    id=mandate
-                )
-        except AttributeError:
-            pass
-
-        self.save()
+        self.from_resource(resource)
+        self.save(*args, **kwargs)
 
     def __unicode__(self):
         return self.id

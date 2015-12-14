@@ -1,3 +1,5 @@
+import copy
+
 import mock
 from django.db import models as django_models
 from django.test import TestCase
@@ -36,7 +38,7 @@ class DjangoGoCardlessTestCase(TestCase):
             self.assertEqual(value, expected_value)
 
     @mock.patch('gocardless_pro.services.CustomersService.get')
-    def test_fetch_customer(self, mock_get):
+    def test_customer_fetch(self, mock_get):
         mocked_info = {
             'id': 'CU123',
             'address_line1': 'Address line 1',
@@ -72,7 +74,7 @@ class DjangoGoCardlessTestCase(TestCase):
         self.assertModelEqual(customer, mocked_info)
 
     @mock.patch('gocardless_pro.services.CustomerBankAccountsService.get')
-    def test_fetch_customer_bank_account(self, mock_get):
+    def test_customer_bank_account_fetch(self, mock_get):
         customer_id = 'CU123'
 
         mocked_info = {
@@ -126,7 +128,7 @@ class DjangoGoCardlessTestCase(TestCase):
         )
 
     @mock.patch('gocardless_pro.services.MandatesService.get')
-    def test_fetch_mandate(self, mock_get):
+    def test_mandate_fetch(self, mock_get):
         customer_bank_account_id = 'BA123'
 
         mocked_info = {
@@ -177,3 +179,67 @@ class DjangoGoCardlessTestCase(TestCase):
             models.Mandate.objects.get,
             id=mocked_info['id']
         )
+
+    @mock.patch('gocardless_pro.services.RedirectFlowsService.create')
+    @mock.patch('gocardless_pro.services.RedirectFlowsService.complete')
+    def test_redirectflow_create_complete(self, mock_create, mock_complete):
+        links = {
+            'customer': 'CU123',
+            'customer_bank_account': 'BA123',
+            'mandate': 'MD123',
+        }
+
+        mocked_info = {
+            'id': 'RE123',
+            'description': 'Description',
+            'scheme': SCHEMES[0][0],
+            'created_at': '2015-12-30T23:59:59.999Z',
+            'redirect_url': 'https://example.com',
+        }
+
+        # Workaround so side_effect can modify last_mocked_result
+        last_mocked_result = [None]
+
+        def side_effect(id=None, params=[]):
+            mocked_result = copy.copy(mocked_info)
+
+            same_return_values = [
+                'session_token',
+                'description',
+                'success_redirect_url'
+            ]
+
+            for same_return_value in same_return_values:
+                if same_return_value in params:
+                    mocked_result[same_return_value] = params[same_return_value]
+
+            last_mocked_result[0] = mocked_result
+            return resources.RedirectFlow(mocked_result, None)
+
+        mock_create.side_effect = side_effect
+        mock_complete.side_effect = side_effect
+
+        for field, identifier in links.iteritems():
+            if 'links' in mocked_info:
+                del mocked_info['links']
+
+            redirectflow = models.RedirectFlow.create()
+            self.assertModelEqual(redirectflow, last_mocked_result[0])
+
+            mocked_info['links'] = links
+
+            redirectflow.complete()
+            self.assertModelEqual(redirectflow, last_mocked_result[0])
+
+            # Deleting any of the links should result in the RedirectFlow being deleted
+            rel_model = models.RedirectFlow._meta.get_field(field).rel.to
+            rel_instance = rel_model.objects.get(
+                id=identifier
+            )
+            rel_instance.delete()
+
+            self.assertRaises(
+                models.RedirectFlow.DoesNotExist,
+                models.RedirectFlow.objects.get,
+                id=mocked_info['id']
+            )
