@@ -4,6 +4,7 @@ from django.test import TestCase
 from gocardless_pro import resources
 
 from . import models
+from .config import SCHEMES
 from .utils import model_from_links
 
 
@@ -72,9 +73,7 @@ class DjangoGoCardlessTestCase(TestCase):
 
     @mock.patch('gocardless_pro.services.CustomerBankAccountsService.get')
     def test_fetch_customer_bank_account(self, mock_get):
-        customer = models.Customer.objects.create(
-            id='CU123',
-        )
+        customer_id = 'CU123'
 
         mocked_info = {
             'id': 'BA123',
@@ -86,7 +85,7 @@ class DjangoGoCardlessTestCase(TestCase):
             'currency': 'EUR',
             'enabled': True,
             'links': {
-                'customer': customer.id,
+                'customer': customer_id,
             }
         }
 
@@ -98,6 +97,7 @@ class DjangoGoCardlessTestCase(TestCase):
 
         customer_bank_account.fetch()
         self.assertModelEqual(customer_bank_account, mocked_info)
+        customer = models.Customer.objects.get(id=customer_id)
 
         # Deleting the link should delete the link locally too
         del mocked_info['links']
@@ -122,5 +122,58 @@ class DjangoGoCardlessTestCase(TestCase):
         self.assertRaises(
             models.CustomerBankAccount.DoesNotExist,
             models.CustomerBankAccount.objects.get,
+            id=mocked_info['id']
+        )
+
+    @mock.patch('gocardless_pro.services.MandatesService.get')
+    def test_fetch_mandate(self, mock_get):
+        customer_bank_account_id = 'BA123'
+
+        mocked_info = {
+            'id': 'MD123',
+            'created_at': '2015-12-30T23:59:59.999Z',
+            'next_possible_charge_date': '2016-01-10',
+            'reference': 'reference',
+            'scheme': SCHEMES[0][0],
+            'links': {
+                'customer_bank_account': customer_bank_account_id,
+            }
+        }
+
+        mock_get.return_value = resources.Mandate(mocked_info, None)
+
+        mandate = models.Mandate.objects.create(
+            id=mocked_info['id'],
+        )
+
+        mandate.fetch()
+        self.assertModelEqual(mandate, mocked_info)
+        customer_bank_account = models.CustomerBankAccount.objects.get(
+            id=customer_bank_account_id
+        )
+
+        # Deleting the link should delete the link locally too
+        del mocked_info['links']
+
+        mock_get.return_value = resources.Mandate(mocked_info, None)
+
+        mandate.fetch()
+        self.assertModelEqual(mandate, mocked_info)
+
+        # Deleting the customer bank account link should recreate it after a fetch
+        mocked_info['links'] = {
+            'customer_bank_account': customer_bank_account.id,
+        }
+        mock_get.return_value = resources.Mandate(mocked_info, None)
+
+        mandate.fetch()
+        self.assertModelEqual(mandate, mocked_info)
+
+        # Deleting the custom bank account should delete the mandate
+        customer_bank_account.delete()
+
+        self.assertRaises(
+            models.Mandate.DoesNotExist,
+            models.Mandate.objects.get,
             id=mocked_info['id']
         )

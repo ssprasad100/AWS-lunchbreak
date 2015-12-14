@@ -361,7 +361,9 @@ class Mandate(models.Model, GCCacheMixin):
 
     @cached_property
     def merchant(self):
-        return self.customer_bank_account.merchant if self.customer_bank_account is not None else None
+        return self.customer_bank_account.merchant\
+            if self.customer_bank_account is not None\
+            else None
 
     @classmethod
     def created(cls, mandate, event, **kwargs):
@@ -384,7 +386,8 @@ class Mandate(models.Model, GCCacheMixin):
         mandate.save()
 
     @classmethod
-    def transferred(cls, mandate, event, previous_customer_bank_account, new_customer_bank_account, **kwargs):
+    def transferred(cls, mandate, event, previous_customer_bank_account,
+                    new_customer_bank_account, **kwargs):
         # TODO Update customer bank account
         pass
 

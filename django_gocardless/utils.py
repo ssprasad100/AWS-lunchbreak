@@ -5,6 +5,7 @@ from .models import (Customer, CustomerBankAccount, Mandate, Merchant, Payment,
 LINKS_MODELS = {
     'mandate': Mandate,
     'customer': Customer,
+    'customer_bank_account': CustomerBankAccount,
     'previous_customer_bank_account': CustomerBankAccount,
     'new_customer_bank_account': CustomerBankAccount,
     'organisation': {
