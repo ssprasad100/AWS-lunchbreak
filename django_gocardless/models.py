@@ -73,7 +73,7 @@ class GCCacheMixin(object):
         self.save(*args, **kwargs)
 
 
-class GCOriginMixin(GCCacheMixin):
+class GCCreateMixin(GCCacheMixin):
 
     '''
     Models that are not only cached for ease of use, but should be able to be
@@ -88,12 +88,34 @@ class GCOriginMixin(GCCacheMixin):
             )
         )
 
-    def update(self, *args, **kwargs):
-        raise NotImplementedError(
-            '{cls} needs to implement the update method.'.format(
-                cls=self.__class__.__name__
-            )
+
+class GCUpdateMixin(GCCacheMixin):
+
+    '''
+    Models that are not only cached for ease of use, but should be able to be
+    created from this server using the GoCardless API.
+    '''
+
+    update_fields = []
+
+    def update(self, updates, *args, **kwargs):
+        if len(self.update_fields) < 1:
+            raise NotImplementedError('self.update_fields needs to be implemented and not empty.')
+
+        for field in self.update_fields:
+            if field not in updates:
+                raise ValueError(
+                    'update() argument \'updates\' requires the following keys: {keys}'.format(
+                        keys=', '.join(self.update_fields)
+                    )
+                )
+
+        resource = self.api.update(
+            self.id,
+            params=updates
         )
+        self.from_resource(resource)
+        self.save(*args, **kwargs)
 
 
 class Merchant(models.Model):
@@ -412,7 +434,7 @@ class Mandate(models.Model, GCCacheMixin):
         mandate.save()
 
 
-class RedirectFlow(models.Model, GCOriginMixin):
+class RedirectFlow(models.Model, GCCreateMixin):
 
     '''
     Redirect flows enable you to use GoCardless Pro's hosted payment pages to
@@ -558,11 +580,16 @@ class Payout(models.Model, GCCacheMixin):
         payout.save()
 
 
-class Subscription(models.Model, GCOriginMixin):
+class Subscription(models.Model, GCCreateMixin, GCUpdateMixin):
 
     '''
     Subscriptions create payments according to a schedule.
     '''
+
+    update_fields = [
+        'name',
+        'payment_reference'
+    ]
 
     id = models.CharField(
         primary_key=True,
@@ -646,7 +673,7 @@ class Subscription(models.Model, GCOriginMixin):
         subscription.status = SUBSCRIPTION_STATUSES[4][0]
 
 
-class Payment(models.Model, GCOriginMixin):
+class Payment(models.Model, GCCreateMixin):
 
     '''
     Payment objects represent payments from a customer to a creditor, taken

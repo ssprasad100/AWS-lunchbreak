@@ -1,13 +1,12 @@
 import copy
 
 import mock
-from django.apps import apps
 from django.db import models as django_models
 from django.test import TestCase
 from gocardless_pro import resources
 
 from . import models
-from .config import CLIENT_PROPERTIES, SCHEMES
+from .config import SCHEMES
 from .handlers import EventHandler
 from .utils import model_from_links
 
