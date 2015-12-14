@@ -9,14 +9,12 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.crypto import get_random_string
 from django.utils.functional import cached_property
-from gocardless_pro.errors import GoCardlessProError
 
 from .config import (CLIENT_PROPERTIES, CURRENCIES, MANDATE_STATUSES,
                      PAYMENT_STATUSES, PAYOUT_STATUSES, SCHEMES,
                      SUBSCRIPTION_DAY_OF_MONTH, SUBSCRIPTION_INTERVAL_UNIT,
                      SUBSCRIPTION_MONTHS, SUBSCRIPTION_STATUSES)
-from .exceptions import (DjangoGoCardlessException,
-                         ExchangeAuthorisationException)
+from .exceptions import ExchangeAuthorisationException
 
 
 class GCCacheMixin(object):

@@ -1,12 +1,14 @@
 import copy
 
 import mock
+from django.apps import apps
 from django.db import models as django_models
 from django.test import TestCase
 from gocardless_pro import resources
 
 from . import models
-from .config import SCHEMES
+from .config import CLIENT_PROPERTIES, SCHEMES
+from .handlers import EventHandler
 from .utils import model_from_links
 
 
@@ -243,3 +245,8 @@ class DjangoGoCardlessTestCase(TestCase):
                 models.RedirectFlow.objects.get,
                 id=mocked_info['id']
             )
+
+    def test_event_actions_connected(self):
+        for client_property, actions in EventHandler.ACTIONS.iteritems():
+            for method_name, signal in actions.iteritems():
+                self.assertEqual(1, len(signal.receivers))

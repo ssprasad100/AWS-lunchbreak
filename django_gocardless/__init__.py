@@ -1,1 +1,1 @@
-from .receivers import *
+default_app_config = 'django_gocardless.apps.DjangoGoCardlessAppConfig'
