@@ -67,9 +67,18 @@ class GCCacheMixin(object):
             value = temp if temp is not None else value
             setattr(self, field.name, value)
 
-    def fetch(self, *args, **kwargs):
-        resource = self.api.get(self.id)
+    def from_api(self, method, *args, **kwargs):
+        resource = method(
+            *args,
+            **kwargs
+        )
         self.from_resource(resource)
+
+    def fetch(self, *args, **kwargs):
+        self.from_api(
+            self.api.get,
+            self.id
+        )
         self.save(*args, **kwargs)
 
 
@@ -110,11 +119,11 @@ class GCUpdateMixin(GCCacheMixin):
                     )
                 )
 
-        resource = self.api.update(
+        self.from_api(
+            self.api.update,
             self.id,
             params=updates
         )
-        self.from_resource(resource)
         self.save(*args, **kwargs)
 
 

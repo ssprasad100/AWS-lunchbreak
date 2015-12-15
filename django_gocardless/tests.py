@@ -130,7 +130,9 @@ class DjangoGoCardlessTestCase(TestCase):
 
     @mock.patch('gocardless_pro.services.MandatesService.get')
     def test_mandate_fetch(self, mock_get):
-        customer_bank_account_id = 'BA123'
+        links = {
+            'customer_bank_account': 'BA123',
+        }
 
         mocked_info = {
             'id': 'MD123',
@@ -138,9 +140,7 @@ class DjangoGoCardlessTestCase(TestCase):
             'next_possible_charge_date': '2016-01-10',
             'reference': 'reference',
             'scheme': SCHEMES[0][0],
-            'links': {
-                'customer_bank_account': customer_bank_account_id,
-            }
+            'links': links
         }
 
         mock_get.return_value = resources.Mandate(mocked_info, None)
@@ -152,7 +152,7 @@ class DjangoGoCardlessTestCase(TestCase):
         mandate.fetch()
         self.assertModelEqual(mandate, mocked_info)
         customer_bank_account = models.CustomerBankAccount.objects.get(
-            id=customer_bank_account_id
+            id=links['customer_bank_account']
         )
 
         # Deleting the link should delete the link locally too
@@ -164,9 +164,7 @@ class DjangoGoCardlessTestCase(TestCase):
         self.assertModelEqual(mandate, mocked_info)
 
         # Deleting the customer bank account link should recreate it after a fetch
-        mocked_info['links'] = {
-            'customer_bank_account': customer_bank_account.id,
-        }
+        mocked_info['links'] = links
         mock_get.return_value = resources.Mandate(mocked_info, None)
 
         mandate.fetch()
