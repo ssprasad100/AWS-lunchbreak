@@ -1,10 +1,9 @@
-
 import gocardless_pro
 from django.conf import settings
-from django.db import models
 from django.utils.functional import cached_property
 
 from .config import CLIENT_PROPERTIES
+from .utils import field_default
 
 
 class GCCacheMixin(object):
@@ -26,6 +25,11 @@ class GCCacheMixin(object):
 
     @cached_property
     def client(self):
+        '''
+        Use a merchant's access token if available, else use the access token
+        provided in the settings and return the GoCardless client.
+        '''
+
         access_token = self.merchant.access_token \
             if self.merchant is not None \
             else settings.GOCARDLESS['access_token']
@@ -37,16 +41,24 @@ class GCCacheMixin(object):
 
     @cached_property
     def api(self):
+        '''
+        Appropriate GoCardless Service for model.
+        '''
+
         class_name = self.__class__.__name__
         return getattr(self.client, CLIENT_PROPERTIES[class_name])
 
     def from_resource(self, resource):
+        '''
+        Set a GCCacheMixin's attributes based on a GoCardless resource.
+        '''
+
         from .utils import model_from_links
 
         fields = self.__class__._meta.get_fields()
 
         for field in fields:
-            value = '' if issubclass(field.__class__, models.CharField) else None
+            value = field_default(field)
             temp = None
 
             if hasattr(resource, field.name):
@@ -55,9 +67,15 @@ class GCCacheMixin(object):
                 temp = model_from_links(resource.links, field.name)
 
             value = temp if temp is not None else value
+
             setattr(self, field.name, value)
 
     def from_api(self, method, *args, **kwargs):
+        '''
+        Shorthand for `self.from_resource(resource)` with `resource` generated
+        from the given GoCardless Service method.
+        '''
+
         resource = method(
             *args,
             **kwargs
@@ -65,6 +83,10 @@ class GCCacheMixin(object):
         self.from_resource(resource)
 
     def fetch(self, *args, **kwargs):
+        '''
+        Fetch information from the GoCardless API, update and save the instance.
+        '''
+
         self.from_api(
             self.api.get,
             self.id
@@ -84,19 +106,25 @@ class GCCreateMixin(GCCacheMixin):
     @classmethod
     def check_fields(cls, fields, given):
         '''
-        Argument 'fields' example:
-        {
-            'required': [
-                'address_line1',
-                'city',
-                'company_name',
-                'country_code',
-                'postal_code',
-            ],
-            'optional': [
-                'region',
-            ],
-        }
+        Check if the fields given are viable for the fields that are required
+        or optional.
+
+        Used in GCCreateMixin.create and GCCreateUpdateMixin.update
+
+        `fields` example:
+
+            {
+                'required': [
+                    'address_line1',
+                    'city',
+                    'company_name',
+                    'country_code',
+                    'postal_code',
+                ],
+                'optional': [
+                    'region',
+                ],
+            }
         '''
 
         if 'required' not in fields and 'optional' not in fields:
@@ -134,6 +162,10 @@ class GCCreateMixin(GCCacheMixin):
 
     @classmethod
     def create(cls, given, instance=None, *args, **kwargs):
+        '''
+        Create a resource on the GoCardless servers.
+        '''
+
         cls.check_fields(
             cls.create_fields,
             given
@@ -159,6 +191,10 @@ class GCCreateUpdateMixin(GCCreateMixin):
     update_fields = {}
 
     def update(self, given, *args, **kwargs):
+        '''
+        Update a resource on the GoCardless servers.
+        '''
+
         self.check_fields(
             self.create_fields,
             given

@@ -1,21 +1,22 @@
+from django.apps import apps
+from django.db import models
+
 from .exceptions import UnsupportedLinks
-from .models import (Customer, CustomerBankAccount, Mandate, Merchant, Payment,
-                     Payout, Refund, Subscription)
 
 LINKS_MODELS = {
-    'mandate': Mandate,
-    'customer': Customer,
-    'customer_bank_account': CustomerBankAccount,
-    'previous_customer_bank_account': CustomerBankAccount,
-    'new_customer_bank_account': CustomerBankAccount,
+    'mandate': 'Mandate',
+    'customer': 'Customer',
+    'customer_bank_account': 'CustomerBankAccount',
+    'previous_customer_bank_account': 'CustomerBankAccount',
+    'new_customer_bank_account': 'CustomerBankAccount',
     'organisation': {
-        'model': Merchant,
+        'model': 'Merchant',
         'id_field': 'organisation_id',
     },
-    'payment': Payment,
-    'subscription': Subscription,
-    'payout': Payout,
-    'refund': Refund,
+    'payment': 'Payment',
+    'subscription': 'Subscription',
+    'payout': 'Payout',
+    'refund': 'Refund',
 }
 
 
@@ -31,17 +32,18 @@ def model_from_links(links, attr):
     argument_model = LINKS_MODELS[attr]
 
     if isinstance(argument_model, dict):
-        model = argument_model['model']
+        model_name = argument_model['model']
         where = {
             argument_model['id_field']: identifier
         }
     else:
-        model = argument_model
+        model_name = argument_model
         where = {
             'id': identifier
         }
 
     if identifier is not None:
+        model = apps.get_model('django_gocardless', model_name)
         model_instance, created = model.objects.get_or_create(
             **where
         )
@@ -49,3 +51,11 @@ def model_from_links(links, attr):
         model_instance = None
 
     return model_instance
+
+
+def field_default(field):
+    cls = field.__class__
+
+    if issubclass(cls, models.CharField) or issubclass(cls, models.TextField):
+        return ''
+    return None

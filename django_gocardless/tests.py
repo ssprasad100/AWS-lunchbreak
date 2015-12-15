@@ -1,20 +1,16 @@
 import copy
 
 import mock
-from django.db import models as django_models
 from django.test import TestCase
 from gocardless_pro import resources
 
 from . import models
 from .config import SCHEMES
 from .handlers import EventHandler
-from .utils import model_from_links
+from .utils import field_default, model_from_links
 
 
 class DjangoGoCardlessTestCase(TestCase):
-
-    def setUp(self):
-        pass
 
     def assertModelEqual(self, model, expected):
         fields = model.__class__._meta.get_fields()
@@ -28,13 +24,9 @@ class DjangoGoCardlessTestCase(TestCase):
                     field.name
                 )
             else:
-                if field.name in expected:
-                    expected_value = expected[field.name]
-                else:
-                    if issubclass(field.__class__, django_models.CharField):
-                        expected_value = ''
-                    else:
-                        expected_value = None
+                expected_value = expected[field.name]\
+                    if field.name in expected\
+                    else field_default(field)
 
             self.assertEqual(value, expected_value)
 
@@ -73,6 +65,8 @@ class DjangoGoCardlessTestCase(TestCase):
 
         customer.fetch()
         self.assertModelEqual(customer, mocked_info)
+
+        customer.delete()
 
     @mock.patch('gocardless_pro.services.CustomerBankAccountsService.get')
     def test_customer_bank_account_fetch(self, mock_get):
@@ -230,7 +224,61 @@ class DjangoGoCardlessTestCase(TestCase):
             redirectflow.complete()
             self.assertModelEqual(redirectflow, last_mocked_result[0])
 
-            # Deleting any of the links should result in the RedirectFlow being deleted
+            # Deleting any of the relations should result in the RedirectFlow being deleted
+            rel_model = models.RedirectFlow._meta.get_field(field).rel.to
+            rel_instance = rel_model.objects.get(
+                id=identifier
+            )
+            rel_instance.delete()
+
+            self.assertRaises(
+                models.RedirectFlow.DoesNotExist,
+                models.RedirectFlow.objects.get,
+                id=mocked_info['id']
+            )
+
+    @mock.patch('gocardless_pro.services.RedirectFlowsService.get')
+    def test_redirectflow_fetch(self, mock_get):
+        links = {
+            'customer': 'CU123',
+            'customer_bank_account': 'BA123',
+            'mandate': 'MD123',
+        }
+
+        session_token = 'SESS_somerandomtoken'
+
+        mocked_info = {
+            'id': 'RE123',
+            'description': 'A test redirectflow',
+            'session_token': session_token,
+            'scheme': SCHEMES[0][0],
+            'success_redirect_url': 'https://success.com',
+            'redirect_url': 'https://redirect.com',
+            'created_at': '2015-12-30T23:59:59.999Z',
+            'links': links,
+        }
+
+        mock_get.return_value = resources.RedirectFlow(mocked_info, None)
+
+        for field, identifier in links.iteritems():
+            if 'links' in mocked_info:
+                del mocked_info['links']
+
+            redirectflow = models.RedirectFlow.objects.create(
+                id=mocked_info['id'],
+                session_token=session_token
+            )
+            mock_get.return_value = resources.RedirectFlow(mocked_info, None)
+            redirectflow.fetch()
+            self.assertModelEqual(redirectflow, mocked_info)
+
+            # Deleting any of the links should result in them being None
+            mocked_info['links'] = links
+            mock_get.return_value = resources.RedirectFlow(mocked_info, None)
+            redirectflow.fetch()
+            self.assertModelEqual(redirectflow, mocked_info)
+
+            # Deleting any of the relations should result in the RedirectFlow being deleted
             rel_model = models.RedirectFlow._meta.get_field(field).rel.to
             rel_instance = rel_model.objects.get(
                 id=identifier
