@@ -342,6 +342,17 @@ class RedirectFlow(models.Model, GCCreateMixin):
     Spanish and Swedish.
     '''
 
+    create_fields = {
+        'required': [
+            'session_token',
+            'success_redirect_url',
+        ],
+        'optional': [
+            'description',
+            'scheme',
+        ]
+    }
+
     id = models.CharField(
         primary_key=True,
         max_length=255
@@ -398,25 +409,22 @@ class RedirectFlow(models.Model, GCCreateMixin):
             description=description
         )
 
-        client = redirectflow.client
+        params = {
+            'session_token': redirectflow.session_token,
+            'description': description,
+            'success_redirect_url': '{protocol}://{baseurl}{path}'.format(
+                protocol='https' if settings.SSL else 'http',
+                baseurl=settings.HOST,
+                path=reverse('gocardless_redirectflow_success')
+            )
+        }
 
-        protocol = 'https' if settings.SSL else 'http'
-        resource = client.redirect_flows.create(
-            params={
-                'session_token': redirectflow.session_token,
-                'description': description,
-                'success_redirect_url': '{protocol}://{baseurl}{path}'.format(
-                    protocol=protocol,
-                    baseurl=settings.HOST,
-                    path=reverse('gocardless_redirectflow_success')
-                )
-            }
+        return super(RedirectFlow, cls).create(
+            params,
+            redirectflow,
+            *args,
+            **kwargs
         )
-
-        redirectflow.from_resource(resource)
-        redirectflow.save(*args, **kwargs)
-
-        return redirectflow
 
     def complete(self, *args, **kwargs):
         resource = self.client.redirect_flows.complete(

@@ -102,7 +102,7 @@ class GCCreateMixin(GCCacheMixin):
         if 'required' not in fields and 'optional' not in fields:
             raise NotImplementedError(
                 ('{cls}.create_fields needs to be implemented and the '
-                    '\'required\' or \'optional\'keys must be set.').format(
+                    '\'required\' or \'optional\' keys must be set.').format(
                     cls=cls.__name__
                 )
             )
@@ -133,18 +133,20 @@ class GCCreateMixin(GCCacheMixin):
                 )
 
     @classmethod
-    def create(cls, given, *args, **kwargs):
+    def create(cls, given, instance=None, *args, **kwargs):
         cls.check_fields(
             cls.create_fields,
             given
         )
 
-        instance = cls()
+        instance = cls() if instance is None else instance
         instance.from_api(
-            instance.api.update,
+            instance.api.create,
             params=given
         )
         instance.save(*args, **kwargs)
+
+        return instance
 
 
 class GCCreateUpdateMixin(GCCreateMixin):
