@@ -27,6 +27,8 @@ class DjangoGoCardlessTestCase(TestCase):
                 expected_value = expected[field.name]\
                     if field.name in expected\
                     else field_default(field)
+                if expected_value is None:
+                    expected_value = field_default(field)
 
             self.assertEqual(value, expected_value)
 
@@ -325,3 +327,103 @@ class DjangoGoCardlessTestCase(TestCase):
         self.assertModelEqual(payout, mocked_info)
 
         payout.delete()
+
+    @mock.patch('gocardless_pro.services.SubscriptionsService.create')
+    def test_subscription_create(self, mock_create):
+        links = {
+            'mandate': 'MD123',
+        }
+
+        mocked_info = {
+            'id': 'SU123',
+            'created_at': '2014-10-20T17:01:06.000Z',
+            'amount': 2500,
+            'currency': CURRENCIES[1][0],
+            'status': 'active',
+            'name': 'Monthly Magazine',
+            'start_date': '2014-11-03',
+            'end_date': None,
+            'interval': 1,
+            'interval_unit': 'monthly',
+            'day_of_month': 1,
+            'month': None,
+            'payment_reference': None,
+            'upcoming_payments': [
+                {
+                    'charge_date': '2014-11-03',
+                    'amount': 2500,
+                },
+                {
+                    'charge_date': '2014-12-01',
+                    'amount': 2500,
+                },
+                {
+                    'charge_date': '2015-01-02',
+                    'amount': 2500,
+                },
+                {
+                    'charge_date': '2015-02-02',
+                    'amount': 2500,
+                },
+                {
+                    'charge_date': '2015-03-02',
+                    'amount': 2500,
+                },
+                {
+                    'charge_date': '2015-04-01',
+                    'amount': 2500,
+                },
+                {
+                    'charge_date': '2015-05-01',
+                    'amount': 2500,
+                },
+                {
+                    'charge_date': '2015-06-01',
+                    'amount': 2500,
+                },
+                {
+                    'charge_date': '2015-07-01',
+                    'amount': 2500,
+                },
+                {
+                    'charge_date': '2015-08-03',
+                    'amount': 2500,
+                }
+            ],
+            'metadata': {
+                'order_no': 'ABCD1234',
+            },
+            'links': links
+        }
+
+        given = copy.copy(mocked_info)
+        del given['id']
+        del given['created_at']
+        del given['status']
+        del given['metadata']  # Temporary
+        del given['upcoming_payments']
+
+        mock_create.return_value = resources.Subscription(mocked_info, None)
+
+        subscription = models.Subscription.create(given)
+        self.assertModelEqual(subscription, mocked_info)
+
+        # Deleting the customer should delete the customer's bank account
+        models.Mandate.objects.filter(id=links['mandate']).delete()
+
+        self.assertRaises(
+            models.Subscription.DoesNotExist,
+            models.Subscription.objects.get,
+            id=mocked_info['id']
+        )
+
+        # Deleting the mandate link should give an error
+        del mocked_info['links']
+
+        mock_create.return_value = resources.Subscription(mocked_info, None)
+
+        self.assertRaises(
+            ValueError,
+            models.Subscription.create,
+            given
+        )

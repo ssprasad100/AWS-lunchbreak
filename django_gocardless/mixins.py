@@ -1,9 +1,12 @@
+import copy
+
 import gocardless_pro
+import six
 from django.conf import settings
 from django.utils.functional import cached_property
 
 from .config import CLIENT_PROPERTIES
-from .utils import field_default
+from .utils import field_default, model_from_links
 
 
 class GCCacheMixin(object):
@@ -52,8 +55,6 @@ class GCCacheMixin(object):
         '''
         Set a GCCacheMixin's attributes based on a GoCardless resource.
         '''
-
-        from .utils import model_from_links
 
         fields = self.__class__._meta.get_fields()
 
@@ -104,6 +105,52 @@ class GCCreateMixin(GCCacheMixin):
     create_fields = {}
 
     @classmethod
+    def check_required(cls, required_fields, given):
+        for required_field in required_fields:
+            if isinstance(required_field, six.string_types):
+                if required_field not in given:
+                    break
+            elif isinstance(required_field, dict):
+                for field, field_list in required_field.iteritems():
+                    if field not in given:
+                        break
+                    cls.check_required(
+                        field_list,
+                        given[field]
+                    )
+            else:
+                break
+        else:  # No breaks means everything is ok
+            return
+        raise ValueError(
+            'These fields are required: {required_fields}.'.format(
+                required_fields=required_fields
+            )
+        )
+
+    @classmethod
+    def check_optional(cls, optional_fields, given):
+        for given_field, given_value in given.iteritems():
+            for optional_field in optional_fields:
+                if isinstance(optional_field, six.string_types)\
+                        and optional_field == given_field:
+                    break
+                elif isinstance(optional_field, dict):
+                    for field, field_list in optional_field:
+                        if field not in given:
+                            break
+                        cls.check_optional(
+                            field_list,
+                            given[field]
+                        )
+            else:
+                raise ValueError(
+                    'The field \'{given_field}\' is not allowed.'.format(
+                        given_field=given_field
+                    )
+                )
+
+    @classmethod
     def check_fields(cls, fields, given):
         '''
         Check if the fields given are viable for the fields that are required
@@ -120,56 +167,61 @@ class GCCreateMixin(GCCacheMixin):
                     'company_name',
                     'country_code',
                     'postal_code',
+                    {
+                        'links': [
+                            'mandate',
+                        ],
+                    },
                 ],
                 'optional': [
                     'region',
                 ],
             }
+
+            {
+                'address_line1': '',
+                'city': '',
+                'company_name': '',
+                'country_code': '',
+                'postal_code': '',
+                'links': {
+                    'mandate': '',
+                },
+            }
         '''
 
-        if 'required' not in fields and 'optional' not in fields:
+        if 'required' not in fields or 'optional' not in fields:
             raise NotImplementedError(
-                ('{cls}.create_fields needs to be implemented and the '
-                    '\'required\' or \'optional\' keys must be set.').format(
-                    cls=cls.__name__
-                )
+                '`fields` needs to have the key \'required\' or \'optional\' set.'
             )
 
         required_fields = fields['required'] if 'required' in fields else []
 
+        cls.check_required(required_fields, given)
+
+        given_copy = copy.copy(given)
         for required_field in required_fields:
-            if required_field not in given:
-                raise ValueError(
-                    'The following keys are required: {keys}'.format(
-                        keys=','.join(required_fields)
-                    )
-                )
+            if isinstance(required_field, six.string_types):
+                del given_copy[required_field]
+            elif isinstance(required_field, dict):
+                for required_f in required_field:
+                    del given_copy[required_f]
 
-        allowed_fields = required_fields +\
-            fields['optional']\
-            if 'optional' in fields\
-            else required_fields
+        optional_fields = fields['optional'] if 'optional' in fields else []
 
-        for field_given in given.iterkeys():
-            if field_given not in allowed_fields:
-                raise ValueError(
-                    ('The field \'{field_given}\' is not allowed to be updated,'
-                     'these are: {allowed_fields}').format(
-                        field_given=field_given,
-                        allowed_fields=allowed_fields
-                    )
-                )
+        cls.check_optional(optional_fields, given_copy)
 
     @classmethod
-    def create(cls, given, instance=None, *args, **kwargs):
+    def create(cls, given, instance=None, check=True, *args, **kwargs):
         '''
         Create a resource on the GoCardless servers.
         '''
 
-        cls.check_fields(
-            cls.create_fields,
-            given
-        )
+        if check:
+            cls.check_fields(
+                cls.create_fields,
+                given
+            )
 
         instance = cls() if instance is None else instance
         instance.from_api(

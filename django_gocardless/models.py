@@ -15,6 +15,7 @@ from .config import (CURRENCIES, MANDATE_STATUSES, PAYMENT_STATUSES,
                      SUBSCRIPTION_STATUSES)
 from .exceptions import ExchangeAuthorisationException
 from .mixins import GCCacheMixin, GCCreateMixin, GCCreateUpdateMixin
+from .utils import model_from_links
 
 
 class Merchant(models.Model):
@@ -495,6 +496,29 @@ class Subscription(models.Model, GCCreateUpdateMixin):
     Subscriptions create payments according to a schedule.
     '''
 
+    create_fields = {
+        'required': [
+            'amount',
+            'currency',
+            'interval_unit',
+            {
+                'links': [
+                    'mandate'
+                ]
+            }
+        ],
+        'optional': [
+            'count',
+            'day_of_month',
+            'end_date',
+            'interval',
+            'month',
+            'name',
+            'payment_reference',
+            'start_date',
+        ]
+    }
+
     update_fields = {
         'optional': [
             'name',
@@ -570,6 +594,29 @@ class Subscription(models.Model, GCCreateUpdateMixin):
     @property
     def upcoming_payments(self):
         raise NotImplementedError('Future payments are not yet implemented.')
+
+    @classmethod
+    def create(cls, given, *args, **kwargs):
+        cls.check_fields(
+            cls.create_fields,
+            given
+        )
+
+        mandate = model_from_links(
+            given['links'],
+            'mandate'
+        )
+        instance = cls(
+            mandate=mandate
+        )
+
+        return super(Subscription, cls).create(
+            given,
+            instance=instance,
+            check=False,
+            *args,
+            **kwargs
+        )
 
     @classmethod
     def created(cls, subscription, event, merchant, **kwargs):
