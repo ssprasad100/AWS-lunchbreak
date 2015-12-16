@@ -454,13 +454,15 @@ class Payout(models.Model, GCCacheMixin):
     )
     amount = models.DecimalField(
         max_digits=12,
-        decimal_places=2
+        decimal_places=2,
+        null=True
     )
     created_At = models.DateTimeField(
         null=True
     )
     currency = models.CharField(
         max_length=3,
+        blank=True,
         choices=CURRENCIES
     )
     reference = models.CharField(
@@ -470,7 +472,7 @@ class Payout(models.Model, GCCacheMixin):
     status = models.CharField(
         max_length=255,
         choices=PAYOUT_STATUSES,
-        blank=True
+        default=PAYOUT_STATUSES[0][0]
     )
 
     merchant = models.ForeignKey(

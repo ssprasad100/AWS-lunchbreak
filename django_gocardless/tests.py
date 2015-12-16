@@ -5,7 +5,7 @@ from django.test import TestCase
 from gocardless_pro import resources
 
 from . import models
-from .config import SCHEMES
+from .config import CURRENCIES, PAYOUT_STATUSES, SCHEMES
 from .handlers import EventHandler
 from .utils import field_default, model_from_links
 
@@ -29,6 +29,11 @@ class DjangoGoCardlessTestCase(TestCase):
                     else field_default(field)
 
             self.assertEqual(value, expected_value)
+
+    def test_event_actions_connected(self):
+        for client_property, actions in EventHandler.ACTIONS.iteritems():
+            for method_name, signal in actions.iteritems():
+                self.assertEqual(1, len(signal.receivers))
 
     @mock.patch('gocardless_pro.services.CustomersService.get')
     def test_customer_fetch(self, mock_get):
@@ -291,7 +296,32 @@ class DjangoGoCardlessTestCase(TestCase):
                 id=mocked_info['id']
             )
 
-    def test_event_actions_connected(self):
-        for client_property, actions in EventHandler.ACTIONS.iteritems():
-            for method_name, signal in actions.iteritems():
-                self.assertEqual(1, len(signal.receivers))
+    @mock.patch('gocardless_pro.services.PayoutsService.get')
+    def test_payout_fetch(self, mock_get):
+        mocked_info = {
+            'id': 'PO123',
+            'amount': 13.37,
+            'created_at': '2015-12-30T23:59:59.999Z',
+            'currency': CURRENCIES[0][0],
+            'reference': 'A Star Wars reference?',
+            'status': PAYOUT_STATUSES[0][0],
+        }
+
+        mock_get.return_value = resources.Payout(mocked_info, None)
+
+        payout = models.Payout.objects.create(
+            id=mocked_info['id'],
+        )
+
+        payout.fetch()
+        self.assertModelEqual(payout, mocked_info)
+
+        # Deleting the reference should set it to '' in the database
+        del mocked_info['reference']
+
+        mock_get.return_value = resources.Payout(mocked_info, None)
+
+        payout.fetch()
+        self.assertModelEqual(payout, mocked_info)
+
+        payout.delete()
