@@ -3,6 +3,7 @@ import copy
 import gocardless_pro
 import six
 from django.conf import settings
+from django.db import models
 from django.utils.functional import cached_property
 
 from .config import CLIENT_PROPERTIES
@@ -59,6 +60,9 @@ class GCCacheMixin(object):
         fields = self.__class__._meta.get_fields()
 
         for field in fields:
+            if not issubclass(field.__class__, models.fields.Field):
+                continue
+
             value = field_default(field)
             temp = None
 
@@ -83,16 +87,26 @@ class GCCacheMixin(object):
         )
         self.from_resource(resource)
 
-    def fetch(self, *args, **kwargs):
+    @classmethod
+    def fetch(cls, instance=None, where=None, *args, **kwargs):
         '''
         Fetch information from the GoCardless API, update and save the instance.
         '''
+        if instance is None:
+            if where is None:
+                raise ValueError('`instance` and `where` cannot both be None.')
+            else:
+                instance = cls(
+                    **where
+                )
 
-        self.from_api(
-            self.api.get,
-            self.id
+        instance.from_api(
+            instance.api.get,
+            instance.id
         )
-        self.save(*args, **kwargs)
+        instance.save(*args, **kwargs)
+
+        return instance
 
 
 class GCCreateMixin(GCCacheMixin):
@@ -111,13 +125,18 @@ class GCCreateMixin(GCCacheMixin):
                 if required_field not in given:
                     break
             elif isinstance(required_field, dict):
+                raise_error = False
+
                 for field, field_list in required_field.iteritems():
                     if field not in given:
+                        raise_error = True
                         break
                     cls.check_required(
                         field_list,
                         given[field]
                     )
+                if raise_error:
+                    break
             else:
                 break
         else:  # No breaks means everything is ok

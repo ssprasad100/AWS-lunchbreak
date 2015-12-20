@@ -1,5 +1,6 @@
 from django.apps import apps
 from django.db import models
+from gocardless_pro.errors import InvalidApiUsageError
 
 from .exceptions import UnsupportedLinks
 
@@ -42,13 +43,21 @@ def model_from_links(links, attr):
             'id': identifier
         }
 
+    model_instance = None
     if identifier is not None:
         model = apps.get_model('django_gocardless', model_name)
-        model_instance, created = model.objects.get_or_create(
-            **where
-        )
-    else:
-        model_instance = None
+        try:
+            model_instance = model.objects.get(
+                **where
+            )
+        except model.DoesNotExist:
+            try:
+                model_instance = model.fetch(
+                    instance=None,
+                    where=where
+                )
+            except InvalidApiUsageError:
+                pass
 
     return model_instance
 
@@ -56,6 +65,11 @@ def model_from_links(links, attr):
 def field_default(field):
     cls = field.__class__
 
-    if issubclass(cls, models.CharField) or issubclass(cls, models.TextField):
+    default = getattr(field, 'default', None)
+    default = None if default is models.NOT_PROVIDED else default
+
+    if (default is None and
+        (issubclass(cls, models.CharField) or
+         issubclass(cls, models.TextField))):
         return ''
-    return None
+    return default

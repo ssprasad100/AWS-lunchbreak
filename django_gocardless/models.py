@@ -4,6 +4,7 @@ import urllib
 
 import requests
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.crypto import get_random_string
@@ -458,7 +459,7 @@ class Payout(models.Model, GCCacheMixin):
         decimal_places=2,
         null=True
     )
-    created_At = models.DateTimeField(
+    created_at = models.DateTimeField(
         null=True
     )
     currency = models.CharField(
@@ -537,7 +538,7 @@ class Subscription(models.Model, GCCreateUpdateMixin):
     count = models.PositiveIntegerField(
         null=True
     )
-    created_At = models.DateTimeField(
+    created_at = models.DateTimeField(
         null=True
     )
     currency = models.CharField(
@@ -589,7 +590,10 @@ class Subscription(models.Model, GCCreateUpdateMixin):
 
     @cached_property
     def merchant(self):
-        return self.mandate.merchant if self.mandate is not None else None
+        try:
+            return self.mandate.merchant
+        except ObjectDoesNotExist:
+            return None
 
     @property
     def upcoming_payments(self):
@@ -638,6 +642,24 @@ class Payment(models.Model, GCCreateMixin):
     against a Direct Debit mandate.
     '''
 
+    create_fields = {
+        'required': [
+            'amount',
+            'currency',
+            {
+                'links': [
+                    'mandate',
+                ],
+            },
+        ],
+        'optional': [
+            'app_fee',
+            'charge_date',
+            'description',
+            'reference',
+        ]
+    }
+
     id = models.CharField(
         primary_key=True,
         max_length=255
@@ -653,7 +675,7 @@ class Payment(models.Model, GCCreateMixin):
     charge_date = models.DateField(
         null=True
     )
-    created_At = models.DateTimeField(
+    created_at = models.DateTimeField(
         null=True
     )
     currency = models.CharField(
