@@ -2,12 +2,8 @@
 *.paw
 
 # Certificates
-certificates/
-*.crt
-*.csr
-*.key
-*.pem
-*.cer
+salt/synced/salt/keys
+salt/synced/pillar/secret.sls
 
 # Lunchbreak
 media-private
