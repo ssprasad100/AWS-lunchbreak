@@ -12,7 +12,6 @@ lunchbreak_path: /etc/lunchbreak/
 branches:
   master:
     host: api.lunchbreakapp.be
-    port: 8001
     ssl: True
     opbeat: True
     certificates:
@@ -20,7 +19,6 @@ branches:
       customers: customers_production.pem
   staging:
     host: staging.lunchbreakapp.be
-    port: 8002
     ssl: True
     opbeat: False
     certificates:
@@ -28,7 +26,6 @@ branches:
       customers: customers_development.pem
   development:
     host: development.lunchbreakapp.be
-    port: 8003
     ssl: False
     opbeat: False
     certificates:

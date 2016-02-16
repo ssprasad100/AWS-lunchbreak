@@ -26,23 +26,29 @@ mysql-server:
 
 {% set secret_config = pillar.secret_branches[branch] %}
 
-database-{{ secret_config.mysql.database }}:
-  mysql_database.present:
-    - name: {{ secret_config.mysql.database }}
+{% if config.mysql is defined and config.mysql %}
+  {% set mysql = config.mysql %}
+{% elif secret_config.mysql %}
+  {% set mysql = secret_config.mysql %}
+{% endif %}
 
-user-{{ secret_config.mysql.user }}:
+database-{{ mysql.database }}:
+  mysql_database.present:
+    - name: {{ mysql.database }}
+
+user-{{ mysql.user }}:
   mysql_user.present:
-    - name: {{ secret_config.mysql.user }}
+    - name: {{ mysql.user }}
     - host: localhost
-    - password: {{ secret_config.mysql.password }}
+    - password: {{ mysql.password }}
     - require:
-      - mysql_database: database-{{ secret_config.mysql.database }}
+      - mysql_database: database-{{ mysql.database }}
   mysql_grants.present:
-    - name: {{ secret_config.mysql.user }}
+    - name: {{ mysql.user }}
     - grant: all privileges
-    - database: {{ secret_config.mysql.database }}.*
-    - user: {{ secret_config.mysql.user }}
+    - database: {{ mysql.database }}.*
+    - user: {{ mysql.user }}
     - require:
-      - mysql_user: user-{{ secret_config.mysql.user }}
+      - mysql_user: user-{{ mysql.user }}
 
 {% endfor %}

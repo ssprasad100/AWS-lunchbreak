@@ -20,6 +20,7 @@ Vagrant.configure('2') do |config|
       salt.verbose = true
       salt.log_level = 'warning'
       salt.colorize = true
+      salt.minion_id = 'local'
 
       # salt.minion_key = 'salt/vagrant-keys/vagrant.pem'
       # salt.minion_pub = 'salt/vagrant-keys/vagrant.pub'

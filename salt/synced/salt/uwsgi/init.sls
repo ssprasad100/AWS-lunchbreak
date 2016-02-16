@@ -53,7 +53,8 @@ uwsgi:
     - require:
       - pip: uwsgi
 
-{% for branch, config in pillar.get('branches', {}).items() %}
+
+{% macro uwsgi_vassal(branch, config) -%}
 
 {% set path = pillar.project_path + branch %}
 {% set secret_config = pillar.secret_branches[branch] %}
@@ -78,7 +79,17 @@ uwsgi:
       - file: {{ log }}
       - file: {{ uwsgi_conf }}
 
+{%- endmacro %}
+
+{% for branch, config in pillar.get('branches', {}).items() %}
+
+{{ uwsgi_vassal(branch, config) }}
+
 {% endfor %}
+
+{% if pillar.local is defined and pillar.local %}
+{{ uwsgi_vassal('development', pillar.local) }}
+{% endif %}
 
 uwsgi-service:
   service.running:
