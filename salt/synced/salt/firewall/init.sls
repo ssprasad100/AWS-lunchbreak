@@ -18,6 +18,7 @@ ufw {{ rule }}:
 {{ ufw_rule('default deny incoming', '') }}
 {{ ufw_rule('default allow outgoing', '') }}
 {{ ufw_rule('allow ssh', '') }}
+{{ ufw_rule('allow 80/tcp', '') }}
 {{ ufw_rule('allow 443/tcp', '') }}
 {{ ufw_rule('disable', '') }}
 {{ ufw_rule('--force enable', '') }}

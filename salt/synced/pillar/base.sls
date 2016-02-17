@@ -31,3 +31,4 @@ branches:
     certificates:
       business: business_development.pem
       customers: customers_development.pem
+    requirements: dev-requirements.txt

@@ -11,21 +11,15 @@ Vagrant.configure('2') do |config|
 
     web.vm.synced_folder 'salt/synced/', '/srv/'
 
-    #config.vm.provision "shell", path: "salt/extra-provision.sh"
 
     web.vm.provision :salt do |salt|
       salt.bootstrap_options = '-F -c /tmp/ -P'
       salt.minion_config = 'salt/minion'
       salt.run_highstate = true
       salt.verbose = true
-      salt.log_level = 'warning'
+      salt.log_level = 'info'
       salt.colorize = true
       salt.minion_id = 'local'
-
-      # salt.minion_key = 'salt/vagrant-keys/vagrant.pem'
-      # salt.minion_pub = 'salt/vagrant-keys/vagrant.pub'
-
-      # salt.install_type = 'daily'
     end
 
     web.vm.provider :virtualbox do |v|

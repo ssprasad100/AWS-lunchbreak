@@ -22,33 +22,45 @@ mysql-server:
     - watch:
       - file: mysql-server
 
-{% for branch, config in pillar.get('branches', {}).items() %}
+{% macro mysql_config(id, config) %}
 
-{% set secret_config = pillar.secret_branches[branch] %}
-
-{% if config.mysql is defined and config.mysql %}
-  {% set mysql = config.mysql %}
-{% elif secret_config.mysql %}
-  {% set mysql = secret_config.mysql %}
+{% if config.branch is defined and config.branch %}
+  {% set branch = config.branch %}
+{% else %}
+  {% set branch = id %}
 {% endif %}
 
-database-{{ mysql.database }}:
+{% if pillar.secret_branches[branch] is defined and pillar.secret_branches[branch] %}
+  {% set secret_config = pillar.secret_branches[branch] %}
+  {% if  secret_config.mysql is defined and secret_config.mysql %}
+    {% set mysql = secret_config.mysql %}
+  {% endif %}
+{% endif %}
+
+{% if mysql is defined %}
+
+database-{{ id }}:
   mysql_database.present:
     - name: {{ mysql.database }}
 
-user-{{ mysql.user }}:
+user-{{ id }}:
   mysql_user.present:
     - name: {{ mysql.user }}
-    - host: localhost
     - password: {{ mysql.password }}
     - require:
-      - mysql_database: database-{{ mysql.database }}
+      - mysql_database: database-{{ id }}
   mysql_grants.present:
-    - name: {{ mysql.user }}
     - grant: all privileges
     - database: {{ mysql.database }}.*
     - user: {{ mysql.user }}
     - require:
-      - mysql_user: user-{{ mysql.user }}
+      - mysql_user: user-{{ id }}
 
+{% endif %}
+
+{% endmacro %}
+
+{% for branch, config in pillar.get('branches', {}).items() %}
+{{ mysql_config(branch, config) }}
 {% endfor %}
+

@@ -1,5 +1,6 @@
 # Paw
 *.paw
+static/
 
 # Certificates
 salt/synced/salt/keys

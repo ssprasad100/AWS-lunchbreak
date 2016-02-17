@@ -1,5 +1,5 @@
-upstream {{ branch }} {
-    server              unix:/var/sockets/{{ host }}.sock;
+upstream {{ upstream }} {
+    server              unix:///var/sockets/{{ host }}.sock;
 }
 
 server {
@@ -45,7 +45,7 @@ server {
     }
 
     location / {
-        uwsgi_pass      {{ branch }};
+        uwsgi_pass      {{ upstream }};
         include         uwsgi_params;
     }
 }

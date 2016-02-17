@@ -1,6 +1,6 @@
 
-upstream {{ branch }} {
-    server      unix:/var/sockets/{{ host }}.sock;
+upstream {{ upstream }} {
+    server      unix:///var/sockets/{{ host }}.sock;
 }
 
 server {
@@ -12,7 +12,6 @@ server {
     resolver            8.8.8.8;
     client_max_body_size 5M;
 
-
     location {{ static_url }} {
         alias       {{ path }}{{ static_relative }};
         access_log  off;
@@ -20,7 +19,7 @@ server {
     }
 
     location / {
-        uwsgi_pass  {{ branch }};
+        uwsgi_pass  {{ upstream }};
         include     uwsgi_params;
     }
 }

@@ -25,9 +25,9 @@ nginx:
   file.absent
 
 
-{% macro nginx_config(branch, config) -%}
+{% macro nginx_config(id, config) -%}
 
-{% set path = pillar.project_path + branch %}
+{% set path = pillar.project_path + id %}
 
 {% if config.ssl %}
   {% set source = 'salt://nginx/files/server-https' %}
@@ -42,7 +42,7 @@ nginx:
     - mode: 644
     - template: jinja
     - defaults:
-        branch: {{ branch }}
+        upstream: {{ config.host | replace('.', '-') }}
         host: {{ config.host }}
         path: {{ path }}
         static_url: {{ pillar.static.url }}
@@ -58,7 +58,7 @@ nginx:
 {% endfor %}
 
 {% if pillar.local is defined and pillar.local %}
-{{ nginx_config('development', pillar.local) }}
+{{ nginx_config('local', pillar.local) }}
 {% endif %}
 
 nginx-service:
