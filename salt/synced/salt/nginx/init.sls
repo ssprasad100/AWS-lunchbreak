@@ -24,10 +24,9 @@ nginx:
 {{ nginx_dir }}/sites-enabled/default:
   file.absent
 
+{% for branch, config in pillar.get('branches', {}).items() %}
 
-{% macro nginx_config(id, config) -%}
-
-{% set path = pillar.project_path + id %}
+{% set path = pillar.project_path + branch %}
 
 {% if config.ssl %}
   {% set source = 'salt://nginx/files/server-https' %}
@@ -49,17 +48,7 @@ nginx:
         static_relative: {{ pillar.static.relative_path }}
         ssl_path: {{ nginx_dir }}/ssl
 
-{%- endmacro %}
-
-{% for branch, config in pillar.get('branches', {}).items() %}
-
-{{ nginx_config(branch, config) }}
-
 {% endfor %}
-
-{% if pillar.local is defined and pillar.local %}
-{{ nginx_config('local', pillar.local) }}
-{% endif %}
 
 nginx-service:
   service.running:

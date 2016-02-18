@@ -53,15 +53,9 @@ uwsgi:
     - require:
       - pip: uwsgi
 
+{% for branch, config in pillar.get('branches', {}).items() %}
 
-{% macro uwsgi_vassal(id, config) -%}
-
-{% if config.branch is defined and config.branch %}
-  {% set branch = config.branch %}
-{% else %}
-  {% set branch = id %}
-{% endif %}
-{% set path = pillar.project_path + id %}
+{% set path = pillar.project_path + branch %}
 {% set secret_config = pillar.secret_branches[branch] %}
 
 {{ apps }}/{{ config.host }}.ini:
@@ -74,7 +68,7 @@ uwsgi:
         branch: {{ branch }}
         host: {{ config.host }}
         chdir: {{ path }}
-        virtualenv: {{ pillar.virtualenv_path }}{{ id }}
+        virtualenv: {{ pillar.virtualenv_path }}{{ branch }}
         password_var: LB_{{ branch }}_password
         password: {{ secret_config.mysql.password }}
         business_apns_certificate: {{ pillar.certificate_directory }}{{ config.certificates.business }}
@@ -90,17 +84,7 @@ uwsgi:
       - file: {{ log }}
       - file: {{ uwsgi_conf }}
 
-{%- endmacro %}
-
-{% for branch, config in pillar.get('branches', {}).items() %}
-
-{{ uwsgi_vassal(branch, config) }}
-
 {% endfor %}
-
-{% if pillar.local is defined and pillar.local %}
-{{ uwsgi_vassal('local', pillar.local) }}
-{% endif %}
 
 uwsgi-service:
   service.running:
