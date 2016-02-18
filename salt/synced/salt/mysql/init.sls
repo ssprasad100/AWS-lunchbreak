@@ -14,6 +14,9 @@ mysql-server:
   file.managed:
     - name: /etc/mysql/my.conf
     - source: salt://mysql/files/my.conf
+    - template: jinja
+    - defaults:
+        innodb_buffer_pool_size: {{ pillar.innodb_buffer_pool_size }}
     - require:
       - pkg: mysql-server
   service.running:
@@ -42,6 +45,8 @@ mysql-server:
 database-{{ id }}:
   mysql_database.present:
     - name: {{ mysql.database }}
+    - require:
+      - service: mysql-server
 
 user-{{ id }}:
   mysql_user.present:

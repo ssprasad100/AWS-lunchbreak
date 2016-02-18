@@ -1,3 +1,5 @@
+innodb_buffer_pool_size: 100M
+
 local:
   path: /vagrant/lunchbreak
   host: local.lunchbreakapp.be

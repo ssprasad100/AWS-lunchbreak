@@ -74,11 +74,17 @@ uwsgi:
         branch: {{ branch }}
         host: {{ config.host }}
         chdir: {{ path }}
-        virtualenv: {{ pillar.lunchbreak_path }}{{ id }}
+        virtualenv: {{ pillar.virtualenv_path }}{{ id }}
         password_var: LB_{{ branch }}_password
         password: {{ secret_config.mysql.password }}
         business_apns_certificate: {{ pillar.certificate_directory }}{{ config.certificates.business }}
         customers_apns_certificate: {{ pillar.certificate_directory }}{{ config.certificates.customers }}
+        opbeat_organization_id: {{ pillar.opbeat.organization_id }}
+        opbeat_app_id: {{ pillar.opbeat.app_id }}
+        opbeat_secret_token: {{ pillar.opbeat.secret_token }}
+        sendgrid_user: {{ pillar.sendgrid.user }}
+        sendgrid_password: {{ pillar.sendgrid.password }}
+        google_cloud_secret: {{ pillar.google_cloud_secret }}
     - require:
       - file: {{ apps }}
       - file: {{ log }}

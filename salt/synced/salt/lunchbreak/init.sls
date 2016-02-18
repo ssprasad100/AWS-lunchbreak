@@ -3,9 +3,9 @@ lunchbreak-dependencies:
     - pkgs:
       - libffi-dev
 
-{% set ssh_key = pillar.lunchbreak_path + 'id_rsa' %}
+{% set ssh_key = pillar.virtualenv_path + 'id_rsa' %}
 
-{{ pillar.lunchbreak_path }}:
+{{ pillar.virtualenv_path }}:
   file.directory:
     - mode: 755
     - makedirs: True
@@ -71,7 +71,7 @@ github.com:
 
 {{ id }}-virtualenv:
   virtualenv.managed:
-    - name: {{ pillar.lunchbreak_path }}{{ id }}
+    - name: {{ pillar.virtualenv_path }}{{ id }}
     - venv_bin: /usr/local/pyenv/shims/virtualenv
     - requirements: {{ path }}/{{ config.get('requirements', 'requirements.txt') }}
     - distribute: True
@@ -85,7 +85,7 @@ github.com:
 
 {{ id }}-migration:
   cmd.run:
-    - name: {{ pillar.lunchbreak_path }}{{ id }}/bin/python {{ path }}/manage.py migrate --noinput
+    - name: {{ pillar.virtualenv_path }}{{ id }}/bin/python {{ path }}/manage.py migrate --noinput
     - env:
       - LB_{{ branch }}_password: {{ secret_config.mysql.password }}
       - DJANGO_SETTINGS_BRANCH: {{ branch }}
@@ -100,7 +100,7 @@ github.com:
     - require:
       - virtualenv: {{ id }}-virtualenv
   cmd.run:
-    - name: {{ pillar.lunchbreak_path }}{{ id }}/bin/python {{ path }}/manage.py collectstatic --noinput -c
+    - name: {{ pillar.virtualenv_path }}{{ id }}/bin/python {{ path }}/manage.py collectstatic --noinput -c
     - require:
       - file: {{ id }}-static
 

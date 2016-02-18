@@ -131,9 +131,9 @@ REST_FRAMEWORK = {
 }
 
 OPBEAT = {
-    'ORGANIZATION_ID': '308fe549a8c042429061395a87bb662a',
-    'APP_ID': 'a475a69ed8',
-    'SECRET_TOKEN': 'e2e3be25fe41c9323f8f4384549d7c22f8c2422e',
+    'ORGANIZATION_ID': os.environ.get('OPBEAT_ORGANIZATION_ID'),
+    'APP_ID': os.environ.get('OPBEAT_APP_ID'),
+    'SECRET_TOKEN': os.environ.get('OPBEAT_SECRET_TOKEN'),
     'DEBUG': False
 }
 
@@ -186,8 +186,8 @@ LOGGING = {
 }
 
 EMAIL_HOST = 'smtp.sendgrid.net'
-EMAIL_HOST_USER = 'M8cDQH8m3WLstEfLuKphqCalsy5eSJyW5xtQIQLd8viPPM9tfyQimqCMiBxF7CN9owMp80STdM7cdepLcPCQhIPmNJeOhE4yTr2pIcUa1mmreywzcRactiNQVAo1gy9b'
-EMAIL_HOST_PASSWORD = 'JmxxhBcM45A4Phth3SzMa0Lqfyd2qRgvT7a4aGnrHz8yTROmQL'
+EMAIL_HOST_USER = os.environ.get('SENDGRID_USER')
+EMAIL_HOST_PASSWORD = os.environ.get('SENDGRID_PASSWORD')
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_FROM = 'noreply@lunchbreakapp.be'
