@@ -1,3 +1,5 @@
+{% from 'macros.sls' import foreach_branch with context %}
+
 lunchbreak-dependencies:
   pkg.installed:
     - pkgs:
@@ -29,7 +31,7 @@ github.com:
     - name: "ssh-agent bash -c 'ssh-add {{ ssh_key }}; {{ command }}'"
 {%- endmacro %}
 
-{% for branch, config in pillar.get('branches', {}).items() %}
+{% call(branch, config) foreach_branch() %}
 
 {% set local = config.path is defined and config.path %}
 {% set path = pillar.project_path + branch %}
@@ -47,18 +49,23 @@ github.com:
   {{ cmd_ssh_key('git clone ' + pillar.git_repository + ' ' + path) }}
     - unless:
       - ls {{ path }}
+      - test -h {{ path }}
     - require:
       - ssh_known_hosts: github.com
 
 {{ branch }}-fetch:
   {{ cmd_ssh_key('git fetch --all') }}
     - cwd: {{ path }}
+    - unless:
+      - test -h {{ path }}
     - require:
       - cmd: {{ branch }}-clone
 
 {{ branch }}-reset:
   {{ cmd_ssh_key('git reset --hard origin/' + branch + '; git checkout ' + branch) }}
     - cwd: {{ path }}
+    - unless:
+      - test -h {{ path }}
     - require:
       - cmd: {{ branch }}-fetch
 {% endif %}
@@ -98,4 +105,4 @@ github.com:
     - require:
       - file: {{ branch }}-static
 
-{% endfor %}
+{% endcall %}

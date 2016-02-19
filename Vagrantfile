@@ -5,7 +5,7 @@ Vagrant.configure('2') do |config|
   config.vm.define :web do |web|
     web.vm.box = 'ubuntu/trusty64'
 
-    #web.vm.hostname = 'lunchbreak.dev'
+    web.vm.hostname = 'vagrant-lunchbreak'
     web.vm.network :forwarded_port, guest: 80, host: 8080, auto_correct: true
     web.vm.network :forwarded_port, guest: 443, host: 4430, auto_correct: true
 
@@ -19,11 +19,17 @@ Vagrant.configure('2') do |config|
       salt.verbose = true
       salt.log_level = 'info'
       salt.colorize = true
+
+      salt.masterless = true
       salt.minion_id = 'local'
     end
 
     web.vm.provider :virtualbox do |v|
       v.customize ['modifyvm', :id, '--memory', 512]
+    end
+
+    if ARGV[0] == 'up' && ! File.exist?('./disk1.vdi')
+      config.vm.provision 'shell', path: 'salt/increase_swap.sh'
     end
   end
 end

@@ -2,7 +2,7 @@ base:
   '*':
     - base
     - secret
-  'vagrant*':
+  'local':
     - local
-  'digitalocean*':
+  'digitalocean':
     - digitalocean

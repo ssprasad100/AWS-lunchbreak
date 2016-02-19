@@ -5,7 +5,6 @@ branches:
     path: /vagrant/lunchbreak
     host: local.lunchbreakapp.be
     ssl: False
-    opbeat: False
     certificates:
       business: business_development.pem
       customers: customers_development.pem

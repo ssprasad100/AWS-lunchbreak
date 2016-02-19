@@ -1,3 +1,5 @@
+{% from 'macros.sls' import foreach_branch with context %}
+
 nginx:
   pkg.installed
 
@@ -24,7 +26,8 @@ nginx:
 {{ nginx_dir }}/sites-enabled/default:
   file.absent
 
-{% for branch, config in pillar.get('branches', {}).items() %}
+
+{% call(branch, config) foreach_branch() %}
 
 {% set path = pillar.project_path + branch %}
 
@@ -48,7 +51,7 @@ nginx:
         static_relative: {{ pillar.static.relative_path }}
         ssl_path: {{ nginx_dir }}/ssl
 
-{% endfor %}
+{% endcall %}
 
 nginx-service:
   service.running:
@@ -56,6 +59,6 @@ nginx-service:
     - default: True
     - watch:
       - pkg: nginx
-{% for branch, config in pillar.get('branches', {}).items() %}
+{% call(branch, config) foreach_branch() %}
       - file: {{ nginx_dir }}/sites-enabled/{{ config.host }}
-{% endfor %}
+{% endcall %}

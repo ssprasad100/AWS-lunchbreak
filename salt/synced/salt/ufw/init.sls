@@ -1,7 +1,6 @@
 ufw:
   pkg.installed
 
-
 {% macro ufw_rule(rule, grep_pattern) -%}
 {% if grep_pattern != '' %}
 ufw {{ rule }}:
@@ -12,8 +11,6 @@ ufw {{ rule }}:
   cmd.run
 {% endif %}
 {%- endmacro %}
-
-{{ ufw_rule('enable', 'Status: active') }}
 
 {{ ufw_rule('default deny incoming', '') }}
 {{ ufw_rule('default allow outgoing', '') }}

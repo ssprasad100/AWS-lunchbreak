@@ -1,7 +1,7 @@
 base:
   '*':
     - ssh
-    - firewall
+    - ufw
     - python
     - mysql
     - lunchbreak

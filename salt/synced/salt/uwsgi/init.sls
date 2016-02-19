@@ -1,3 +1,5 @@
+{% from 'macros.sls' import foreach_branch with context %}
+
 uwsgi-dependencies:
   pkg.installed:
     - pkgs:
@@ -53,7 +55,7 @@ uwsgi:
     - require:
       - pip: uwsgi
 
-{% for branch, config in pillar.get('branches', {}).items() %}
+{% call(branch, config) foreach_branch() %}
 
 {% set path = pillar.project_path + branch %}
 {% set secret_config = pillar.secret_branches[branch] %}
@@ -84,7 +86,7 @@ uwsgi:
       - file: {{ log }}
       - file: {{ uwsgi_conf }}
 
-{% endfor %}
+{% endcall %}
 
 uwsgi-service:
   service.running:
