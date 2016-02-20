@@ -35,6 +35,7 @@ github.com:
 
 {% set local = config.path is defined and config.path %}
 {% set path = pillar.project_path + branch %}
+{% set project_path = path + '/lunchbreak' %}
 {% set secret_config = pillar.secret_branches[branch] %}
 
 {% if local %}
@@ -74,7 +75,7 @@ github.com:
   virtualenv.managed:
     - name: {{ pillar.virtualenv_path }}{{ branch }}
     - venv_bin: /usr/local/pyenv/shims/virtualenv
-    - requirements: {{ path }}/lunchbreak/{{ config.get('requirements', 'requirements.txt') }}
+    - requirements: {{ project_path }}/{{ config.get('requirements', 'requirements.txt') }}
     - distribute: True
     - require:
       {% if local %}
@@ -86,7 +87,7 @@ github.com:
 
 {{ branch }}-migration:
   cmd.run:
-    - name: {{ pillar.virtualenv_path }}{{ branch }}/bin/python {{ path }}/manage.py migrate --noinput
+    - name: {{ pillar.virtualenv_path }}{{ branch }}/bin/python {{ project_path }}/manage.py migrate --noinput
     - env:
       - LB_{{ branch }}_password: {{ secret_config.mysql.password }}
       - DJANGO_SETTINGS_BRANCH: {{ branch }}
@@ -95,13 +96,13 @@ github.com:
 
 {{ branch }}-static:
   file.directory:
-    - name: {{ path }}{{ pillar.static.relative_path }}
+    - name: {{ project_path }}{{ pillar.static.relative_path }}
     - mode: 755
     - makedirs: True
     - require:
       - virtualenv: {{ branch }}-virtualenv
   cmd.run:
-    - name: {{ pillar.virtualenv_path }}{{ branch }}/bin/python {{ path }}/manage.py collectstatic --noinput -c
+    - name: {{ pillar.virtualenv_path }}{{ branch }}/bin/python {{ project_path }}/manage.py collectstatic --noinput -c
     - require:
       - file: {{ branch }}-static
 
