@@ -1,6 +1,7 @@
 base:
   '*':
     - ssh
+    - users
     - ufw
     - python
     - mysql
