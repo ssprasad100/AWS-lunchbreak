@@ -21,6 +21,7 @@ DIGITS_INVALID_PIN = 44
 DIGITS_CLIENT_NOT_PRIVILIGED = 87
 DIGITS_RATE_LIMIT_EXCEEDED = 88
 DIGITS_APP_AUTH_ERROR = 89
+DIGITS_OVER_CAPACITY = 130
 DIGITS_EXPIRED = 235
 DIGITS_PIN_INCORRECT = 236
 DIGITS_MISSING_LOGIN_VERIFICATION = 237
@@ -37,19 +38,35 @@ DIGITS_NORMALISATION_FAILED = 303
 DIGITS_EXCEPTIONS = {
     DIGITS_UNKNOWN: 'Unknown error.',
     DIGITS_LEGACY_ERROR: 'Legacy error.',
-    DIGITS_INVALID_PHONE: ['Invalid phone number.', status.HTTP_400_BAD_REQUEST],
-    DIGITS_INVALID_PIN: ['Invalid pin.', status.HTTP_400_BAD_REQUEST],
+    DIGITS_INVALID_PHONE: [
+        'Invalid phone number.',
+        status.HTTP_400_BAD_REQUEST
+    ],
+    DIGITS_INVALID_PIN: [
+        'Invalid pin.',
+        status.HTTP_400_BAD_REQUEST
+    ],
     DIGITS_CLIENT_NOT_PRIVILIGED: 'Client not privileged.',
     DIGITS_RATE_LIMIT_EXCEEDED: 'Rate limit exceeded.',
     DIGITS_APP_AUTH_ERROR: 'App authorisation failed.',
+    DIGITS_OVER_CAPACITY: 'Over capacity.',
     DIGITS_EXPIRED: 'Pin expired.',
-    DIGITS_PIN_INCORRECT: ['Incorrect pin.', status.HTTP_400_BAD_REQUEST],
-    DIGITS_MISSING_LOGIN_VERIFICATION: ['Missing login verification request.', status.HTTP_400_BAD_REQUEST],
+    DIGITS_PIN_INCORRECT: [
+        'Incorrect pin.',
+        status.HTTP_400_BAD_REQUEST
+    ],
+    DIGITS_MISSING_LOGIN_VERIFICATION: [
+        'Missing login verification request.',
+        status.HTTP_400_BAD_REQUEST
+    ],
     DIGITS_GUEST_AUTH_ERROR: 'Guest authorization failed.',
     DIGITS_SPAMMER: 'Spammer.',
     DIGITS_NO_SDK_USER: 'User is no SDK user.',
     DIGITS_ALREADY_REGISTERED_ERROR: 'User already registered.',
-    DIGITS_OPERATOR_UNSUPPORTED: ['Phone operator not supported.', status.HTTP_400_BAD_REQUEST],
+    DIGITS_OPERATOR_UNSUPPORTED: [
+        'Phone operator not supported.',
+        status.HTTP_400_BAD_REQUEST
+    ],
     DIGITS_DEVICE_RATE_EXCEEDED: 'Device registration rate exceeded.',
     DIGITS_GENERAL_ERROR: 'General error.',
     DIGITS_OPERATION_FAILED: 'Operation failed.',
