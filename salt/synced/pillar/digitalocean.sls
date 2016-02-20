@@ -1,6 +1,6 @@
 innodb_buffer_pool_size: 350M
 
-specify_branched_required: True
+specify_branches_required: True
 
 branches:
   master:

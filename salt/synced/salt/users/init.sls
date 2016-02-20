@@ -33,6 +33,7 @@
     - uid: {{ settings['uid'] }}
     - gid: {{ settings['uid'] }}
     - shell: /bin/bash
+    - password: {{ pillar.user_passwords[user] }}
     {% if grains['os'] == 'Ubuntu' %}
     - groups:
       - sudo

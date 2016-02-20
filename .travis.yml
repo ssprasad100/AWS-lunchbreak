@@ -1,15 +1,15 @@
 language: python
 python:
-    - "2.7"
-install: "pip install -r dev-requirements.txt --exists-action w"
+  - "2.7"
+install: "pip install -r lunchbreak/dev-requirements.txt --exists-action w"
 script:
-    - "fab deploy"
+  - "fab deploy"
 notifications:
-    email: false
-    slack:
-        rooms:
-            - cloock:SXLRwJ3UHzH4R4sZwycCnt9J#lunchbreak-api
+  email: false
+  slack:
+    rooms:
+      - cloock:SXLRwJ3UHzH4R4sZwycCnt9J#lunchbreak-api
 branches:
-    only:
-        - staging
-        - master
+  only:
+    - staging
+    - master
