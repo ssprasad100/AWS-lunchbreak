@@ -136,6 +136,19 @@ class FoodSingleView(generics.RetrieveUpdateDestroyAPIView):
         else:
             return ShortFoodSerializer
 
+    def delete(self, request, pk, format=None):
+        try:
+            food = self.get_queryset().get(id=pk)
+        except Food.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        food.delete()
+        try:
+            self.get_queryset().get(id=pk)
+        except Food.DoesNotExist:
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_200_OK)
+
 
 class FoodListView(generics.ListAPIView):
     authentication_classes = (EmployeeAuthentication,)
@@ -213,7 +226,9 @@ class FoodCategorySingleView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (StoreOwnerPermission,)
 
     def get_queryset(self):
-        return FoodCategory.objects.filter(store=self.request.user.staff.store)
+        return FoodCategory.objects.filter(
+            store=self.request.user.staff.store
+        )
 
 
 class FoodTypeListView(generics.ListAPIView):
@@ -297,7 +312,7 @@ class OrderListView(generics.ListAPIView):
             )
 
             if 'option' in self.kwargs \
-                and self.kwargs['option'] == 'pickupTime':
+                    and self.kwargs['option'] == 'pickupTime':
                 if since is not None:
                     filters['pickupTime__gt'] = since
                 return Order.objects.filter(**filters).order_by('pickupTime')

@@ -22,7 +22,7 @@ from lunch.models import (Food, FoodCategory, FoodType, HolidayPeriod,
 from Lunchbreak.test import LunchbreakTestCase
 from push_notifications.models import SERVICE_APNS, SERVICE_GCM
 from rest_framework import status
-from rest_framework.test import APIRequestFactory, force_authenticate
+from rest_framework.test import APIRequestFactory
 
 
 @override_settings(TESTING=True)
@@ -273,10 +273,6 @@ class CustomersTests(LunchbreakTestCase):
 
         demo.delete()
 
-    def authenticateRequest(self, request, view, *args, **kwargs):
-        force_authenticate(request, user=self.user, token=self.userToken)
-        return view.as_view()(request, *args, **kwargs)
-
     def testHearting(self):
         heartKwargs = {'option': 'heart', 'pk': self.store.id}
         heartUrl = reverse('store-heart', kwargs=heartKwargs)
@@ -299,7 +295,8 @@ class CustomersTests(LunchbreakTestCase):
         self.assertEqual(Heart.objects.filter(user=self.user).count(), 0)
 
         request = self.factory.patch(unheartUrl, {}, format=CustomersTests.FORMAT)
-        self.assertRaises(Http404, self.authenticateRequest, request, views.StoreHeartView, **unheartKwargs)
+        self.assertRaises(
+            Http404, self.authenticateRequest, request, views.StoreHeartView, **unheartKwargs)
 
     def duplicateModel(self, model):
         oldPk = model.pk

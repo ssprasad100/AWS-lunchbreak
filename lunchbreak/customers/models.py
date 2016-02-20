@@ -319,7 +319,8 @@ class OrderedFood(models.Model):
     amount = models.DecimalField(
         decimal_places=3,
         max_digits=7,
-        default=1)
+        default=1
+    )
     foodAmount = models.DecimalField(
         decimal_places=3,
         max_digits=7,
