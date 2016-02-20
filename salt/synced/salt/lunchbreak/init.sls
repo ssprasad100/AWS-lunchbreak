@@ -74,7 +74,7 @@ github.com:
   virtualenv.managed:
     - name: {{ pillar.virtualenv_path }}{{ branch }}
     - venv_bin: /usr/local/pyenv/shims/virtualenv
-    - requirements: {{ path }}/{{ config.get('requirements', 'requirements.txt') }}
+    - requirements: {{ path }}/lunchbreak/{{ config.get('requirements', 'requirements.txt') }}
     - distribute: True
     - require:
       {% if local %}
