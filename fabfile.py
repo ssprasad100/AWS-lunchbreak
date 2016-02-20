@@ -1,7 +1,7 @@
 import os
 
 from fabric.api import abort, env, local, run, sudo
-from fabric.context_managers import hide, lcd, settings
+from fabric.context_managers import hide, lcd
 from fabric.contrib.files import exists
 from fabric.operations import put
 

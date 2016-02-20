@@ -267,7 +267,7 @@ class Store(models.Model):
         result = response.json()
 
         if not result['results']:
-            raise AddressNotFound()
+            raise AddressNotFound(result)
 
         self.latitude = result['results'][0]['geometry']['location']['lat']
         self.longitude = result['results'][0]['geometry']['location']['lng']
