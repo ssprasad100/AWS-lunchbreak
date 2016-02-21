@@ -1,20 +1,91 @@
+import json
 from datetime import datetime, time, timedelta
 
+import mock
+import requests
 from customers.exceptions import MinTimeExceeded, PastOrderDenied, StoreClosed
 from django.core.exceptions import ValidationError
-from lunch.models import (Food, FoodCategory, FoodType, HolidayPeriod,
-                          IngredientGroup, OpeningHours, Quantity, Store)
 from Lunchbreak.test import LunchbreakTestCase
 
 from .config import INPUT_AMOUNT, INPUT_SI_SET, INPUT_SI_VARIABLE
+from .exceptions import AddressNotFound
+from .models import (Food, FoodCategory, FoodType, HolidayPeriod,
+                     IngredientGroup, OpeningHours, Quantity, Store)
 
 
-class LunchbreakTests(LunchbreakTestCase):
+class LunchTests(LunchbreakTestCase):
 
-    def testNearbyStores(self):
+    MOCK_ADDRESS = {
+        'results': [
+            {
+                'geometry': {
+                    'location': {
+                        'lat': 1,
+                        'lng': 1
+                    }
+                }
+            }
+        ]
+    }
+
+    def mockAddressResponse(self, mock_get, mock_json, return_value=None, lat=None, lng=None):
+        if return_value is None:
+            return_value = self.MOCK_ADDRESS
+
+            if lat is not None and lng is not None:
+                return_value['results'][0]['geometry']['location']['lat'] = lat
+                return_value['results'][0]['geometry']['location']['lng'] = lng
+
+        mock_get.return_value = requests.Response()
+        mock_json.return_value = return_value
+
+    @mock.patch('requests.Response.json')
+    @mock.patch('requests.get')
+    def testAddressNotFound(self, mock_get, mock_json):
+        ''' Test for the AddressNotFound exception. '''
+        try:
+            mock_fail = {
+                'results': []
+            }
+            self.mockAddressResponse(mock_get, mock_json, mock_fail)
+            Store.objects.create(
+                name='test',
+                country='nonexisting',
+                province='nonexisting',
+                city='nonexisting',
+                postcode='nonexisting',
+                street='nonexisting',
+                number=5
+            )
+        except AddressNotFound:
+            try:
+                self.mockAddressResponse(mock_get, mock_json)
+                Store.objects.create(
+                    name='valid',
+                    country='Belgie',
+                    province='Oost-Vlaanderen',
+                    city='Wetteren',
+                    postcode='9230',
+                    street='Dendermondesteenweg',
+                    number=10
+                )
+            except AddressNotFound:
+                self.fail()
+        else:
+            self.fail()
+
+    @mock.patch('requests.Response.json')
+    @mock.patch('requests.get')
+    def testNearbyStores(self, mock_get, mock_json):
         ''' Test whether LunchbreakManager.nearby returns the right stores. '''
         Store.objects.all().delete()
 
+        self.mockAddressResponse(
+            mock_get,
+            mock_json,
+            lat=51.0111595,
+            lng=3.9075993
+        )
         centerStore = Store.objects.create(
             name='center',
             country='Belgie',
@@ -23,6 +94,13 @@ class LunchbreakTests(LunchbreakTestCase):
             postcode='9230',
             street='Dendermondesteenweg',
             number=10
+        )
+
+        self.mockAddressResponse(
+            mock_get,
+            mock_json,
+            lat=51.0076504,
+            lng=3.8892806
         )
         underTwoKmStore = Store.objects.create(
             name='1,34km',
@@ -33,6 +111,13 @@ class LunchbreakTests(LunchbreakTestCase):
             street='Wegvoeringstraat',
             number=47
         )
+
+        self.mockAddressResponse(
+            mock_get,
+            mock_json,
+            lat=51.0089506,
+            lng=3.8392584
+        )
         underFiveKmStore = Store.objects.create(
             name='4,79km',
             country='Belgie',
@@ -41,6 +126,13 @@ class LunchbreakTests(LunchbreakTestCase):
             postcode='9230',
             street='Wetterensteenweg',
             number=1
+        )
+
+        self.mockAddressResponse(
+            mock_get,
+            mock_json,
+            lat=51.0267939,
+            lng=3.7968594
         )
         underEightKmStore = Store.objects.create(
             name='7,95km',
@@ -53,15 +145,24 @@ class LunchbreakTests(LunchbreakTestCase):
         )
 
         lat = centerStore.latitude
-        lon = centerStore.longitude
+        lng = centerStore.longitude
 
-        self.assertInCount(Store.objects.nearby(lat, lon, 1), [centerStore])
-
-        self.assertInCount(Store.objects.nearby(lat, lon, 2), [centerStore, underTwoKmStore])
-
-        self.assertInCount(Store.objects.nearby(lat, lon, 5), [centerStore, underTwoKmStore, underFiveKmStore])
-
-        self.assertInCount(Store.objects.nearby(lat, lon, 8), [centerStore, underTwoKmStore, underFiveKmStore, underEightKmStore])
+        self.assertInCount(
+            Store.objects.nearby(lat, lng, 1),
+            [centerStore]
+        )
+        self.assertInCount(
+            Store.objects.nearby(lat, lng, 2),
+            [centerStore, underTwoKmStore]
+        )
+        self.assertInCount(
+            Store.objects.nearby(lat, lng, 5),
+            [centerStore, underTwoKmStore, underFiveKmStore]
+        )
+        self.assertInCount(
+            Store.objects.nearby(lat, lng, 8),
+            [centerStore, underTwoKmStore, underFiveKmStore, underEightKmStore]
+        )
 
     def assertInCount(self, haystack, needles):
         self.assertEqual(len(haystack), len(needles))
@@ -69,7 +170,10 @@ class LunchbreakTests(LunchbreakTestCase):
         for needle in needles:
             self.assertIn(needle, haystack)
 
-    def testOpeningHours(self):
+    @mock.patch('requests.Response.json')
+    @mock.patch('requests.get')
+    def testOpeningHours(self, mock_get, mock_json):
+        self.mockAddressResponse(mock_get, mock_json)
         store = Store.objects.create(
             name='valid',
             country='Belgie',
@@ -97,7 +201,10 @@ class LunchbreakTests(LunchbreakTestCase):
         else:
             self.fail()
 
-    def testHolidayPeriod(self):
+    @mock.patch('requests.Response.json')
+    @mock.patch('requests.get')
+    def testHolidayPeriod(self, mock_get, mock_json):
+        self.mockAddressResponse(mock_get, mock_json)
         store = Store.objects.create(
             name='valid',
             country='Belgie',
@@ -129,8 +236,11 @@ class LunchbreakTests(LunchbreakTestCase):
         else:
             self.fail()
 
-    def testStoreLastModified(self):
+    @mock.patch('requests.Response.json')
+    @mock.patch('requests.get')
+    def testStoreLastModified(self, mock_get, mock_json):
         '''Test whether updating OpeningHours and HolidayPeriod objects updates the Store.'''
+        self.mockAddressResponse(mock_get, mock_json)
         store = Store.objects.create(
             name='valid',
             country='Belgie',
@@ -164,7 +274,10 @@ class LunchbreakTests(LunchbreakTestCase):
 
         self.assertGreater(store.lastModified, secondModified)
 
-    def testIngredientGroup(self):
+    @mock.patch('requests.Response.json')
+    @mock.patch('requests.get')
+    def testIngredientGroup(self, mock_get, mock_json):
+        self.mockAddressResponse(mock_get, mock_json)
         store = Store.objects.create(
             name='valid',
             country='Belgie',
@@ -199,96 +312,108 @@ class LunchbreakTests(LunchbreakTestCase):
         else:
             self.fail()
 
-        def testQuantity(self):
-            foodType = FoodType.objects.create(name='type')
+    @mock.patch('requests.Response.json')
+    @mock.patch('requests.get')
+    def testQuantity(self, mock_get, mock_json):
+        self.mockAddressResponse(mock_get, mock_json)
+        foodType = FoodType.objects.create(name='type')
 
-            store = Store.objects.create(
-                name='valid',
-                country='Belgie',
-                province='Oost-Vlaanderen',
-                city='Wetteren',
-                postcode='9230',
-                street='Dendermondesteenweg',
-                number=10
-            )
+        store = Store.objects.create(
+            name='valid',
+            country='Belgie',
+            province='Oost-Vlaanderen',
+            city='Wetteren',
+            postcode='9230',
+            street='Dendermondesteenweg',
+            number=10
+        )
+
+        self.assertRaises(
+            ValidationError,
+            Quantity.objects.create,
+            foodType=foodType,
+            store=store,
+            amountMin=2,
+            amountMax=1
+        )
+
+        Quantity.objects.create(
+            foodType=foodType,
+            store=store,
+            amountMin=1,
+            amountMax=2
+        )
+
+    @mock.patch('requests.Response.json')
+    @mock.patch('requests.get')
+    def testFoodType(self, mock_get, mock_json):
+        self.mockAddressResponse(mock_get, mock_json)
+        store = Store.objects.create(
+            name='valid',
+            country='Belgie',
+            province='Oost-Vlaanderen',
+            city='Wetteren',
+            postcode='9230',
+            street='Dendermondesteenweg',
+            number=10
+        )
+
+        foodType = FoodType.objects.create(name='type')
+
+        quantity = Quantity.objects.create(
+            foodType=foodType,
+            store=store,
+            amountMin=1,
+            amountMax=10
+        )
+
+        inputTypes = [
+            {
+                'type': INPUT_AMOUNT,
+                'float': False,
+                'integer': True
+            }, {
+                'type': INPUT_SI_SET,
+                'float': True,
+                'integer': True
+            }, {
+                'type': INPUT_SI_VARIABLE,
+                'float': True,
+                'integer': True
+            }
+        ]
+
+        for it in inputTypes:
+            foodType.inputType = it['type']
+
+            self.assertEqual(foodType.isValidAmount(1), it['integer'])
+            self.assertEqual(foodType.isValidAmount(1.5), it['float'])
+
+            quantity.amountMin = 1.5
+            quantity.amountMax = 9.5
 
             try:
-                quantity = Quantity.objects.create(
-                    foodType=foodType,
-                    store=store,
-                    amountMin=1,
-                    amountMax=0
-                )
-            except ValidationError:
-                try:
-                    quantity.amountMin = 0
-                    quantity.amountMax = 1
-                    quantity.save()
-                except Exception as e:
-                    self.fail(e)
-            else:
-                self.fail()
+                quantity.save()
+            except:
+                if it['float']:
+                    self.fail(
+                        'Input type is float, but raises exception.'
+                    )
+                elif it['integer']:
+                    quantity.amountMin = 1
+                    quantity.amountMax = 9
 
-        def testFoodType(self):
-            store = Store.objects.create(
-                name='valid',
-                country='Belgie',
-                province='Oost-Vlaanderen',
-                city='Wetteren',
-                postcode='9230',
-                street='Dendermondesteenweg',
-                number=10
-            )
+                    try:
+                        quantity.save()
+                    except:
+                        self.fail(
+                        'Input type is integer, but raises exception.'
+                    )
 
-            foodType = FoodType.objects.create(name='type')
-
-            quantity = Quantity.objects.create(
-                foodType=foodType,
-                store=store,
-                amountMin=0,
-                amountMax=10
-            )
-
-            inputTypes = [
-                {
-                    'type': INPUT_AMOUNT,
-                    'float': False,
-                    'integer': True
-                }, {
-                    'type': INPUT_SI_SET,
-                    'float': True,
-                    'integer': True
-                }, {
-                    'type': INPUT_SI_VARIABLE,
-                    'float': True,
-                    'integer': True
-                }
-            ]
-
-            for it in inputTypes:
-                foodType.inputType = it['type']
-
-                self.assertEqual(foodType.isValidAmount(1), it['integer'])
-                self.assertEqual(foodType.isValidAmount(1.5), it['float'])
-
-                quantity.amountMin = 1.5
-                quantity.amountMax = 9.5
-
-                try:
-                    quantity.save()
-                except ValidationError as ve:
-                    if it['float']:
-                        self.fail(ve)
-                    elif it['integer']:
-                        quantity.amountMin = 1
-                        quantity.amountMax = 9
-
-                        try:
-                            quantity.save()
-                        except Exception as e:
-                            self.fail(e)
-
-    def testStoreCheckOpen(self):
+    @mock.patch('requests.Response.json')
+    @mock.patch('requests.get')
+    def testStoreCheckOpen(self, mock_get, mock_json):
+        self.mockAddressResponse(mock_get, mock_json)
         store = Store.objects.create(
             name='valid',
             country='Belgie',
@@ -303,7 +428,8 @@ class LunchbreakTests(LunchbreakTestCase):
         today = today.replace(hour=0, minute=0, second=0, microsecond=0)
 
         # PastOrderDenied
-        self.assertRaises(PastOrderDenied, Store.checkOpen, store, today, today + timedelta(hours=1))
+        self.assertRaises(
+            PastOrderDenied, Store.checkOpen, store, today, today + timedelta(hours=1))
 
         # MinTimeExceeded
         minTime = timedelta(minutes=15)
@@ -320,7 +446,8 @@ class LunchbreakTests(LunchbreakTestCase):
             opening=opening,
             closing=closing
         )
-        self.assertRaises(MinTimeExceeded, Store.checkOpen, store, opening + minTime - timedelta(minutes=1), opening)
+        self.assertRaises(MinTimeExceeded, Store.checkOpen, store,
+                          opening + minTime - timedelta(minutes=1), opening)
 
         # Before and after opening hours
         before = opening - timedelta(minutes=1)
@@ -356,7 +483,10 @@ class LunchbreakTests(LunchbreakTestCase):
         self.assertRaises(StoreClosed, Store.checkOpen, store, between, today)
         self.assertIsNone(Store.checkOpen(store, between + timedelta(minutes=1), today))
 
-    def testFoodCanOrder(self):
+    @mock.patch('requests.Response.json')
+    @mock.patch('requests.get')
+    def testFoodCanOrder(self, mock_get, mock_json):
+        self.mockAddressResponse(mock_get, mock_json)
         orderTime = time(hour=12)
 
         store = Store.objects.create(

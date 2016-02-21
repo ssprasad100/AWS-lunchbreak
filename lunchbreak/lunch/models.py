@@ -298,7 +298,8 @@ class Store(models.Model):
         if pickupTime - now < store.minTime:
             raise MinTimeExceeded()
 
-        holidayPeriods = HolidayPeriod.objects.filter(store=store, start__lte=pickupTime, end__gte=pickupTime)
+        holidayPeriods = HolidayPeriod.objects.filter(
+            store=store, start__lte=pickupTime, end__gte=pickupTime)
 
         closed = False
         for holidayPeriod in holidayPeriods:
@@ -321,7 +322,8 @@ class Store(models.Model):
                 if o.opening <= pTime <= o.closing:
                     break
             else:
-                # If the for loop is not stopped by the break, it means that the time of pickup is never when the store is open.
+                # If the for loop is not stopped by the break, it means that the time of
+                # pickup is never when the store is open.
                 raise StoreClosed()
 
 
@@ -403,9 +405,10 @@ class FoodType(models.Model):
     )
 
     def isValidAmount(self, amount, quantity=None):
-        return amount > 0 \
-            and (self.inputType != INPUT_AMOUNT or float(amount).is_integer()) \
-            and (quantity is None or quantity.amountMin <= amount <= quantity.amountMax)
+        return (
+            amount > 0 and
+            (self.inputType != INPUT_AMOUNT or float(amount).is_integer()) and
+            (quantity is None or quantity.amountMin <= amount <= quantity.amountMax))
 
     def __unicode__(self):
         return self.name
@@ -574,8 +577,8 @@ class Quantity(models.Model):
     def clean(self):
         if self.amountMin > self.amountMax:
             raise ValidationError('Amount maximum need to be greater or equal to its minimum.')
-        if not self.foodType.isValidAmount(self.amountMin) \
-            or not self.foodType.isValidAmount(self.amountMax):
+        if not self.foodType.isValidAmount(self.amountMin) or \
+                not self.foodType.isValidAmount(self.amountMax):
             raise InvalidFoodTypeAmount()
 
     def save(self, *args, **kwargs):
@@ -752,10 +755,11 @@ class IngredientRelation(models.Model, DirtyFieldsMixin):
 
 
 def tokenGenerator():
-        return ''.join(random.choice(TOKEN_IDENTIFIER_CHARS) for a in xrange(TOKEN_IDENTIFIER_LENGTH))
+    return ''.join(random.choice(TOKEN_IDENTIFIER_CHARS) for a in xrange(TOKEN_IDENTIFIER_LENGTH))
 
 
 class BaseTokenManager(DeviceManager):
+
     def createToken(self, arguments, defaults, clone=False):
         rawIdentifier = tokenGenerator()
         defaults['identifier'] = rawIdentifier
