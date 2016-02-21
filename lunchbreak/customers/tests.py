@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from datetime import timedelta
 
+import mock
 from customers import views
 from customers.config import (DEMO_DIGITS_ID, DEMO_PHONE,
                               ORDER_STATUS_COMPLETED, RESERVATION_STATUS,
@@ -13,7 +14,6 @@ from customers.models import (Heart, Order, OrderedFood, Reservation, User,
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.http import Http404
-from django.test.utils import override_settings
 from django.utils import timezone
 from lunch.exceptions import BadRequest, DoesNotExist
 from lunch.models import (Food, FoodCategory, FoodType, HolidayPeriod,
@@ -25,7 +25,6 @@ from rest_framework import status
 from rest_framework.test import APIRequestFactory
 
 
-@override_settings(TESTING=True)
 class CustomersTests(LunchbreakTestCase):
 
     PHONE_USER = '+32472907604'
@@ -157,7 +156,16 @@ class CustomersTests(LunchbreakTestCase):
             )
         ])
 
-    def testRegistration(self):
+    @mock.patch('customers.models.User.digitsRegister')
+    @mock.patch('customers.models.User.digitsLogin')
+    def testRegistration(self, mock_login, mock_register):
+        mock_info = {
+            'digitsId': 123,
+            'requestId': 123
+        }
+        mock_login.return_value = mock_info
+        mock_register.return_value = mock_info
+
         url = reverse('user-registration')
         content = {
             'phone': CustomersTests.VALID_PHONE
@@ -171,7 +179,8 @@ class CustomersTests(LunchbreakTestCase):
 
         User.objects.filter(phone=CustomersTests.VALID_PHONE).delete()
 
-    def testDemoRegistration(self):
+    @mock.patch('customers.models.User.register')
+    def testDemoRegistration(self, mock_register):
         url = reverse('user-registration')
         content = {
             'phone': DEMO_PHONE
@@ -181,8 +190,10 @@ class CustomersTests(LunchbreakTestCase):
         response = self.client.post(url, content, format=CustomersTests.FORMAT)
         self.assertEqual(response.content, '')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(mock_register.called)
 
-    def testInvalidRegistration(self):
+    @mock.patch('customers.models.User.register')
+    def testInvalidRegistration(self, mock_register):
         url = reverse('user-registration')
         content = {
             'phone': CustomersTests.INVALID_PHONE
@@ -190,13 +201,22 @@ class CustomersTests(LunchbreakTestCase):
 
         response = self.client.post(url, content, format=CustomersTests.FORMAT)
         self.assertEqualException(response, BadRequest)
+        self.assertFalse(mock_register.called)
 
         content = {}
 
         response = self.client.post(url, content, format=CustomersTests.FORMAT)
         self.assertEqualException(response, BadRequest)
+        self.assertFalse(mock_register.called)
 
-    def testLogin(self):
+    @mock.patch('customers.digits.Digits.confirmSignin')
+    @mock.patch('customers.digits.Digits.confirmRegistration')
+    def testLogin(self, mock_registration, mock_signin):
+        mock_registration.return_value = {
+            'id': 123
+        }
+        mock_signin.return_value = None
+
         url = reverse('user-login')
         content = {
             'phone': CustomersTests.VALID_PHONE,
@@ -212,8 +232,11 @@ class CustomersTests(LunchbreakTestCase):
         response = self.client.post(url, content, format=CustomersTests.FORMAT)
         self.assertEqualException(response, DoesNotExist)
 
-        user = User.objects.create(phone=CustomersTests.VALID_PHONE)
+        user = User.objects.create(
+            phone=CustomersTests.VALID_PHONE
+        )
 
+        # A username is required
         response = self.client.post(url, content, format=CustomersTests.FORMAT)
         self.assertEqualException(response, UserNameEmpty)
         self.assertFalse(user.name)
@@ -242,7 +265,8 @@ class CustomersTests(LunchbreakTestCase):
 
         user.delete()
 
-    def testDemoLogin(self):
+    @mock.patch('customers.models.User.login')
+    def testDemoLogin(self, mock_login):
         url = reverse('user-login')
 
         content = {
@@ -270,6 +294,8 @@ class CustomersTests(LunchbreakTestCase):
         response = self.client.post(url, content, format=CustomersTests.FORMAT)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(UserToken.objects.filter(user=demo).count(), 1)
+
+        self.assertFalse(mock_login.called)
 
         demo.delete()
 

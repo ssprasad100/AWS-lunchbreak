@@ -6,7 +6,6 @@ from datetime import timedelta
 from customers.config import ORDER_STATUS_COMPLETED
 from customers.models import Order, OrderedFood, User, UserToken
 from django.core.urlresolvers import reverse
-from django.test.utils import override_settings
 from django.utils import timezone
 from lunch.models import (Food, FoodCategory, FoodType, HolidayPeriod,
                           Ingredient, IngredientGroup, IngredientRelation,
@@ -20,7 +19,6 @@ from . import views
 from .models import Employee, Staff
 
 
-@override_settings(TESTING=True)
 class BusinessTests(LunchbreakTestCase):
 
     PHONE_USER = '+32472907604'

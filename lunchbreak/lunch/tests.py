@@ -2,8 +2,6 @@ from datetime import datetime, time, timedelta
 
 from customers.exceptions import MinTimeExceeded, PastOrderDenied, StoreClosed
 from django.core.exceptions import ValidationError
-from django.test.utils import override_settings
-from lunch.exceptions import AddressNotFound
 from lunch.models import (Food, FoodCategory, FoodType, HolidayPeriod,
                           IngredientGroup, OpeningHours, Quantity, Store)
 from Lunchbreak.test import LunchbreakTestCase
@@ -11,36 +9,7 @@ from Lunchbreak.test import LunchbreakTestCase
 from .config import INPUT_AMOUNT, INPUT_SI_SET, INPUT_SI_VARIABLE
 
 
-@override_settings(TESTING=True)
 class LunchbreakTests(LunchbreakTestCase):
-
-    def testAddressNotFound(self):
-        ''' Test for the AddressNotFound exception. '''
-        try:
-            Store.objects.create(
-                name='test',
-                country='nonexisting',
-                province='nonexisting',
-                city='nonexisting',
-                postcode='nonexisting',
-                street='nonexisting',
-                number=5
-            )
-        except AddressNotFound:
-            try:
-                Store.objects.create(
-                    name='valid',
-                    country='Belgie',
-                    province='Oost-Vlaanderen',
-                    city='Wetteren',
-                    postcode='9230',
-                    street='Dendermondesteenweg',
-                    number=10
-                )
-            except AddressNotFound:
-                self.fail()
-        else:
-            self.fail()
 
     def testNearbyStores(self):
         ''' Test whether LunchbreakManager.nearby returns the right stores. '''

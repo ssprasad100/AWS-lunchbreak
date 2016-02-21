@@ -85,30 +85,28 @@ class User(models.Model):
             if not user.enabled:
                 return UserDisabled().getResponse()
 
-            if not settings.TESTING:
-                if user.confirmedAt:
-                    digitsResult = User.digitsLogin(digits, phone)
-                else:
-                    digitsResult = User.digitsRegister(digits, phone)
+            if user.confirmedAt:
+                digitsResult = User.digitsLogin(digits, phone)
+            else:
+                digitsResult = User.digitsRegister(digits, phone)
 
-                if digitsResult and type(digitsResult) is dict:
-                    user.digitsId = digitsResult['digitsId']
-                    user.requestId = digitsResult['requestId']
+            if digitsResult and type(digitsResult) is dict:
+                user.digitsId = digitsResult['digitsId']
+                user.requestId = digitsResult['requestId']
             user.save()
 
             if user.name:
                 return Response(status=status.HTTP_200_OK)
             return Response(status=status.HTTP_201_CREATED)
         except User.DoesNotExist:
-            if not settings.TESTING:
-                digitsRegistration = User.digitsRegister(digits, phone)
-                if digitsRegistration:
-                    user = User(phone=phone)
-                    if type(digitsRegistration) is dict:
-                        user.digitsId = digitsRegistration['digitsId']
-                        user.requestId = digitsRegistration['requestId']
-                    user.save()
-                    return Response(status=status.HTTP_201_CREATED)
+            digitsRegistration = User.digitsRegister(digits, phone)
+            if digitsRegistration:
+                user = User(phone=phone)
+                if type(digitsRegistration) is dict:
+                    user.digitsId = digitsRegistration['digitsId']
+                    user.requestId = digitsRegistration['requestId']
+                user.save()
+                return Response(status=status.HTTP_201_CREATED)
             else:
                 return Response(status=status.HTTP_201_CREATED)
 
@@ -127,13 +125,12 @@ class User(models.Model):
             if name:
                 user.name = name
 
-            if not settings.TESTING:
-                digits = Digits()
-                # User just got registered in the Digits database
-                if not user.requestId and not user.digitsId:
-                    user.digitsId = digits.confirmRegistration(phone, pin)['id']
-                else:
-                    digits.confirmSignin(user.requestId, user.digitsId, pin)
+            digits = Digits()
+            # User just got registered in the Digits database
+            if not user.requestId and not user.digitsId:
+                user.digitsId = digits.confirmRegistration(phone, pin)['id']
+            else:
+                digits.confirmSignin(user.requestId, user.digitsId, pin)
 
             if not user.confirmedAt:
                 user.confirmedAt = timezone.now()
