@@ -136,5 +136,35 @@ class IndexPage(BasePage):
                     'alt': _('Confirm orders')
                 },
             ]
+        },
+        'offerings': {
+            'title': _('Manage offerings'),
+            'description': _('Add, remove or edit your offerings on the fly. Have a special dish every week? No problem. We even add your whole offerings when joining Lunchbreak for free!'),
+            'items': [
+                {
+                    'image': {
+                        'without': _('img/screenshots/en/offerings/without1.png'),
+                        'with': _('img/screenshots/en/offerings/with1.png')
+                    },
+                    'alt': _('Manage categories on your iPad')
+                },
+                {
+                    'image': {
+                        'without': _('img/screenshots/en/offerings/without2.png'),
+                        'with': _('img/screenshots/en/offerings/with2.png')
+                    },
+                    'alt': _('Manage offerings on your iPad')
+                },
+                {
+                    'image': {
+                        'without': _('img/screenshots/en/offerings/without3.png'),
+                        'with': _('img/screenshots/en/offerings/with3.png')
+                    },
+                    'alt': _('Edit products on your iPad')
+                },
+            ]
         }
+
+
+
     }
