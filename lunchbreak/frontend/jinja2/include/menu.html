@@ -1,4 +1,4 @@
-<div class="{{ menu.visibility | default('transparent') }} menu" id="menu">
+<div class="{{ menu.background | default('transparent') }} menu" id="menu">
     <a class="menu-logo" href="{$http}">
         <div>Lunchbreak</div>
     </a>
@@ -15,6 +15,6 @@
         <div class="button">Menu</div>
     </div>
 </div>
-{% if menu.visibility is defined %}
+{% if menu.background is defined %}
     <div class="menu-placeholder"></div>
 {% endif %}

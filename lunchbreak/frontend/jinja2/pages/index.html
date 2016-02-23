@@ -38,4 +38,34 @@
     </div>
 </div>
 
+{% macro ipad_slide(item) -%}
+    <img src="{{ static(item.image.without) }}" {{ snippets.srcset(item.image.without, 2)}} alt="{{ item.alt }}" data-photoswipe-src="{{ item.image.with }}" data-photoswipe-width="{{ ipad.width }}" data-photoswipe-height="{{ ipad.height }}" />
+{%- endmacro %}
+
+<div class="white box slideshow">
+    <div class="text bundle">
+        <h2 class="center">{{ orders.title }}</h2>
+        <p>{{ orders.description }}</p>
+    </div>
+    <div class="hideipad">
+        <div class="bundle center">
+            <div class="ipad">
+                <div class="view">
+                    {{ ipad_slide(orders['items'][0] )}}
+                </div>
+            </div>
+        </div>
+        <div class="controls">
+            <div class="selected"></div>
+            {% for item in orders['items'] -%}
+                {% if not loop.first %}
+                    <div>
+                        {{ ipad_slide(item) }}
+                    </div>
+                {% endif %}
+            {%- endfor %}
+        </div>
+    </div>
+</div>
+
 {% endblock %}

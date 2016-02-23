@@ -47,6 +47,7 @@ class BasePage(PageView):
         },
 
         'menu': {
+            'background': 'transparent',
             'items': [
                 {
                     'title': _('Home'),
@@ -69,6 +70,11 @@ class BasePage(PageView):
 
         'ids': {
             'info_id': 'more-info'
+        },
+
+        'ipad': {
+            'width': 1284,
+            'height': 865
         }
     }
 
@@ -99,6 +105,35 @@ class IndexPage(BasePage):
                     'title': _('Real time statistics'),
                     'description': _('Improve your store by analysing your statistics.'),
                     'image': 'img/advantages/statistics.png',
+                },
+            ]
+        },
+        'orders': {
+            'title': _('Online orders'),
+            'description': _('Receive orders right on your iPad. Keep track '
+                'of orders currently in progress, confirm orders and correct '
+                'the final cost if necessary.'),
+            'items': [
+                {
+                    'image': {
+                        'without': _('img/screenshots/en/orders/without1.png'),
+                        'with': _('img/screenshots/en/orders/with1.png')
+                    },
+                    'alt': _('Online order on your iPad')
+                },
+                {
+                    'image': {
+                        'without': _('img/screenshots/en/orders/without2.png'),
+                        'with': _('img/screenshots/en/orders/with2.png')
+                    },
+                    'alt': _('Prepare orders')
+                },
+                {
+                    'image': {
+                        'without': _('img/screenshots/en/orders/without3.png'),
+                        'with': _('img/screenshots/en/orders/with3.png')
+                    },
+                    'alt': _('Confirm orders')
                 },
             ]
         }

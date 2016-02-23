@@ -499,7 +499,7 @@ input.button{
 	width: 512px; /* Pas ook width van .slideshow .controls aan*/
 	height: 384px;
 	padding: 25px 65px 24px 65px;
-	background: url('../img/screenshots/ipad/ipad.png') no-repeat left top;
+	background: url('../img/mockups/ipad.png') no-repeat left top;
 	background-size: 642px 433px;
 	overflow: hidden;
 	position: relative;
@@ -796,52 +796,52 @@ input.text{
 (-webkit-min-device-pixel-ratio: 2),
 (min-resolution: 192dpi) {
     .step.one{
-    	background-image: url('../img/steps/shop2x.png');
+    	background-image: url('../img/steps/shop_2x.png');
     	background-size: 94px 89px;
     }
     .step.two{
-    	background-image: url('../img/steps/order2x.png');
+    	background-image: url('../img/steps/order_2x.png');
     	background-size: 78px 100px;
     }
     .step.three{
-    	background-image: url('../img/steps/time2x.png');
+    	background-image: url('../img/steps/time_2x.png');
     	background-size: 111px 111px;
     }
     .step.four{
-    	background-image: url('../img/steps/bike2x.png');
+    	background-image: url('../img/steps/bike_2x.png');
     	background-size: 181px 106px;
     }
 
     .list-item{
-    	background-image: url('../img/icons/checkmark2x.png');
+    	background-image: url('../img/icons/checkmark_2x.png');
     	background-size: 37px 34px;
     }
 
     #logo{
-    	background-image: url('../img/logo/header2x.png');
+    	background-image: url('../img/logo/header_2x.png');
     	background-size: 180px 180px;
     }
     #scroll-hint{
-    	background-image: url('../img/icons/scroll-hint2x.png');
+    	background-image: url('../img/icons/scroll-hint_2x.png');
     	background-size: 19px 13px;
     }
     .menu-logo div{
-    	background-image: url('../img/logo/menu2x.png');
+    	background-image: url('../img/logo/menu_2x.png');
     }
     .ipad{
-    	background-image: url('../img/screenshots/ipad/ipad2x.png');
+    	background-image: url('../img/mockups/ipad_2x.png');
     }
     .slideshow .controls div{
-    	background-image: url('../img/slideshow/control2x.png');
+    	background-image: url('../img/slideshow/control_2x.png');
     }
     .slideshow .controls div.selected{
-    	background-image: url('../img/slideshow/control-selected2x.png');
+    	background-image: url('../img/slideshow/control-selected_2x.png');
     }
     #smartphone-menu .close{
-    	background-image: url('../img/icons/close2x.png');
+    	background-image: url('../img/icons/close_2x.png');
     }
     .web-switch, .web-switch:link, .web-switch:hover, .web-switch:visited, .web-switch:active{
-    	background-image: url('../img/icons/back2x.png');
+    	background-image: url('../img/icons/back_2x.png');
     }
 
 
@@ -851,51 +851,51 @@ input.text{
 @media (-webkit-device-pixel-ratio: 3),
 (min-resolution: 400dpi) {
  .step.one{
-    	background-image: url('../img/steps/shop3x.png');
+    	background-image: url('../img/steps/shop_3x.png');
     	background-size: 94px 89px;
     }
     .step.two{
-    	background-image: url('../img/steps/order3x.png');
+    	background-image: url('../img/steps/order_3x.png');
     	background-size: 78px 100px;
     }
     .step.three{
-    	background-image: url('../img/steps/time3x.png');
+    	background-image: url('../img/steps/time_3x.png');
     	background-size: 111px 111px;
     }
     .step.four{
-    	background-image: url('../img/steps/bike3x.png');
+    	background-image: url('../img/steps/bike_3x.png');
     	background-size: 181px 106px;
     }
 
     .list-item{
-    	background-image: url('../img/icons/checkmark3x.png');
+    	background-image: url('../img/icons/checkmark_3x.png');
     	background-size: 37px 34px;
     }
 
 
     #logo{
-    	background-image: url('../img/logo/header3x.png');
+    	background-image: url('../img/logo/header_3x.png');
     	background-size: 180px 180px;
     }
     #scroll-hint{
-    	background-image: url('../img/icons/scroll-hint3x.png');
+    	background-image: url('../img/icons/scroll-hint_3x.png');
     	background-size: 19px 13px;
     }
     .menu-logo div{
-    	background-image: url('../img/logo/menu3x.png');
+    	background-image: url('../img/logo/menu_3x.png');
     }
     .slideshow .controls div{
-    	background-image: url('../img/slideshow/control3x.png');
+    	background-image: url('../img/slideshow/control_3x.png');
     }
     .slideshow .controls div.selected{
-    	background-image: url('../img/slideshow/control-selected3x.png');
+    	background-image: url('../img/slideshow/control-selected_3x.png');
     }
 
     #smartphone-menu .close{
-    	background-image: url('../img/icons/close3x.png');
+    	background-image: url('../img/icons/close_3x.png');
     }
     .web-switch, .web-switch:link, .web-switch:hover, .web-switch:visited, .web-switch:active{
-    	background-image: url('../img/icons/back3x.png');
+    	background-image: url('../img/icons/back_3x.png');
     }
 }
 
