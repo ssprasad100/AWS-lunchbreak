@@ -1,0 +1,155 @@
+#footer a, #footer a:link, #footer a:visited, #footer a:focus, #footer a:hover, #footer a:active{
+	color: inherit;
+	text-decoration: none;
+}
+
+#footer{
+	/*border-top: 4px solid #e8e8e8;*/
+	background: white;
+	border-top: 2px solid #e8e8e8;
+	padding: 20px 0;
+	font-size: 12pt;
+	font-weight: 400;
+	color: #969696;
+	.language-selector{
+
+		cursor: pointer;
+		/* padding right en dropdown icoon toevoegen*/
+		padding: 7px 10px;
+		padding-right: 30px;
+		background: url('/images/dropdown.png') no-repeat right center;
+		&:hover{
+			background-color: #f7f7f7;
+			border-radius: 3px;
+			color: #464646;
+		}
+		span{
+			vertical-align: middle;
+		}
+		img{
+			vertical-align: middle;
+			margin-right: 15px;
+		}
+	}
+	nav a{
+		margin: 0 10px;
+		&:hover{
+			color: #464646;
+		}
+	}
+	.combo.second{
+		text-align: right;
+	}
+	
+}
+#footer .anchor{
+	vertical-align: middle;
+	display: inline-block;
+	
+	position: relative;
+}
+
+
+#footer .bundle{
+	display: table;
+	width: 900px;
+	margin: 0 auto;
+}
+.footer-left{
+	display: table-cell;
+	vertical-align: middle;
+	position: relative;
+}
+.footer-right{
+	display: table-cell;
+	vertical-align: middle;
+	text-align: right;
+}
+
+#language-arrow{
+	margin: 0 auto;
+	position: absolute;
+	bottom: 30px;
+	height: 20px;
+	width: 40px;
+	right: 4px;
+	z-index: 1;
+	background: gray;
+	background: url('/images/popover-arrow.png') no-repeat right top;
+}
+.language-popover{
+	display: none;
+	-webkit-user-select: none; /* Chrome/Safari */        
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* IE10+ */
+	
+	/* Rules below not implemented in browsers yet */
+	-o-user-select: none;
+	user-select: none;
+}
+
+#language-box{
+	max-width: 250px;
+	position: absolute;
+	bottom: 48px;
+	left: 10px;
+	right: 10px;
+	z-index: 0;
+	
+	.content{
+		background: white;
+		border-radius: 4px;
+		border: 2px solid #e8e8e8;
+		padding: 10px;
+		a.language{
+			cursor: pointer;
+			display: block;
+			/* padding right en dropdown icoon toevoegen*/
+			padding: 10px 20px;
+			padding-right: 30px;
+			&:hover{
+				background-color: #f7f7f7;
+				border-radius: 3px;
+				color: #464646;
+			}
+			span{
+				vertical-align: middle;
+			}
+			img{
+				vertical-align: middle;
+				margin-right: 15px;
+			}
+			
+		}
+	}
+}
+
+
+@media screen and (max-width: 900px) {
+	#footer .bundle{
+		width: 100%;
+	}
+	.footer-left{
+		padding-left: 20px;
+	}
+	.footer-right{
+		padding-right: 20px;
+	}
+}
+@media screen and (max-width: 600px) {
+	#footer .bundle{
+		width: auto;
+		display: block;
+	}
+	.footer-left, .footer-right{
+		text-align: left;
+		display: block;
+		padding: 5px 20px;
+	}
+	.footer-right{
+		padding-top: 10px;
+	}
+	.footer-left{
+		padding: 0px 20px;
+	}
+}

@@ -106,3 +106,8 @@ sftp-config.json
 
 ### Vagrant ###
 .vagrant/
+
+
+### Sass ###
+.sass-cache/
+*.css.map
