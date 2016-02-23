@@ -126,7 +126,7 @@ h3{
 .fullscreen-image{
 	margin: 40px 0;
 	max-width: 100%;
-	
+
 }
 .web-switch, .web-switch:link, .web-switch:hover, .web-switch:visited, .web-switch:active{
 	position: absolute;
@@ -265,7 +265,7 @@ a.menu-item:hover{
 	bottom: 0px;
 	left:  0px;
 	right: 0px;
-	
+
 	@include bg-gradient-t2b(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.2));
 }
 .shadow.inverted{
@@ -290,7 +290,7 @@ a.menu-item:hover{
 	right: 0;
 	top: 0;
 	bottom: 0;
-	
+
 	@include bg-gradient-t2b(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.5));
 }
 .center-table{
@@ -344,17 +344,17 @@ a.menu-item:hover{
 	font-size: 14pt;
 	font-weight: normal;
 	cursor: pointer;
-	
+
 	border-color: #FF3030;
-	
+
 	text-align: center;
-	
+
 }
 input.button{
 	margin: 10px auto;
 	display: inline;
 	-webkit-appearance: none;
-	
+
 	width: auto;
 }
 
@@ -515,12 +515,12 @@ input.button{
 .iphone video{
 	position: relative;
 	width: 100%;
-	height: 100%;	
+	height: 100%;
 	background: transparent;
 }
 .iphone img, .ipad img{
 	width: 100%;
-	height: 100%;	
+	height: 100%;
 }
 .slideshow .view{
 	position: relative;
@@ -626,8 +626,8 @@ input.button{
 	font-weight: 300;
 	padding: 0;
 	margin: 0;
-	
-	
+
+
 }
 .step h3{
 	font-size: 26pt;
@@ -756,7 +756,7 @@ input.text{
 	font-weight: normal;
 	outline: none;
 	border-color: #686868;
-	
+
 	border: 0;
 	width: 100%;
 	text-align: center;
@@ -786,9 +786,9 @@ input.text{
 	bottom: 0;
 	border: 0;
 }
-@media 
-(-webkit-min-device-pixel-ratio: 2), 
-(min-resolution: 192dpi) { 
+@media
+(-webkit-min-device-pixel-ratio: 2),
+(min-resolution: 192dpi) {
     .step.one{
     	background-image: url('/images/steps/shop@2x.png');
     	background-size: 94px 89px;
@@ -805,7 +805,7 @@ input.text{
     	background-image: url('/images/steps/bike@2x.png');
     	background-size: 181px 106px;
     }
-    
+
     .list-item{
     	background-image: url('/images/checkmark@2x.png');
     	background-size: 37px 34px;
@@ -837,8 +837,8 @@ input.text{
     .web-switch, .web-switch:link, .web-switch:hover, .web-switch:visited, .web-switch:active{
     	background-image: url('/images/back@2x.png');
     }
-    
-    
+
+
 }
 
 /* iPhone 6 plus and others*/
@@ -860,13 +860,13 @@ input.text{
     	background-image: url('/images/steps/bike@3x.png');
     	background-size: 181px 106px;
     }
-    
+
     .list-item{
     	background-image: url('/images/checkmark@3x.png');
     	background-size: 37px 34px;
     }
 
-    
+
     #logo{
     	background-image: url('/images/website-logo@3x.png');
     	background-size: 180px 180px;
@@ -887,7 +887,7 @@ input.text{
     .slideshow .controls div.selected{
     	background-image: url('/images/slideshow-control-selected@3x.png');
     }
-    
+
     #smartphone-menu .close{
     	background-image: url('/images/close@3x.png');
     }
@@ -930,14 +930,14 @@ input.text{
 	.advantage .image{
 		padding-right: 15px;
 	}
-	
+
 	.split.bundle .combo h2{
 		text-align: center;
 	}
 	.split.bundle .combo .controls{
 		width: auto;
 	}
-	
+
 	/* Centreer een bundel divs op basis van hun maximale breedte, bv een lijst */
 	.unsplit-center-bundle-container{
 		text-align: center;
@@ -946,7 +946,7 @@ input.text{
 		display: inline-block;
 		text-align: left;
 	}
-	
+
 	.border.split.bundle .second.combo{
 		border-left: 0;
 	}
@@ -954,7 +954,7 @@ input.text{
 		width: auto;
 		max-width: 700px;
 	}
-	
+
 }
 @media screen and (max-width: 600px) {
 	.small.bundle{
@@ -1069,7 +1069,7 @@ input.text{
 		padding-left: 0px;
 	}
 
-	
+
 	/* Menu */
 	.smartphone-menu-buttons{
 		display: table-cell;
@@ -1088,7 +1088,7 @@ input.text{
 		background-size: 150px 150px;
 		padding-top: 170px;
 	}
-	
+
 	.box .bundle .onlydesktop{
 		display: none;
 	}
@@ -1138,7 +1138,7 @@ input.text{
 		font-size:  28pt;
 	}
 	h2{
-		font-size: 19pt;	
+		font-size: 19pt;
 	}
 	.step h3{
 		font-size: 20pt;
@@ -1151,7 +1151,7 @@ input.text{
 		line-height: normal;
 		padding: 20px;
 	}
-	
+
 }
 @media screen and (max-width: 400px){
 	.button{
@@ -1186,5 +1186,5 @@ input.text{
 	#header .text{
 		padding: 20px 0 10px 0;
 	}
-	
+
 }

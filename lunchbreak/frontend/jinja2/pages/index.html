@@ -7,8 +7,7 @@
 {% macro render_advantage(item) %}
  <div class="advantage">
     <div class="image">
-        {# Add srcset attribute to img tag #}
-        <img src="{{ static('img/' + item.image) }}" alt="List"/>
+        <img src="{{ static(item.image) }}" {{ snippets.srcset(item.image, 2) }} alt="List"/>
     </div>
     <div class="content">
         <div>

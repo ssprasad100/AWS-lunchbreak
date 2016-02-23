@@ -82,23 +82,23 @@ class IndexPage(BasePage):
                 {
                     'title': _('Save time'),
                     'description': _('No need to write orders down. No need for phone calls.'),
-                    'image': '',
+                    'image': 'img/advantages/clock.png',
                 },
                 {
                     'title': _('Online payments'),
                     'description': _('Our ultra low fees are 7 times cheaper '
                                      'than the average fees in our market.'),
-                    'image': '',
+                    'image': 'img/advantages/creditcards.png',
                 },
                 {
                     'title': _('Satisfied customers'),
                     'description': _('No need to wait, they can even pay in advance!'),
-                    'image': '',
+                    'image': 'img/advantages/customer.png',
                 },
                 {
                     'title': _('Real time statistics'),
                     'description': _('Improve your store by analysing your statistics.'),
-                    'image': '',
+                    'image': 'img/advantages/statistics.png',
                 },
             ]
         }

@@ -1,0 +1,15 @@
+{%- macro srcset(file, size_amount) -%}
+
+{% set name = file.split('.')[0] %}
+{% set extension = file.split('.')[1] %}
+
+srcset="{% for size in range(1, size_amount + 2) -%}
+    {% if size == 1 %}
+        {% set static_file = name ~ '.' ~ extension %}
+    {% else %}
+        {% set static_file = name ~ size ~ 'x.' ~ extension %}
+    {% endif %}
+    {{ static(static_file) }} {{ size }}x{% if not loop.last -%}, {%- endif %}
+{%- endfor %}"
+
+{%- endmacro -%}
