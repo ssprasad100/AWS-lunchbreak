@@ -11,13 +11,14 @@
 	font-size: 12pt;
 	font-weight: 400;
 	color: #969696;
+	overflow: visible;
 	.language-selector{
 
 		cursor: pointer;
 		/* padding right en dropdown icoon toevoegen*/
 		padding: 7px 10px;
 		padding-right: 30px;
-		background: url('/images/dropdown.png') no-repeat right center;
+		background: url('../img/icons/dropdown.png') no-repeat right center;
 		&:hover{
 			background-color: #f7f7f7;
 			border-radius: 3px;
@@ -40,12 +41,12 @@
 	.combo.second{
 		text-align: right;
 	}
-	
+
 }
 #footer .anchor{
 	vertical-align: middle;
 	display: inline-block;
-	
+
 	position: relative;
 }
 
@@ -75,14 +76,14 @@
 	right: 4px;
 	z-index: 1;
 	background: gray;
-	background: url('/images/popover-arrow.png') no-repeat right top;
+	background: url('../img/icons/popover-arrow.png') no-repeat right top;
 }
 .language-popover{
 	display: none;
-	-webkit-user-select: none; /* Chrome/Safari */        
+	-webkit-user-select: none; /* Chrome/Safari */
 	-moz-user-select: none; /* Firefox */
 	-ms-user-select: none; /* IE10+ */
-	
+
 	/* Rules below not implemented in browsers yet */
 	-o-user-select: none;
 	user-select: none;
@@ -95,7 +96,7 @@
 	left: 10px;
 	right: 10px;
 	z-index: 0;
-	
+
 	.content{
 		background: white;
 		border-radius: 4px;
@@ -119,7 +120,7 @@
 				vertical-align: middle;
 				margin-right: 15px;
 			}
-			
+
 		}
 	}
 }

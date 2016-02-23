@@ -1,4 +1,7 @@
 @import "footer.scss";
+@import "photoswipe.css";
+@import "../javascript/photoswipe/default-skin/default-skin.css";
+
 
 /* Background Gradient: Top to Bottom*/
 @mixin bg-gradient-t2b($start-colour, $end-colour) {
@@ -136,7 +139,7 @@ h3{
 	height: 40px;
 	line-height: 40px;
 	padding: 15px 10px 15px 30px;
-	background: url('/images/back.png') no-repeat left center;
+	background: url('../img/icons/back.png') no-repeat left center;
 	background-size: 13px 20px;
 	color: white;
 	text-decoration: none;
@@ -178,7 +181,7 @@ h3{
 	font-size: 14pt;
 }
 .menu-logo div{
-	background: url('/images/menu-logo.png') no-repeat left center;
+	background: url('../img/logo/menu.png') no-repeat left center;
 	background-size: 40px 40px;
 	height: 40px;
 	line-height: 40px;
@@ -229,21 +232,21 @@ a.menu-item:hover{
 	margin-right: 20px;
 }
 .background{
-	background: url('/images/background.min.jpg') no-repeat top center;
+	background: url('../img/wallpapers/users.min.jpg') no-repeat top center;
 	background-size: cover;
 	-webkit-background-size: cover;
 	-moz-background-size: cover;
-	filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/images/background.min.jpg', sizingMethod='scale');
-	-ms-filter: "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/images/background.min.jpg', sizingMethod='scale')";
+	filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='../img/wallpapers/users.min.jpg', sizingMethod='scale');
+	-ms-filter: "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='../img/wallpapers/users.min.jpg', sizingMethod='scale')";
 }
 
 .background.business{
-	background: url('/images/business.min.jpg') no-repeat center center;
+	background: url('../img/wallpapers/business.min.jpg') no-repeat center center;
 	background-size: cover;
 	-webkit-background-size: cover;
 	-moz-background-size: cover;
-	filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/images/business.min.jpg', sizingMethod='scale');
-	-ms-filter: "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/images/business.min.jpg', sizingMethod='scale')";
+	filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='../img/wallpapers/business.min.jpg', sizingMethod='scale');
+	-ms-filter: "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='../img/wallpapers/business.min.jpg', sizingMethod='scale')";
 }
 
 #header{
@@ -307,7 +310,7 @@ a.menu-item:hover{
 #logo{
 	padding-top: 200px; /* 20 px padding between text - logo*/
 	width: 100%;
-	background: url('/images/website-logo.png') no-repeat top center;
+	background: url('../img/logo/header.png') no-repeat top center;
 	margin-bottom: 0px;
 }
 #header .text{
@@ -327,7 +330,7 @@ a.menu-item:hover{
 	left:  0px;
 	right: 0px;
 	height: 12px;
-	background: url('/images/scroll-hint.png') no-repeat center center;
+	background: url('../img/icons/scroll-hint.png') no-repeat center center;
 	color: rgba(0,0,0,0.5);
 }
 .button, .button:link, .button:active, .button:visited{
@@ -383,6 +386,7 @@ input.button{
 }
 .box{
 	padding: 75px 0px;
+	overflow: hidden;
 }
 .small.box{
 	padding: 20px 0px;
@@ -485,20 +489,19 @@ input.button{
 
 
 .list-item{
-	background: url('/images/checkmark.png') no-repeat left center;
+	background: url('../img/icons/checkmark.png') no-repeat left center;
 	padding: 15px 0 9px 50px;
 	font-weight: 300;
 	-webkit-text-size-adjust: 100%;
 	text-align: left;
 }
-
-
 .ipad{
-	width: 717px; /* Pas ook width van .slideshow .controls aan*/
-	height: 538px;
-	padding: 40px 80px 40px 80px;
-	background: url('/images/iPad.png') no-repeat left top;
-	background-size: 877px 618px;
+	width: 512px; /* Pas ook width van .slideshow .controls aan*/
+	height: 384px;
+	padding: 25px 65px 24px 65px;
+	background: url('../img/screenshots/ipad/ipad.png') no-repeat left top;
+	background-size: 642px 433px;
+	overflow: hidden;
 	position: relative;
 	margin: 40px auto;
 }
@@ -508,7 +511,7 @@ input.button{
 	width: 240px; /* Pas ook width van .slideshow .controls aan*/
 	height: 426px;
 	padding: 89px 30px 87px 32px;
-	background: url('/images/empty-iphone.png') no-repeat left top;
+	background: url('../img/mockups/iphone.png') no-repeat left top;
 	background-size: 302px 602px;
 	position: relative;
 }
@@ -526,6 +529,9 @@ input.button{
 	position: relative;
 	width: 100%;
 	height: 100%;
+}
+.slideshow .ipad .view{
+	cursor: zoom-in;
 }
 .slideshow .view img{
 	position: absolute;
@@ -547,7 +553,7 @@ input.button{
 .slideshow .controls div{
 	width: 15px;
 	height: 15px;
-	background:url('/images/slideshow-control.png') no-repeat center center;
+	background:url('../img/slideshow/control.png') no-repeat center center;
 	background-size: 11px 11px;
 	margin: 10px;
 	display: inline-block;
@@ -558,7 +564,7 @@ input.button{
 	visibility: hidden;
 }
 .slideshow .controls div.selected{
-	background-image:url('/images/slideshow-control-selected.png');
+	background-image:url('../img/slideshow/control-selected.png');
 }
 
 .box .bundle.price-box{
@@ -609,16 +615,16 @@ input.button{
 	padding: 150px 20px 20px 20px;
 }
 .step.one{
-	background-image: url('/images/steps/shop.png');
+	background-image: url('../img/steps/shop.png');
 }
 .step.two{
-	background-image: url('/images/steps/order.png');
+	background-image: url('../img/steps/order.png');
 }
 .step.three{
-	background-image: url('/images/steps/time.png');
+	background-image: url('../img/steps/time.png');
 }
 .step.four{
-	background-image: url('/images/steps/bike.png');
+	background-image: url('../img/steps/bike.png');
 }
 
 .step p{
@@ -790,52 +796,52 @@ input.text{
 (-webkit-min-device-pixel-ratio: 2),
 (min-resolution: 192dpi) {
     .step.one{
-    	background-image: url('/images/steps/shop@2x.png');
+    	background-image: url('../img/steps/shop2x.png');
     	background-size: 94px 89px;
     }
     .step.two{
-    	background-image: url('/images/steps/order@2x.png');
+    	background-image: url('../img/steps/order2x.png');
     	background-size: 78px 100px;
     }
     .step.three{
-    	background-image: url('/images/steps/time@2x.png');
+    	background-image: url('../img/steps/time2x.png');
     	background-size: 111px 111px;
     }
     .step.four{
-    	background-image: url('/images/steps/bike@2x.png');
+    	background-image: url('../img/steps/bike2x.png');
     	background-size: 181px 106px;
     }
 
     .list-item{
-    	background-image: url('/images/checkmark@2x.png');
+    	background-image: url('../img/icons/checkmark2x.png');
     	background-size: 37px 34px;
     }
 
     #logo{
-    	background-image: url('/images/website-logo@2x.png');
+    	background-image: url('../img/logo/header2x.png');
     	background-size: 180px 180px;
     }
     #scroll-hint{
-    	background-image: url('/images/scroll-hint@2x.png');
+    	background-image: url('../img/icons/scroll-hint2x.png');
     	background-size: 19px 13px;
     }
     .menu-logo div{
-    	background-image: url('/images/menu-logo@2x.png');
+    	background-image: url('../img/logo/menu2x.png');
     }
     .ipad{
-    	background-image: url('/images/iPad@2x.png');
+    	background-image: url('../img/screenshots/ipad/ipad2x.png');
     }
     .slideshow .controls div{
-    	background-image: url('/images/slideshow-control@2x.png');
+    	background-image: url('../img/slideshow/control2x.png');
     }
     .slideshow .controls div.selected{
-    	background-image: url('/images/slideshow-control-selected@2x.png');
+    	background-image: url('../img/slideshow/control-selected2x.png');
     }
     #smartphone-menu .close{
-    	background-image: url('/images/close@2x.png');
+    	background-image: url('../img/icons/close2x.png');
     }
     .web-switch, .web-switch:link, .web-switch:hover, .web-switch:visited, .web-switch:active{
-    	background-image: url('/images/back@2x.png');
+    	background-image: url('../img/icons/back2x.png');
     }
 
 
@@ -845,54 +851,51 @@ input.text{
 @media (-webkit-device-pixel-ratio: 3),
 (min-resolution: 400dpi) {
  .step.one{
-    	background-image: url('/images/steps/shop@3x.png');
+    	background-image: url('../img/steps/shop3x.png');
     	background-size: 94px 89px;
     }
     .step.two{
-    	background-image: url('/images/steps/order@3x.png');
+    	background-image: url('../img/steps/order3x.png');
     	background-size: 78px 100px;
     }
     .step.three{
-    	background-image: url('/images/steps/time@3x.png');
+    	background-image: url('../img/steps/time3x.png');
     	background-size: 111px 111px;
     }
     .step.four{
-    	background-image: url('/images/steps/bike@3x.png');
+    	background-image: url('../img/steps/bike3x.png');
     	background-size: 181px 106px;
     }
 
     .list-item{
-    	background-image: url('/images/checkmark@3x.png');
+    	background-image: url('../img/icons/checkmark3x.png');
     	background-size: 37px 34px;
     }
 
 
     #logo{
-    	background-image: url('/images/website-logo@3x.png');
+    	background-image: url('../img/logo/header3x.png');
     	background-size: 180px 180px;
     }
     #scroll-hint{
-    	background-image: url('/images/scroll-hint@3x.png');
+    	background-image: url('../img/icons/scroll-hint3x.png');
     	background-size: 19px 13px;
     }
     .menu-logo div{
-    	background-image: url('/images/menu-logo@3x.png');
-    }
-    .ipad{
-    	background-image: url('/images/iPad@3x.png');
+    	background-image: url('../img/logo/menu3x.png');
     }
     .slideshow .controls div{
-    	background-image: url('/images/slideshow-control@3x.png');
+    	background-image: url('../img/slideshow/control3x.png');
     }
     .slideshow .controls div.selected{
-    	background-image: url('/images/slideshow-control-selected@3x.png');
+    	background-image: url('../img/slideshow/control-selected3x.png');
     }
 
     #smartphone-menu .close{
-    	background-image: url('/images/close@3x.png');
+    	background-image: url('../img/icons/close3x.png');
     }
     .web-switch, .web-switch:link, .web-switch:hover, .web-switch:visited, .web-switch:active{
-    	background-image: url('/images/back@3x.png');
+    	background-image: url('../img/icons/back3x.png');
     }
 }
 
@@ -963,30 +966,43 @@ input.text{
 	}
 }
 
-/*@media screen and (max-width: 917px) {*/
+@media screen and (max-width: 682px) {
 	.ipad{
-		width: 478px; /* Pas ook width van .slideshow .controls aan*/
-		height: 359px;
-		padding: 26px 53px 27px 53px;
-		background-size: 584px 412px;
+		width: 384px;
+		height: 288px;
+		padding: 18px 48px 19px 49px;
+		background-size: 482px 325px;
 	}
-/*}*/
-@media screen and (max-width: 624px) {
+
+}
+@media screen and (max-width: 521px) {
 	.ipad{
-		width: 359px; /* Pas ook width van .slideshow .controls aan*/
-		height: 269px;
-		padding: 20px 40px 20px 40px;
-		background-size: 439px 309px;
+		width: 256px;
+		height: 192px;
+		padding: 12px 32px 12px 33px;
+		background-size: 321px 217px;
+	}
+}
+
+@media screen and (max-width: 351px) {
+	.ipad{
+		width: 200px;
+		height: 150px;
+		padding: 10px 25px 9px 25px;
+		background-size: 250px 169px;
+	}
+}
+
+@media screen and (max-width: 280px) {
+	.ipad{
+		width: 128px;
+		height: 96px;
+		padding: 6px 16px 7px 17px;
+		background-size: 161px 109px;
 	}
 }
 
 @media screen and (max-width: 479px) {
-	.ipad{
-		width: 239px; /* Pas ook width van .slideshow .controls aan*/
-		height: 179px;
-		padding: 13px 28px 14px 27px;
-		background-size: 292px 206px;
-	}
 	.web-switch, .web-switch:link, .web-switch:hover, .web-switch:visited, .web-switch:active{
 		padding-left: 20px;
 		left: 10px;
@@ -1019,7 +1035,7 @@ input.text{
 	cursor: pointer;
 	width: 24px;
 	height: 24px;
-	background: url('/images/close.png') no-repeat center center;
+	background: url('../img/icons/close.png') no-repeat center center;
 	background-size: 24px 24px;
 }
 #smartphone-menu-centered{
