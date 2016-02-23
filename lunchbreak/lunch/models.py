@@ -408,7 +408,8 @@ class FoodType(models.Model):
         return (
             amount > 0 and
             (self.inputType != INPUT_AMOUNT or float(amount).is_integer()) and
-            (quantity is None or quantity.amountMin <= amount <= quantity.amountMax))
+            (quantity is None or quantity.amountMin <= amount <= quantity.amountMax)
+        )
 
     def __unicode__(self):
         return self.name

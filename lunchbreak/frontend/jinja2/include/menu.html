@@ -1,0 +1,20 @@
+<div class="{{ menu.visibility | default('transparent') }} menu" id="menu">
+    <a class="menu-logo" href="{$http}">
+        <div>Lunchbreak</div>
+    </a>
+    <nav class="menu-items">
+        {% for item in menu['items'] -%}
+            {% if loop.last %}
+                <a {# href="{% url item.url %}" #} class="red button">{{ item.title }}</a>
+            {% else %}
+                <a {# href="{% url item.url %}" #} class="menu-item">{{ item.title }}</a>
+            {% endif %}
+        {%- endfor %}
+    </nav>
+    <div class="smartphone-menu-buttons">
+        <div class="button">Menu</div>
+    </div>
+</div>
+{% if menu.visibility is defined %}
+    <div class="menu-placeholder"></div>
+{% endif %}

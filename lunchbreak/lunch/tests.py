@@ -407,8 +407,8 @@ class LunchTests(LunchbreakTestCase):
                         quantity.save()
                     except:
                         self.fail(
-                        'Input type is integer, but raises exception.'
-                    )
+                            'Input type is integer, but raises exception.'
+                        )
 
     @mock.patch('requests.Response.json')
     @mock.patch('requests.get')

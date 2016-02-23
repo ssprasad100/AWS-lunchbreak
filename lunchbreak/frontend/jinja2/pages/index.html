@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% set info_id = 'more-info' %}
+
+{% macro render_advantage(item) %}
+ <div class="advantage">
+    <div class="image">
+        {# Add srcset attribute to img tag #}
+        <img src="{{ static('img/' + item.image) }}" alt="List"/>
+    </div>
+    <div class="content">
+        <div>
+            <h3>{{ item.title }}</h3>
+            <p>{{ item.description }}</p>
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+<div class="gray box" id="{{ info_id }}">
+    <h2 class="center">{}</h2>
+    <div class="split nopadding bundle">
+        <div class="first combo">
+            {% for item in advantages['items'] -%}
+                {% if loop.index is even %}
+                    {{ render_advantage(item) }}
+                {% endif %}
+            {%- endfor %}
+        </div>
+        <div class="second combo">
+            {% for item in advantages['items'] -%}
+                {% if loop.index is odd %}
+                    {{ render_advantage(item) }}
+                {% endif %}
+            {%- endfor %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

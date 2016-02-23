@@ -1,0 +1,33 @@
+<title>{{ title | default('Lunchbreak') }}</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="description" content="{{ description }}">
+<meta name="author" content="Cloock">
+<meta charset="UTF-8">
+
+<meta property="og:title" content="{{ title }}">
+<meta property="og:description" content="{{ description }}">
+{% if social_image is defined and social_image -%}
+<meta property="og:image" content="{{ social_image }}">
+{%- endif %}
+<meta property="og:type" content="website">
+
+<meta name="twitter:card" content="app">
+<meta name="twitter:site" content="@LunchbreakApp">
+<meta name="apple-itunes-app" content="app-id=949238693">
+<meta name="twitter:creator" content="@LunchbreakApp">
+
+{% for language in languages -%}
+    {% if language != current_language %}
+        <link rel="alternate" hreflang="{{ language.tag }}" href="{{ language.url }}" />
+    {% endif %}
+{%- endfor %}
+
+<link type="text/css" rel="stylesheet" href="{{ static('css/style.css') }}">
+<link rel="shortcut icon" href="{{ static('img/favicon.ico') }}">
+
+<script src="{{ static('js/main.min.js') }}" type="text/javascript"></script>
+
+<!--[if lt IE 9]>
+<script type="text/javascript" src="http://www.cloock.be/js/html5shiv.js"></script>
+<![endif]-->

@@ -12,7 +12,6 @@ IMAGEKIT_DEFAULT_FILE_STORAGE = 'private_media.storages.PrivateMediaStorage'
 SECRET_KEY = 'e2a86@j!uc5@z^yu=%n9)6^%w+-(pk8a6@^i!vnvxe^-w%!q8('
 
 DEBUG = False
-TEMPLATE_DEBUG = True
 SSL = True
 
 INSTALLED_APPS = (
@@ -34,6 +33,7 @@ INSTALLED_APPS = (
     'business',
     'customers',
     'lunch',
+    'frontend',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -45,6 +45,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
 )
 
 ROOT_URLCONF = 'Lunchbreak.urls'
@@ -92,9 +93,17 @@ DATETIME_INPUT_FORMATS = (
 STATIC_RELATIVE = '/static/'
 STATIC_ROOT = BASE_DIR + STATIC_RELATIVE
 STATIC_URL = '/static/'
-TEMPLATE_DIRS = (
-    BASE_DIR + '/business/templates/',
-)
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.jinja2.Jinja2',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'environment': 'frontend.jinja2.environment'
+        }
+    }
+]
 
 APPEND_SLASH = False
 
