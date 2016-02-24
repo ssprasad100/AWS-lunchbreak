@@ -169,7 +169,7 @@ class IndexPage(BasePage):
         },
         'customers': {
             'title': _('Customer benefits'),
-            'subtitle': _('Test subtitle'),
+            #  'subtitle': _('Test subtitle'),
             'checkboxes': [
                 _('Order anywhere at anytime!'),
                 _('Customise their orders'),
@@ -201,6 +201,52 @@ class IndexPage(BasePage):
                     'image': _('img/screenshots/en/customers/notification.png'),
                     'alt': _('Notification'),
                 },
+            ]
+        },
+        'faq': {
+            'title': _('Frequently asked questions'),
+            'qa': [
+                {
+                    'question': _('What if an order is not picked up?'),
+                    'answer': _('Users are required to login using their '
+                                'phone number. We always know with certainty '
+                                'the phone number of the user in question. '
+                                'Fake orders are less probable this way '
+                                'because our users know we that have their '
+                                'phone number.')
+                },
+                {
+                    'question': _('Can I specify how much in advance an order needs to be placed?'),
+                    'answer': _('Certainly! That and a lot more can be easily '
+                                'customised with the iPad app. Are you a '
+                                'bakery and want people to order a day in '
+                                'advance for certain products? We accounted '
+                                'for that too.')
+                },
+                {
+                    'question': _('Will this work for my &lt;insert business type here&gt;?'),
+                    'answer': _('We designed Lunchbreak in order to work for '
+                                'every single type of store on the planet! '
+                                'Contact us if we missed something and we '
+                                'wil gladly look into it!')
+                },
+                {
+                    'question': _('Do I have to add the offerings myself?'),
+                    'answer': _('You can, but at the time we offer to add '
+                                'it for you for free at the time of '
+                                'installation. We do recommend for you to give '
+                                'it a shot in order to get familiar with Lunchbreak.')
+                },
+                {
+                    'question': _('Can I disable online payments?'),
+                    'answer': _('Of course, Lunchbreak is tailored to your business!'),
+                },
+                {
+                    'question': _('What devices does Lunchbreak support?'),
+                    'answer': _('Your users can use the iOS or Android app. '
+                                'The app for your store is currently only '
+                                'available for Apple iPad devices.')
+                }
             ]
         }
     }

@@ -119,4 +119,16 @@
     </div>
  </div>
 
+<div class="centered gray box">
+    <div class="text bundle">
+        <h2>{{ faq.title }}</h2>
+        {% for qa in faq.qa -%}
+            <div class="store">
+                <h3>{{ qa.question }}</h3>
+                <p>{{ qa.answer }}</p>
+            </div>
+        {%- endfor %}
+    </div>
+</div>
+
 {% endblock %}
