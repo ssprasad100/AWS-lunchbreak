@@ -84,7 +84,7 @@ class IndexPage(BasePage):
     context = {
         'advantages': {
             'title': _('Why Lunchbreak?'),
-            'items': [
+            'slideshow': [
                 {
                     'title': _('Save time'),
                     'description': _('No need to write orders down. No need for phone calls.'),
@@ -111,9 +111,9 @@ class IndexPage(BasePage):
         'orders': {
             'title': _('Online orders'),
             'description': _('Receive orders right on your iPad. Keep track '
-                'of orders currently in progress, confirm orders and correct '
-                'the final cost if necessary.'),
-            'items': [
+                             'of orders currently in progress, confirm orders and correct '
+                             'the final cost if necessary.'),
+            'slideshow': [
                 {
                     'image': {
                         'without': _('img/screenshots/en/orders/without1.png'),
@@ -139,8 +139,11 @@ class IndexPage(BasePage):
         },
         'offerings': {
             'title': _('Manage offerings'),
-            'description': _('Add, remove or edit your offerings on the fly. Have a special dish every week? No problem. We even add your whole offerings when joining Lunchbreak for free!'),
-            'items': [
+            'description': _('Add, remove or edit your offerings on the fly. '
+                             'Have a special dish every week? No problem. We '
+                             'even add your whole offerings when joining '
+                             'Lunchbreak for free!'),
+            'slideshow': [
                 {
                     'image': {
                         'without': _('img/screenshots/en/offerings/without1.png'),
@@ -163,8 +166,41 @@ class IndexPage(BasePage):
                     'alt': _('Edit products on your iPad')
                 },
             ]
+        },
+        'customers': {
+            'title': _('Customer benefits'),
+            'subtitle': _('Test subtitle'),
+            'checkboxes': [
+                _('Order anywhere at anytime!'),
+                _('Customise their orders'),
+                _('Notified when order is ready'),
+                _('No more queues')
+            ],
+            'slideshow': [
+                {
+                    'image': _('img/screenshots/en/customers/overview.jpg'),
+                    'alt': _('Store selection'),
+                },
+                {
+                    'image': _('img/screenshots/en/customers/store.jpg'),
+                    'alt': _('Store'),
+                },
+                {
+                    'image': _('img/screenshots/en/customers/ingredients.png'),
+                    'alt': _('Select ingredients'),
+                },
+                {
+                    'image': _('img/screenshots/en/customers/cart.png'),
+                    'alt': _('Cart'),
+                },
+                {
+                    'image': _('img/screenshots/en/customers/pickup.png'),
+                    'alt': _('Select time of pickup'),
+                },
+                {
+                    'image': _('img/screenshots/en/customers/notification.png'),
+                    'alt': _('Notification'),
+                },
+            ]
         }
-
-
-
     }

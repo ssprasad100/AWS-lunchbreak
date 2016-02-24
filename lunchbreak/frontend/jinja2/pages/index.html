@@ -4,15 +4,15 @@
 
 {% set info_id = 'more-info' %}
 
-{% macro render_advantage(item) %}
+{% macro render_advantage(slide) %}
  <div class="advantage">
     <div class="image">
-        <img src="{{ static(item.image) }}" {{ snippets.srcset(item.image, 3) }} alt="List"/>
+        <img src="{{ static(slide.image) }}" {{ snippets.srcset(slide.image, 3) }} alt="List"/>
     </div>
     <div class="content">
         <div>
-            <h3>{{ item.title }}</h3>
-            <p>{{ item.description }}</p>
+            <h3>{{ slide.title }}</h3>
+            <p>{{ slide.description }}</p>
         </div>
     </div>
 </div>
@@ -22,24 +22,24 @@
     <h2 class="center">{{ advantages.title }}</h2>
     <div class="split nopadding bundle">
         <div class="first combo">
-            {% for item in advantages['items'] -%}
+            {% for slide in advantages.slideshow -%}
                 {% if loop.index is even %}
-                    {{ render_advantage(item) }}
+                    {{ render_advantage(slide) }}
                 {% endif %}
             {%- endfor %}
         </div>
         <div class="second combo">
-            {% for item in advantages['items'] -%}
+            {% for slide in advantages.slideshow -%}
                 {% if loop.index is odd %}
-                    {{ render_advantage(item) }}
+                    {{ render_advantage(slide) }}
                 {% endif %}
             {%- endfor %}
         </div>
     </div>
 </div>
 
-{% macro ipad_slide(item) -%}
-    <img src="{{ static(item.image.without) }}" {{ snippets.srcset(item.image.without, 2)}} alt="{{ item.alt }}" data-photoswipe-src="{{ item.image.with }}" data-photoswipe-width="{{ ipad.width }}" data-photoswipe-height="{{ ipad.height }}" />
+{% macro ipad_slide(slide) -%}
+    <img src="{{ static(slide.image.without) }}" {{ snippets.srcset(slide.image.without, 2)}} alt="{{ slide.alt }}" data-photoswipe-src="{{ slide.image.with }}" data-photoswipe-width="{{ ipad.width }}" data-photoswipe-height="{{ ipad.height }}" />
 {%- endmacro %}
 
 {% macro ipad_slideshow(slideshow) -%}
@@ -51,16 +51,16 @@
         <div class="bundle center">
             <div class="ipad">
                 <div class="view">
-                    {{ ipad_slide(slideshow['items'][0] )}}
+                    {{ ipad_slide(slideshow.slideshow[0] )}}
                 </div>
             </div>
         </div>
         <div class="controls">
             <div class="selected"></div>
-            {% for item in slideshow['items'] -%}
+            {% for slide in slideshow.slideshow -%}
                 {% if not loop.first %}
                     <div>
-                        {{ ipad_slide(item) }}
+                        {{ ipad_slide(slide) }}
                     </div>
                 {% endif %}
             {%- endfor %}
@@ -75,5 +75,48 @@
 <div class="gray box slideshow">
     {{ ipad_slideshow(orders) }}
 </div>
+
+{% macro iphone_slideshow(slide) -%}
+    <img src="{{ static(slide.image) }}" {{ snippets.srcset(slide.image, 2) }} alt="{{ slide.alt }}"/>
+{%- endmacro %}
+
+<div class="white box">
+    <div class="split bundle">
+        <div class="onlydesktop first combo slideshow">
+            <div class="iphone">
+                <div class="view">
+                    {{ iphone_slideshow(customers.slideshow[0] )}}
+                </div>
+            </div>
+            <div class="controls iphonesize">
+                <div class="selected"></div>
+                {% for slide in customers.slideshow %}
+                    {% if not loop.first %}
+                        <div>
+                            {{ iphone_slideshow(slide) }}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        <div class="second combo">
+            <div>
+                <h2 {% if customers.subtitle is defined %} style="margin-bottom: 0;" {% endif %}>{{ customers.title }}</h2>
+                {% if customers.subtitle is defined %}
+                    <p style="margin-top: 5px; color: gray;">
+                        {{ customers.subtitle }}
+                    </p>
+                {% endif %}
+                <div class="unsplit-center-bundle-container">
+                    <div class="unsplit-center-bundle">
+                        {% for item in customers.checkboxes %}
+                            <div class="list-item">{{ item }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+ </div>
 
 {% endblock %}
