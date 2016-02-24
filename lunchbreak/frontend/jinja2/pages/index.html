@@ -90,13 +90,13 @@
             </div>
             <div class="controls iphonesize">
                 <div class="selected"></div>
-                {% for slide in customers.slideshow %}
+                {% for slide in customers.slideshow -%}
                     {% if not loop.first %}
                         <div>
                             {{ iphone_slideshow(slide) }}
                         </div>
                     {% endif %}
-                {% endfor %}
+                {%- endfor %}
             </div>
         </div>
         <div class="second combo">
@@ -128,6 +128,32 @@
                 <p>{{ qa.answer }}</p>
             </div>
         {%- endfor %}
+    </div>
+</div>
+
+
+<div class="center white box">
+    <div class="text bundle">
+        {% if next.title is defined %}
+            <h2>{{ next.title }}</h2>
+        {% endif %}
+        {% if next.paragraph is defined %}
+            <p>{{ next.paragraph }}</p>
+        {% endif %}
+        <p>
+            {% for button in next.buttons -%}
+                {% set classes = 'button' %}
+                {% if button.classes is defined %}
+                    {% set classes = classes ~ ' ' ~ ' '.join(button.classes) %}
+                {% endif %}
+                <a href="{# {{ url(button.link) }} #}" class="{{ classes }}">
+                    {{ button.title }}
+                </a>
+            {%- endfor %}
+        </p>
+        {% if next.subtitle is defined %}
+            <p>{{ next.subtitle }}</p>
+        {% endif %}
     </div>
 </div>
 

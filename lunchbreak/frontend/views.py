@@ -216,7 +216,8 @@ class IndexPage(BasePage):
                                 'phone number.')
                 },
                 {
-                    'question': _('Can I specify how much in advance an order needs to be placed?'),
+                    'question': _('Can I specify how much in advance an order '
+                                  'needs to be placed?'),
                     'answer': _('Certainly! That and a lot more can be easily '
                                 'customised with the iPad app. Are you a '
                                 'bakery and want people to order a day in '
@@ -246,6 +247,22 @@ class IndexPage(BasePage):
                     'answer': _('Your users can use the iOS or Android app. '
                                 'The app for your store is currently only '
                                 'available for Apple iPad devices.')
+                }
+            ]
+        },
+        'next': {
+            'title': _('Simple and fast food ordering'),
+            'subtitle': _('Free trial, no hidden costs and no commitments.'),
+            'buttons': [
+                {
+                    'title': _('Workflow'),
+                    'link': _(''),
+                }, {
+                    'title': _('Get started'),
+                    'link': _(''),
+                    'classes': [
+                        'red'
+                    ]
                 }
             ]
         }
