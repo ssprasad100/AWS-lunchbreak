@@ -1,6 +1,14 @@
+from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import View
 from django.views.generic.base import TemplateResponseMixin
+
+language_flags = {
+    'nl-be': 'be',
+    'en': 'eu',
+    'fr': 'fr',
+    'en-us': 'us',
+}
 
 
 class PageView(View, TemplateResponseMixin):
@@ -32,6 +40,7 @@ class PageView(View, TemplateResponseMixin):
 
 
 class BasePage(PageView):
+
     context = {
         'title': _('Lunchbreak'),
         'description': _('This is a description.'),
@@ -75,7 +84,23 @@ class BasePage(PageView):
         'ipad': {
             'width': 1284,
             'height': 865
-        }
+        },
+
+        'languages': {
+            language[0]: {
+                'name': language[1],
+                'image': 'img/icons/flags/{code}.png'.format(
+                    code=language_flags[language[0]]
+                )
+            } for language in settings.LANGUAGES
+        },
+
+        'footer': [
+            {
+                'title': _('Terms'),
+                'url': _(''),
+            }
+        ]
     }
 
 
@@ -256,10 +281,10 @@ class IndexPage(BasePage):
             'buttons': [
                 {
                     'title': _('Workflow'),
-                    'link': _(''),
+                    'url': _(''),
                 }, {
                     'title': _('Get started'),
-                    'link': _(''),
+                    'url': _(''),
                     'classes': [
                         'red'
                     ]

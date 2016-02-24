@@ -2,6 +2,7 @@ from __future__ import absolute_import
 
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.core.urlresolvers import reverse
+from django.utils import translation
 from jinja2 import Environment
 
 
@@ -11,6 +12,7 @@ def environment(**options):
         {
             'static': staticfiles_storage.url,
             'url': reverse,
+            'lang_code': translation.get_language(),
         }
     )
     return env

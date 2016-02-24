@@ -1,5 +1,7 @@
 import os
 
+from django.utils.translation import ugettext_lazy as _
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 MEDIA_ROOT = os.path.normpath(os.path.join(BASE_DIR, 'media'))
 MEDIA_URL = '/media/'
@@ -57,7 +59,11 @@ PASSWORD_HASHERS = (
     'django.contrib.auth.hashers.SHA1PasswordHasher',
 )
 
-LANGUAGE_CODE = 'nl-be'
+LANGUAGE_CODE = 'en'
+LANGUAGES = [
+    ('nl-be', _('Belgium Dutch')),
+    ('en', _('Europe')),
+]
 TIME_ZONE = 'Europe/Brussels'
 USE_I18N = True  # Translate localisation
 USE_L10N = True  # Format localisation

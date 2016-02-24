@@ -1,0 +1,34 @@
+<div class="white box" id="footer">
+    <div class="split bundle">
+        <div class="footer-left">
+            <div class="anchor">
+                <div class="language-selector">
+                    {% set language = languages[lang_code] %}
+                    <img src="{{ language.image }}" {{ snippets.srcset(language.image, 2) }} alt="{{ language.name }}"/>
+                    <span>{{ language.name }}</span>
+                </div>
+                <div id="language-arrow" class="language-popover">
+                </div>
+            </div>
+            <div id="language-box" class="language-popover">
+                <div class="content">
+                    {% for code, language in languages.iteritems() -%}
+                        <span title="{{ language.name }}">
+                            <a class="language" lang="{{ code }}" href="{# {{ url(language.url) }} #}">
+                                <img src="{{ static(language.image) }}" {{ snippets.srcset(language.image, 2) }} alt="{{ language.name }}"/>
+                                <span>{{ language.name }}</span>
+                            </a>
+                        </span>
+                    {%- endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="footer-right">
+            <nav>
+                {% for foot in footer -%}
+                    <a href="{# {{ url(foot.url) }} #}">{{ foot.title }}</a>
+                {%- endfor %}
+            </nav>
+        </div>
+    </div>
+</div>

@@ -146,7 +146,7 @@
                 {% if button.classes is defined %}
                     {% set classes = classes ~ ' ' ~ ' '.join(button.classes) %}
                 {% endif %}
-                <a href="{# {{ url(button.link) }} #}" class="{{ classes }}">
+                <a href="{# {{ url(button.url) }} #}" class="{{ classes }}">
                     {{ button.title }}
                 </a>
             {%- endfor %}
