@@ -64,8 +64,7 @@ srcset="{% for size in range(1, size_amount + 2) -%}
     {% if button.id is defined %}
         {% set href = '#' ~ button.id %}
     {% else %}
-        {% set href = '' %}
-        {# {% set href = url(button.url) %} #}
+        {% set href = url(button.url) %}
     {% endif %}
 
     <a href="{{ href }}" class="{{ classes }}">

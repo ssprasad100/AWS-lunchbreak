@@ -41,7 +41,7 @@ class PageView(View, TemplateResponseMixin):
         )
 
 
-class BasePage(PageView):
+class Page(PageView):
     context = {
         'title': _('Lunchbreak'),
         'description': [
@@ -53,19 +53,15 @@ class BasePage(PageView):
             'items': [
                 {
                     'title': _('Home'),
-                    'url': '',
-                },
-                {
-                    'title': _('Workflow'),
-                    'url': '',
+                    'url': 'frontend-business',
                 },
                 {
                     'title': _('Pricing'),
-                    'url': '',
+                    'url': 'frontend-pricing',
                 },
                 {
                     'title': _('Free trial'),
-                    'url': '',
+                    'url': 'frontend-trial',
                 },
             ]
         },
@@ -92,13 +88,13 @@ class BasePage(PageView):
         'footer': [
             {
                 'title': _('Terms'),
-                'url': _(''),
+                'url': _('frontend-trial'),
             }
         ]
     }
 
 
-class BusinessPage(BasePage):
+class BusinessPage(Page):
     template_name = 'pages/business.html'
     context = {
         'header': {
@@ -108,6 +104,8 @@ class BusinessPage(BasePage):
                 'title': _('Customers'),
                 'url': 'frontend-customers',
             },
+
+            'menu': True,
 
             'title': _('Lunchbreak'),
             'description': [
@@ -124,7 +122,7 @@ class BusinessPage(BasePage):
                 },
                 {
                     'title': _('Free trial'),
-                    'id': 'TODO CHANGE TO URL TRIAL',
+                    'url': 'frontend-trial',
                     'classes': [
                         'red'
                     ]
@@ -301,15 +299,15 @@ class BusinessPage(BasePage):
             ]
         },
         'next': {
-            'title': _('Simple and fast food ordering'),
+            'title': _('Transparent pricing'),
             'subtitle': _('Free trial, no hidden costs and no commitments.'),
             'buttons': [
                 {
-                    'title': _('Workflow'),
-                    'url': _(''),
+                    'title': _('Explore options'),
+                    'url': 'frontend-pricing',
                 }, {
                     'title': _('Get started'),
-                    'url': _(''),
+                    'url': 'frontend-trial',
                     'classes': [
                         'red'
                     ]
@@ -319,7 +317,7 @@ class BusinessPage(BasePage):
     }
 
 
-class CustomersPage(BasePage):
+class CustomersPage(Page):
     template_name = 'pages/customers.html'
     context = {
         'header': {
@@ -480,4 +478,25 @@ class CustomersPage(BasePage):
                 'button': _('Subscribe'),
             },
         },
+    }
+
+
+class PricingPage(Page):
+    template_name = 'pages/pricing.html'
+    context = {
+
+    }
+
+
+class TrialPage(Page):
+    template_name = 'pages/trial.html'
+    context = {
+
+    }
+
+
+class TermsPage(Page):
+    template_name = 'pages/terms.html'
+    context = {
+
     }

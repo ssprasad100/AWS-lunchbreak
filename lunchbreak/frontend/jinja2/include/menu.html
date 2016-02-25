@@ -5,9 +5,9 @@
     <nav class="menu-items">
         {% for item in menu['items'] -%}
             {% if loop.last %}
-                <a {# href="{% url item.url %}" #} class="red button">{{ item.title }}</a>
+                <a href="{{ url(item.url) }}" class="red button">{{ item.title }}</a>
             {% else %}
-                <a {# href="{% url item.url %}" #} class="menu-item">{{ item.title }}</a>
+                <a href="{{ url(item.url) }}" class="menu-item">{{ item.title }}</a>
             {% endif %}
         {%- endfor %}
     </nav>
