@@ -1,7 +1,7 @@
-<a class="web-switch" {# href="{{ url('frontend-page-users') }}" #}>
-    {{ header.users }}
+<a class="web-switch" href="{{ url(header.web_switch.url) }}">
+    {{ header.web_switch.title }}
 </a>
-<div class="background business">
+<div class="background {{ header.background | default('') }}">
     <div id="header" class="black-cover light-content">
 
         {% include 'include/menu.html' %}
@@ -13,15 +13,12 @@
                     <div id="logo">
                         <h1>{{ header.title }}</h1></div>
                     <div class="text">
-                        <p>{{ header.description }}</p>
+                        {% for paragraph in header.description -%}
+                            <p>{{ paragraph }}</p>
+                        {%- endfor %}
                     </div>
                     <p>
-                        <a href="{{ info_id }}" class="white button">
-                            {{ header.button_info }}
-                        </a>
-                        <a {# href="{{ url('frontend-page-trial') }}" #} class="red button">
-                            {{ header.button_trial }}
-                        </a>
+                        {{ snippets.buttons(header.buttons) }}
                     </p>
                 </div>
             </div>

@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% include 'include/header.html' %}
+
+{{ snippets.render_advantages(advantages) }}
+
+<div class="white box" id="rondleiding">
+    <div class="split bundle">
+        <div class="onlydesktop first combo">
+            <div class="iphone">
+                <video id="video" loop="loop" muted="muted" poster="{{ static(features.video.poster) }}">
+                    {% for source in features.video.sources -%}
+                        <source src="{{ static(source.src) }}" type="{{ source.type }}">
+                    {%- endfor %}
+                    <img src="{{ static(features.video.placeholder.image) }}" alt="{{ features.video.placeholder.alt }}" />
+                </video>
+            </div>
+        </div>
+        <div class="second combo">
+            <div>
+                <h2>{{ features.title }}</h2>
+                {% for checkbox in features.checkboxes %}
+                    <div class="list-item">{{ checkbox }}</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="centered gray box">
+    <h2>{{ steps.title }}</h2>
+    <div class="center bundle">
+        <div class="combo">
+            <div class="step one">
+                <p>{{ steps.one.small}}</p>
+                <h3>{{ steps.one.big}}</h3>
+            </div>
+            <div class="step two">
+                <p>{{ steps.two.small}}</p>
+                <h3>{{ steps.two.big}}</h3>
+            </div>
+        </div>
+        <div class="combo">
+            <div class="step three">
+                <p>{{ steps.three.small}}</p>
+                <h3>{{ steps.three.big}}</h3>
+            </div>
+
+            <div class="step four">
+                <p>{{ steps.four.small}}</p>
+                <h3>{{ steps.four.big}}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="white box" id="{{ download.id }}">
+    <div class="center text bundle">
+        <h2>{{ download.title }}</h2>
+        <p>{{ download.text }}</p>
+        <div id="stores">
+            <a href="https://itunes.apple.com/app/id949238693" class="appstore" >
+                <img src="{{ static(download.ios.image) }}" alt="{{ download.ios.alt }}"/>
+            </a>
+            <a href="https://play.google.com/store/apps/details?id=be.lunchbreakapp.lunchbreak" class="appstore" >
+                <img src="{{ static(download.android.image) }}" alt="{{ download.android.alt }}"/>
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="white box" id="last-part">
+    <div class="split bundle">
+        <div class="spaced center first combo">
+            <div class="item">
+                <img src="{{ static(last.follow.twitter.image) }}" alt="{{ last.follow.twitter.title }}"/>
+                <h3>{{ last.follow.text.follow }} <a href="{{ last.follow.facebook.url }}">{{ last.follow.facebook.title }}</a> {{ last.follow.text.and }} <a href="{{ last.follow.twitter.url }}">{{ last.follow.twitter.title }}</a>.</h3>
+                <h2><a href="{{ last.follow.twitter.url }}">{{ last.follow.twitter.username }}</a></h2>
+            </div>
+        </div>
+        <div class="second combo">
+            <div class="justified centered item">
+                <h2>{{ last.subscribe.title }}</h2>
+                <p>{{ last.subscribe.text }}</p>
+                <form class="center" action="https://www.cloock.be/lunchbreak" method="POST">
+                    <input class="text" type="email" name="mail" value="" placeholder="{{ last.subscribe.email }}"/>
+                    <input type="text" name="name" value="" placeholder="Niet invullen" class="input_hid"/>
+                    <input type="submit" class="red button" value="{{ last.subscribe.button }}">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

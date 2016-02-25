@@ -1,3 +1,4 @@
+{# srcset #}
 {%- macro srcset(file, size_amount) -%}
 
 {% set name = file.split('.')[:-1][0] %}
@@ -13,3 +14,62 @@ srcset="{% for size in range(1, size_amount + 2) -%}
 {%- endfor %}"
 
 {%- endmacro -%}
+
+{# advantages #}
+{% macro render_advantage(slide) %}
+ <div class="advantage">
+    <div class="image">
+        <img src="{{ static(slide.image) }}" {{ srcset(slide.image, 3) }} alt="List"/>
+    </div>
+    <div class="content">
+        <div>
+            <h3>{{ slide.title }}</h3>
+            <p>{{ slide.description }}</p>
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+{% macro render_advantages(advantages) %}
+<div class="gray box" id="{{ advantages.id }}">
+    <h2 class="center">{{ advantages.title }}</h2>
+    <div class="split nopadding bundle">
+        <div class="first combo">
+            {% for slide in advantages.slideshow -%}
+                {% if loop.index is even %}
+                    {{ render_advantage(slide) }}
+                {% endif %}
+            {%- endfor %}
+        </div>
+        <div class="second combo">
+            {% for slide in advantages.slideshow -%}
+                {% if loop.index is odd %}
+                    {{ render_advantage(slide) }}
+                {% endif %}
+            {%- endfor %}
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+
+{# buttons #}
+{% macro buttons(buttons) %}
+{% for button in buttons -%}
+    {% set classes = 'button' %}
+    {% if button.classes is defined %}
+        {% set classes = classes ~ ' ' ~ ' '.join(button.classes) %}
+    {% endif %}
+
+    {% if button.id is defined %}
+        {% set href = '#' ~ button.id %}
+    {% else %}
+        {% set href = '' %}
+        {# {% set href = url(button.url) %} #}
+    {% endif %}
+
+    <a href="{{ href }}" class="{{ classes }}">
+        {{ button.title }}
+    </a>
+{%- endfor %}
+{% endmacro %}

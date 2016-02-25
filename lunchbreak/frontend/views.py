@@ -1,3 +1,5 @@
+import json
+
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import View
@@ -40,20 +42,11 @@ class PageView(View, TemplateResponseMixin):
 
 
 class BasePage(PageView):
-
     context = {
         'title': _('Lunchbreak'),
-        'description': _('This is a description.'),
-
-        'header': {
-            'users': _('Users'),
-
-            'title': _('Lunchbreak'),
-            'description': _('Online ordering tailored to your business'),
-
-            'button_info': _('Learn more'),
-            'button_trial': _('Free trial'),
-        },
+        'description': [
+            _('This is a description.'),
+        ],
 
         'menu': {
             'background': 'transparent',
@@ -105,10 +98,41 @@ class BasePage(PageView):
     }
 
 
-class IndexPage(BasePage):
-    template_name = 'pages/index.html'
+class BusinessPage(BasePage):
+    template_name = 'pages/business.html'
     context = {
+        'header': {
+            'background': 'business',
+
+            'web_switch': {
+                'title': _('Customers'),
+                'url': 'frontend-customers',
+            },
+
+            'title': _('Lunchbreak'),
+            'description': [
+                _('Online ordering tailored to your business')
+            ],
+
+            'buttons': [
+                {
+                    'title': _('Learn more'),
+                    'id': 'advantages',
+                    'classes': [
+                        'white'
+                    ]
+                },
+                {
+                    'title': _('Free trial'),
+                    'id': 'TODO CHANGE TO URL TRIAL',
+                    'classes': [
+                        'red'
+                    ]
+                }
+            ],
+        },
         'advantages': {
+            'id': 'advantages',
             'title': _('Why Lunchbreak?'),
             'slideshow': [
                 {
@@ -292,4 +316,168 @@ class IndexPage(BasePage):
                 }
             ]
         }
+    }
+
+
+class CustomersPage(BasePage):
+    template_name = 'pages/customers.html'
+    context = {
+        'header': {
+            'web_switch': {
+                'title': _('Business'),
+                'url': 'frontend-business',
+            },
+
+            'title': _('Lunchbreak'),
+            'description': [
+                _('Personalised online food ordering'),
+                _('Order anywhere, anytime using your smartphone'),
+            ],
+
+            'buttons': [
+                {
+                    'title': _('Learn more'),
+                    'id': 'advantages',
+                    'classes': [
+                        'white'
+                    ]
+                },
+                {
+                    'title': _('Download'),
+                    'id': 'download',
+                    'classes': [
+                        'red'
+                    ]
+                }
+            ],
+        },
+        'advantages': {
+            'id': 'advantages',
+            'title': _('Easy for everyone'),
+            'slideshow': [
+                {
+                    'title': _('Save time'),
+                    'description': _('Order in advance and skip the queue '
+                                     'because your order is already waiting.'),
+                    'image': 'img/advantages/clock.png',
+                },
+                {
+                    'title': _('Order anywhere, anytime'),
+                    'description': _('Order during class, at your job or in '
+                                     'your sofa, anytime and wherever you are.'),
+                    'image': 'img/advantages/map.png',
+                },
+                {
+                    'title': _('Easy pickup'),
+                    'description': _('Receive a notification when your order '
+                                     'is ready and lose not time picking your '
+                                     'order up.'),
+                    'image': 'img/advantages/bike.png',
+                },
+                {
+                    'title': _('Secure and no password'),
+                    'description': _('Log in once using your mobile phone, '
+                                     'that\'s it! No more passwords!'),
+                    'image': 'img/advantages/lock.png',
+                },
+                {
+                    'title': _('Always in stock'),
+                    'description': _('Pickup at anytime, we have already put '
+                                     'it aside for you. No hassle.'),
+                    'image': 'img/advantages/list.png',
+                },
+                {
+                    'title': _('Local quality'),
+                    'description': _('Solely quality nearby stores are '
+                                     'displayed in the app. Only the best.'),
+                    'image': 'img/advantages/store.png',
+                },
+            ]
+        },
+        'features': {
+            'title': _('App features'),
+            'checkboxes': [
+                _('No passwords'),
+                _('One-time login'),
+                _('Order personalisation'),
+                _('Piece of cake, literally!'),
+                _('Get notified of your order'),
+            ],
+            'video': {
+                'poster': _('img/video/en/iphone/poster.png'),
+                'placeholder': {
+                    'image': _('img/video/en/iphone/poster.png'),
+                    'alt': _('Lunchbreak home screen'),
+                },
+                'sources': [
+                    {
+                        'src': _('img/video/en/iphone/video.mp4'),
+                        'type': 'video/mp4'
+                    }
+                ]
+            }
+        },
+        'steps': {
+            'title': _('Ordering process'),
+            'one': {
+                'small': _('Store'),
+                'big': _('Selection')
+            },
+            'two': {
+                'small': _('Order'),
+                'big': _('Placement')
+            },
+            'three': {
+                'small': _('Pickup'),
+                'big': _('Planning')
+            },
+            'four': {
+                'small': _('Order'),
+                'big': _('Pickup')
+            },
+        },
+
+        'download': {
+            'id': 'download',
+            'title': _('Download'),
+            'text': _('Available for free in the Apple App Store and in the '
+                      'Google Play Store.'),
+            'ios': {
+                'image': _('img/stores/nl-be/ios.png'),
+                'alt': _('Apple App Store'),
+            },
+            'android': {
+                'image': _('img/stores/nl-be/android.png'),
+                'alt': _('Google Play Store'),
+            },
+        },
+
+
+        'last': {
+            'follow': {
+                'facebook': {
+                    'title': 'Facebook',
+                    'url': 'https://www.facebook.com/lunchbreakapp'
+                },
+                'twitter': {
+                    'title': 'Twitter',
+                    'url': 'https://twitter.com/LunchbreakApp',
+                    'username': '@LunchbreakApp',
+                    'image': 'img/social/twitter-heading.png',
+                },
+                'text': {
+                    'follow': _('Follow us on '),
+                    'and': _('and'),
+                }
+            },
+            'subscribe': {
+                'title': _('Newsletter'),
+                'text': _('Want to know when Lunchbreak opens a store near '
+                          'you? Want to be the first one to get to know the '
+                          'new features of Lunchbreak. Signup for the '
+                          'newsletter and be part of the exclusive club!'),
+                'email': _('john@example.com'),
+                'button': _('Subscribe'),
+            },
+        },
     }
