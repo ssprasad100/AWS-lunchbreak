@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% include 'include/menu.html' %}
+
+<div class="gray box">
+    <div class="center text bundle">
+        <h1 style="margin-bottom: 0;">{{ pricing.title }}</h1>
+        <h2>{{ pricing.subtitle }}</h2>
+
+        {% for plan in pricing.plans -%}
+            <div class="center text bundle price-box">
+                <a class="nolink" href="{{ url(plan.button.url) }}">
+                    <h2>{{ plan.title }}</h2>
+                </a>
+                <p class="price">{{ plan.description }}</p>
+
+                <div class="unsplit-center-bundle-container">
+                    <div class="unsplit-center-bundle">
+                        {% for checkbox in plan.checkboxes %}
+                             <div class="list-item">{{ checkbox }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <a class="red button" href="{{ url(plan.button.url) }}">
+                    {{ plan.button.text }}
+                </a>
+            </div>
+        {%- endfor %}
+    </div>
+</div>
+
+{% endblock %}

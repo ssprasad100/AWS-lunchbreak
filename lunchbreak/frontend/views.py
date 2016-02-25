@@ -1,3 +1,4 @@
+import collections
 import json
 
 from django.conf import settings
@@ -19,20 +20,41 @@ class PageView(View, TemplateResponseMixin):
 
     def __new__(cls):
         self = super(PageView, cls).__new__(cls)
-        self.update_context()
+        cls.context = self.update_context()
         return self
 
     @classmethod
+    def update(cls, default, new):
+        for key, value in new.iteritems():
+            if isinstance(value, collections.Mapping):
+                default[key] = cls.update(
+                    default.get(
+                        key, {}
+                    ),
+                    value
+                )
+            else:
+                default[key] = new[key]
+        return default
+
+    @classmethod
     def update_context(cls):
-        if not hasattr(cls, 'context') or cls.context is None:
-            cls.context = {}
+        context = {}
 
         for base in cls.__bases__:
             if hasattr(base, 'update_context'):
-                cls.context.update(
+                cls.update(
+                    context,
                     base.update_context()
                 )
-        return cls.context
+
+        if hasattr(cls, 'context') and cls.context is not None:
+            cls.update(
+                context,
+                cls.context
+            )
+
+        return context
 
     def get(self, request, *args, **kwargs):
         return self.render_to_response(
@@ -50,7 +72,7 @@ class Page(PageView):
 
         'menu': {
             'background': 'transparent',
-            'items': [
+            'links': [
                 {
                     'title': _('Home'),
                     'url': 'frontend-business',
@@ -64,10 +86,6 @@ class Page(PageView):
                     'url': 'frontend-trial',
                 },
             ]
-        },
-
-        'ids': {
-            'info_id': 'more-info'
         },
 
         'ipad': {
@@ -484,7 +502,33 @@ class CustomersPage(Page):
 class PricingPage(Page):
     template_name = 'pages/pricing.html'
     context = {
+        'title': _('Lunchbreak: Pricing'),
+        'description': _('Start receiving orders online via Lunchbreak now for free!'),
 
+        'menu': {
+            'background': 'white'
+        },
+
+        'pricing': {
+            'title': _('Pricing'),
+            'subtitle': _('Try Lunchbreak for free'),
+            'plans': [
+                {
+                    'title': _('Featured plan'),
+                    'description': _('1 month trial'),
+                    'checkboxes': [
+                        _('Free installation'),
+                        _('Edit your offerings on the fly'),
+                        _('Receive online orders immediately'),
+                        _('Realtime customer analysis')
+                    ],
+                    'button': {
+                        'url': 'frontend-trial',
+                        'text': _('Free trial')
+                    }
+                }
+            ]
+        }
     }
 
 
