@@ -17,16 +17,22 @@
 <meta name="apple-itunes-app" content="app-id=949238693">
 <meta name="twitter:creator" content="@LunchbreakApp">
 
-{% for language in languages -%}
-    {% if language != current_language %}
-        <link rel="alternate" hreflang="{{ language.tag }}" href="{{ language.url }}" />
-    {% endif %}
+{% for code, language in languages.iteritems() -%}
+    {% if code != current_language -%}
+        <link rel="alternate" hreflang="{{ code }}" href="{{ language.url }}" />
+    {%- endif %}
 {%- endfor %}
 
 <link type="text/css" rel="stylesheet" href="{% sass_src 'style.scss' %}">
 <link rel="shortcut icon" href="{{ static('img/favicon.ico') }}">
 
-<script src="{{ static('js/main.min.js') }}" type="text/javascript"></script>
+{% compress js %}
+<script type="text/javascript" src="{{ static('js/include/jquery-1.11.3.js') }}"></script>
+<script type="text/javascript" src="{{ static('js/include/jquery.placeholder.js') }}"></script>
+<script type="text/javascript" src="{{ static('js/include/photoswipe.min.js') }}"></script>
+<script type="text/javascript" src="{{ static('js/include/photoswipe-ui-default.min.js') }}"></script>
+<script type="text/javascript" src="{{ static('js/main.js') }}"></script>
+{% endcompress %}
 
 <!--[if lt IE 9]>
 <script type="text/javascript" src="http://www.cloock.be/js/html5shiv.js"></script>

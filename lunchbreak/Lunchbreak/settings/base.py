@@ -28,6 +28,8 @@ INSTALLED_APPS = (
     'rest_framework',
     'opbeat.contrib.django',
     'private_media',
+
+    'compressor',
     'sass_processor',
 
     'imagekit',
@@ -104,10 +106,13 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'frontend/static'),
     os.path.join(BASE_DIR, 'frontend/scss')
 ]
+COMPRESS_ROOT = os.path.join(BASE_DIR, 'frontend/static')
 SASS_PROCESSOR_ROOT = os.path.join(BASE_DIR, 'frontend/static/css')
+COMPRESS_ENABLED = True
 STATICFILES_FINDERS = [
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'compressor.finders.CompressorFinder',
     'sass_processor.finders.CssFinder',
 ]
 

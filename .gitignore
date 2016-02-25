@@ -1,7 +1,8 @@
 # Paw
 *.paw
-/static/
-static/css
+lunchbreak/static/
+lunchbreak/frontend/static/css
+lunchbreak/frontend/static/CACHE
 
 # Certificates
 salt/synced/salt/keys

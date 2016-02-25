@@ -91,7 +91,8 @@ class BasePage(PageView):
                 'name': language[1],
                 'image': 'img/icons/flags/{code}.png'.format(
                     code=language_flags[language[0]]
-                )
+                ),
+                'url': '',
             } for language in settings.LANGUAGES
         },
 
@@ -250,7 +251,7 @@ class IndexPage(BasePage):
                                 'for that too.')
                 },
                 {
-                    'question': _('Will this work for my &lt;insert business type here&gt;?'),
+                    'question': _('Will this work for my <insert business type here>?'),
                     'answer': _('We designed Lunchbreak in order to work for '
                                 'every single type of store on the planet! '
                                 'Contact us if we missed something and we '
