@@ -27,3 +27,4 @@ pilkit==1.1.13
 pillow==2.9.0
 -e git+git://github.com/RacingTadpole/django-private-media.git@7510f2f63ddf0653679b4134a0542cd78317a5c8#egg=django-private-media
 uwsgidecorators==1.1.0
+-e git+git://github.com/AndreasBackx/django-sass-processor.git@7863c560851b0b1fe7c43795025f8b56a33762c7#egg=django-sass-processor

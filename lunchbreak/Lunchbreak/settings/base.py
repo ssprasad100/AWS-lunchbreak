@@ -28,6 +28,7 @@ INSTALLED_APPS = (
     'rest_framework',
     'opbeat.contrib.django',
     'private_media',
+    'sass_processor',
 
     'imagekit',
     'polaroid',
@@ -97,10 +98,17 @@ DATETIME_INPUT_FORMATS = (
 )
 
 STATIC_RELATIVE = '/static/'
-STATIC_ROOT = BASE_DIR + STATIC_RELATIVE
+STATIC_ROOT = os.path.join(BASE_DIR, STATIC_RELATIVE)
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'frontend/static')
+    os.path.join(BASE_DIR, 'frontend/static'),
+    os.path.join(BASE_DIR, 'frontend/scss')
+]
+SASS_PROCESSOR_ROOT = os.path.join(BASE_DIR, 'frontend/static/css')
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'sass_processor.finders.CssFinder',
 ]
 
 TEMPLATES = [

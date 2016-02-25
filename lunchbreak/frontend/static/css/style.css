@@ -1,1 +1,2205 @@
-@import url(photoswipe.css);@import url(../javascript/photoswipe/default-skin/default-skin.css);#footer a,#footer a:link,#footer a:visited,#footer a:focus,#footer a:hover,#footer a:active{color:inherit;text-decoration:none}#footer{background:white;border-top:2px solid #e8e8e8;padding:20px 0;font-size:12pt;font-weight:400;color:#969696;overflow:visible}#footer .language-selector{cursor:pointer;padding:7px 10px;padding-right:30px;background:url("../img/icons/dropdown.png") no-repeat right center}#footer .language-selector:hover{background-color:#f7f7f7;border-radius:3px;color:#464646}#footer .language-selector span{vertical-align:middle}#footer .language-selector img{vertical-align:middle;margin-right:15px}#footer nav a{margin:0 10px}#footer nav a:hover{color:#464646}#footer .combo.second{text-align:right}#footer .anchor{vertical-align:middle;display:inline-block;position:relative}#footer .bundle{display:table;width:900px;margin:0 auto}.footer-left{display:table-cell;vertical-align:middle;position:relative}.footer-right{display:table-cell;vertical-align:middle;text-align:right}#language-arrow{margin:0 auto;position:absolute;bottom:30px;height:20px;width:40px;right:4px;z-index:1;background:gray;background:url("../img/icons/popover-arrow.png") no-repeat right top}.language-popover{display:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;-o-user-select:none;user-select:none}#language-box{max-width:250px;position:absolute;bottom:48px;left:10px;right:10px;z-index:0}#language-box .content{background:white;border-radius:4px;border:2px solid #e8e8e8;padding:10px}#language-box .content a.language{cursor:pointer;display:block;padding:10px 20px;padding-right:30px}#language-box .content a.language:hover{background-color:#f7f7f7;border-radius:3px;color:#464646}#language-box .content a.language span{vertical-align:middle}#language-box .content a.language img{vertical-align:middle;margin-right:15px}@media screen and (max-width: 900px){#footer .bundle{width:100%}.footer-left{padding-left:20px}.footer-right{padding-right:20px}}@media screen and (max-width: 600px){#footer .bundle{width:auto;display:block}.footer-left,.footer-right{text-align:left;display:block;padding:5px 20px}.footer-right{padding-top:10px}.footer-left{padding:0px 20px}}a,img{border:none;outline:none}#terms-header{font-size:25pt;margin:0;padding:10px;font-weight:300;text-align:center;background:#F7F7F7;color:#464646}a,a:link,a:visited,a:focus,a:hover,a:active{color:#FF3030;text-decoration:none}a:hover{color:#FF3030;text-decoration:underline}a.button:hover{text-decoration:none}a.nolink,a.nolink:link,a.nolink:visited,a.nolink:focus,a.nolink:hover,a.nolink:active{color:inherit;text-decoration:none}a.dashed,a.dashed:link,a.dashed:visited,a.dashed:focus,a.dashed:hover,a.dashed:active{color:inherit;text-decoration:none;border-bottom:1px dashed white}a.menu-logo,a.menu-logo:link,a.menu-logo:visited,a.menu-logo:focus,a.menu-logo:hover,a.menu-logo:active{color:inherit;text-decoration:none}*{font-family:"Helvetica Neue", Roboto, Helvetica, Arial}body,html{margin:0;padding:0;width:100%;height:100%;font-weight:normal;-webkit-font-smoothing:antialiased;color:#686868;font-size:14pt;font-weight:300}p{font-weight:normal;line-height:125%;font-size:12pt;margin:10px 0;-webkit-text-size-adjust:100%}p .button{line-height:normal}h1{color:#464646;font-weight:300;margin-bottom:40px;-webkit-text-size-adjust:100%;font-size:34pt}#logo h1{padding:0;margin:0}h2{color:#464646;font-weight:300;font-size:22pt;margin-bottom:40px;-webkit-text-size-adjust:100%}h3{font-weight:300;font-size:18pt;color:#464646;-webkit-text-size-adjust:100%}.light-content h1,.light-content h2,.light-content h3,.light-content p,.light-content .button{color:white}.fullscreen-image{margin:40px 0;max-width:100%}.web-switch,.web-switch:link,.web-switch:hover,.web-switch:visited,.web-switch:active{position:absolute;left:20px;top:0;display:block;height:40px;line-height:40px;padding:15px 10px 15px 30px;background:url("../img/icons/back.png") no-repeat left center;background-size:13px 20px;color:white;text-decoration:none;z-index:6;font-weight:normal;font-size:12pt}.menu{position:fixed;left:0;right:0;top:0;z-index:5;display:table;width:100%;text-align:left}.menu-placeholder{height:40px}.menu.white{background:white;border-bottom:2px solid #e8e8e8;z-index:7}.next.box{position:relative;display:block}.menu-logo{display:table-cell;vertical-align:middle;color:#4C4C4C;font-size:14pt}.menu-logo div{background:url("../img/logo/menu.png") no-repeat left center;background-size:40px 40px;height:40px;line-height:40px;margin:15px 20px;padding-left:60px}#header .menu-logo{visibility:hidden}.menu.transparent .menu-logo{color:white}.menu-logo img{vertical-align:middle;margin:15px 20px}.menu-items{display:table-cell;vertical-align:middle;text-align:right}.menu.transparent a.menu-item,.menu.transparent a.menu-item:hover,.menu.transparent a.menu-item:link,.menu.transparent a.menu-item:visited{color:white}a.menu-item,a.menu-item:hover,a.menu-item:link,a.menu-item:visited{text-decoration:none;margin:10px 5px;padding:7px 12px;display:inline-block;vertical-align:middle;font-weight:normal;font-size:12pt}a.menu-item:hover{background:#ececec;border-radius:3px;color:#fd0000}.menu .button{font-size:12pt}.menu.transparent a.menu-item:hover,#smartphone-menu a.menu-item:hover{color:white;background-color:rgba(0,0,0,0.3)}.menu-items .button{margin-right:20px}.background{background:url("../img/wallpapers/users.min.jpg") no-repeat top center;background-size:cover;-webkit-background-size:cover;-moz-background-size:cover;filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='../img/wallpapers/users.min.jpg', sizingMethod='scale');-ms-filter:"progid:DXImageTransform.Microsoft.AlphaImageLoader(src='../img/wallpapers/users.min.jpg', sizingMethod='scale')"}.background.business{background:url("../img/wallpapers/business.min.jpg") no-repeat center center;background-size:cover;-webkit-background-size:cover;-moz-background-size:cover;filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='../img/wallpapers/business.min.jpg', sizingMethod='scale');-ms-filter:"progid:DXImageTransform.Microsoft.AlphaImageLoader(src='../img/wallpapers/business.min.jpg', sizingMethod='scale')"}#header{position:relative;padding:0px 20px;text-align:center}.black-cover{background:rgba(0,0,0,0.2);filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#32000000,endColorstr=#32000000);zoom:1}.shadow.long{height:120px}.shadow{height:20px;position:absolute;bottom:0px;left:0px;right:0px;background-image:-webkit-gradient(linear, left top, left bottom, from(transparent), to(rgba(0,0,0,0.2)));background-image:-webkit-linear-gradient(top, transparent, rgba(0,0,0,0.2));background-image:-moz-linear-gradient(top, transparent, rgba(0,0,0,0.2));background-image:-ms-linear-gradient(top, transparent, rgba(0,0,0,0.2));background-image:-o-linear-gradient(top, transparent, rgba(0,0,0,0.2));background-image:linear-gradient(top, transparent, rgba(0,0,0,0.2));filter:progid:DXImageTransform.Microsoft.gradient(startColorStr="#00000000", EndColorStr="#33000000");zoom:1}.shadow.inverted{top:0px;bottom:auto;background-image:-webkit-gradient(linear, left top, left bottom, from(rgba(0,0,0,0.2)), to(transparent));background-image:-webkit-linear-gradient(top, rgba(0,0,0,0.2), transparent);background-image:-moz-linear-gradient(top, rgba(0,0,0,0.2), transparent);background-image:-ms-linear-gradient(top, rgba(0,0,0,0.2), transparent);background-image:-o-linear-gradient(top, rgba(0,0,0,0.2), transparent);background-image:linear-gradient(top, rgba(0,0,0,0.2), transparent);filter:progid:DXImageTransform.Microsoft.gradient(startColorStr="#33000000", EndColorStr="#00000000");zoom:1}.seethrough{padding:25px 20px;position:relative}#header .center-table{position:relative}#header-content{padding:100px 0}#header-background{position:absolute;left:0;right:0;top:0;bottom:0;background-image:-webkit-gradient(linear, left top, left bottom, from(transparent), to(rgba(0,0,0,0.5)));background-image:-webkit-linear-gradient(top, transparent, rgba(0,0,0,0.5));background-image:-moz-linear-gradient(top, transparent, rgba(0,0,0,0.5));background-image:-ms-linear-gradient(top, transparent, rgba(0,0,0,0.5));background-image:-o-linear-gradient(top, transparent, rgba(0,0,0,0.5));background-image:linear-gradient(top, transparent, rgba(0,0,0,0.5));filter:progid:DXImageTransform.Microsoft.gradient(startColorStr="#00000000", EndColorStr="#80000000");zoom:1}.center-table{display:table;width:100%;height:100%}.centered-content{display:table-cell;vertical-align:middle;width:100%}#logo{padding-top:200px;width:100%;background:url("../img/logo/header.png") no-repeat top center;margin-bottom:0px}#header .text{max-width:700px;margin:0 auto;padding:50px 0 10px 0;font-size:13pt;font-weight:normal}#header .text p{font-size:13pt;font-weight:normal}#scroll-hint{position:absolute;bottom:20px;left:0px;right:0px;height:12px;background:url("../img/icons/scroll-hint.png") no-repeat center center;color:rgba(0,0,0,0.5)}.button,.button:link,.button:active,.button:visited{text-decoration:none}.button{padding:8px 22px;border-width:1px;border-style:solid;border-radius:5px;margin:10px;display:inline-block;color:#FF3030;font-size:14pt;font-weight:normal;cursor:pointer;border-color:#FF3030;text-align:center}input.button{margin:10px auto;display:inline;-webkit-appearance:none;width:auto}.gray.button{border-color:#686868;color:#686868}.white.button,.light-content .button,.light-content .red.button{border-color:white;color:white;background:none}.red.button,#header-content .red.button{border-color:#FF3030;background:#FF3030;color:white}.white.box{background:white}.gray.box{background:#F7F7F7;color:#464646}.box{padding:75px 0px;overflow:hidden}.small.box{padding:20px 0px}.centered h1,.centered h2{text-align:center}.justified p{text-align:justify}.box .bundle{padding:0 20px}.box .nopadding.bundle{padding:0}.center{text-align:center}.combo{display:inline-block}.spaced.combo,.split.bundle .spaced.combo{padding:50px 0}.text.bundle{width:700px;margin:0 auto}.small.bundle{width:500px;margin:0 auto}.split.bundle{width:900px;margin:0 auto;display:table;padding:0}.small.split.bundle{width:700px}.split.bundle .combo{padding:25px 0px;width:50%;display:table-cell;vertical-align:middle}.split.bundle .first.combo{padding-left:20px}.split.bundle .second.combo{padding-right:20px}.split.bundle .first.combo .item{padding-right:50px}.split.bundle .second.combo .item{padding-left:50px}.small.split.bundle .first.combo .item{padding-right:10px}.small.split.bundle .second.combo .item{padding-left:10px}.border.split.bundle .second.combo{border-left:1px solid #F7F7F7}.center-bundle-container{text-align:center}.center-bundle{display:inline-block;text-align:left}.list-item{background:url("../img/icons/checkmark.png") no-repeat left center;padding:15px 0 9px 50px;font-weight:300;-webkit-text-size-adjust:100%;text-align:left}.ipad{width:512px;height:384px;padding:25px 65px 24px 65px;background:url("../img/mockups/ipad.png") no-repeat left top;background-size:642px 433px;overflow:hidden;position:relative;margin:40px auto}.iphone{width:240px;height:426px;padding:89px 30px 87px 32px;background:url("../img/mockups/iphone.png") no-repeat left top;background-size:302px 602px;position:relative}.iphone video{position:relative;width:100%;height:100%;background:transparent}.iphone img,.ipad img{width:100%;height:100%}.slideshow .view{position:relative;width:100%;height:100%}.slideshow .ipad .view{cursor:zoom-in}.slideshow .view img{position:absolute;left:0;top:0;width:100%;height:100%}.slideshow .view img{position:absolute}.slideshow .controls{text-align:center}.controls.iphonesize{padding-top:40px;width:302px}.slideshow .controls div{width:15px;height:15px;background:url("../img/slideshow/control.png") no-repeat center center;background-size:11px 11px;margin:10px;display:inline-block;cursor:pointer}.slideshow .controls div img{display:none;visibility:hidden}.slideshow .controls div.selected{background-image:url("../img/slideshow/control-selected.png")}.box .bundle.price-box{border:4px solid #e8e8e8;padding:20px 40px;margin:50px auto;border-radius:5px;background:white;max-width:250px}.price-box a h2{padding-bottom:0;margin-bottom:0}.price-box .price{color:#FF3030}.price-box .unsplit-center-bundle-container{margin:20px 0}#terms-short div{max-width:700px;display:block;margin:0 auto;padding:0}#terms-container{max-width:700px;text-align:justify;margin:0 auto}#terms-container h1{text-align:center}.step{background-repeat:no-repeat;background-position:center top;margin-top:60px;width:200px;display:inline-block;padding:150px 20px 20px 20px}.step.one{background-image:url("../img/steps/shop.png")}.step.two{background-image:url("../img/steps/order.png")}.step.three{background-image:url("../img/steps/time.png")}.step.four{background-image:url("../img/steps/bike.png")}.step p{font-size:16pt;font-weight:300;padding:0;margin:0}.step h3{font-size:26pt;color:#FF3030;font-weight:300;margin:0;padding:0}.advantage{padding:20px 20px 20px 0;display:table}.advantage h3{margin:0}.advantage .content{display:table-cell;vertical-align:middle}.advantage .image{width:89px;padding-right:20px;text-align:center;display:table-cell;vertical-align:middle}.store{border-left:2px solid #C9C9C9;padding:10px 20px;margin:10px 0}.store.soon{border-left:2px dashed #C9C9C9}.store h3{color:#FF3030;padding:0;margin:0 0 5px 0;font-size:14pt;font-weight:normal}.store.search{margin:0;padding:5px 20px}.store.search h2{color:inherit;font-size:18pt}.store p{margin:0;padding:0}.store p.location{font-size:10pt;margin-bottom:10px}.store-add{font-size:14pt;font-weight:300;color:#FF3030;margin:0;padding:0 0 10px 0;text-align:left;background:transparent;border-radius:0;cursor:pointer;display:inline;width:auto}.store-add:hover{text-decoration:underline}p.more{text-align:center;font-size:12pt;margin-top:40px}.clear{clear:both}#stores{padding-top:40px}.appstore{margin:0 10px;display:inline-block}#partners{background:#F7F7F7;color:#464646;text-align:center;line-height:200px;padding:0px 20px}.partner,.partner:link,.partner:visited,.partner:active{margin:0 50px;vertical-align:middle;border:0;outline:none}.align-center{text-align:center}input{background:transparent;border:0;display:block;outline:none}input.text{padding:8px 22px;border-width:1px;border-style:solid;border-radius:5px;margin:20px 0;display:block;color:#686868;font-size:14pt;font-weight:normal;outline:none;border-color:#686868;border:0;width:100%;text-align:center;box-sizing:border-box;background:#f7f7f7}.placeholder,::-webkit-input-placeholder,::-moz-placeholder,:-ms-input-placeholder,input:-moz-placeholder{color:#909090;font-size:14pt;font-weight:normal}.input_hid{display:none;visibility:hidden;opacity:0}.google-map-box{height:250px}.google-map{width:100%;height:100%;left:0;right:0;top:0;bottom:0;border:0}@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi){.step.one{background-image:url("../img/steps/shop_2x.png");background-size:94px 89px}.step.two{background-image:url("../img/steps/order_2x.png");background-size:78px 100px}.step.three{background-image:url("../img/steps/time_2x.png");background-size:111px 111px}.step.four{background-image:url("../img/steps/bike_2x.png");background-size:181px 106px}.list-item{background-image:url("../img/icons/checkmark_2x.png");background-size:37px 34px}#logo{background-image:url("../img/logo/header_2x.png");background-size:180px 180px}#scroll-hint{background-image:url("../img/icons/scroll-hint_2x.png");background-size:19px 13px}.menu-logo div{background-image:url("../img/logo/menu_2x.png")}.ipad{background-image:url("../img/mockups/ipad_2x.png")}.slideshow .controls div{background-image:url("../img/slideshow/control_2x.png")}.slideshow .controls div.selected{background-image:url("../img/slideshow/control-selected_2x.png")}#smartphone-menu .close{background-image:url("../img/icons/close_2x.png")}.web-switch,.web-switch:link,.web-switch:hover,.web-switch:visited,.web-switch:active{background-image:url("../img/icons/back_2x.png")}}@media (-webkit-device-pixel-ratio: 3), (min-resolution: 400dpi){.step.one{background-image:url("../img/steps/shop_3x.png");background-size:94px 89px}.step.two{background-image:url("../img/steps/order_3x.png");background-size:78px 100px}.step.three{background-image:url("../img/steps/time_3x.png");background-size:111px 111px}.step.four{background-image:url("../img/steps/bike_3x.png");background-size:181px 106px}.list-item{background-image:url("../img/icons/checkmark_3x.png");background-size:37px 34px}#logo{background-image:url("../img/logo/header_3x.png");background-size:180px 180px}#scroll-hint{background-image:url("../img/icons/scroll-hint_3x.png");background-size:19px 13px}.menu-logo div{background-image:url("../img/logo/menu_3x.png")}.slideshow .controls div{background-image:url("../img/slideshow/control_3x.png")}.slideshow .controls div.selected{background-image:url("../img/slideshow/control-selected_3x.png")}#smartphone-menu .close{background-image:url("../img/icons/close_3x.png")}.web-switch,.web-switch:link,.web-switch:hover,.web-switch:visited,.web-switch:active{background-image:url("../img/icons/back_3x.png")}}@media screen and (max-width: 900px){.iphone{margin:0 auto;display:block}.split.bundle{width:auto;display:block}.split.bundle .combo{width:auto;display:block;max-width:500px;margin:0 auto}.advantage{padding:20px 0}.split.bundle .first.combo .item{padding-right:0px}.split.bundle .second.combo .item{padding-left:0px}.split.bundle .first.combo{padding:0}.split.bundle .second.combo{padding:0}.advantage .image{padding-right:15px}.split.bundle .combo h2{text-align:center}.split.bundle .combo .controls{width:auto}.unsplit-center-bundle-container{text-align:center}.unsplit-center-bundle{display:inline-block;text-align:left}.border.split.bundle .second.combo{border-left:0}.text.bundle{width:auto;max-width:700px}}@media screen and (max-width: 600px){.small.bundle{width:auto;max-width:500px}}@media screen and (max-width: 682px){.ipad{width:384px;height:288px;padding:18px 48px 19px 49px;background-size:482px 325px}}@media screen and (max-width: 521px){.ipad{width:256px;height:192px;padding:12px 32px 12px 33px;background-size:321px 217px}}@media screen and (max-width: 351px){.ipad{width:200px;height:150px;padding:10px 25px 9px 25px;background-size:250px 169px}}@media screen and (max-width: 280px){.ipad{width:128px;height:96px;padding:6px 16px 7px 17px;background-size:161px 109px}}@media screen and (max-width: 479px){.web-switch,.web-switch:link,.web-switch:hover,.web-switch:visited,.web-switch:active{padding-left:20px;left:10px}}.smartphone-menu-buttons{display:none}.smartphone-menu-buttons .button{margin-right:20px}#smartphone-menu{z-index:10;display:none;position:fixed;top:0px;left:0;bottom:0px;right:0;overflow-y:scroll;background:rgba(23,23,23,0.95)}#smartphone-menu .close{z-index:10;position:absolute;top:0;right:0;padding:30px;cursor:pointer;width:24px;height:24px;background:url("../img/icons/close.png") no-repeat center center;background-size:24px 24px}#smartphone-menu-centered{display:table;width:100%;height:100%}#smartphone-menu-content{width:auto;height:auto;vertical-align:middle;display:table-cell;padding:20px;border-radius:5px;text-align:center}#smartphone-menu a.menu-item{font-size:16pt;display:block;text-align:center;padding:20px;margin:10px auto;color:white}#smartphone-menu a.button{font-size:16pt;display:inline-block;text-align:center;margin:10px 0}@media screen and (max-width: 800px){a.menu-item,a.menu-item:hover,a.menu-item:link,a.menu-item:visited{margin:10px 0px;padding:7px 10px;font-size:12pt}}@media screen and (max-width: 700px){.small.split.bundle{width:auto;display:block}.small.split.bundle .first.combo .item{padding-right:0px}.small.split.bundle .second.combo .item{padding-left:0px}.smartphone-menu-buttons{display:table-cell;vertical-align:middle;text-align:right}.menu-items{display:none}}@media screen and (max-width: 600px){#logo{background-size:150px 150px;padding-top:170px}.box .bundle .onlydesktop{display:none}.box{padding:50px 15px}.box .bundle{padding:0}#header-content{padding-bottom:50px}#fix-wrap{height:75px}#header p{font-size:14pt;font-weight:normal}#second-part .list-item,#terms-short .list-item{font-weight:normal}.step.one{background-size:49px 45px}.step.two{background-size:39px 50px}.step.three{background-size:56px 56px}.step.four{background-size:91px 53px}.step{margin:0;padding:0 10px;padding-top:70px;margin-top:20px;width:100px}p,.step p,.list-item{font-size:12pt;font-weight:normal}h1{font-size:28pt}h2{font-size:19pt}.step h3{font-size:20pt}.partner{width:80px;margin:20px}#partners{line-height:normal;padding:20px}}@media screen and (max-width: 400px){.button{font-size:12pt;padding:8px 18px;margin:8px 5px}.step{margin:0;padding:0 5px;padding-top:70px;margin-top:20px;width:100px}.box h1,.box h2{text-align:center}}@media screen and (max-height: 600px){.google-map-box{display:none}#logo{background-size:120px 120px;padding-top:130px;font-size:24pt}#header p{font-size:12pt;font-weight:normal}#header .text{padding:20px 0 10px 0}}
+@charset "UTF-8";
+/* line 1, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/_footer.scss */
+#footer a, #footer a:link, #footer a:visited, #footer a:focus, #footer a:hover, #footer a:active {
+  color: inherit;
+  text-decoration: none; }
+
+/* line 6, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/_footer.scss */
+#footer {
+  /*border-top: 4px solid #e8e8e8;*/
+  background: white;
+  border-top: 2px solid #e8e8e8;
+  padding: 20px 0;
+  font-size: 12pt;
+  font-weight: 400;
+  color: #969696;
+  overflow: visible; }
+  /* line 15, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/_footer.scss */
+  #footer .language-selector {
+    cursor: pointer;
+    /* padding right en dropdown icoon toevoegen*/
+    padding: 7px 10px;
+    padding-right: 30px;
+    background: url("img/icons/dropdown.png") no-repeat right center; }
+    /* line 22, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/_footer.scss */
+    #footer .language-selector:hover {
+      background-color: #f7f7f7;
+      border-radius: 3px;
+      color: #464646; }
+    /* line 27, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/_footer.scss */
+    #footer .language-selector span {
+      vertical-align: middle; }
+    /* line 30, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/_footer.scss */
+    #footer .language-selector img {
+      vertical-align: middle;
+      margin-right: 15px; }
+  /* line 35, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/_footer.scss */
+  #footer nav a {
+    margin: 0 10px; }
+    /* line 37, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/_footer.scss */
+    #footer nav a:hover {
+      color: #464646; }
+  /* line 41, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/_footer.scss */
+  #footer .combo.second {
+    text-align: right; }
+
+/* line 46, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/_footer.scss */
+#footer .anchor {
+  vertical-align: middle;
+  display: inline-block;
+  position: relative; }
+
+/* line 54, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/_footer.scss */
+#footer .bundle {
+  display: table;
+  width: 900px;
+  margin: 0 auto; }
+
+/* line 59, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/_footer.scss */
+.footer-left {
+  display: table-cell;
+  vertical-align: middle;
+  position: relative; }
+
+/* line 64, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/_footer.scss */
+.footer-right {
+  display: table-cell;
+  vertical-align: middle;
+  text-align: right; }
+
+/* line 70, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/_footer.scss */
+#language-arrow {
+  margin: 0 auto;
+  position: absolute;
+  bottom: 30px;
+  height: 20px;
+  width: 40px;
+  right: 4px;
+  z-index: 1;
+  background: gray;
+  background: url("img/icons/popover-arrow.png") no-repeat right top; }
+
+/* line 81, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/_footer.scss */
+.language-popover {
+  display: none;
+  -webkit-user-select: none;
+  /* Chrome/Safari */
+  -moz-user-select: none;
+  /* Firefox */
+  -ms-user-select: none;
+  /* IE10+ */
+  /* Rules below not implemented in browsers yet */
+  -o-user-select: none;
+  user-select: none; }
+
+/* line 92, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/_footer.scss */
+#language-box {
+  max-width: 250px;
+  position: absolute;
+  bottom: 48px;
+  left: 10px;
+  right: 10px;
+  z-index: 0; }
+  /* line 100, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/_footer.scss */
+  #language-box .content {
+    background: white;
+    border-radius: 4px;
+    border: 2px solid #e8e8e8;
+    padding: 10px; }
+    /* line 105, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/_footer.scss */
+    #language-box .content a.language {
+      cursor: pointer;
+      display: block;
+      /* padding right en dropdown icoon toevoegen*/
+      padding: 10px 20px;
+      padding-right: 30px; }
+      /* line 111, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/_footer.scss */
+      #language-box .content a.language:hover {
+        background-color: #f7f7f7;
+        border-radius: 3px;
+        color: #464646; }
+      /* line 116, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/_footer.scss */
+      #language-box .content a.language span {
+        vertical-align: middle; }
+      /* line 119, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/_footer.scss */
+      #language-box .content a.language img {
+        vertical-align: middle;
+        margin-right: 15px; }
+
+@media screen and (max-width: 900px) {
+  /* line 130, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/_footer.scss */
+  #footer .bundle {
+    width: 100%; }
+  /* line 133, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/_footer.scss */
+  .footer-left {
+    padding-left: 20px; }
+  /* line 136, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/_footer.scss */
+  .footer-right {
+    padding-right: 20px; } }
+
+@media screen and (max-width: 600px) {
+  /* line 141, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/_footer.scss */
+  #footer .bundle {
+    width: auto;
+    display: block; }
+  /* line 145, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/_footer.scss */
+  .footer-left, .footer-right {
+    text-align: left;
+    display: block;
+    padding: 5px 20px; }
+  /* line 150, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/_footer.scss */
+  .footer-right {
+    padding-top: 10px; }
+  /* line 153, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/_footer.scss */
+  .footer-left {
+    padding: 0px 20px; } }
+
+/*! PhotoSwipe main CSS by Dmitry Semenov | photoswipe.com | MIT license */
+/*
+	Styles for basic PhotoSwipe functionality (sliding area, open/close transitions)
+*/
+/* pswp = photoswipe */
+/* line 6, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/photoswipe.scss */
+.pswp {
+  display: none;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  overflow: hidden;
+  -ms-touch-action: none;
+  touch-action: none;
+  z-index: 1500;
+  -webkit-text-size-adjust: 100%;
+  /* create separate layer, to avoid paint on window.onscroll in webkit/blink */
+  -webkit-backface-visibility: hidden;
+  outline: none; }
+
+/* line 21, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/photoswipe.scss */
+.pswp * {
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box; }
+
+/* line 24, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/photoswipe.scss */
+.pswp img {
+  max-width: none; }
+
+/* style is added when JS option showHideOpacity is set to true */
+/* line 28, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/photoswipe.scss */
+.pswp--animate_opacity {
+  /* 0.001, because opacity:0 doesn't trigger Paint action, which causes lag at start of transition */
+  opacity: 0.001;
+  will-change: opacity;
+  /* for open/close transition */
+  -webkit-transition: opacity 333ms cubic-bezier(0.4, 0, 0.22, 1);
+  transition: opacity 333ms cubic-bezier(0.4, 0, 0.22, 1); }
+
+/* line 36, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/photoswipe.scss */
+.pswp--open {
+  display: block; }
+
+/* line 39, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/photoswipe.scss */
+.pswp--zoom-allowed .pswp__img {
+  /* autoprefixer: off */
+  cursor: -webkit-zoom-in;
+  cursor: -moz-zoom-in;
+  cursor: zoom-in; }
+
+/* line 45, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/photoswipe.scss */
+.pswp--zoomed-in .pswp__img {
+  /* autoprefixer: off */
+  cursor: -webkit-grab;
+  cursor: -moz-grab;
+  cursor: grab; }
+
+/* line 51, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/photoswipe.scss */
+.pswp--dragging .pswp__img {
+  /* autoprefixer: off */
+  cursor: -webkit-grabbing;
+  cursor: -moz-grabbing;
+  cursor: grabbing; }
+
+/*
+	Background is added as a separate element.
+	As animating opacity is much faster than animating rgba() background-color.
+*/
+/* line 61, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/photoswipe.scss */
+.pswp__bg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  opacity: 0;
+  -webkit-backface-visibility: hidden;
+  will-change: opacity; }
+
+/* line 72, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/photoswipe.scss */
+.pswp__scroll-wrap {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden; }
+
+/* line 80, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/photoswipe.scss */
+.pswp__container,
+.pswp__zoom-wrap {
+  -ms-touch-action: none;
+  touch-action: none;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0; }
+
+/* Prevent selection and tap highlights */
+/* line 91, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/photoswipe.scss */
+.pswp__container,
+.pswp__img {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none; }
+
+/* line 100, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/photoswipe.scss */
+.pswp__zoom-wrap {
+  position: absolute;
+  width: 100%;
+  -webkit-transform-origin: left top;
+  -ms-transform-origin: left top;
+  transform-origin: left top;
+  /* for open/close transition */
+  -webkit-transition: -webkit-transform 333ms cubic-bezier(0.4, 0, 0.22, 1);
+  transition: transform 333ms cubic-bezier(0.4, 0, 0.22, 1); }
+
+/* line 110, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/photoswipe.scss */
+.pswp__bg {
+  will-change: opacity;
+  /* for open/close transition */
+  -webkit-transition: opacity 333ms cubic-bezier(0.4, 0, 0.22, 1);
+  transition: opacity 333ms cubic-bezier(0.4, 0, 0.22, 1); }
+
+/* line 116, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/photoswipe.scss */
+.pswp--animated-in .pswp__bg,
+.pswp--animated-in .pswp__zoom-wrap {
+  -webkit-transition: none;
+  transition: none; }
+
+/* line 121, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/photoswipe.scss */
+.pswp__container,
+.pswp__zoom-wrap {
+  -webkit-backface-visibility: hidden; }
+
+/* line 125, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/photoswipe.scss */
+.pswp__item {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  overflow: hidden; }
+
+/* line 133, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/photoswipe.scss */
+.pswp__img {
+  position: absolute;
+  width: auto;
+  height: auto;
+  top: 0;
+  left: 0; }
+
+/*
+	stretched thumbnail or div placeholder element (see below)
+	style is added to avoid flickering in webkit/blink when layers overlap
+*/
+/* line 144, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/photoswipe.scss */
+.pswp__img--placeholder {
+  -webkit-backface-visibility: hidden; }
+
+/*
+	div element that matches size of large image
+	large image loads on top of it
+*/
+/* line 151, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/photoswipe.scss */
+.pswp__img--placeholder--blank {
+  background: #222; }
+
+/* line 154, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/photoswipe.scss */
+.pswp--ie .pswp__img {
+  width: 100% !important;
+  height: auto !important;
+  left: 0;
+  top: 0; }
+
+/*
+	Error message appears when image is not loaded
+	(JS option errorMsg controls markup)
+*/
+/* line 164, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/photoswipe.scss */
+.pswp__error-msg {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 100%;
+  text-align: center;
+  font-size: 14px;
+  line-height: 16px;
+  margin-top: -8px;
+  color: #CCC; }
+
+/* line 175, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/photoswipe.scss */
+.pswp__error-msg a {
+  color: #CCC;
+  text-decoration: underline; }
+
+/*! PhotoSwipe Default UI CSS by Dmitry Semenov | photoswipe.com | MIT license */
+/*
+
+	Contents:
+
+	1. Buttons
+	2. Share modal and links
+	3. Index indicator ("1 of X" counter)
+	4. Caption
+	5. Loading indicator
+	6. Additional styles (root element, top bar, idle state, hidden state, etc.)
+
+*/
+/*
+
+	1. Buttons
+
+ */
+/* <button> css reset */
+/* line 21, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp__bg {
+  background: white; }
+
+/* line 24, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp__button {
+  width: 44px;
+  height: 44px;
+  position: relative;
+  background: none;
+  cursor: pointer;
+  overflow: visible;
+  -webkit-appearance: none;
+  display: block;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  float: right;
+  opacity: 1;
+  -webkit-transition: opacity 0.2s;
+  transition: opacity 0.2s;
+  -webkit-box-shadow: none;
+  box-shadow: none; }
+
+/* line 42, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp__button:focus,
+.pswp__button:hover {
+  opacity: 1; }
+
+/* line 45, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp__button:active {
+  outline: none;
+  opacity: 0.9; }
+
+/* line 48, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp__button::-moz-focus-inner {
+  padding: 0;
+  border: 0; }
+
+/* pswp__ui--over-close class it added when mouse is over element that should close gallery */
+/* line 53, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp__ui--over-close .pswp__button--close {
+  opacity: 1; }
+
+/* line 56, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp__button,
+.pswp__button--arrow--left:before,
+.pswp__button--arrow--right:before {
+  background: url("../img/photoswipe/default-skin.png") 0 0 no-repeat;
+  background-size: 264px 88px;
+  width: 44px;
+  height: 44px; }
+
+@media (-webkit-min-device-pixel-ratio: 1.1), (-webkit-min-device-pixel-ratio: 1.09375), (min-resolution: 105dpi), (min-resolution: 1.1dppx) {
+  /* Serve SVG sprite if browser supports SVG and resolution is more than 105dpi */
+  /* line 66, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+  .pswp--svg .pswp__button,
+  .pswp--svg .pswp__button--arrow--left:before,
+  .pswp--svg .pswp__button--arrow--right:before {
+    background-image: url("../img/photoswipe/default-skin.svg"); }
+  /* line 70, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+  .pswp--svg .pswp__button--arrow--left,
+  .pswp--svg .pswp__button--arrow--right {
+    background: none; } }
+
+/* line 74, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp__button--close {
+  background-position: 0 -44px; }
+
+/* line 77, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp__button--share {
+  background-position: -44px -44px; }
+
+/* line 80, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp__button--fs {
+  display: none; }
+
+/* line 83, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp--supports-fs .pswp__button--fs {
+  display: block; }
+
+/* line 86, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp--fs .pswp__button--fs {
+  background-position: -44px 0; }
+
+/* line 89, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp__button--zoom {
+  display: none;
+  background-position: -88px 0; }
+
+/* line 93, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp--zoom-allowed .pswp__button--zoom {
+  display: block; }
+
+/* line 96, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp--zoomed-in .pswp__button--zoom {
+  background-position: -132px 0; }
+
+/* no arrows on touch screens */
+/* line 100, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp--touch .pswp__button--arrow--left,
+.pswp--touch .pswp__button--arrow--right {
+  visibility: hidden; }
+
+/*
+	Arrow buttons hit area
+	(icon is added to :before pseudo-element)
+*/
+/* line 108, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp__button--arrow--left,
+.pswp__button--arrow--right {
+  background: none;
+  top: 50%;
+  margin-top: -50px;
+  width: 70px;
+  height: 100px;
+  position: absolute; }
+
+/* line 117, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp__button--arrow--left {
+  left: 0; }
+
+/* line 120, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp__button--arrow--right {
+  right: 0; }
+
+/* line 123, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp__button--arrow--left:before,
+.pswp__button--arrow--right:before {
+  content: '';
+  top: 35px;
+  background-color: rgba(255, 255, 255, 0.8);
+  height: 30px;
+  width: 32px;
+  position: absolute; }
+
+/* line 132, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp__button--arrow--left:before {
+  left: 6px;
+  background-position: -138px -44px; }
+
+/* line 136, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp__button--arrow--right:before {
+  right: 6px;
+  background-position: -94px -44px; }
+
+/*
+
+	2. Share modal/popup and links
+
+ */
+/* line 145, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp__counter,
+.pswp__share-modal {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none; }
+
+/* line 152, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp__share-modal {
+  display: block;
+  background: rgba(0, 0, 0, 0.5);
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  padding: 10px;
+  position: absolute;
+  z-index: 1600;
+  opacity: 0;
+  -webkit-transition: opacity 0.25s ease-out;
+  transition: opacity 0.25s ease-out;
+  -webkit-backface-visibility: hidden;
+  will-change: opacity; }
+
+/* line 168, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp__share-modal--hidden {
+  display: none; }
+
+/* line 171, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp__share-tooltip {
+  z-index: 1620;
+  position: absolute;
+  background: #FFF;
+  top: 56px;
+  border-radius: 2px;
+  display: block;
+  width: auto;
+  right: 44px;
+  -webkit-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
+  -webkit-transform: translateY(6px);
+  -ms-transform: translateY(6px);
+  transform: translateY(6px);
+  -webkit-transition: -webkit-transform 0.25s;
+  transition: transform 0.25s;
+  -webkit-backface-visibility: hidden;
+  will-change: transform; }
+
+/* line 189, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp__share-tooltip a {
+  display: block;
+  padding: 8px 12px;
+  color: #000;
+  text-decoration: none;
+  font-size: 14px;
+  line-height: 18px; }
+
+/* line 196, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp__share-tooltip a:hover {
+  text-decoration: none;
+  color: #000; }
+
+/* line 199, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp__share-tooltip a:first-child {
+  /* round corners on the first/last list item */
+  border-radius: 2px 2px 0 0; }
+
+/* line 202, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp__share-tooltip a:last-child {
+  border-radius: 0 0 2px 2px; }
+
+/* line 205, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp__share-modal--fade-in {
+  opacity: 1; }
+
+/* line 207, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp__share-modal--fade-in .pswp__share-tooltip {
+  -webkit-transform: translateY(0);
+  -ms-transform: translateY(0);
+  transform: translateY(0); }
+
+/* increase size of share links on touch devices */
+/* line 213, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp--touch .pswp__share-tooltip a {
+  padding: 16px 12px; }
+
+/* line 216, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+a.pswp__share--facebook:before {
+  content: '';
+  display: block;
+  width: 0;
+  height: 0;
+  position: absolute;
+  top: -12px;
+  right: 15px;
+  border: 6px solid transparent;
+  border-bottom-color: #FFF;
+  -webkit-pointer-events: none;
+  -moz-pointer-events: none;
+  pointer-events: none; }
+
+/* line 230, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+a.pswp__share--facebook:hover {
+  background: #3E5C9A;
+  color: #FFF; }
+
+/* line 233, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+a.pswp__share--facebook:hover:before {
+  border-bottom-color: #3E5C9A; }
+
+/* line 236, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+a.pswp__share--twitter:hover {
+  background: #55ACEE;
+  color: #FFF; }
+
+/* line 240, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+a.pswp__share--pinterest:hover {
+  background: #CCC;
+  color: #CE272D; }
+
+/* line 244, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+a.pswp__share--download:hover {
+  background: #DDD; }
+
+/*
+
+	3. Index indicator ("1 of X" counter)
+
+ */
+/* line 252, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp__counter {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 44px;
+  font-size: 13px;
+  line-height: 44px;
+  color: #FF3030;
+  font-weight: normal;
+  padding: 0 10px; }
+
+/*
+
+	4. Caption
+
+ */
+/* line 268, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp__caption {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  min-height: 44px; }
+
+/* line 274, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp__caption small {
+  font-size: 11px;
+  color: #BBB; }
+
+/* line 278, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp__caption__center {
+  text-align: left;
+  max-width: 420px;
+  margin: 0 auto;
+  font-size: 13px;
+  padding: 10px;
+  line-height: 20px;
+  color: #CCC; }
+
+/* line 287, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp__caption--empty {
+  display: none; }
+
+/* Fake caption element, used to calculate height of next/prev image */
+/* line 291, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp__caption--fake {
+  visibility: hidden; }
+
+/*
+
+	5. Loading indicator (preloader)
+
+	You can play with it here - http://codepen.io/dimsemenov/pen/yyBWoR
+
+ */
+/* line 301, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp__preloader {
+  width: 44px;
+  height: 44px;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  margin-left: -22px;
+  opacity: 0;
+  -webkit-transition: opacity 0.25s ease-out;
+  transition: opacity 0.25s ease-out;
+  will-change: opacity;
+  direction: ltr; }
+
+/* line 314, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp__preloader__icn {
+  width: 20px;
+  height: 20px;
+  margin: 12px; }
+
+/* line 319, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp__preloader--active {
+  opacity: 1; }
+
+/* line 321, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp__preloader--active .pswp__preloader__icn {
+  /* We use .gif in browsers that don't support CSS animation */
+  background: url("../img/photoswipe/preloader.gif") 0 0 no-repeat; }
+
+/* line 325, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp--css_animation .pswp__preloader--active {
+  opacity: 1; }
+
+/* line 327, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp--css_animation .pswp__preloader--active .pswp__preloader__icn {
+  -webkit-animation: clockwise 500ms linear infinite;
+  animation: clockwise 500ms linear infinite; }
+
+/* line 330, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp--css_animation .pswp__preloader--active .pswp__preloader__donut {
+  -webkit-animation: donut-rotate 1000ms cubic-bezier(0.4, 0, 0.22, 1) infinite;
+  animation: donut-rotate 1000ms cubic-bezier(0.4, 0, 0.22, 1) infinite; }
+
+/* line 334, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp--css_animation .pswp__preloader__icn {
+  background: none;
+  opacity: 0.75;
+  width: 14px;
+  height: 14px;
+  position: absolute;
+  left: 15px;
+  top: 15px;
+  margin: 0; }
+
+/* line 344, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp--css_animation .pswp__preloader__cut {
+  /*
+			The idea of animating inner circle is based on Polymer ("material") loading indicator
+			 by Keanu Lee https://blog.keanulee.com/2014/10/20/the-tale-of-three-spinners.html
+		*/
+  position: relative;
+  width: 7px;
+  height: 14px;
+  overflow: hidden; }
+
+/* line 354, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp--css_animation .pswp__preloader__donut {
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  width: 14px;
+  height: 14px;
+  border: 2px solid #FFF;
+  border-radius: 50%;
+  border-left-color: transparent;
+  border-bottom-color: transparent;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: none;
+  margin: 0; }
+
+@media screen and (max-width: 1024px) {
+  /* line 370, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+  .pswp__preloader {
+    position: relative;
+    left: auto;
+    top: auto;
+    margin: 0;
+    float: right; } }
+
+@-webkit-keyframes clockwise {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg); }
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg); } }
+
+@keyframes clockwise {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg); }
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg); } }
+
+@-webkit-keyframes donut-rotate {
+  0% {
+    -webkit-transform: rotate(0);
+    transform: rotate(0); }
+  50% {
+    -webkit-transform: rotate(-140deg);
+    transform: rotate(-140deg); }
+  100% {
+    -webkit-transform: rotate(0);
+    transform: rotate(0); } }
+
+@keyframes donut-rotate {
+  0% {
+    -webkit-transform: rotate(0);
+    transform: rotate(0); }
+  50% {
+    -webkit-transform: rotate(-140deg);
+    transform: rotate(-140deg); }
+  100% {
+    -webkit-transform: rotate(0);
+    transform: rotate(0); } }
+
+/*
+
+	6. Additional styles
+
+ */
+/* root element of UI */
+/* line 421, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp__ui {
+  -webkit-font-smoothing: auto;
+  visibility: visible;
+  opacity: 1;
+  z-index: 1550; }
+
+/* top black bar with buttons and "1 of X" indicator */
+/* line 428, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp__top-bar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 44px;
+  width: 100%; }
+
+/* line 435, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp__caption,
+.pswp__top-bar,
+.pswp--has_mouse .pswp__button--arrow--left,
+.pswp--has_mouse .pswp__button--arrow--right {
+  -webkit-backface-visibility: hidden;
+  will-change: opacity;
+  -webkit-transition: opacity 333ms cubic-bezier(0.4, 0, 0.22, 1);
+  transition: opacity 333ms cubic-bezier(0.4, 0, 0.22, 1); }
+
+/* pswp--has_mouse class is added only when two subsequent mousemove events occur */
+/* line 445, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp--has_mouse .pswp__button--arrow--left,
+.pswp--has_mouse .pswp__button--arrow--right {
+  visibility: visible; }
+
+/* line 449, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp__top-bar,
+.pswp__caption {
+  background: rgba(255, 255, 255, 0.8); }
+
+/* pswp__ui--fit class is added when main image "fits" between top bar and bottom bar (caption) */
+/* line 454, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp__ui--fit .pswp__top-bar,
+.pswp__ui--fit .pswp__caption {
+  background: rgba(255, 255, 255, 0.8); }
+
+/* pswp__ui--idle class is added when mouse isn't moving for several seconds (JS option timeToIdle) */
+/* line 459, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp__ui--idle .pswp__top-bar {
+  opacity: 0; }
+
+/* line 462, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp__ui--idle .pswp__button--arrow--left,
+.pswp__ui--idle .pswp__button--arrow--right {
+  opacity: 0; }
+
+/*
+	pswp__ui--hidden class is added when controls are hidden
+	e.g. when user taps to toggle visibility of controls
+*/
+/* line 470, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp__ui--hidden .pswp__top-bar,
+.pswp__ui--hidden .pswp__caption,
+.pswp__ui--hidden .pswp__button--arrow--left,
+.pswp__ui--hidden .pswp__button--arrow--right {
+  /* Force paint & create composition layer for controls. */
+  opacity: 0.001; }
+
+/* pswp__ui--one-slide class is added when there is just one item in gallery */
+/* line 478, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp__ui--one-slide .pswp__button--arrow--left,
+.pswp__ui--one-slide .pswp__button--arrow--right,
+.pswp__ui--one-slide .pswp__counter {
+  display: none; }
+
+/* line 483, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp__element--disabled {
+  display: none !important; }
+
+/* line 486, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/photoswipe/default-skin.scss */
+.pswp--minimal--dark .pswp__top-bar {
+  background: none; }
+
+/* Background Gradient: Top to Bottom*/
+/*IE Fix*/
+/* line 23, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+a, img {
+  border: none;
+  outline: none; }
+
+/*Tijdelijk*/
+/* line 29, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+#terms-header {
+  font-size: 25pt;
+  margin: 0;
+  padding: 10px;
+  font-weight: 300;
+  text-align: center;
+  background: #F7F7F7;
+  color: #464646; }
+
+/* line 39, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+a, a:link, a:visited, a:focus, a:hover, a:active {
+  color: #FF3030;
+  text-decoration: none; }
+
+/* line 43, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+a:hover {
+  color: #FF3030;
+  text-decoration: underline; }
+
+/* line 47, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+a.button:hover {
+  text-decoration: none; }
+
+/* line 50, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+a.nolink, a.nolink:link, a.nolink:visited, a.nolink:focus, a.nolink:hover, a.nolink:active {
+  color: inherit;
+  text-decoration: none; }
+
+/* line 54, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+a.dashed, a.dashed:link, a.dashed:visited, a.dashed:focus, a.dashed:hover, a.dashed:active {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px dashed white; }
+
+/* line 59, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+a.menu-logo, a.menu-logo:link, a.menu-logo:visited, a.menu-logo:focus, a.menu-logo:hover, a.menu-logo:active {
+  color: inherit;
+  text-decoration: none; }
+
+/**/
+/* line 66, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+* {
+  font-family: "Helvetica Neue", Roboto, Helvetica, Arial; }
+
+/* line 69, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+body, html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  font-weight: normal;
+  -webkit-font-smoothing: antialiased;
+  color: #686868;
+  font-size: 14pt;
+  font-weight: 300; }
+
+/**/
+/* line 83, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+p {
+  font-weight: normal;
+  line-height: 125%;
+  font-size: 12pt;
+  margin: 10px 0;
+  -webkit-text-size-adjust: 100%; }
+
+/* line 90, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+p .button {
+  line-height: normal; }
+
+/* line 93, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+h1 {
+  color: #464646;
+  font-weight: 300;
+  margin-bottom: 40px;
+  -webkit-text-size-adjust: 100%;
+  font-size: 34pt; }
+
+/* line 100, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+#logo h1 {
+  padding: 0;
+  margin: 0; }
+
+/* line 104, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+h2 {
+  color: #464646;
+  font-weight: 300;
+  font-size: 22pt;
+  margin-bottom: 40px;
+  -webkit-text-size-adjust: 100%; }
+
+/*h2{
+	color: #464646;
+	font-weight: 300;
+	font-size: 18pt;
+	margin: 10px 0;
+	-webkit-text-size-adjust: 100%;
+}*/
+/* line 119, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+h3 {
+  font-weight: 300;
+  font-size: 18pt;
+  color: #464646;
+  -webkit-text-size-adjust: 100%; }
+
+/* line 125, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.light-content h1, .light-content h2, .light-content h3, .light-content p, .light-content .button {
+  color: white; }
+
+/* line 129, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.fullscreen-image {
+  margin: 40px 0;
+  max-width: 100%; }
+
+/* line 134, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.web-switch, .web-switch:link, .web-switch:hover, .web-switch:visited, .web-switch:active {
+  position: absolute;
+  left: 20px;
+  top: 0;
+  display: block;
+  height: 40px;
+  line-height: 40px;
+  padding: 15px 10px 15px 30px;
+  background: url("img/icons/back.png") no-repeat left center;
+  background-size: 13px 20px;
+  color: white;
+  text-decoration: none;
+  z-index: 6;
+  font-weight: normal;
+  font-size: 12pt; }
+
+/* line 151, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.menu {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 5;
+  display: table;
+  width: 100%;
+  text-align: left; }
+
+/* line 161, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.menu-placeholder {
+  height: 40px; }
+
+/* line 165, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.menu.white {
+  background: white;
+  border-bottom: 2px solid #e8e8e8;
+  z-index: 7; }
+
+/* line 171, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.next.box {
+  /*border-top: 4px solid #e8e8e8;*/
+  position: relative;
+  display: block; }
+
+/* line 177, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.menu-logo {
+  display: table-cell;
+  vertical-align: middle;
+  color: #4C4C4C;
+  font-size: 14pt; }
+
+/* line 183, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.menu-logo div {
+  background: url("img/logo/menu.png") no-repeat left center;
+  background-size: 40px 40px;
+  height: 40px;
+  line-height: 40px;
+  margin: 15px 20px;
+  padding-left: 60px; }
+
+/* line 191, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+#header .menu-logo {
+  visibility: hidden; }
+
+/* line 194, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.menu.transparent .menu-logo {
+  color: white; }
+
+/* line 197, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.menu-logo img {
+  vertical-align: middle;
+  margin: 15px 20px; }
+
+/* line 201, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.menu-items {
+  display: table-cell;
+  vertical-align: middle;
+  text-align: right; }
+
+/* line 206, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.menu.transparent a.menu-item, .menu.transparent a.menu-item:hover, .menu.transparent a.menu-item:link, .menu.transparent a.menu-item:visited {
+  color: white; }
+
+/* line 209, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+a.menu-item, a.menu-item:hover, a.menu-item:link, a.menu-item:visited {
+  text-decoration: none;
+  margin: 10px 5px;
+  padding: 7px 12px;
+  display: inline-block;
+  vertical-align: middle;
+  font-weight: normal;
+  font-size: 12pt; }
+
+/* line 218, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+a.menu-item:hover {
+  background: #ececec;
+  border-radius: 3px;
+  color: #fd0000; }
+
+/* line 223, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.menu .button {
+  font-size: 12pt; }
+
+/* line 226, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.menu.transparent a.menu-item:hover, #smartphone-menu a.menu-item:hover {
+  color: white;
+  background-color: rgba(0, 0, 0, 0.3); }
+
+/* line 231, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.menu-items .button {
+  margin-right: 20px; }
+
+/* line 234, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.background {
+  background: url("img/wallpapers/users.min.jpg") no-repeat top center;
+  background-size: cover;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='img/wallpapers/users.min.jpg', sizingMethod='scale');
+  -ms-filter: "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='img/wallpapers/users.min.jpg', sizingMethod='scale')"; }
+
+/* line 243, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.background.business {
+  background: url("img/wallpapers/business.min.jpg") no-repeat center center;
+  background-size: cover;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='img/wallpapers/business.min.jpg', sizingMethod='scale');
+  -ms-filter: "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='img/wallpapers/business.min.jpg', sizingMethod='scale')"; }
+
+/* line 252, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+#header {
+  position: relative;
+  padding: 0px 20px;
+  text-align: center; }
+
+/* line 257, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.black-cover {
+  background: rgba(0, 0, 0, 0.2);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#32000000,endColorstr=#32000000);
+  zoom: 1; }
+
+/* line 262, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.shadow.long {
+  height: 120px; }
+
+/* line 265, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.shadow {
+  height: 20px;
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  background-image: -webkit-gradient(linear, left top, left bottom, from(transparent), to(rgba(0, 0, 0, 0.2)));
+  background-image: -webkit-linear-gradient(top, transparent, rgba(0, 0, 0, 0.2));
+  background-image: -moz-linear-gradient(top, transparent, rgba(0, 0, 0, 0.2));
+  background-image: -ms-linear-gradient(top, transparent, rgba(0, 0, 0, 0.2));
+  background-image: -o-linear-gradient(top, transparent, rgba(0, 0, 0, 0.2));
+  background-image: linear-gradient(top, transparent, rgba(0, 0, 0, 0.2));
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorStr="#00000000", EndColorStr="#33000000");
+  zoom: 1; }
+
+/* line 274, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.shadow.inverted {
+  top: 0px;
+  bottom: auto;
+  background-image: -webkit-gradient(linear, left top, left bottom, from(rgba(0, 0, 0, 0.2)), to(transparent));
+  background-image: -webkit-linear-gradient(top, rgba(0, 0, 0, 0.2), transparent);
+  background-image: -moz-linear-gradient(top, rgba(0, 0, 0, 0.2), transparent);
+  background-image: -ms-linear-gradient(top, rgba(0, 0, 0, 0.2), transparent);
+  background-image: -o-linear-gradient(top, rgba(0, 0, 0, 0.2), transparent);
+  background-image: linear-gradient(top, rgba(0, 0, 0, 0.2), transparent);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorStr="#33000000", EndColorStr="#00000000");
+  zoom: 1; }
+
+/* line 279, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.seethrough {
+  padding: 25px 20px;
+  position: relative; }
+
+/* line 284, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+#header .center-table {
+  position: relative; }
+
+/* line 287, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+#header-content {
+  padding: 100px 0; }
+
+/* line 290, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+#header-background {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background-image: -webkit-gradient(linear, left top, left bottom, from(transparent), to(rgba(0, 0, 0, 0.5)));
+  background-image: -webkit-linear-gradient(top, transparent, rgba(0, 0, 0, 0.5));
+  background-image: -moz-linear-gradient(top, transparent, rgba(0, 0, 0, 0.5));
+  background-image: -ms-linear-gradient(top, transparent, rgba(0, 0, 0, 0.5));
+  background-image: -o-linear-gradient(top, transparent, rgba(0, 0, 0, 0.5));
+  background-image: linear-gradient(top, transparent, rgba(0, 0, 0, 0.5));
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorStr="#00000000", EndColorStr="#80000000");
+  zoom: 1; }
+
+/* line 299, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.center-table {
+  display: table;
+  width: 100%;
+  height: 100%; }
+
+/* line 304, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.centered-content {
+  display: table-cell;
+  vertical-align: middle;
+  width: 100%; }
+
+/* line 310, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+#logo {
+  padding-top: 200px;
+  /* 20 px padding between text - logo*/
+  width: 100%;
+  background: url("img/logo/header.png") no-repeat top center;
+  margin-bottom: 0px; }
+
+/* line 316, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+#header .text {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 50px 0 10px 0;
+  font-size: 13pt;
+  font-weight: normal; }
+
+/* line 323, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+#header .text p {
+  font-size: 13pt;
+  font-weight: normal; }
+
+/* line 327, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+#scroll-hint {
+  position: absolute;
+  bottom: 20px;
+  left: 0px;
+  right: 0px;
+  height: 12px;
+  background: url("img/icons/scroll-hint.png") no-repeat center center;
+  color: rgba(0, 0, 0, 0.5); }
+
+/* line 336, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.button, .button:link, .button:active, .button:visited {
+  text-decoration: none; }
+
+/* line 339, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.button {
+  padding: 8px 22px;
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 5px;
+  margin: 10px;
+  display: inline-block;
+  color: #FF3030;
+  font-size: 14pt;
+  font-weight: normal;
+  cursor: pointer;
+  border-color: #FF3030;
+  text-align: center; }
+
+/* line 356, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+input.button {
+  margin: 10px auto;
+  display: inline;
+  -webkit-appearance: none;
+  width: auto; }
+
+/* line 364, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.gray.button {
+  border-color: #686868;
+  color: #686868; }
+
+/* line 368, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.white.button, .light-content .button, .light-content .red.button {
+  border-color: white;
+  color: white;
+  background: none; }
+
+/* line 373, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.red.button, #header-content .red.button {
+  border-color: #FF3030;
+  background: #FF3030;
+  color: white; }
+
+/* boxen */
+/* line 380, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.white.box {
+  background: white; }
+
+/* line 383, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.gray.box {
+  background: #F7F7F7;
+  color: #464646; }
+
+/* line 387, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.box {
+  padding: 75px 0px;
+  overflow: hidden; }
+
+/* line 391, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.small.box {
+  padding: 20px 0px; }
+
+/**
+	Centered zorgt ervoro dat alle headers gecentreerd worden
+*/
+/* line 398, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.centered h1, .centered h2 {
+  text-align: center; }
+
+/**
+	Centered zorgt ervoor dat alle paragraphs justified worden
+*/
+/* line 404, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.justified p {
+  text-align: justify; }
+
+/**
+	Bundle is een stuk uit een box waar inhoud wordt in geplaatst die niet tegen de randen aan mag liggen
+*/
+/* line 410, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.box .bundle {
+  padding: 0 20px; }
+
+/* line 413, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.box .nopadding.bundle {
+  padding: 0; }
+
+/* line 416, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.center {
+  text-align: center; }
+
+/**
+	Bundelt items die samen naar nieuwe lijn moeten springen.
+*/
+/* line 422, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.combo {
+  display: inline-block; }
+
+/* line 425, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.spaced.combo, .split.bundle .spaced.combo {
+  padding: 50px 0; }
+
+/**
+	Geeft de bundle een vaste breedte.
+*/
+/* line 431, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.text.bundle {
+  width: 700px;
+  margin: 0 auto; }
+
+/* line 435, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.small.bundle {
+  width: 500px;
+  margin: 0 auto; }
+
+/**
+	Bundle die in 2 zal gesplitst worden met 2 combo's, één link, en één rechts
+	Gebruik class "border" om er tussen ook een border te hebben
+*/
+/* line 443, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.split.bundle {
+  width: 900px;
+  margin: 0 auto;
+  display: table;
+  padding: 0; }
+
+/* line 449, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.small.split.bundle {
+  width: 700px; }
+
+/* line 452, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.split.bundle .combo {
+  padding: 25px 0px;
+  width: 50%;
+  display: table-cell;
+  vertical-align: middle; }
+
+/* line 458, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.split.bundle .first.combo {
+  padding-left: 20px; }
+
+/* line 461, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.split.bundle .second.combo {
+  padding-right: 20px; }
+
+/* line 465, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.split.bundle .first.combo .item {
+  padding-right: 50px; }
+
+/* line 468, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.split.bundle .second.combo .item {
+  padding-left: 50px; }
+
+/* line 471, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.small.split.bundle .first.combo .item {
+  padding-right: 10px; }
+
+/* line 474, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.small.split.bundle .second.combo .item {
+  padding-left: 10px; }
+
+/* line 477, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.border.split.bundle .second.combo {
+  border-left: 1px solid #F7F7F7; }
+
+/* Centreer een bundel divs op basis van hun maximale breedte, bv een lijst */
+/* line 482, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.center-bundle-container {
+  text-align: center; }
+
+/* line 485, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.center-bundle {
+  display: inline-block;
+  text-align: left; }
+
+/* line 491, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.list-item {
+  background: url("img/icons/checkmark.png") no-repeat left center;
+  padding: 15px 0 9px 50px;
+  font-weight: 300;
+  -webkit-text-size-adjust: 100%;
+  text-align: left; }
+
+/* line 498, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.ipad {
+  width: 512px;
+  /* Pas ook width van .slideshow .controls aan*/
+  height: 384px;
+  padding: 25px 65px 24px 65px;
+  background: url("img/mockups/ipad.png") no-repeat left top;
+  background-size: 642px 433px;
+  overflow: hidden;
+  position: relative;
+  margin: 40px auto; }
+
+/* line 510, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.iphone {
+  width: 240px;
+  /* Pas ook width van .slideshow .controls aan*/
+  height: 426px;
+  padding: 89px 30px 87px 32px;
+  background: url("img/mockups/iphone.png") no-repeat left top;
+  background-size: 302px 602px;
+  position: relative; }
+
+/* line 518, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.iphone video {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: transparent; }
+
+/* line 524, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.iphone img, .ipad img {
+  width: 100%;
+  height: 100%; }
+
+/* line 528, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.slideshow .view {
+  position: relative;
+  width: 100%;
+  height: 100%; }
+
+/* line 533, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.slideshow .ipad .view {
+  cursor: zoom-in; }
+
+/* line 536, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.slideshow .view img {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%; }
+
+/* line 543, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.slideshow .view img {
+  position: absolute; }
+
+/* line 546, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.slideshow .controls {
+  text-align: center; }
+
+/* line 549, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.controls.iphonesize {
+  padding-top: 40px;
+  width: 302px; }
+
+/* line 553, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.slideshow .controls div {
+  width: 15px;
+  height: 15px;
+  background: url("img/slideshow/control.png") no-repeat center center;
+  background-size: 11px 11px;
+  margin: 10px;
+  display: inline-block;
+  cursor: pointer; }
+
+/* line 562, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.slideshow .controls div img {
+  display: none;
+  visibility: hidden; }
+
+/* line 566, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.slideshow .controls div.selected {
+  background-image: url("img/slideshow/control-selected.png"); }
+
+/* line 570, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.box .bundle.price-box {
+  border: 4px solid #e8e8e8;
+  padding: 20px 40px;
+  margin: 50px auto;
+  border-radius: 5px;
+  background: white;
+  max-width: 250px; }
+
+/* line 577, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.price-box a h2 {
+  padding-bottom: 0;
+  margin-bottom: 0; }
+
+/* line 581, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.price-box .price {
+  color: #FF3030; }
+
+/* line 584, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.price-box .unsplit-center-bundle-container {
+  margin: 20px 0; }
+
+/* line 588, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+#terms-short div {
+  max-width: 700px;
+  display: block;
+  margin: 0 auto;
+  padding: 0; }
+
+/*3e deel*/
+/* line 599, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+#terms-container {
+  max-width: 700px;
+  text-align: justify;
+  margin: 0 auto; }
+
+/* line 604, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+#terms-container h1 {
+  text-align: center; }
+
+/* Steps*/
+/* line 609, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.step {
+  background-repeat: no-repeat;
+  background-position: center top;
+  margin-top: 60px;
+  width: 200px;
+  display: inline-block;
+  padding: 150px 20px 20px 20px; }
+
+/* line 617, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.step.one {
+  background-image: url("img/steps/shop.png"); }
+
+/* line 620, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.step.two {
+  background-image: url("img/steps/order.png"); }
+
+/* line 623, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.step.three {
+  background-image: url("img/steps/time.png"); }
+
+/* line 626, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.step.four {
+  background-image: url("img/steps/bike.png"); }
+
+/* line 630, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.step p {
+  font-size: 16pt;
+  font-weight: 300;
+  padding: 0;
+  margin: 0; }
+
+/* line 638, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.step h3 {
+  font-size: 26pt;
+  color: #FF3030;
+  font-weight: 300;
+  margin: 0;
+  padding: 0; }
+
+/* line 646, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.advantage {
+  padding: 20px 20px 20px 0;
+  display: table; }
+
+/* line 650, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.advantage h3 {
+  margin: 0; }
+
+/* line 653, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.advantage .content {
+  display: table-cell;
+  vertical-align: middle; }
+
+/* line 657, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.advantage .image {
+  width: 89px;
+  padding-right: 20px;
+  text-align: center;
+  display: table-cell;
+  vertical-align: middle; }
+
+/* line 664, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.store {
+  border-left: 2px solid #C9C9C9;
+  padding: 10px 20px;
+  margin: 10px 0; }
+
+/* line 669, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.store.soon {
+  border-left: 2px dashed #C9C9C9; }
+
+/* line 673, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.store h3 {
+  color: #FF3030;
+  padding: 0;
+  margin: 0 0 5px 0;
+  font-size: 14pt;
+  font-weight: normal; }
+
+/* line 680, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.store.search {
+  margin: 0;
+  padding: 5px 20px; }
+
+/* line 684, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.store.search h2 {
+  color: inherit;
+  font-size: 18pt; }
+
+/* line 688, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.store p {
+  margin: 0;
+  padding: 0; }
+
+/* line 692, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.store p.location {
+  font-size: 10pt;
+  margin-bottom: 10px; }
+
+/* line 696, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.store-add {
+  font-size: 14pt;
+  font-weight: 300;
+  color: #FF3030;
+  margin: 0;
+  padding: 0 0 10px 0;
+  text-align: left;
+  background: transparent;
+  border-radius: 0;
+  cursor: pointer;
+  display: inline;
+  width: auto; }
+
+/* line 709, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.store-add:hover {
+  text-decoration: underline; }
+
+/* line 712, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+p.more {
+  text-align: center;
+  font-size: 12pt;
+  margin-top: 40px; }
+
+/* line 717, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.clear {
+  clear: both; }
+
+/* Laatste */
+/* line 723, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+#stores {
+  padding-top: 40px; }
+
+/* line 726, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.appstore {
+  margin: 0 10px;
+  display: inline-block; }
+
+/*partners*/
+/* line 731, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+#partners {
+  background: #F7F7F7;
+  color: #464646;
+  text-align: center;
+  line-height: 200px;
+  padding: 0px 20px; }
+
+/* line 738, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.partner, .partner:link, .partner:visited, .partner:active {
+  margin: 0 50px;
+  vertical-align: middle;
+  border: 0;
+  outline: none; }
+
+/* line 744, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.align-center {
+  text-align: center; }
+
+/* line 747, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+input {
+  background: transparent;
+  border: 0;
+  display: block;
+  outline: none; }
+
+/* line 753, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+input.text {
+  padding: 8px 22px;
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 5px;
+  margin: 20px 0;
+  display: block;
+  color: #686868;
+  font-size: 14pt;
+  font-weight: normal;
+  outline: none;
+  border-color: #686868;
+  border: 0;
+  width: 100%;
+  text-align: center;
+  box-sizing: border-box;
+  background: #f7f7f7; }
+
+/* line 772, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.placeholder, ::-webkit-input-placeholder, ::-moz-placeholder, :-ms-input-placeholder, input:-moz-placeholder {
+  color: #909090;
+  font-size: 14pt;
+  font-weight: normal; }
+
+/* line 778, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.input_hid {
+  display: none;
+  visibility: hidden;
+  opacity: 0; }
+
+/* line 783, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.google-map-box {
+  height: 250px; }
+
+/* line 786, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.google-map {
+  width: 100%;
+  height: 100%;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  border: 0; }
+
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  /* line 798, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .step.one {
+    background-image: url("img/steps/shop_2x.png");
+    background-size: 94px 89px; }
+  /* line 802, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .step.two {
+    background-image: url("img/steps/order_2x.png");
+    background-size: 78px 100px; }
+  /* line 806, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .step.three {
+    background-image: url("img/steps/time_2x.png");
+    background-size: 111px 111px; }
+  /* line 810, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .step.four {
+    background-image: url("img/steps/bike_2x.png");
+    background-size: 181px 106px; }
+  /* line 815, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .list-item {
+    background-image: url("img/icons/checkmark_2x.png");
+    background-size: 37px 34px; }
+  /* line 820, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  #logo {
+    background-image: url("img/logo/header_2x.png");
+    background-size: 180px 180px; }
+  /* line 824, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  #scroll-hint {
+    background-image: url("img/icons/scroll-hint_2x.png");
+    background-size: 19px 13px; }
+  /* line 828, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .menu-logo div {
+    background-image: url("img/logo/menu_2x.png"); }
+  /* line 831, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .ipad {
+    background-image: url("img/mockups/ipad_2x.png"); }
+  /* line 834, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .slideshow .controls div {
+    background-image: url("img/slideshow/control_2x.png"); }
+  /* line 837, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .slideshow .controls div.selected {
+    background-image: url("img/slideshow/control-selected_2x.png"); }
+  /* line 840, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  #smartphone-menu .close {
+    background-image: url("img/icons/close_2x.png"); }
+  /* line 843, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .web-switch, .web-switch:link, .web-switch:hover, .web-switch:visited, .web-switch:active {
+    background-image: url("img/icons/back_2x.png"); } }
+
+/* iPhone 6 plus and others*/
+@media (-webkit-device-pixel-ratio: 3), (min-resolution: 400dpi) {
+  /* line 853, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .step.one {
+    background-image: url("img/steps/shop_3x.png");
+    background-size: 94px 89px; }
+  /* line 857, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .step.two {
+    background-image: url("img/steps/order_3x.png");
+    background-size: 78px 100px; }
+  /* line 861, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .step.three {
+    background-image: url("img/steps/time_3x.png");
+    background-size: 111px 111px; }
+  /* line 865, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .step.four {
+    background-image: url("img/steps/bike_3x.png");
+    background-size: 181px 106px; }
+  /* line 870, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .list-item {
+    background-image: url("img/icons/checkmark_3x.png");
+    background-size: 37px 34px; }
+  /* line 876, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  #logo {
+    background-image: url("img/logo/header_3x.png");
+    background-size: 180px 180px; }
+  /* line 880, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  #scroll-hint {
+    background-image: url("img/icons/scroll-hint_3x.png");
+    background-size: 19px 13px; }
+  /* line 884, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .menu-logo div {
+    background-image: url("img/logo/menu_3x.png"); }
+  /* line 887, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .slideshow .controls div {
+    background-image: url("img/slideshow/control_3x.png"); }
+  /* line 890, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .slideshow .controls div.selected {
+    background-image: url("img/slideshow/control-selected_3x.png"); }
+  /* line 894, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  #smartphone-menu .close {
+    background-image: url("img/icons/close_3x.png"); }
+  /* line 897, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .web-switch, .web-switch:link, .web-switch:hover, .web-switch:visited, .web-switch:active {
+    background-image: url("img/icons/back_3x.png"); } }
+
+@media screen and (max-width: 900px) {
+  /* line 904, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .iphone {
+    margin: 0 auto;
+    display: block; }
+  /* line 908, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .split.bundle {
+    width: auto;
+    display: block; }
+  /* line 912, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .split.bundle .combo {
+    width: auto;
+    display: block;
+    max-width: 500px;
+    margin: 0 auto; }
+  /* line 918, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .advantage {
+    padding: 20px 0; }
+  /* line 921, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .split.bundle .first.combo .item {
+    padding-right: 0px; }
+  /* line 924, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .split.bundle .second.combo .item {
+    padding-left: 0px; }
+  /* line 927, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .split.bundle .first.combo {
+    padding: 0; }
+  /* line 930, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .split.bundle .second.combo {
+    padding: 0; }
+  /* line 933, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .advantage .image {
+    padding-right: 15px; }
+  /* line 937, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .split.bundle .combo h2 {
+    text-align: center; }
+  /* line 940, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .split.bundle .combo .controls {
+    width: auto; }
+  /* Centreer een bundel divs op basis van hun maximale breedte, bv een lijst */
+  /* line 945, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .unsplit-center-bundle-container {
+    text-align: center; }
+  /* line 948, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .unsplit-center-bundle {
+    display: inline-block;
+    text-align: left; }
+  /* line 953, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .border.split.bundle .second.combo {
+    border-left: 0; }
+  /* line 956, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .text.bundle {
+    width: auto;
+    max-width: 700px; } }
+
+@media screen and (max-width: 600px) {
+  /* line 963, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .small.bundle {
+    width: auto;
+    max-width: 500px; } }
+
+@media screen and (max-width: 682px) {
+  /* line 970, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .ipad {
+    width: 384px;
+    height: 288px;
+    padding: 18px 48px 19px 49px;
+    background-size: 482px 325px; } }
+
+@media screen and (max-width: 521px) {
+  /* line 979, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .ipad {
+    width: 256px;
+    height: 192px;
+    padding: 12px 32px 12px 33px;
+    background-size: 321px 217px; } }
+
+@media screen and (max-width: 351px) {
+  /* line 988, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .ipad {
+    width: 200px;
+    height: 150px;
+    padding: 10px 25px 9px 25px;
+    background-size: 250px 169px; } }
+
+@media screen and (max-width: 280px) {
+  /* line 997, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .ipad {
+    width: 128px;
+    height: 96px;
+    padding: 6px 16px 7px 17px;
+    background-size: 161px 109px; } }
+
+@media screen and (max-width: 479px) {
+  /* line 1006, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .web-switch, .web-switch:link, .web-switch:hover, .web-switch:visited, .web-switch:active {
+    padding-left: 20px;
+    left: 10px; } }
+
+/* line 1012, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.smartphone-menu-buttons {
+  display: none; }
+
+/* line 1015, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+.smartphone-menu-buttons .button {
+  margin-right: 20px; }
+
+/* line 1018, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+#smartphone-menu {
+  z-index: 10;
+  display: none;
+  position: fixed;
+  top: 0px;
+  left: 0;
+  bottom: 0px;
+  right: 0;
+  overflow-y: scroll;
+  background: rgba(23, 23, 23, 0.95); }
+
+/* line 1029, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+#smartphone-menu .close {
+  z-index: 10;
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 30px;
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+  background: url("img/icons/close.png") no-repeat center center;
+  background-size: 24px 24px; }
+
+/* line 1041, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+#smartphone-menu-centered {
+  display: table;
+  width: 100%;
+  height: 100%; }
+
+/* line 1046, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+#smartphone-menu-content {
+  width: auto;
+  height: auto;
+  vertical-align: middle;
+  display: table-cell;
+  padding: 20px;
+  border-radius: 5px;
+  text-align: center; }
+
+/* line 1055, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+#smartphone-menu a.menu-item {
+  font-size: 16pt;
+  display: block;
+  text-align: center;
+  padding: 20px;
+  margin: 10px auto;
+  color: white; }
+
+/* line 1063, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+#smartphone-menu a.button {
+  font-size: 16pt;
+  display: inline-block;
+  text-align: center;
+  margin: 10px 0; }
+
+@media screen and (max-width: 800px) {
+  /* line 1070, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  a.menu-item, a.menu-item:hover, a.menu-item:link, a.menu-item:visited {
+    margin: 10px 0px;
+    padding: 7px 10px;
+    font-size: 12pt; } }
+
+@media screen and (max-width: 700px) {
+  /* line 1077, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .small.split.bundle {
+    width: auto;
+    display: block; }
+  /* line 1081, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .small.split.bundle .first.combo .item {
+    padding-right: 0px; }
+  /* line 1084, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .small.split.bundle .second.combo .item {
+    padding-left: 0px; }
+  /* Menu */
+  /* line 1090, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .smartphone-menu-buttons {
+    display: table-cell;
+    vertical-align: middle;
+    text-align: right; }
+  /* line 1095, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .menu-items {
+    display: none; } }
+
+@media screen and (max-width: 600px) {
+  /* line 1103, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  #logo {
+    background-size: 150px 150px;
+    padding-top: 170px; }
+  /* line 1108, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .box .bundle .onlydesktop {
+    display: none; }
+  /* line 1111, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .box {
+    padding: 50px 15px; }
+  /* line 1114, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .box .bundle {
+    padding: 0; }
+  /* line 1117, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  #header-content {
+    padding-bottom: 50px; }
+  /* line 1120, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  #fix-wrap {
+    height: 75px; }
+  /* line 1123, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  #header p {
+    font-size: 14pt;
+    font-weight: normal; }
+  /* line 1127, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  #second-part .list-item, #terms-short .list-item {
+    font-weight: normal; }
+  /* line 1130, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .step.one {
+    background-size: 49px 45px; }
+  /* line 1133, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .step.two {
+    background-size: 39px 50px; }
+  /* line 1136, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .step.three {
+    background-size: 56px 56px; }
+  /* line 1139, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .step.four {
+    background-size: 91px 53px; }
+  /* line 1142, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .step {
+    margin: 0;
+    padding: 0 10px;
+    padding-top: 70px;
+    margin-top: 20px;
+    width: 100px; }
+  /* line 1149, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  p, .step p, .list-item {
+    font-size: 12pt;
+    font-weight: normal; }
+  /* line 1153, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  h1 {
+    font-size: 28pt; }
+  /* line 1156, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  h2 {
+    font-size: 19pt; }
+  /* line 1159, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .step h3 {
+    font-size: 20pt; }
+  /* line 1162, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .partner {
+    width: 80px;
+    margin: 20px; }
+  /* line 1166, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  #partners {
+    line-height: normal;
+    padding: 20px; } }
+
+@media screen and (max-width: 400px) {
+  /* line 1173, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .button {
+    font-size: 12pt;
+    padding: 8px 18px;
+    margin: 8px 5px; }
+  /* line 1178, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .step {
+    margin: 0;
+    padding: 0 5px;
+    padding-top: 70px;
+    margin-top: 20px;
+    width: 100px; }
+  /* line 1185, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .box h1, .box h2 {
+    text-align: center; } }
+
+@media screen and (max-height: 600px) {
+  /* line 1190, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  .google-map-box {
+    display: none; }
+  /* line 1193, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  #logo {
+    background-size: 120px 120px;
+    padding-top: 130px;
+    font-size: 24pt; }
+  /* line 1198, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  #header p {
+    font-size: 12pt;
+    font-weight: normal; }
+  /* line 1202, /Users/Andreas/Development/Python/Lunchbreak/lunchbreak/frontend/scss/style.scss */
+  #header .text {
+    padding: 20px 0 10px 0; } }
+
+/*# sourceMappingURL=../../../../../../../../static/style.css.map */

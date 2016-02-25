@@ -18,7 +18,7 @@
 		/* padding right en dropdown icoon toevoegen*/
 		padding: 7px 10px;
 		padding-right: 30px;
-		background: url('../img/icons/dropdown.png') no-repeat right center;
+		background: url('img/icons/dropdown.png') no-repeat right center;
 		&:hover{
 			background-color: #f7f7f7;
 			border-radius: 3px;
@@ -76,7 +76,7 @@
 	right: 4px;
 	z-index: 1;
 	background: gray;
-	background: url('../img/icons/popover-arrow.png') no-repeat right top;
+	background: url('img/icons/popover-arrow.png') no-repeat right top;
 }
 .language-popover{
 	display: none;

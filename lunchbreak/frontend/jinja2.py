@@ -6,8 +6,12 @@ from django.utils import translation
 from jinja2 import Environment
 
 
-def environment(**options):
-    env = Environment(**options)
+def environment(**kwargs):
+    extensions = [] if 'extensions' not in kwargs else kwargs['extensions']
+    extensions.append('sass_processor.jinja2.ext.SassSrc')
+    kwargs['extensions'] = extensions
+
+    env = Environment(**kwargs)
     env.globals.update(
         {
             'static': staticfiles_storage.url,
