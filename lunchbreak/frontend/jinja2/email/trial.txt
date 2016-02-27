@@ -1,0 +1,7 @@
+Het formulier op de Lunchbreak website werd ingevuld met onderstaande gegevens.
+
+Bedrijfsnaam: {{ company }}
+Land: {{ country }}
+Stad: {{ city }}
+E-mailadres: {{ email }}
+Telefoon: {{ phone }}

@@ -1,7 +1,11 @@
+from __future__ import unicode_literals
+
 import collections
 import copy
 
 from django.conf import settings
+from django.core.mail import BadHeaderError, EmailMultiAlternatives
+from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import View
 from django.views.generic.base import TemplateResponseMixin
@@ -578,6 +582,33 @@ class TrialPage(Page):
 
         if form.is_valid():
             context['trial']['valid'] = True
+
+            company = request.POST['company']
+            template_context = {
+                'company': company,
+                'country': request.POST['country'],
+                'city': request.POST['city'],
+                'email': request.POST['email'],
+                'phone': request.POST['phone'],
+            }
+
+            subject = '{company} wil Lunchbreak uitproberen'.format(
+                company=company.capitalize()
+            )
+            to_email = 'hello@cloock.be'
+            plaintext = render_to_string('email/trial.txt', template_context)
+
+            msg = EmailMultiAlternatives(
+                subject,
+                plaintext,
+                settings.EMAIL_FROM,
+                [to_email]
+            )
+
+            try:
+                msg.send()
+            except BadHeaderError:
+                pass
         else:
             context['trial']['form'] = form
 
