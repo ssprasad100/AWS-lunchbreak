@@ -2,6 +2,8 @@
 @import "photoswipe/photoswipe.scss";
 @import "photoswipe/default-skin.scss";
 
+$red: #FF3030;
+
 
 /* Background Gradient: Top to Bottom*/
 @mixin bg-gradient-t2b($start-colour, $end-colour) {
@@ -37,11 +39,11 @@ a, img {
 }
 
 a, a:link, a:visited, a:focus, a:hover, a:active{
-	color: #FF3030;
+	color: $red;
 	text-decoration: none;
 }
 a:hover{
-	color: #FF3030;
+	color: $red;
 	text-decoration: underline;
 }
 a.button:hover{
@@ -109,13 +111,6 @@ h2{
 	-webkit-text-size-adjust: 100%;
 }
 
-/*h2{
-	color: #464646;
-	font-weight: 300;
-	font-size: 18pt;
-	margin: 10px 0;
-	-webkit-text-size-adjust: 100%;
-}*/
 h3{
 	font-weight: 300;
 	font-size: 18pt;
@@ -169,7 +164,6 @@ h3{
 }
 
 .next.box{
-	/*border-top: 4px solid #e8e8e8;*/
 	position: relative;
 	display: block;
 }
@@ -343,12 +337,12 @@ a.menu-item:hover{
 	border-radius: 5px;
 	margin: 10px;
 	display: inline-block;
-	color: #FF3030;
+	color: $red;
 	font-size: 14pt;
 	font-weight: normal;
 	cursor: pointer;
 
-	border-color: #FF3030;
+	border-color: $red;
 
 	text-align: center;
 
@@ -371,8 +365,8 @@ input.button{
 	background: none;
 }
 .red.button, #header-content .red.button{
-	border-color: #FF3030;
-	background: #FF3030;
+	border-color: $red;
+	background: $red;
 	color: white;
 }
 
@@ -579,7 +573,7 @@ input.button{
 	margin-bottom: 0;
 }
 .price-box .price{
-	color: #FF3030;
+	color: $red;
 }
 .price-box .unsplit-center-bundle-container{
 	margin: 20px 0;
@@ -637,7 +631,7 @@ input.button{
 }
 .step h3{
 	font-size: 26pt;
-	color: #FF3030;
+	color: $red;
 	font-weight: 300;
 	margin: 0;
 	padding: 0;
@@ -661,42 +655,42 @@ input.button{
 	display: table-cell;
 	vertical-align: middle;
 }
-.store{
+.store {
 	border-left: 2px solid #C9C9C9;
 	padding: 10px 20px;
 	margin: 10px 0;
-}
-.store.soon{
-	border-left: 2px dashed #C9C9C9;
-}
+	&.soon {
+		border-left: 2px dashed #C9C9C9;
+	}
+	 h3 {
+		color:  $red;
+		padding: 0;
+		margin: 0 0 5px 0;
+		font-size: 14pt;
+		font-weight: normal;
+	}
 
-.store h3{
-	color:  #FF3030;
-	padding: 0;
-	margin: 0 0 5px 0;
-	font-size: 14pt;
-	font-weight: normal;
-}
-.store.search{
-	margin: 0;
-	padding: 5px 20px;
-}
-.store.search h2{
-	color: inherit;
-	font-size: 18pt;
-}
-.store p{
-	margin: 0;
-	padding: 0;
-}
-.store p.location{
-	font-size: 10pt;
-	margin-bottom: 10px;
+	&.search{
+		margin: 0;
+		padding: 5px 20px;
+	}
+	&.search h2{
+		color: inherit;
+		font-size: 18pt;
+	}
+	p{
+		margin: 0;
+		padding: 0;
+		&.location{
+			font-size: 10pt;
+			margin-bottom: 10px;
+		}
+	}
 }
 .store-add{
 	font-size: 14pt;
 	font-weight: 300;
-	color: #FF3030;
+	color: $red;
 	margin: 0;
 	padding: 0 0 10px 0;
 	text-align: left;
@@ -749,25 +743,56 @@ input{
 	border: 0;
 	display: block;
 	outline: none;
-}
-input.text{
-	padding: 8px 22px;
-	border-width: 1px;
-	border-style: solid;
-	border-radius: 5px;
-	margin: 20px 0;
-	display: block;
-	color: #686868;
-	font-size: 14pt;
-	font-weight: normal;
-	outline: none;
-	border-color: #686868;
+	&.text{
+		padding: 8px 22px;
+		border-width: 1px;
+		border-style: solid;
+		border-radius: 5px;
+		margin: 20px 0;
+		display: block;
+		color: #686868;
+		font-size: 14pt;
+		font-weight: normal;
+		outline: none;
+		border-color: #686868;
 
-	border: 0;
-	width: 100%;
-	text-align: center;
-	box-sizing: border-box;
-	background: rgb(247, 247, 247);
+		border: 0;
+		width: 100%;
+		text-align: center;
+		box-sizing: border-box;
+		background: rgb(247, 247, 247);
+	}
+}
+
+@keyframes highlight {
+	0% {
+		background: rgba(255, 48, 48, 0.2);
+	}
+
+	25% {
+		background: rgba(255, 48, 48, 0.4);
+	}
+
+	50% {
+		background: rgba(255, 48, 48, 0.2);
+	}
+
+	75% {
+		background: rgba(255, 48, 48, 0.4);
+	}
+
+	100% {
+		background: rgba(255, 48, 48, 0.2);
+	}
+}
+
+.signal {
+	display: none;
+
+	& + input.text {
+		animation: highlight 1s ease;
+		background: rgba(255, 48, 48, 0.2);
+	}
 }
 .placeholder, ::-webkit-input-placeholder, ::-moz-placeholder, :-ms-input-placeholder, input:-moz-placeholder {
 	color: #909090;

@@ -24,6 +24,7 @@ def environment(**kwargs):
             'static': staticfiles_storage.url,
             'url': reverse,
             'lang_code': translation.get_language(),
+            'dir': dir
         }
     )
     return env

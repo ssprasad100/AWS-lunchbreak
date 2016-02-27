@@ -1,10 +1,12 @@
 import collections
-import json
+import copy
 
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import View
 from django.views.generic.base import TemplateResponseMixin
+
+from .forms import TrialForm
 
 language_flags = {
     'nl-be': 'be',
@@ -58,7 +60,7 @@ class PageView(View, TemplateResponseMixin):
 
     def get(self, request, *args, **kwargs):
         return self.render_to_response(
-            context=self.context,
+            context=self.context.copy(),
             **kwargs
         )
 
@@ -535,8 +537,54 @@ class PricingPage(Page):
 class TrialPage(Page):
     template_name = 'pages/trial.html'
     context = {
+        'title': _('Lunchbreak: Free trial'),
+        'description': _('Try Lunchbreak for free with the free trial and '
+                         'start accepting orders online!'),
 
+        'menu': {
+            'background': 'white'
+        },
+
+        'trial': {
+            'title': _('Signup'),
+            'description': _('Enter your details below and we will set you up '
+                             'with Lunchbreak as soon as possible!'),
+            'form': TrialForm(),
+            'submit': _('Signup'),
+            'error': {
+                'title': _('Slight problem!'),
+                'description': _('Check for any errors in your entry and try again.'),
+            },
+
+            'success': {
+                'title': _('Welcome!'),
+                'description': _('We will get in touch as soon as possible. '
+                                 'Got any questions in the meantime? You can '
+                                 'reach out to us at hello@cloock.be or '
+                                 '+32 479 42 78 66.'),
+            }
+        }
     }
+
+    def get(self, request, *args, **kwargs):
+        self.context['trial']['form'] = TrialForm()
+        return super(TrialPage, self).get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        context = copy.deepcopy(self.context)
+        form = TrialForm(
+            request.POST
+        )
+
+        if form.is_valid():
+            context['trial']['valid'] = True
+        else:
+            context['trial']['form'] = form
+
+        return self.render_to_response(
+            context=context,
+            **kwargs
+        )
 
 
 class TermsPage(Page):
