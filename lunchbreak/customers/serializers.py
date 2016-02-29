@@ -133,6 +133,7 @@ class OrderedFoodPriceSerializer(serializers.ModelSerializer):
 
 
 class ShortOrderSerializer(serializers.ModelSerializer):
+
     '''Used after placing an order for confirmation.'''
 
     orderedFood = OrderedFoodSerializer(
@@ -142,13 +143,13 @@ class ShortOrderSerializer(serializers.ModelSerializer):
 
     def costCheck(self, calculatedCost, food, amount, givenCost):
         if math.ceil(
-            (
-                calculatedCost * amount * (
-                    food.amount
-                    if food.foodType.inputType == INPUT_SI_SET
-                    else 1
-                )
-            ) * 100) / 100.0 != float(givenCost):
+                (
+                    calculatedCost * amount * (
+                        food.amount
+                        if food.foodType.inputType == INPUT_SI_SET
+                        else 1
+                    )
+                ) * 100) / 100.0 != float(givenCost):
             raise CostCheckFailed()
 
     def amountCheck(self, food, amount):
@@ -162,7 +163,7 @@ class ShortOrderSerializer(serializers.ModelSerializer):
             raise AmountInvalid()
 
     def create(self, validated_data):
-        pickupTime = validated_data['pickupTime']
+        pickup = validated_data['pickup']
         orderedFood = validated_data['orderedFood']
         store = validated_data['store']
         description = validated_data.get('description', '')
@@ -170,17 +171,17 @@ class ShortOrderSerializer(serializers.ModelSerializer):
         if len(orderedFood) == 0:
             raise BadRequest('orderedFood empty.')
 
-        Store.checkOpen(store, pickupTime)
+        Store.checkOpen(store, pickup)
 
         user = self.context['user']
 
-        order = Order(user=user, store=store, pickupTime=pickupTime, description=description)
+        order = Order(user=user, store=store, pickup=pickup, description=description)
         order.save()
 
         try:
             for f in orderedFood:
                 original = f['original']
-                if not original.canOrder(pickupTime):
+                if not original.canOrder(pickup):
                     raise MinDaysExceeded()
                 amount = f['amount'] if 'amount' in f else 1
                 self.amountCheck(original, amount)
@@ -227,10 +228,10 @@ class ShortOrderSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'store',
-            'pickupTime',
+            'pickup',
             'paid',
             'total',
-            'confirmedTotal',
+            'total_confirmed',
             'orderedFood',
             'status',
             'description',
@@ -239,38 +240,7 @@ class ShortOrderSerializer(serializers.ModelSerializer):
             'id',
             'paid',
             'total',
-            'confirmedTotal',
-            'status',
-        )
-        write_only_fields = (
-            'description',
-        )
-
-
-class ShortOrderSerializerOld(ShortOrderSerializer):
-    total = serializers.DecimalField(
-        source='eventualTotal',
-        max_digits=7,
-        decimal_places=2,
-        read_only=True
-    )
-
-    class Meta:
-        model = Order
-        fields = (
-            'id',
-            'store',
-            'pickupTime',
-            'paid',
-            'total',
-            'orderedFood',
-            'status',
-            'description',
-        )
-        read_only_fields = (
-            'id',
-            'paid',
-            'total',
+            'total_confirmed',
             'status',
         )
         write_only_fields = (
@@ -279,6 +249,7 @@ class ShortOrderSerializerOld(ShortOrderSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
+
     '''Used for listing a specific or all orders.'''
 
     store = lunchSerializers.StoreSerializer(
@@ -295,58 +266,24 @@ class OrderSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'store',
-            'orderedTime',
-            'pickupTime',
+            'placed',
+            'pickup',
             'status',
             'paid',
             'total',
-            'confirmedTotal',
+            'total_confirmed',
             'orderedfood',
             'description',
         )
         read_only_fields = (
             'id',
             'store',
-            'orderedTime',
-            'pickupTime',
+            'placed',
+            'pickup',
             'status',
             'paid',
             'total',
-            'confirmedTotal',
-            'orderedfood',
-            'description',
-        )
-
-
-class OrderSerializerOld(OrderSerializer):
-    total = serializers.DecimalField(
-        source='eventualTotal',
-        max_digits=7,
-        decimal_places=2,
-        read_only=True
-    )
-
-    class Meta:
-        model = Order
-        fields = (
-            'id',
-            'store',
-            'orderedTime',
-            'pickupTime',
-            'status',
-            'paid',
-            'total',
-            'orderedfood',
-            'description',
-        )
-        read_only_fields = (
-            'id',
-            'store',
-            'orderedTime',
-            'pickupTime',
-            'status',
-            'paid',
-            'total',
+            'total_confirmed',
             'orderedfood',
             'description',
         )

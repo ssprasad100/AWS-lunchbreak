@@ -79,7 +79,7 @@ urlpatterns = patterns(
 
     url(
         r'^order'
-        r'/(?P<option>pickupTime|orderedTime)?'
+        r'/(?P<option>pickup|placed)?'
         r'/?(?P<datetime>\d{8}T\d{6}|\d{2}-\d{2}-\d{4}-\d{2}-\d{2}-\d{2})?/?$',
         views.OrderListView.as_view()
     ),

@@ -22,8 +22,8 @@ class ReservationAdmin(admin.ModelAdmin):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('user', 'store', 'orderedTime', 'pickupTime', 'status', 'paid',)
-    readonly_fields = ('orderedTime',)
+    list_display = ('user', 'store', 'placed', 'pickup', 'status', 'paid',)
+    readonly_fields = ('placed',)
 
 
 @admin.register(UserToken)

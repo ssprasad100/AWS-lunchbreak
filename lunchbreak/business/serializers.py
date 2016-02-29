@@ -221,21 +221,21 @@ class ShortOrderSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'user',
-            'orderedTime',
-            'pickupTime',
+            'placed',
+            'pickup',
             'status',
             'paid',
             'total',
-            'confirmedTotal',
+            'total_confirmed',
         )
         read_only_fields = (
             'id',
             'user',
-            'orderedTime',
-            'pickupTime',
+            'placed',
+            'pickup',
             'paid',
             'total',
-            'confirmedTotal',
+            'total_confirmed',
         )
 
 
@@ -290,8 +290,8 @@ class OrderSerializer(ShortOrderSerializer):
         read_only_fields = (
             'id',
             'user',
-            'orderedTime',
-            'pickupTime',
+            'placed',
+            'pickup',
             'paid',
             'total',
             'orderedFood',

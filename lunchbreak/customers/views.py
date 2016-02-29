@@ -3,14 +3,12 @@ from customers.config import DEMO_DIGITS_ID, DEMO_PHONE
 from customers.digits import Digits
 from customers.models import (Heart, Order, OrderedFood, Reservation, User,
                               UserToken)
-from customers.serializers import (OrderedFoodPriceSerializer, OrderSerializer,
-                                   OrderSerializerOld, ReservationSerializer,
-                                   ShortOrderSerializer,
-                                   ShortOrderSerializerOld,
+from customers.serializers import (MultiUserTokenSerializer,
+                                   OrderedFoodPriceSerializer, OrderSerializer,
+                                   ReservationSerializer, ShortOrderSerializer,
                                    StoreHeartSerializer,
                                    StoreHeartSerializerV3, UserLoginSerializer,
                                    UserRegisterSerializer, UserSerializer,
-                                   MultiUserTokenSerializer,
                                    UserTokenUpdateSerializer)
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404
@@ -34,7 +32,8 @@ from rest_framework.views import APIView
 
 
 class FoodRetrieveView(generics.RetrieveAPIView):
-    '''Retrieve a specific food.'''
+
+    """Retrieve a specific food."""
 
     authentication_classes = (CustomerAuthentication,)
     serializer_class = SingleFoodSerializer
@@ -52,7 +51,8 @@ class FoodRetrieveView(generics.RetrieveAPIView):
 
 
 class FoodListView(generics.ListAPIView):
-    '''List the available food.'''
+
+    """List the available food."""
 
     authentication_classes = (CustomerAuthentication,)
     serializer_class = MultiFoodSerializer
@@ -88,7 +88,8 @@ class FoodListView(generics.ListAPIView):
 
 
 class FoodCategoryRetrieveView(generics.RetrieveAPIView):
-    ''' List all food categories. '''
+
+    """List all food categories."""
 
     authentication_classes = (CustomerAuthentication,)
     serializer_class = FoodCategorySerializer
@@ -98,15 +99,11 @@ class FoodCategoryRetrieveView(generics.RetrieveAPIView):
 
 
 class OrderView(generics.ListCreateAPIView):
-    '''Place an order and list a specific or all of the user's orders.'''
+
+    """Place an order and list a specific or all of the user's orders."""
 
     authentication_classes = (CustomerAuthentication,)
-
-    def get_serializer_class(self):
-        if self.request.version > 1:
-            return ShortOrderSerializer
-        else:
-            return ShortOrderSerializerOld
+    serializer_class = ShortOrderSerializer
 
     def get_queryset(self):
         return Order.objects.select_related(
@@ -114,7 +111,7 @@ class OrderView(generics.ListCreateAPIView):
         ).filter(
             user=self.request.user
         ).order_by(
-            '-pickupTime'
+            '-pickup'
         )
 
     def create(self, request, pay=False, *args, **kwargs):
@@ -142,18 +139,14 @@ class OrderView(generics.ListCreateAPIView):
 
 
 class OrderRetrieveView(generics.RetrieveAPIView):
-    '''Retrieve a single order.'''
+
+    """Retrieve a single order."""
 
     authentication_classes = (CustomerAuthentication,)
     queryset = Order.objects.select_related(
         'store',
     ).all()
-
-    def get_serializer_class(self):
-        if self.request.version > 1:
-            return OrderSerializer
-        else:
-            return OrderSerializerOld
+    serializer_class = OrderSerializer
 
 
 class OrderPriceView(generics.CreateAPIView):
@@ -161,7 +154,7 @@ class OrderPriceView(generics.CreateAPIView):
     serializer_class = OrderedFoodPriceSerializer
 
     def post(self, request, format=None):
-        '''Return the price of the food.'''
+        """Return the price of the food."""
         priceSerializer = OrderedFoodPriceSerializer(data=request.data, many=True)
         if priceSerializer.is_valid():
             result = []
@@ -193,7 +186,8 @@ class ReservationSingleView(generics.RetrieveUpdateAPIView):
 
 
 class StoreHeartView(generics.RetrieveUpdateAPIView):
-    '''Heart or unheart a store.'''
+
+    """Heart or unheart a store."""
 
     authentication_classes = (CustomerAuthentication,)
     serializer_class = StoreHeartSerializer
@@ -233,7 +227,8 @@ class StoreHeartView(generics.RetrieveUpdateAPIView):
 
 
 class HolidayPeriodListView(generics.ListAPIView):
-    '''List the holiday periods of a store.'''
+
+    """List the holiday periods of a store."""
 
     authentication_classes = (CustomerAuthentication,)
     serializer_class = HolidayPeriodSerializer
@@ -244,7 +239,8 @@ class HolidayPeriodListView(generics.ListAPIView):
 
 
 class OpeningHoursListView(generics.ListAPIView):
-    '''List the opening hours of a store.'''
+
+    """List the opening hours of a store."""
 
     authentication_classes = (CustomerAuthentication,)
     serializer_class = OpeningHoursSerializer
@@ -255,7 +251,8 @@ class OpeningHoursListView(generics.ListAPIView):
 
 
 class FoodCategoryListView(generics.ListAPIView):
-    ''' List all food categories. '''
+
+    """ List all food categories. """
 
     authentication_classes = (CustomerAuthentication,)
     serializer_class = ShortFoodCategorySerializer
@@ -282,7 +279,8 @@ class StoreHeaderView(APIView):
 
 
 class StoreHoursView(generics.ListAPIView):
-    '''List the opening hours and holiday periods of a store.'''
+
+    """List the opening hours and holiday periods of a store."""
 
     authentication_classes = (CustomerAuthentication,)
     serializer_class = HoursSerializer
@@ -294,7 +292,8 @@ class StoreHoursView(generics.ListAPIView):
 
 
 class StoreMultiView(generics.ListAPIView):
-    '''List the stores.'''
+
+    """List the stores."""
 
     authentication_classes = (CustomerAuthentication,)
     serializer_class = ShortStoreSerializer
@@ -316,7 +315,7 @@ class StoreMultiView(generics.ListAPIView):
                 order__user=self.request.user,
                 enabled=True
             ).order_by(
-                '-order__orderedTime'
+                '-order__placed'
             ).distinct()
 
 
@@ -325,7 +324,8 @@ class StoreCategoryListView(StoreCategoryListViewBase):
 
 
 class UserTokenView(generics.ListAPIView):
-    '''Return all of the Tokens for the authenticated user.'''
+
+    """Return all of the Tokens for the authenticated user."""
 
     authentication_classes = (CustomerAuthentication,)
     serializer_class = MultiUserTokenSerializer
@@ -397,7 +397,8 @@ class UserView(generics.CreateAPIView):
                 givenName = request.data.get('name', False)
                 name = givenName if givenName else user.name
                 if not pin:
-                    # The user is in the database, but isn't sending a pin code so he's trying to signin/register
+                    # The user is in the database, but isn't sending a pin code so he's trying
+                    # to signin/register
                     if user.confirmedAt:
                         result = self.signIn(digits, phone)
                         if result:
@@ -422,12 +423,14 @@ class UserView(generics.CreateAPIView):
                             user.confirmedAt = timezone.now()
 
                         if not user.request_id and not user.digits_id:
-                            # The user already got a message, but just got added to the Digits database
+                            # The user already got a message, but just got added to the Digits
+                            # database
                             user.digits_id = self.confirmRegistration(digits, phone, pin)
                             user.save()
                             success = True
                         else:
-                            # The user already was in the Digits database and got a request and user id
+                            # The user already was in the Digits database and got a request and
+                            # user id
                             self.confirmSignin(digits, user.request_id, user.digits_id, pin)
                             user.save()
                             success = True
@@ -440,7 +443,8 @@ class UserView(generics.CreateAPIView):
 
             if 'device' in request.data:
                 try:
-                    demoUser = User.objects.get(phone=request.data['phone'], request_id=request.data['pin'], digits_id='demo')
+                    demoUser = User.objects.get(
+                        phone=request.data['phone'], request_id=request.data['pin'], digits_id='demo')
                 except ObjectDoesNotExist:
                     pass
                 else:
@@ -456,7 +460,8 @@ class UserTokenUpdateView(generics.UpdateAPIView):
     def update(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
-            request.auth.registration_id = request.data.get('registration_id', request.auth.registration_id)
+            request.auth.registration_id = request.data.get(
+                'registration_id', request.auth.registration_id)
             request.auth.service = request.data.get('service', request.auth.service)
             request.auth.save()
             return Response(

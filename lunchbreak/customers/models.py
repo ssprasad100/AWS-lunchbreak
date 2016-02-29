@@ -218,11 +218,11 @@ class Reservation(models.Model):
 class Order(models.Model, DirtyFieldsMixin):
     user = models.ForeignKey(User)
     store = models.ForeignKey(Store)
-    orderedTime = models.DateTimeField(
+    placed = models.DateTimeField(
         auto_now_add=True,
         verbose_name='Time of placement'
     )
-    pickupTime = models.DateTimeField(
+    pickup = models.DateTimeField(
         verbose_name='Time of pickup'
     )
     status = models.PositiveIntegerField(
@@ -237,7 +237,7 @@ class Order(models.Model, DirtyFieldsMixin):
         max_digits=7,
         default=0
     )
-    confirmedTotal = models.DecimalField(
+    total_confirmed = models.DecimalField(
         decimal_places=2,
         max_digits=7,
         default=None,
@@ -255,8 +255,8 @@ class Order(models.Model, DirtyFieldsMixin):
 
     def save(self, *args, **kwargs):
         self.total = 0
-        orderedFood = self.orderedfood_set.all()
-        for f in orderedFood:
+        orderedfood = self.orderedfood_set.all()
+        for f in orderedfood:
             self.total += f.total
 
         if self.pk is None:
@@ -289,16 +289,12 @@ class Order(models.Model, DirtyFieldsMixin):
         super(Order, self).save(*args, **kwargs)
 
         if dirtyStatus is not None and self.status in ORDER_ENDED:
-            for f in orderedFood:
+            for f in orderedfood:
                 try:
                     if f.original.deleted:
                         f.original.delete()
                 except Food.DoesNotExist:
                     pass
-
-    @cached_property
-    def eventualTotal(self):  # Used for older API versions towards customers
-        return self.confirmedTotal if self.confirmedTotal is not None else self.total
 
     def __unicode__(self):
         return '{user} {id}'.format(

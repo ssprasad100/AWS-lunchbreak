@@ -289,17 +289,17 @@ class Store(models.Model):
         return self.hearts.count()
 
     @staticmethod
-    def checkOpen(store, pickupTime, now=None):
+    def checkOpen(store, pickup, now=None):
         now = timezone.now() if now is None else now
 
-        if pickupTime < now:
+        if pickup < now:
             raise PastOrderDenied()
 
-        if pickupTime - now < store.minTime:
+        if pickup - now < store.minTime:
             raise MinTimeExceeded()
 
         holidayPeriods = HolidayPeriod.objects.filter(
-            store=store, start__lte=pickupTime, end__gte=pickupTime)
+            store=store, start__lte=pickup, end__gte=pickup)
 
         closed = False
         for holidayPeriod in holidayPeriods:
@@ -314,9 +314,9 @@ class Store(models.Model):
 
             # datetime.weekday(): return monday 0 - sunday 6
             # datetime.strftime('%w'): return sunday 0 - monday 6
-            pickupDay = pickupTime.strftime('%w')
+            pickupDay = pickup.strftime('%w')
             openingHours = OpeningHours.objects.filter(store=store, day=pickupDay)
-            pTime = pickupTime.time()
+            pTime = pickup.time()
 
             for o in openingHours:
                 if o.opening <= pTime <= o.closing:
@@ -682,7 +682,7 @@ class Food(models.Model):
                 ingredientRelation.typical = False
                 ingredientRelation.save()
 
-    def canOrder(self, pickupTime, now=None):
+    def canOrder(self, pickup, now=None):
         '''
         Check whether this food can be ordered for the given day.
         This does not check whether the Store.minTime has been exceeded!
@@ -696,11 +696,11 @@ class Food(models.Model):
             minDays = self.minDays + (1 if now.time() > self.store.orderTime else 0)
 
             # Calculate the amount of days between pickup and now
-            dayDifference = (pickupTime - now).days
+            dayDifference = (pickup - now).days
             dayDifference += (
                 1
-                if pickupTime.time() < now.time() and
-                (now + (pickupTime - now)).day != now.day
+                if pickup.time() < now.time() and
+                (now + (pickup - now)).day != now.day
                 else 0
             )
 

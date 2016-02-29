@@ -8,6 +8,9 @@ from Lunchbreak.exceptions import LunchbreakException
 
 
 class Digits:
+
+    """Twitter Digits wrapper."""
+
     CONSUMER_KEY = 'EF63FOnX3hZ1Ry7lRUXhJtAkr'
     CONSUMER_SECRET = 'aIKxPtKqKD1G2NisdKCACzPlEEMi2Jyg4xQH6pzlEjxiCXIRob'
 

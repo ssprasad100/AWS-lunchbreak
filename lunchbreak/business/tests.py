@@ -155,7 +155,7 @@ class BusinessTests(LunchbreakTestCase):
         order = Order.objects.create(
             user=self.user,
             store=self.store,
-            pickupTime=timezone.now() + timedelta(days=1)
+            pickup=timezone.now() + timedelta(days=1)
         )
 
         orderedFood = OrderedFood.objects.create(

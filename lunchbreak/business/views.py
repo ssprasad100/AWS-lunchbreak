@@ -192,8 +192,8 @@ class FoodPopularView(generics.ListAPIView):
             to = to if to is not None else timezone.now()
             return Food.objects.filter(
                 store_id=self.request.user.staff.store_id,
-                orderedfood__order__pickupTime__gt=frm,
-                orderedfood__order__pickupTime__lt=to
+                orderedfood__order__pickup__gt=frm,
+                orderedfood__order__pickup__lt=to
             ).annotate(
                 orderAmount=Count('orderedfood')
             ).order_by('-orderAmount')
@@ -312,14 +312,14 @@ class OrderListView(generics.ListAPIView):
             )
 
             if 'option' in self.kwargs \
-                    and self.kwargs['option'] == 'pickupTime':
+                    and self.kwargs['option'] == 'pickup':
                 if since is not None:
-                    filters['pickupTime__gt'] = since
-                return Order.objects.filter(**filters).order_by('pickupTime')
+                    filters['pickup__gt'] = since
+                return Order.objects.filter(**filters).order_by('pickup')
             else:
                 if since is not None:
-                    filters['orderedTime__gt'] = since
-                return Order.objects.filter(**filters).order_by('-orderedTime')
+                    filters['placed__gt'] = since
+                return Order.objects.filter(**filters).order_by('-placed')
         return Order.objects.filter(**filters)
 
 
@@ -359,12 +359,12 @@ class OrderSpreadView(viewsets.ReadOnlyModelViewSet):
                 COUNT(customers_order.id) as amount,
                 SUM(customers_order.total) as sm,
                 AVG(customers_order.total) as average,
-                {unit}(customers_order.pickupTime) as unit
+                {unit}(customers_order.pickup) as unit
             FROM
                 customers_order
             WHERE
-                customers_order.pickupTime > %s
-                AND customers_order.pickupTime < %s
+                customers_order.pickup > %s
+                AND customers_order.pickup < %s
                 AND customers_order.store_id = %s
                 AND customers_order.status = %s
             GROUP BY

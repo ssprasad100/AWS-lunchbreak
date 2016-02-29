@@ -338,7 +338,7 @@ class CustomersTests(LunchbreakTestCase):
         self.food, original = self.duplicateModel(self.food)
 
         content = {
-            'pickupTime': (timezone.now() + timedelta(days=1)).strftime(settings.DATETIME_FORMAT),
+            'pickup': (timezone.now() + timedelta(days=1)).strftime(settings.DATETIME_FORMAT),
             'store': self.store.id,
             'orderedFood': [
                 {
