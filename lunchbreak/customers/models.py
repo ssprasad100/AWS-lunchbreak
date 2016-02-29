@@ -172,11 +172,11 @@ class Reservation(models.Model):
             MinValueValidator(1)
         ]
     )
-    placedTime = models.DateTimeField(
+    placed = models.DateTimeField(
         auto_now_add=True,
         verbose_name='Time of placement'
     )
-    reservationTime = models.DateTimeField(
+    reservation_time = models.DateTimeField(
         verbose_name='Time of reservation'
     )
     comment = models.TextField(
@@ -202,7 +202,7 @@ class Reservation(models.Model):
         if self.seats > self.store.maxSeats:
             raise MaxSeatsExceeded()
 
-        Store.checkOpen(self.store, self.reservationTime)
+        Store.checkOpen(self.store, self.reservation_time)
 
         super(Reservation, self).clean(*args, **kwargs)
 

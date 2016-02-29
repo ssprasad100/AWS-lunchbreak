@@ -469,8 +469,8 @@ class ReservationSerializer(serializers.ModelSerializer):
             'id',
             'user',
             'seats',
-            'placedTime',
-            'reservationTime',
+            'placed',
+            'reservation_time',
             'comment',
             'suggestion',
             'response',
@@ -479,7 +479,7 @@ class ReservationSerializer(serializers.ModelSerializer):
         read_only_fields = (
             'id',
             'user',
-            'placedTime',
-            'reservationTime',
+            'placed',
+            'reservation_time',
             'comment',
         )

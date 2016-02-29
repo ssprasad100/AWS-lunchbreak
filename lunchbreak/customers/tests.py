@@ -442,8 +442,8 @@ class CustomersTests(LunchbreakTestCase):
 
         content = {
             'store': self.store.id,
-            # No need to check reservationTime, see Store.checkOpen test
-            'reservationTime': (timezone.now() + timedelta(days=1)).strftime(settings.DATETIME_FORMAT),
+            # No need to check reservation_time, see Store.checkOpen test
+            'reservation_time': (timezone.now() + timedelta(days=1)).strftime(settings.DATETIME_FORMAT),
             'seats': 0
         }
 
@@ -470,7 +470,7 @@ class CustomersTests(LunchbreakTestCase):
             user=self.user,
             store=self.store,
             # For some reason Travis running Python 2.7.9 saves microseconds and 2.7.10 doesn't
-            reservationTime=(timezone.now() + timedelta(days=1)).replace(microsecond=0),
+            reservation_time=(timezone.now() + timedelta(days=1)).replace(microsecond=0),
             seats=self.store.maxSeats
         )
 
@@ -479,7 +479,7 @@ class CustomersTests(LunchbreakTestCase):
 
         deniedAttributes = {
             'seats': self.store.maxSeats - 1,
-            'reservationTime': (timezone.now() + timedelta(days=2)).strftime(settings.DATETIME_FORMAT),
+            'reservation_time': (timezone.now() + timedelta(days=2)).strftime(settings.DATETIME_FORMAT),
             'store': self.otherStore.id,
             'user': self.otherUser.id
         }

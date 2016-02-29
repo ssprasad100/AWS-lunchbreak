@@ -58,8 +58,8 @@ class ReservationSerializer(serializers.ModelSerializer):
             'user',
             'store',
             'seats',
-            'placedTime',
-            'reservationTime',
+            'placed',
+            'reservation_time',
             'comment',
             'suggestion',
             'response',
@@ -67,13 +67,13 @@ class ReservationSerializer(serializers.ModelSerializer):
         )
         read_only_fields = (
             'id',
-            'placedTime',
+            'placed',
             'suggestion',
             'response',
         )
         write_only_fields = (
             'store',
-            'reservationTime',
+            'reservation_time',
         )
 
     def update(self, instance, validated_data):

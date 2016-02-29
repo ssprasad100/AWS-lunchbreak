@@ -17,7 +17,7 @@ class UserAdmin(admin.ModelAdmin):
 
 @admin.register(Reservation)
 class ReservationAdmin(admin.ModelAdmin):
-    readonly_fields = ('placedTime',)
+    readonly_fields = ('placed',)
 
 
 @admin.register(Order)
