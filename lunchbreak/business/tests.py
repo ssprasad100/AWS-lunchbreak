@@ -43,7 +43,7 @@ class BusinessTests(LunchbreakTestCase):
             name=BusinessTests.NAME_USER
         )
 
-        self.userToken = UserToken.objects.create(
+        self.usertoken = UserToken.objects.create(
             identifier='something',
             device='something',
             user=self.user,
@@ -180,7 +180,7 @@ class BusinessTests(LunchbreakTestCase):
         # Trying to delete it while there still is a depending OrderedFood
         # should return 200
         request = self.factory.delete(url, format=BusinessTests.FORMAT)
-        response = self.authenticateRequest(
+        response = self.authenticate_request(
             request,
             views.FoodSingleView,
             user=self.owner,
@@ -199,7 +199,7 @@ class BusinessTests(LunchbreakTestCase):
         order.save()
 
         request = self.factory.delete(url, format=BusinessTests.FORMAT)
-        response = self.authenticateRequest(
+        response = self.authenticate_request(
             request,
             views.FoodSingleView,
             user=self.owner,
@@ -216,7 +216,7 @@ class BusinessTests(LunchbreakTestCase):
         orderedFood.save()
 
         request = self.factory.delete(url, format=BusinessTests.FORMAT)
-        response = self.authenticateRequest(
+        response = self.authenticate_request(
             request,
             views.FoodSingleView,
             user=self.owner,

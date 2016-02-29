@@ -57,12 +57,12 @@ class CustomersTests(LunchbreakTestCase):
             name=CustomersTests.NAME_USER
         )
 
-        self.otherUser = User.objects.create(
+        self.user_other = User.objects.create(
             phone=CustomersTests.VALID_PHONE2,
             name=CustomersTests.NAME_ALTERNATE
         )
 
-        self.userToken = UserToken.objects.create(
+        self.usertoken = UserToken.objects.create(
             identifier='something',
             device='something',
             user=self.user,
@@ -80,7 +80,7 @@ class CustomersTests(LunchbreakTestCase):
             number=10
         )
 
-        self.otherStore = Store.objects.create(
+        self.store_other = Store.objects.create(
             name='CustomersTestsOther',
             country='België',
             province='Oost-Vlaanderen',
@@ -90,26 +90,26 @@ class CustomersTests(LunchbreakTestCase):
             number=10
         )
 
-        self.foodType = FoodType.objects.create(
+        self.foodtype = FoodType.objects.create(
             name='FoodType test'
         )
 
-        self.foodCategory = FoodCategory.objects.create(
+        self.foodcategory = FoodCategory.objects.create(
             name='FoodCategory test',
             store=self.store
         )
 
         self.ingredientGroup = IngredientGroup.objects.create(
             name='IngredientGroup test',
-            foodType=self.foodType,
+            foodType=self.foodtype,
             store=self.store
         )
 
         self.food = Food.objects.create(
             name='Food test',
             cost=1.00,
-            foodType=self.foodType,
-            category=self.foodCategory,
+            foodType=self.foodtype,
+            category=self.foodcategory,
             store=self.store
         )
 
@@ -167,7 +167,7 @@ class CustomersTests(LunchbreakTestCase):
 
     @mock.patch('customers.models.User.digits_register')
     @mock.patch('customers.models.User.digits_login')
-    def testRegistration(self, mock_login, mock_register):
+    def test_registration(self, mock_login, mock_register):
         mock_info = {
             'digits_id': 123,
             'request_id': 123
@@ -189,7 +189,7 @@ class CustomersTests(LunchbreakTestCase):
         User.objects.filter(phone=CustomersTests.VALID_PHONE).delete()
 
     @mock.patch('customers.models.User.register')
-    def testDemoRegistration(self, mock_register):
+    def test_registration_demo(self, mock_register):
         url = reverse('user-registration')
         content = {
             'phone': DEMO_PHONE
@@ -202,7 +202,7 @@ class CustomersTests(LunchbreakTestCase):
         self.assertFalse(mock_register.called)
 
     @mock.patch('customers.models.User.register')
-    def testInvalidRegistration(self, mock_register):
+    def test_registration_invalid(self, mock_register):
         url = reverse('user-registration')
         content = {
             'phone': CustomersTests.INVALID_PHONE
@@ -220,7 +220,7 @@ class CustomersTests(LunchbreakTestCase):
 
     @mock.patch('customers.digits.Digits.signing_confirm')
     @mock.patch('customers.digits.Digits.register_confirm')
-    def testLogin(self, mock_registration, mock_signin):
+    def test_login(self, mock_registration, mock_signin):
         mock_registration.return_value = {
             'id': 123
         }
@@ -275,7 +275,7 @@ class CustomersTests(LunchbreakTestCase):
         user.delete()
 
     @mock.patch('customers.models.User.login')
-    def testDemoLogin(self, mock_login):
+    def test_login_demo(self, mock_login):
         url = reverse('user-login')
 
         content = {
@@ -308,43 +308,43 @@ class CustomersTests(LunchbreakTestCase):
 
         demo.delete()
 
-    def testHearting(self):
-        heartKwargs = {'option': 'heart', 'pk': self.store.id}
-        heartUrl = reverse('store-heart', kwargs=heartKwargs)
-        unheartKwargs = {'option': 'unheart', 'pk': self.store.id}
-        unheartUrl = reverse('store-heart', kwargs=unheartKwargs)
+    def test_hearting(self):
+        heart_kwargs = {'option': 'heart', 'pk': self.store.id}
+        heart_url = reverse('store-heart', kwargs=heart_kwargs)
+        unheart_kwargs = {'option': 'unheart', 'pk': self.store.id}
+        unheart_url = reverse('store-heart', kwargs=unheart_kwargs)
 
-        request = self.factory.patch(heartUrl, {}, format=CustomersTests.FORMAT)
-        response = self.authenticateRequest(request, views.StoreHeartView, **heartKwargs)
+        request = self.factory.patch(heart_url, {}, format=CustomersTests.FORMAT)
+        response = self.authenticate_request(request, views.StoreHeartView, **heart_kwargs)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Heart.objects.filter(user=self.user).count(), 1)
 
-        request = self.factory.patch(heartUrl, {}, format=CustomersTests.FORMAT)
-        response = self.authenticateRequest(request, views.StoreHeartView, **heartKwargs)
+        request = self.factory.patch(heart_url, {}, format=CustomersTests.FORMAT)
+        response = self.authenticate_request(request, views.StoreHeartView, **heart_kwargs)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(Heart.objects.filter(user=self.user).count(), 1)
 
-        request = self.factory.patch(unheartUrl, {}, format=CustomersTests.FORMAT)
-        response = self.authenticateRequest(request, views.StoreHeartView, **unheartKwargs)
+        request = self.factory.patch(unheart_url, {}, format=CustomersTests.FORMAT)
+        response = self.authenticate_request(request, views.StoreHeartView, **unheart_kwargs)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(Heart.objects.filter(user=self.user).count(), 0)
 
-        request = self.factory.patch(unheartUrl, {}, format=CustomersTests.FORMAT)
+        request = self.factory.patch(unheart_url, {}, format=CustomersTests.FORMAT)
         self.assertRaises(
-            Http404, self.authenticateRequest, request, views.StoreHeartView, **unheartKwargs)
+            Http404, self.authenticate_request, request, views.StoreHeartView, **unheart_kwargs)
 
-    def duplicateModel(self, model):
+    def clone_model(self, model):
         oldPk = model.pk
         model.pk = None
         model.save()
         return (model, model.__class__.objects.get(pk=oldPk),)
 
-    def testOrder(self):
+    def test_order(self):
         '''
         Test whether an order's total, paid and marked Food's are deleted on save.
         '''
 
-        self.food, original = self.duplicateModel(self.food)
+        self.food, original = self.clone_model(self.food)
 
         content = {
             'pickup': (timezone.now() + timedelta(days=1)).strftime(settings.DATETIME_FORMAT),
@@ -365,7 +365,7 @@ class CustomersTests(LunchbreakTestCase):
         url = reverse('order')
 
         request = self.factory.post(url, content, format=CustomersTests.FORMAT)
-        response = self.authenticateRequest(request, views.OrderView)
+        response = self.authenticate_request(request, views.OrderView)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         order = Order.objects.get(id=response.data['id'])
         self.assertEqual(order.total, original.cost * 2)
@@ -376,7 +376,7 @@ class CustomersTests(LunchbreakTestCase):
         self.assertTrue(order.paid)
 
         request = self.factory.post(url, content, format=CustomersTests.FORMAT)
-        response = self.authenticateRequest(request, views.OrderView)
+        response = self.authenticate_request(request, views.OrderView)
         order = Order.objects.get(id=response.data['id'])
 
         original.delete()
@@ -386,65 +386,66 @@ class CustomersTests(LunchbreakTestCase):
         self.assertRaises(Food.DoesNotExist, Food.objects.get, id=original.id)
         self.assertEqual(OrderedFood.objects.filter(order=order).count(), 0)
 
-    def testTokenUpdate(self):
+    def test_token_update(self):
         '''
         Test whether a user can change his token's registration_id.
         '''
 
-        self.food, original = self.duplicateModel(self.food)
+        self.food, original = self.clone_model(self.food)
 
         content = {}
         url = reverse('user-token')
 
         request = self.factory.patch(url, content, format=CustomersTests.FORMAT)
-        response = self.authenticateRequest(request, views.UserTokenUpdateView)
+        response = self.authenticate_request(request, views.UserTokenUpdateView)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         request = self.factory.put(url, content, format=CustomersTests.FORMAT)
-        response = self.authenticateRequest(request, views.UserTokenUpdateView)
+        response = self.authenticate_request(request, views.UserTokenUpdateView)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         content['registration_id'] = 'blab'
 
         request = self.factory.patch(url, content, format=CustomersTests.FORMAT)
-        response = self.authenticateRequest(request, views.UserTokenUpdateView)
+        response = self.authenticate_request(request, views.UserTokenUpdateView)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.userToken.refresh_from_db()
-        self.assertEqual(self.userToken.registration_id, content['registration_id'])
+        self.usertoken.refresh_from_db()
+        self.assertEqual(self.usertoken.registration_id, content['registration_id'])
 
-        self.userToken.registration_id = 'else'
-        self.userToken.save()
+        self.usertoken.registration_id = 'else'
+        self.usertoken.save()
 
         request = self.factory.put(url, content, format=CustomersTests.FORMAT)
-        response = self.authenticateRequest(request, views.UserTokenUpdateView)
+        response = self.authenticate_request(request, views.UserTokenUpdateView)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.userToken.refresh_from_db()
-        self.assertEqual(self.userToken.registration_id, content['registration_id'])
+        self.usertoken.refresh_from_db()
+        self.assertEqual(self.usertoken.registration_id, content['registration_id'])
 
-        self.userToken.service = SERVICE_APNS
-        self.userToken.save()
+        self.usertoken.service = SERVICE_APNS
+        self.usertoken.save()
         content['service'] = SERVICE_GCM
 
         request = self.factory.patch(url, content, format=CustomersTests.FORMAT)
-        response = self.authenticateRequest(request, views.UserTokenUpdateView)
+        response = self.authenticate_request(request, views.UserTokenUpdateView)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.userToken.refresh_from_db()
-        self.assertEqual(self.userToken.registration_id, content['registration_id'])
-        self.assertEqual(self.userToken.service, content['service'])
+        self.usertoken.refresh_from_db()
+        self.assertEqual(self.usertoken.registration_id, content['registration_id'])
+        self.assertEqual(self.usertoken.service, content['service'])
 
-        self.userToken.service = SERVICE_APNS
-        self.userToken.save()
+        self.usertoken.service = SERVICE_APNS
+        self.usertoken.save()
 
         request = self.factory.put(url, content, format=CustomersTests.FORMAT)
-        response = self.authenticateRequest(request, views.UserTokenUpdateView)
+        response = self.authenticate_request(request, views.UserTokenUpdateView)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.userToken.refresh_from_db()
-        self.assertEqual(self.userToken.registration_id, content['registration_id'])
-        self.assertEqual(self.userToken.service, content['service'])
+        self.usertoken.refresh_from_db()
+        self.assertEqual(self.usertoken.registration_id, content['registration_id'])
+        self.assertEqual(self.usertoken.service, content['service'])
 
-    def testReservationCreate(self):
+    def test_reservation_create(self):
         '''
-        Test whether a user can create a reservation. But cannot set specific attributes he is not allowed to.
+        Test whether a user can create a reservation. But cannot set specific
+        attributes he is not allowed to.
         '''
 
         url = reverse('user-reservation')
@@ -452,29 +453,31 @@ class CustomersTests(LunchbreakTestCase):
         content = {
             'store': self.store.id,
             # No need to check reservation_time, see Store.is_open test
-            'reservation_time': (timezone.now() + timedelta(days=1)).strftime(settings.DATETIME_FORMAT),
+            'reservation_time': (
+                timezone.now() + timedelta(days=1)
+            ).strftime(settings.DATETIME_FORMAT),
             'seats': 0
         }
 
         request = self.factory.post(url, content, format=CustomersTests.FORMAT)
-        response = self.authenticateRequest(request, views.ReservationMultiView)
+        response = self.authenticate_request(request, views.ReservationMultiView)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         content['seats'] = self.store.maxSeats + 1
 
         request = self.factory.post(url, content, format=CustomersTests.FORMAT)
-        response = self.authenticateRequest(request, views.ReservationMultiView)
+        response = self.authenticate_request(request, views.ReservationMultiView)
         self.assertEqualException(response, MaxSeatsExceeded)
 
         content['seats'] = self.store.maxSeats
 
         request = self.factory.post(url, content, format=CustomersTests.FORMAT)
-        response = self.authenticateRequest(request, views.ReservationMultiView)
+        response = self.authenticate_request(request, views.ReservationMultiView)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         Reservation.objects.all().delete()
 
-    def testReservationUpdate(self):
+    def test_reservation_update(self):
         reservation = Reservation.objects.create(
             user=self.user,
             store=self.store,
@@ -486,58 +489,58 @@ class CustomersTests(LunchbreakTestCase):
         kwargs = {'pk': reservation.id}
         url = reverse('reservation', kwargs=kwargs)
 
-        deniedAttributes = {
+        attributed_denied = {
             'seats': self.store.maxSeats - 1,
             'reservation_time': (timezone.now() + timedelta(days=2)).strftime(settings.DATETIME_FORMAT),
-            'store': self.otherStore.id,
-            'user': self.otherUser.id
+            'store': self.store_other.id,
+            'user': self.user_other.id
         }
 
-        for attribute, value in deniedAttributes.iteritems():
-            originalValue = getattr(reservation, attribute)
+        for attribute, value in attributed_denied.iteritems():
+            value_original = getattr(reservation, attribute)
             content = {
                 attribute: value
             }
 
             request = self.factory.patch(url, content, format=CustomersTests.FORMAT)
-            response = self.authenticateRequest(request, views.ReservationSingleView, **kwargs)
+            response = self.authenticate_request(request, views.ReservationSingleView, **kwargs)
             self.assertEqual(response.status_code, status.HTTP_200_OK)
 
             reservation.refresh_from_db()
-            self.assertEqual(getattr(reservation, attribute), originalValue)
+            self.assertEqual(getattr(reservation, attribute), value_original)
 
-        for allowedTuple in RESERVATION_STATUS_USER:
-            originalStatus = reservation.status
-            allowedStatus = allowedTuple[0]
+        for tuple_allowed in RESERVATION_STATUS_USER:
+            status_original = reservation.status
+            status_allowed = tuple_allowed[0]
 
             content = {
-                'status': allowedStatus
+                'status': status_allowed
             }
 
             request = self.factory.patch(url, content, format=CustomersTests.FORMAT)
-            response = self.authenticateRequest(request, views.ReservationSingleView, **kwargs)
+            response = self.authenticate_request(request, views.ReservationSingleView, **kwargs)
             self.assertEqual(response.status_code, status.HTTP_200_OK)
 
             reservation.refresh_from_db()
-            self.assertEqual(reservation.status, allowedStatus)
+            self.assertEqual(reservation.status, status_allowed)
 
-            reservation.status = originalStatus
+            reservation.status = status_original
             reservation.save()
 
-        for deniedTuple in RESERVATION_STATUS:
-            if deniedTuple in RESERVATION_STATUS_USER:
+        for tuple_denied in RESERVATION_STATUS:
+            if tuple_denied in RESERVATION_STATUS_USER:
                 continue
 
-            originalStatus = reservation.status
-            deniedStatus = deniedTuple[0]
+            status_original = reservation.status
+            status_denied = tuple_denied[0]
 
             content = {
-                'status': deniedStatus
+                'status': status_denied
             }
 
             request = self.factory.patch(url, content, format=CustomersTests.FORMAT)
-            response = self.authenticateRequest(request, views.ReservationSingleView, **kwargs)
+            response = self.authenticate_request(request, views.ReservationSingleView, **kwargs)
             self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
             reservation.refresh_from_db()
-            self.assertEqual(reservation.status, originalStatus)
+            self.assertEqual(reservation.status, status_original)
