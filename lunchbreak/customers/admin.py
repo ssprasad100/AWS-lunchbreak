@@ -11,8 +11,8 @@ class OrderedFoodAdmin(admin.ModelAdmin):
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
-    list_display = ('name', 'phone', 'confirmedAt',)
-    readonly_fields = ('digitsId', 'requestId', 'confirmedAt',)
+    list_display = ('name', 'phone', 'confirmed_at',)
+    readonly_fields = ('digits_id', 'request_id', 'confirmed_at',)
 
 
 @admin.register(Reservation)

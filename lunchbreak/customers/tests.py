@@ -156,12 +156,12 @@ class CustomersTests(LunchbreakTestCase):
             )
         ])
 
-    @mock.patch('customers.models.User.digitsRegister')
-    @mock.patch('customers.models.User.digitsLogin')
+    @mock.patch('customers.models.User.digits_register')
+    @mock.patch('customers.models.User.digits_login')
     def testRegistration(self, mock_login, mock_register):
         mock_info = {
-            'digitsId': 123,
-            'requestId': 123
+            'digits_id': 123,
+            'request_id': 123
         }
         mock_login.return_value = mock_info
         mock_register.return_value = mock_info
@@ -209,8 +209,8 @@ class CustomersTests(LunchbreakTestCase):
         self.assertEqualException(response, BadRequest)
         self.assertFalse(mock_register.called)
 
-    @mock.patch('customers.digits.Digits.confirmSignin')
-    @mock.patch('customers.digits.Digits.confirmRegistration')
+    @mock.patch('customers.digits.Digits.signing_confirm')
+    @mock.patch('customers.digits.Digits.register_confirm')
     def testLogin(self, mock_registration, mock_signin):
         mock_registration.return_value = {
             'id': 123
@@ -240,7 +240,7 @@ class CustomersTests(LunchbreakTestCase):
         response = self.client.post(url, content, format=CustomersTests.FORMAT)
         self.assertEqualException(response, UserNameEmpty)
         self.assertFalse(user.name)
-        self.assertFalse(user.confirmedAt)
+        self.assertFalse(user.confirmed_at)
 
         content['name'] = CustomersTests.NAME
         response = self.client.post(url, content, format=CustomersTests.FORMAT)
@@ -249,9 +249,9 @@ class CustomersTests(LunchbreakTestCase):
         tokens = UserToken.objects.filter(user=user)
         self.assertEqual(len(tokens), 1)
         identifier = tokens[0].identifier
-        self.assertTrue(user.confirmedAt)
+        self.assertTrue(user.confirmed_at)
         self.assertEqual(user.name, CustomersTests.NAME)
-        confirmedAt = user.confirmedAt
+        confirmed_at = user.confirmed_at
 
         content['name'] = CustomersTests.NAME_ALTERNATE
         response = self.client.post(url, content, format=CustomersTests.FORMAT)
@@ -261,7 +261,7 @@ class CustomersTests(LunchbreakTestCase):
         self.assertEqual(len(tokens), 1)
         self.assertNotEqual(identifier, tokens[0].identifier)
         self.assertEqual(user.name, CustomersTests.NAME_ALTERNATE)
-        self.assertEqual(user.confirmedAt, confirmedAt)
+        self.assertEqual(user.confirmed_at, confirmed_at)
 
         user.delete()
 
@@ -284,7 +284,7 @@ class CustomersTests(LunchbreakTestCase):
         self.assertEqualException(response, BadRequest)
 
         demoPin = '1337'
-        demo = User.objects.create(phone=DEMO_PHONE, requestId=demoPin, digitsId=DEMO_DIGITS_ID)
+        demo = User.objects.create(phone=DEMO_PHONE, request_id=demoPin, digits_id=DEMO_DIGITS_ID)
 
         # Invalid pin
         response = self.client.post(url, content, format=CustomersTests.FORMAT)

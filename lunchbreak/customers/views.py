@@ -354,16 +354,16 @@ class UserView(generics.CreateAPIView):
     def signIn(self, digits, phone):
         content = digits.signin(phone)
         return {
-            'digitsId': content['login_verification_user_id'],
-            'requestId': content['login_verification_request_id']
+            'digits_id': content['login_verification_user_id'],
+            'request_id': content['login_verification_request_id']
         }
 
     def confirmRegistration(self, digits, phone, pin):
         content = digits.confirmRegistration(phone, pin)
         return content['id']
 
-    def confirmSignin(self, digits, requestId, digitsId, pin):
-        digits.confirmSignin(requestId, digitsId, pin)
+    def confirmSignin(self, digits, request_id, digits_id, pin):
+        digits.confirmSignin(request_id, digits_id, pin)
         return True
 
     def getRegistrationResponse(self, hasName=False):
@@ -386,8 +386,8 @@ class UserView(generics.CreateAPIView):
                 if result:
                     user = User(phone=phone)
                     if type(result) is dict:
-                        user.digitsId = result['digitsId']
-                        user.requestId = result['requestId']
+                        user.digits_id = result['digits_id']
+                        user.request_id = result['request_id']
                     user.save()
                     return self.getRegistrationResponse()
             else:
@@ -401,16 +401,16 @@ class UserView(generics.CreateAPIView):
                     if user.confirmedAt:
                         result = self.signIn(digits, phone)
                         if result:
-                            user.digitsId = result['digitsId']
-                            user.requestId = result['requestId']
+                            user.digits_id = result['digits_id']
+                            user.request_id = result['request_id']
                             user.save()
                             return self.getRegistrationResponse(hasName)
                     else:
                         result = self.register(digits, phone)
                         if result:
                             if type(result) is dict:
-                                user.digitsId = result['digitsId']
-                                user.requestId = result['requestId']
+                                user.digits_id = result['digits_id']
+                                user.request_id = result['request_id']
                             user.save()
                             return self.getRegistrationResponse(hasName)
                 elif name:
@@ -421,14 +421,14 @@ class UserView(generics.CreateAPIView):
                         if not user.confirmedAt:
                             user.confirmedAt = timezone.now()
 
-                        if not user.requestId and not user.digitsId:
+                        if not user.request_id and not user.digits_id:
                             # The user already got a message, but just got added to the Digits database
-                            user.digitsId = self.confirmRegistration(digits, phone, pin)
+                            user.digits_id = self.confirmRegistration(digits, phone, pin)
                             user.save()
                             success = True
                         else:
                             # The user already was in the Digits database and got a request and user id
-                            self.confirmSignin(digits, user.requestId, user.digitsId, pin)
+                            self.confirmSignin(digits, user.request_id, user.digits_id, pin)
                             user.save()
                             success = True
 
@@ -440,7 +440,7 @@ class UserView(generics.CreateAPIView):
 
             if 'device' in request.data:
                 try:
-                    demoUser = User.objects.get(phone=request.data['phone'], requestId=request.data['pin'], digitsId='demo')
+                    demoUser = User.objects.get(phone=request.data['phone'], request_id=request.data['pin'], digits_id='demo')
                 except ObjectDoesNotExist:
                     pass
                 else:
@@ -504,8 +504,8 @@ class UserLoginView(generics.CreateAPIView):
             try:
                 demoUser = User.objects.get(
                     phone=phone,
-                    requestId=request.data['pin'],
-                    digitsId=DEMO_DIGITS_ID
+                    request_id=request.data['pin'],
+                    digits_id=DEMO_DIGITS_ID
                 )
                 return UserView.createGetToken(demoUser, request.data['token']['device'])
             except User.DoesNotExist:

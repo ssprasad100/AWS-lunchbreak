@@ -31,21 +31,21 @@ class User(models.Model):
         max_length=255,
         blank=True
     )
-    digitsId = models.CharField(
+    digits_id = models.CharField(
         unique=True,
         max_length=10,
         blank=True,
         null=True,
         verbose_name='Digits ID'
     )
-    requestId = models.CharField(
+    request_id = models.CharField(
         max_length=32,
         blank=True,
         null=True,
         verbose_name='Digits Request ID'
     )
 
-    confirmedAt = models.DateField(
+    confirmed_at = models.DateField(
         blank=True,
         null=True
     )
@@ -59,20 +59,20 @@ class User(models.Model):
             phone=self.phone
         )
 
-    @staticmethod
-    def digitsRegister(digits, phone):
+    @classmethod
+    def digits_register(cls, digits, phone):
         try:
             digits.register(phone)
             return True
         except DigitsException:
-            return User.signIn(digits, phone)
+            return cls.digits_login(digits, phone)
 
     @staticmethod
-    def digitsLogin(digits, phone):
+    def digits_login(digits, phone):
         content = digits.signin(phone)
         return {
-            'digitsId': content['login_verification_user_id'],
-            'requestId': content['login_verification_request_id']
+            'digits_id': content['login_verification_user_id'],
+            'request_id': content['login_verification_request_id']
         }
 
     @staticmethod
@@ -84,26 +84,26 @@ class User(models.Model):
             if not user.enabled:
                 return UserDisabled().getResponse()
 
-            if user.confirmedAt:
-                digitsResult = User.digitsLogin(digits, phone)
+            if user.confirmed_at:
+                digits_result = User.digits_login(digits, phone)
             else:
-                digitsResult = User.digitsRegister(digits, phone)
+                digits_result = User.digits_register(digits, phone)
 
-            if digitsResult and type(digitsResult) is dict:
-                user.digitsId = digitsResult['digitsId']
-                user.requestId = digitsResult['requestId']
+            if digits_result and type(digits_result) is dict:
+                user.digits_id = digits_result['digits_id']
+                user.request_id = digits_result['request_id']
             user.save()
 
             if user.name:
                 return Response(status=status.HTTP_200_OK)
             return Response(status=status.HTTP_201_CREATED)
         except User.DoesNotExist:
-            digitsRegistration = User.digitsRegister(digits, phone)
-            if digitsRegistration:
+            digits_registration = User.digits_register(digits, phone)
+            if digits_registration:
                 user = User(phone=phone)
-                if type(digitsRegistration) is dict:
-                    user.digitsId = digitsRegistration['digitsId']
-                    user.requestId = digitsRegistration['requestId']
+                if type(digits_registration) is dict:
+                    user.digits_id = digits_registration['digits_id']
+                    user.request_id = digits_registration['request_id']
                 user.save()
                 return Response(status=status.HTTP_201_CREATED)
             else:
@@ -126,13 +126,13 @@ class User(models.Model):
 
             digits = Digits()
             # User just got registered in the Digits database
-            if not user.requestId and not user.digitsId:
-                user.digitsId = digits.confirmRegistration(phone, pin)['id']
+            if not user.request_id and not user.digits_id:
+                user.digits_id = digits.register_confirm(phone, pin)['id']
             else:
-                digits.confirmSignin(user.requestId, user.digitsId, pin)
+                digits.signing_confirm(user.request_id, user.digits_id, pin)
 
-            if not user.confirmedAt:
-                user.confirmedAt = timezone.now()
+            if not user.confirmed_at:
+                user.confirmed_at = timezone.now()
 
             user.save()
             return UserToken.tokenResponse(

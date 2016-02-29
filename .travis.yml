@@ -13,4 +13,3 @@ branches:
   only:
     - staging
     - master
-    - development

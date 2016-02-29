@@ -20,11 +20,11 @@ class Digits:
     ACCESS_TOKEN_URL = BASE_URL + 'oauth2/token'
 
     @property
-    def bearerHeader(self):
-        return 'Bearer ' + self.requestAppToken()
+    def header_bearer(self):
+        return 'Bearer ' + self.app_token()
 
     @property
-    def authHeader(self):
+    def header_auth(self):
         return 'Basic {base}'.format(
             base=base64.b64encode(
                 urllib.quote(Digits.CONSUMER_KEY) +
@@ -33,34 +33,20 @@ class Digits:
             )
         )
 
-    def request(self, url, params, headers):
-        '''A wrapper method for send POST requests.'''
+    @property
+    def app_token(self):
+        """
+        An app token or bearer token is needed in order to talk to the OAuth
+        API of Twitter.
+        """
 
-        appTokenRequest = requests.post(
-            url,
-            params=params,
-            headers=headers
-        )
-
-        content = json.loads(appTokenRequest.text)
-
-        if appTokenRequest.status_code != 200:
-            if 'errors' in content and 'code' in content['errors'][0]:
-                raise DigitsException(content['errors'][0]['code'], content)
-            raise LunchbreakException(content)
-
-        return content
-
-    def requestAppToken(self):
-        '''An app token or bearer token is needed in order to talk to the OAuth API of Twitter.'''
-
-        if not hasattr(self, 'appToken'):
+        if not hasattr(self, '_app_token'):
             params = {
                 'grant_type': 'client_credentials'
             }
 
             headers = {
-                'Authorization': self.authHeader
+                'Authorization': self.header_auth
             }
 
             content = self.request(
@@ -69,18 +55,22 @@ class Digits:
                 headers=headers
             )
 
-            self.appToken = content['access_token']
-        return self.appToken
+            self._app_token = content['access_token']
+        return self._app_token
 
-    def requestGuestToken(self):
-        '''A guest token is needed in order to talk to the Digits API of Twitter before sending text messages.'''
+    @property
+    def guest_token(self):
+        """
+        A guest token is needed in order to talk to the Digits API of Twitter
+        before sending text messages.
+        """
 
         params = {
             'grant_type': 'client_credentials'
         }
 
         headers = {
-            'Authorization': self.bearerHeader
+            'Authorization': self.header_bearer
         }
 
         content = self.request(
@@ -91,8 +81,30 @@ class Digits:
 
         return content['guest_token']
 
-    def register(self, phoneNumber):
-        '''Register a user in the Digits database. They will receive a text message to confirm that they're the true owner of the given phone number.
+    def request(self, url, params, headers):
+        """
+        A wrapper method for send POST requests.
+        """
+
+        response = requests.post(
+            url,
+            params=params,
+            headers=headers
+        )
+
+        content = json.loads(response.text)
+
+        if response.status_code != 200:
+            if 'errors' in content and 'code' in content['errors'][0]:
+                raise DigitsException(content['errors'][0]['code'], content)
+            raise LunchbreakException(content)
+
+        return content
+
+    def register(self, phone_number):
+        """
+        Register a user in the Digits database. They will receive a text
+        message to confirm that they're the true owner of the given phone number.
 
         Return example:
         {
@@ -106,17 +118,17 @@ class Digits:
             "is_verizon": false,
             "device_id": 1432136745
         }
-        '''
+        """
 
         params = {
-            'raw_phone_number': phoneNumber,
+            'raw_phone_number': phone_number,
             'text_key': 'third_party_confirmation_code',
             'send_numeric_pin': True
         }
 
         headers = {
-            'Authorization': self.bearerHeader,
-            'x-guest-token': self.requestGuestToken()
+            'Authorization': self.header_bearer,
+            'x-guest-token': self.guest_token
         }
 
         content = self.request(
@@ -127,8 +139,9 @@ class Digits:
 
         return content
 
-    def confirmRegistration(self, phoneNumber, pin):
-        '''Check whether the sent pin is correct.
+    def register_confirm(self, phone_number, pin):
+        """
+        Check whether the sent pin is correct.
 
         Return example:
         {
@@ -138,15 +151,15 @@ class Digits:
             "suspended": false,
             "id_str": "2889428578"
         }
-        '''
+        """
 
         params = {
-            'phone_number': phoneNumber,
+            'phone_number': phone_number,
             'numeric_pin': pin
         }
 
         headers = {
-            'Authorization': self.bearerHeader
+            'Authorization': self.header_bearer
         }
 
         content = self.request(
@@ -157,8 +170,9 @@ class Digits:
 
         return content
 
-    def signin(self, phoneNumber):
-        '''Send the already registered user in if they don't have their token anymore.
+    def signin(self, phone_number):
+        """
+        Send the already registered user in if they don't have their token anymore.
 
         Return example:
         {
@@ -168,14 +182,14 @@ class Digits:
             "login_verification_request_url": String,
             "login_verification_request_type": int
         }
-        '''
+        """
         params = {
-            'x_auth_phone_number': phoneNumber
+            'x_auth_phone_number': phone_number
         }
 
         headers = {
-            'Authorization': self.bearerHeader,
-            'x-guest-token': self.requestGuestToken()
+            'Authorization': self.header_bearer,
+            'x-guest-token': self.guest_token
         }
 
         content = self.request(
@@ -186,8 +200,9 @@ class Digits:
 
         return content
 
-    def confirmSignin(self, requestId, userId, pin):
-        '''Confirm that the pin the user sent is correct.
+    def signing_confirm(self, request_id, user_id, pin):
+        """
+        Confirm that the pin the user sent is correct.
 
         Return example:
         {
@@ -197,17 +212,17 @@ class Digits:
             'oauth_token': '2866750414-Hb5OdbmPwQWfU2LYtqKKY4t1rdhmj1xVjuAxEvv',
             'screen_name': ''
         }
-        '''
+        """
 
         params = {
-            'login_verification_request_id': requestId,
-            'login_verification_user_id': userId,
+            'login_verification_request_id': request_id,
+            'login_verification_user_id': user_id,
             'login_verification_challenge_response': pin
         }
 
         headers = {
-            'Authorization': self.bearerHeader,
-            'x-guest-token': self.requestGuestToken()
+            'Authorization': self.header_bearer,
+            'x-guest-token': self.guest_token
         }
 
         content = self.request(
