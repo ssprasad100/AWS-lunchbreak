@@ -1,7 +1,6 @@
 from datetime import datetime, time, timedelta
 
 import mock
-import requests
 from customers.exceptions import MinTimeExceeded, PastOrderDenied, StoreClosed
 from django.core.exceptions import ValidationError
 from Lunchbreak.test import LunchbreakTestCase
@@ -14,30 +13,6 @@ from .models import (Food, FoodCategory, FoodType, HolidayPeriod,
 
 class LunchTests(LunchbreakTestCase):
 
-    MOCK_ADDRESS = {
-        'results': [
-            {
-                'geometry': {
-                    'location': {
-                        'lat': 1,
-                        'lng': 1
-                    }
-                }
-            }
-        ]
-    }
-
-    def mockAddressResponse(self, mock_get, mock_json, return_value=None, lat=None, lng=None):
-        if return_value is None:
-            return_value = self.MOCK_ADDRESS
-
-            if lat is not None and lng is not None:
-                return_value['results'][0]['geometry']['location']['lat'] = lat
-                return_value['results'][0]['geometry']['location']['lng'] = lng
-
-        mock_get.return_value = requests.Response()
-        mock_json.return_value = return_value
-
     @mock.patch('requests.Response.json')
     @mock.patch('requests.get')
     def testAddressNotFound(self, mock_get, mock_json):
@@ -46,7 +21,7 @@ class LunchTests(LunchbreakTestCase):
             mock_fail = {
                 'results': []
             }
-            self.mockAddressResponse(mock_get, mock_json, mock_fail)
+            self.mock_address_response(mock_get, mock_json, mock_fail)
             Store.objects.create(
                 name='test',
                 country='nonexisting',
@@ -58,7 +33,7 @@ class LunchTests(LunchbreakTestCase):
             )
         except AddressNotFound:
             try:
-                self.mockAddressResponse(mock_get, mock_json)
+                self.mock_address_response(mock_get, mock_json)
                 Store.objects.create(
                     name='valid',
                     country='Belgie',
@@ -79,7 +54,7 @@ class LunchTests(LunchbreakTestCase):
         ''' Test whether LunchbreakManager.nearby returns the right stores. '''
         Store.objects.all().delete()
 
-        self.mockAddressResponse(
+        self.mock_address_response(
             mock_get,
             mock_json,
             lat=51.0111595,
@@ -95,7 +70,7 @@ class LunchTests(LunchbreakTestCase):
             number=10
         )
 
-        self.mockAddressResponse(
+        self.mock_address_response(
             mock_get,
             mock_json,
             lat=51.0076504,
@@ -111,7 +86,7 @@ class LunchTests(LunchbreakTestCase):
             number=47
         )
 
-        self.mockAddressResponse(
+        self.mock_address_response(
             mock_get,
             mock_json,
             lat=51.0089506,
@@ -127,7 +102,7 @@ class LunchTests(LunchbreakTestCase):
             number=1
         )
 
-        self.mockAddressResponse(
+        self.mock_address_response(
             mock_get,
             mock_json,
             lat=51.0267939,
@@ -172,7 +147,7 @@ class LunchTests(LunchbreakTestCase):
     @mock.patch('requests.Response.json')
     @mock.patch('requests.get')
     def testOpeningHours(self, mock_get, mock_json):
-        self.mockAddressResponse(mock_get, mock_json)
+        self.mock_address_response(mock_get, mock_json)
         store = Store.objects.create(
             name='valid',
             country='Belgie',
@@ -203,7 +178,7 @@ class LunchTests(LunchbreakTestCase):
     @mock.patch('requests.Response.json')
     @mock.patch('requests.get')
     def testHolidayPeriod(self, mock_get, mock_json):
-        self.mockAddressResponse(mock_get, mock_json)
+        self.mock_address_response(mock_get, mock_json)
         store = Store.objects.create(
             name='valid',
             country='Belgie',
@@ -239,7 +214,7 @@ class LunchTests(LunchbreakTestCase):
     @mock.patch('requests.get')
     def testStoreLastModified(self, mock_get, mock_json):
         '''Test whether updating OpeningHours and HolidayPeriod objects updates the Store.'''
-        self.mockAddressResponse(mock_get, mock_json)
+        self.mock_address_response(mock_get, mock_json)
         store = Store.objects.create(
             name='valid',
             country='Belgie',
@@ -276,7 +251,7 @@ class LunchTests(LunchbreakTestCase):
     @mock.patch('requests.Response.json')
     @mock.patch('requests.get')
     def testIngredientGroup(self, mock_get, mock_json):
-        self.mockAddressResponse(mock_get, mock_json)
+        self.mock_address_response(mock_get, mock_json)
         store = Store.objects.create(
             name='valid',
             country='Belgie',
@@ -314,7 +289,7 @@ class LunchTests(LunchbreakTestCase):
     @mock.patch('requests.Response.json')
     @mock.patch('requests.get')
     def testQuantity(self, mock_get, mock_json):
-        self.mockAddressResponse(mock_get, mock_json)
+        self.mock_address_response(mock_get, mock_json)
         foodType = FoodType.objects.create(name='type')
 
         store = Store.objects.create(
@@ -346,7 +321,7 @@ class LunchTests(LunchbreakTestCase):
     @mock.patch('requests.Response.json')
     @mock.patch('requests.get')
     def testFoodType(self, mock_get, mock_json):
-        self.mockAddressResponse(mock_get, mock_json)
+        self.mock_address_response(mock_get, mock_json)
         store = Store.objects.create(
             name='valid',
             country='Belgie',
@@ -412,7 +387,7 @@ class LunchTests(LunchbreakTestCase):
     @mock.patch('requests.Response.json')
     @mock.patch('requests.get')
     def testStoreCheckOpen(self, mock_get, mock_json):
-        self.mockAddressResponse(mock_get, mock_json)
+        self.mock_address_response(mock_get, mock_json)
         store = Store.objects.create(
             name='valid',
             country='Belgie',
@@ -485,7 +460,7 @@ class LunchTests(LunchbreakTestCase):
     @mock.patch('requests.Response.json')
     @mock.patch('requests.get')
     def testFoodCanOrder(self, mock_get, mock_json):
-        self.mockAddressResponse(mock_get, mock_json)
+        self.mock_address_response(mock_get, mock_json)
         orderTime = time(hour=12)
 
         store = Store.objects.create(

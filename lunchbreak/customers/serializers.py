@@ -184,12 +184,10 @@ class ShortOrderSerializer(serializers.ModelSerializer):
                 amount = f['amount'] if 'amount' in f else 1
                 self.amountCheck(original, amount)
                 cost = f['cost']
-                amount_food = original.amount if original.foodType.inputType == INPUT_SI_SET else 1
                 comment = f['comment'] if 'comment' in f and original.canComment else ''
 
                 orderedF = OrderedFood(
                     amount=amount,
-                    amount_food=amount_food,
                     cost=cost,
                     order=order,
                     original=original,

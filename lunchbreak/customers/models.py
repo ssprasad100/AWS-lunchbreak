@@ -135,7 +135,7 @@ class User(models.Model):
                 user.confirmed_at = timezone.now()
 
             user.save()
-            return UserToken.tokenResponse(
+            return UserToken.response(
                 user=user,
                 device=token['device'],
                 service=token.get('service', SERVICE_INACTIVE),
@@ -391,7 +391,7 @@ class UserToken(BaseToken):
     user = models.ForeignKey(User)
 
     @staticmethod
-    def tokenResponse(user, device, service=SERVICE_INACTIVE, registration_id=''):
+    def response(user, device, service=SERVICE_INACTIVE, registration_id=''):
         from customers.serializers import UserTokenSerializer
 
         token, created = UserToken.objects.createToken(
@@ -405,8 +405,8 @@ class UserToken(BaseToken):
             },
             clone=True
         )
-        tokenSerializer = UserTokenSerializer(token)
+        serializer = UserTokenSerializer(token)
         return Response(
-            tokenSerializer.data,
+            serializer.data,
             status=(status.HTTP_201_CREATED if created else status.HTTP_200_OK)
         )

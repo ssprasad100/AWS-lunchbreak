@@ -39,9 +39,18 @@ class CustomersTests(LunchbreakTestCase):
     DEVICE = 'Test device'
     REGISTRATION_ID = '123456789'
 
-    def setUp(self):
+    @mock.patch('requests.Response.json')
+    @mock.patch('requests.get')
+    def setUp(self, mock_get, mock_json):
         super(CustomersTests, self).setUp()
         self.factory = APIRequestFactory()
+
+        self.mock_address_response(
+            mock_get,
+            mock_json,
+            lat=51.0111595,
+            lng=3.9075993
+        )
 
         self.user = User.objects.create(
             phone=CustomersTests.PHONE_USER,

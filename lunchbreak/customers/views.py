@@ -373,7 +373,7 @@ class UserView(generics.CreateAPIView):
 
     @staticmethod
     def createGetToken(user, device):
-        return UserToken.tokenResponse(user, device)
+        return UserToken.response(user, device)
 
     def create(self, request, *args, **kwargs):
         userSerializer = UserSerializer(data=request.data)
