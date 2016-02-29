@@ -18,6 +18,10 @@ urlpatterns = patterns(
         include('customers.urls')
     ),
     url(
+        r'^gocardless/',
+        include('django_gocardless.urls')
+    ),
+    url(
         r'^',
         include('frontend.urls')
     ),

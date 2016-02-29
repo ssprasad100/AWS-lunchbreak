@@ -12,7 +12,6 @@ from customers.digits import Digits
 from customers.exceptions import (DigitsException, MaxSeatsExceeded,
                                   UserDisabled, UserNameEmpty)
 from dirtyfields import DirtyFieldsMixin
-from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils import timezone

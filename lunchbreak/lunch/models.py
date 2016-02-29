@@ -699,8 +699,8 @@ class Food(models.Model):
             dayDifference = (pickupTime - now).days
             dayDifference += (
                 1
-                if pickupTime.time() < now.time()
-                and (now + (pickupTime - now)).day != now.day
+                if pickupTime.time() < now.time() and
+                (now + (pickupTime - now)).day != now.day
                 else 0
             )
 
