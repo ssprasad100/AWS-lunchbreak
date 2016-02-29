@@ -257,7 +257,7 @@ class QuantitySerializer(ShortQuantitySerializer):
 
 
 class SingleFoodSerializer(serializers.ModelSerializer):
-    ingredientGroups = ShortIngredientGroupSerializer(
+    ingredient_groups = ShortIngredientGroupSerializer(
         many=True,
         read_only=True
     )
@@ -294,12 +294,12 @@ class SingleFoodSerializer(serializers.ModelSerializer):
 
             'lastModified',
 
-            'ingredientGroups',
+            'ingredient_groups',
             'quantity',
         )
         read_only_fields = (
             'id',
-            'ingredientGroups',
+            'ingredient_groups',
             'lastModified',
         )
 
@@ -307,12 +307,12 @@ class SingleFoodSerializer(serializers.ModelSerializer):
         result = super(SingleFoodSerializer, self).to_representation(obj)
 
         addedIngredientRelations = []
-        ingredientGroups = obj.ingredientGroups.all().prefetch_related(
+        ingredient_groups = obj.ingredient_groups.all().prefetch_related(
             'ingredient_set'
         )
         objIngredients = obj.ingredients.all()
 
-        for ingredientGroup in ingredientGroups:
+        for ingredientGroup in ingredient_groups:
             ingredients = ingredientGroup.ingredient_set.all()
             for ingredient in ingredients:
                 if ingredient not in objIngredients:

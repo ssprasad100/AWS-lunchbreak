@@ -46,7 +46,7 @@ class FoodRetrieveView(generics.RetrieveAPIView):
             deleted=False
         ).prefetch_related(
             'ingredientrelation_set__ingredient',
-            'ingredientGroups',
+            'ingredient_groups',
         )
 
 
@@ -166,7 +166,7 @@ class OrderPriceView(generics.CreateAPIView):
                     closestFood = Food.objects.closestFood(ingredients, original)
                     IngredientGroup.checkIngredients(ingredients, closestFood)
 
-                    priceInfo['cost'] = OrderedFood.calculateCost(ingredients, closestFood)
+                    priceInfo['cost'] = OrderedFood.calculate_cost(ingredients, closestFood)
                     priceInfo['food'] = closestFood.id
                 else:
                     priceInfo['cost'] = original.cost

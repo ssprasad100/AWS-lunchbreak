@@ -162,7 +162,7 @@ class BusinessTests(LunchbreakTestCase):
             cost=1,
             order=order,
             original=food,
-            useOriginal=True
+            is_original=True
         )
 
         duplicateFood = Food.objects.get(id=self.food.id)

@@ -205,7 +205,7 @@ class OrderedFoodSerializer(serializers.ModelSerializer):
             'amount',
             'original',
             'cost',
-            'useOriginal',
+            'is_original',
             'comment',
         )
         read_only_fields = fields
@@ -364,7 +364,7 @@ class ShortFoodSerializer(serializers.ModelSerializer):
 
             'category',
             'ingredients',
-            'ingredientGroups',
+            'ingredient_groups',
 
             'ingredientRelations',
             'orderAmount',

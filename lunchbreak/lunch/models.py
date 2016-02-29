@@ -460,19 +460,19 @@ class IngredientGroup(models.Model):
         Check whether the given ingredients can be made into an OrderedFood based on the closest food.
         '''
 
-        ingredientGroups = {}
+        ingredient_groups = {}
         for ingredient in ingredients:
             group = ingredient.group
             amount = 1
-            if group.id in ingredientGroups:
-                amount += ingredientGroups[group.id]
+            if group.id in ingredient_groups:
+                amount += ingredient_groups[group.id]
             if group.maximum > 0 and amount > group.maximum:
                 raise IngredientGroupMaxExceeded()
-            ingredientGroups[group.id] = amount
+            ingredient_groups[group.id] = amount
 
         foodTypeGroups = food.foodType.ingredientgroup_set.all()
 
-        for ingredientGroup in ingredientGroups:
+        for ingredientGroup in ingredient_groups:
             for foodTypeGroup in foodTypeGroups:
                 if foodTypeGroup.id == ingredientGroup:
                     break
@@ -484,10 +484,10 @@ class IngredientGroup(models.Model):
         for ingredient in originalIngredients:
             group = ingredient.group
             if group.minimum > 0:
-                inGroups = group.id in ingredientGroups
+                inGroups = group.id in ingredient_groups
                 if not inGroups:
                     raise IngredientGroupsMinimumNotMet()
-                amount = ingredientGroups[group.id]
+                amount = ingredient_groups[group.id]
 
                 if amount < group.minimum:
                     raise IngredientGroupsMinimumNotMet()
@@ -626,7 +626,7 @@ class Food(models.Model):
         through='IngredientRelation',
         blank=True
     )
-    ingredientGroups = models.ManyToManyField(
+    ingredient_groups = models.ManyToManyField(
         IngredientGroup,
         blank=True
     )
@@ -646,7 +646,7 @@ class Food(models.Model):
     @cached_property
     def hasIngredients(self):
         # TODO Optimise this.
-        return self.ingredients.count() > 0 and self.ingredientGroups.count() > 0
+        return self.ingredients.count() > 0 and self.ingredient_groups.count() > 0
 
     @cached_property
     def quantity(self):
@@ -669,12 +669,12 @@ class Food(models.Model):
                     food.updateTypicalIngredients()
 
     def updateTypicalIngredients(self):
-        ingredientGroups = self.ingredientGroups.all()
+        ingredient_groups = self.ingredient_groups.all()
         ingredientRelations = self.ingredientrelation_set.select_related('ingredient__group').all()
 
         for ingredientRelation in ingredientRelations:
             ingredient = ingredientRelation.ingredient
-            if ingredient.group not in ingredientGroups:
+            if ingredient.group not in ingredient_groups:
                 if not ingredientRelation.typical:
                     ingredientRelation.typical = True
                     ingredientRelation.save()
@@ -815,5 +815,5 @@ class BaseToken(BareDevice, DirtyFieldsMixin):
         return self.device
 
 
-m2m_changed.connect(Food.ingredientChange, sender=Food.ingredientGroups.through)
+m2m_changed.connect(Food.ingredientChange, sender=Food.ingredient_groups.through)
 m2m_changed.connect(Food.ingredientChange, sender=Food.ingredients.through)

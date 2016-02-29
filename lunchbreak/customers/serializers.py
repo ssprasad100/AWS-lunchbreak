@@ -92,7 +92,7 @@ class ReservationSerializer(serializers.ModelSerializer):
 
 
 class OrderedFoodSerializer(serializers.ModelSerializer):
-    ingredientGroups = lunchSerializers.IngredientGroupSerializer(
+    ingredient_groups = lunchSerializers.IngredientGroupSerializer(
         many=True,
         read_only=True
     )
@@ -103,20 +103,18 @@ class OrderedFoodSerializer(serializers.ModelSerializer):
             'id',
             'ingredients',
             'amount',
-            'foodAmount',
             'order',
             'original',
-            'ingredientGroups',
+            'ingredient_groups',
             'cost',
-            'useOriginal',
+            'is_original',
             'comment',
         )
         read_only_fields = (
             'id',
-            'foodAmount',
             'order',
-            'ingredientGroups',
-            'useOriginal',
+            'ingredient_groups',
+            'is_original',
         )
 
 
@@ -186,12 +184,12 @@ class ShortOrderSerializer(serializers.ModelSerializer):
                 amount = f['amount'] if 'amount' in f else 1
                 self.amountCheck(original, amount)
                 cost = f['cost']
-                foodAmount = original.amount if original.foodType.inputType == INPUT_SI_SET else 1
+                amount_food = original.amount if original.foodType.inputType == INPUT_SI_SET else 1
                 comment = f['comment'] if 'comment' in f and original.canComment else ''
 
                 orderedF = OrderedFood(
                     amount=amount,
-                    foodAmount=foodAmount,
+                    amount_food=amount_food,
                     cost=cost,
                     order=order,
                     original=original,
@@ -205,7 +203,7 @@ class ShortOrderSerializer(serializers.ModelSerializer):
                     closestFood = Food.objects.closestFood(ingredients, original)
                     self.amountCheck(closestFood, amount)
                     IngredientGroup.checkIngredients(ingredients, closestFood)
-                    calculatedCost = OrderedFood.calculateCost(ingredients, closestFood)
+                    calculatedCost = OrderedFood.calculate_cost(ingredients, closestFood)
                     self.costCheck(calculatedCost, closestFood, amount, cost)
 
                     orderedF.cost = calculatedCost
@@ -213,7 +211,7 @@ class ShortOrderSerializer(serializers.ModelSerializer):
                 else:
                     self.costCheck(original.cost, original, amount, cost)
                     orderedF.cost = original.cost
-                    orderedF.useOriginal = True
+                    orderedF.is_original = True
 
                 orderedF.save()
         except:

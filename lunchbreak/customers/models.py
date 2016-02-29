@@ -16,7 +16,7 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils import timezone
 from django.utils.functional import cached_property
-from lunch.config import COST_GROUP_ADDITIONS, COST_GROUP_BOTH
+from lunch.config import COST_GROUP_ADDITIONS, COST_GROUP_BOTH, INPUT_SI_SET
 from lunch.models import BaseToken, Food, Ingredient, Store
 from lunch.responses import DoesNotExist
 from phonenumber_field.modelfields import PhoneNumberField
@@ -268,13 +268,13 @@ class Order(models.Model, DirtyFieldsMixin):
             )
 
         dirty = self.is_dirty()
-        dirtyStatus = None
+        dirty_status = None
 
         if dirty:
             dirty_fields = self.get_dirty_fields()
-            dirtyStatus = dirty_fields.get('status', dirtyStatus)
+            dirty_status = dirty_fields.get('status', dirty_status)
 
-            if dirtyStatus is not None:
+            if dirty_status is not None:
                 if self.status == ORDER_STATUS_WAITING:
                     self.user.usertoken_set.all().send_message(
                         'Je bestelling bij {store} ligt klaar!'.format(
@@ -288,7 +288,7 @@ class Order(models.Model, DirtyFieldsMixin):
 
         super(Order, self).save(*args, **kwargs)
 
-        if dirtyStatus is not None and self.status in ORDER_ENDED:
+        if dirty_status is not None and self.status in ORDER_ENDED:
             for f in orderedfood:
                 try:
                     if f.original.deleted:
@@ -313,18 +313,13 @@ class OrderedFood(models.Model):
         max_digits=7,
         default=1
     )
-    foodAmount = models.DecimalField(
-        decimal_places=3,
-        max_digits=7,
-        default=1
-    )
     cost = models.DecimalField(
         decimal_places=2,
         max_digits=7
     )
     order = models.ForeignKey(Order)
     original = models.ForeignKey(Food)
-    useOriginal = models.BooleanField(
+    is_original = models.BooleanField(
         default=False
     )
     comment = models.TextField(
@@ -335,51 +330,55 @@ class OrderedFood(models.Model):
         verbose_name_plural = 'Ordered food'
 
     @cached_property
-    def ingredientGroups(self):
-        return self.original.ingredientGroups
+    def ingredient_groups(self):
+        return self.original.ingredient_groups
+
+    @cached_property
+    def amount_food(self):
+        return self.original.amount if self.original.foodType.inputType == INPUT_SI_SET else 1
 
     @cached_property
     def total(self):
         return math.ceil(
-            (self.cost * self.amount * self.foodAmount) * 100
+            (self.cost * self.amount * self.amount_food) * 100
         ) / 100.0
 
     @staticmethod
-    def calculateCost(orderedIngredients, food):
-        foodIngredientRelations = food.ingredientrelation_set.select_related(
+    def calculate_cost(ordered_ingredients, food):
+        food_ingredient_relations = food.ingredientrelation_set.select_related(
             'ingredient__group'
         ).all()
 
-        foodIngredients = []
+        food_ingredients = []
         foodGroups = []
-        for ingredientRelation in foodIngredientRelations:
-            ingredient = ingredientRelation.ingredient
-            foodIngredients.append(ingredient)
-            if ingredientRelation.selected and ingredient.group not in foodGroups:
+        for ingredient_relation in food_ingredient_relations:
+            ingredient = ingredient_relation.ingredient
+            food_ingredients.append(ingredient)
+            if ingredient_relation.selected and ingredient.group not in foodGroups:
                 foodGroups.append(ingredient.group)
 
-        orderedGroups = []
+        groups_ordered = []
         cost = food.cost
 
-        for ingredient in orderedIngredients:
-            if ingredient not in foodIngredients:
+        for ingredient in ordered_ingredients:
+            if ingredient not in food_ingredients:
                 if ingredient.group.costCalculation in [COST_GROUP_BOTH, COST_GROUP_ADDITIONS]:
                     cost += ingredient.cost
                 elif ingredient.group not in foodGroups:
                     cost += ingredient.group.cost
-            if ingredient.group not in orderedGroups:
-                orderedGroups.append(ingredient.group)
+            if ingredient.group not in groups_ordered:
+                groups_ordered.append(ingredient.group)
 
-        removedGroups = []
-        for ingredient in foodIngredients:
-            if ingredient not in orderedIngredients:
+        groups_removed = []
+        for ingredient in food_ingredients:
+            if ingredient not in ordered_ingredients:
                 if ingredient.group.costCalculation == COST_GROUP_BOTH:
                     cost -= ingredient.cost
-                elif ingredient.group not in removedGroups:
-                    removedGroups.append(ingredient.group)
+                elif ingredient.group not in groups_removed:
+                    groups_removed.append(ingredient.group)
 
-        for group in removedGroups:
-            if group not in orderedGroups:
+        for group in groups_removed:
+            if group not in groups_ordered:
                 cost -= group.cost
 
         return cost

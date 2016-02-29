@@ -5,8 +5,8 @@ from lunch.admin import BaseTokenAdmin
 
 @admin.register(OrderedFood)
 class OrderedFoodAdmin(admin.ModelAdmin):
-    list_display = ('amount', 'foodAmount', 'cost', 'order', 'original', 'ingredientGroups')
-    readonly_fields = ('ingredientGroups',)
+    list_display = ('amount', 'amount_food', 'cost', 'order', 'original', 'ingredient_groups')
+    readonly_fields = ('ingredient_groups',)
 
 
 @admin.register(User)
