@@ -349,7 +349,7 @@ class CustomersTests(LunchbreakTestCase):
         content = {
             'pickup': (timezone.now() + timedelta(days=1)).strftime(settings.DATETIME_FORMAT),
             'store': self.store.id,
-            'orderedFood': [
+            'orderedfood': [
                 {
                     'original': original.id,
                     'cost': original.cost,
@@ -451,7 +451,7 @@ class CustomersTests(LunchbreakTestCase):
 
         content = {
             'store': self.store.id,
-            # No need to check reservation_time, see Store.checkOpen test
+            # No need to check reservation_time, see Store.is_open test
             'reservation_time': (timezone.now() + timedelta(days=1)).strftime(settings.DATETIME_FORMAT),
             'seats': 0
         }

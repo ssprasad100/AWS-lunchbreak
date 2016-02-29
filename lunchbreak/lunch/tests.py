@@ -403,7 +403,7 @@ class LunchTests(LunchbreakTestCase):
 
         # PastOrderDenied
         self.assertRaises(
-            PastOrderDenied, Store.checkOpen, store, today, today + timedelta(hours=1))
+            PastOrderDenied, Store.is_open, store, today, today + timedelta(hours=1))
 
         # MinTimeExceeded
         minTime = timedelta(minutes=15)
@@ -420,7 +420,7 @@ class LunchTests(LunchbreakTestCase):
             opening=opening,
             closing=closing
         )
-        self.assertRaises(MinTimeExceeded, Store.checkOpen, store,
+        self.assertRaises(MinTimeExceeded, Store.is_open, store,
                           opening + minTime - timedelta(minutes=1), opening)
 
         # Before and after opening hours
@@ -429,9 +429,9 @@ class LunchTests(LunchbreakTestCase):
         after = closing + timedelta(hours=1)
         end = after + timedelta(hours=1)
 
-        self.assertRaises(StoreClosed, Store.checkOpen, store, before, today)
-        self.assertIsNone(Store.checkOpen(store, between, today))
-        self.assertRaises(StoreClosed, Store.checkOpen, store, after, today)
+        self.assertRaises(StoreClosed, Store.is_open, store, before, today)
+        self.assertIsNone(Store.is_open(store, between, today))
+        self.assertRaises(StoreClosed, Store.is_open, store, after, today)
 
         hp = HolidayPeriod.objects.create(
             store=store,
@@ -439,23 +439,23 @@ class LunchTests(LunchbreakTestCase):
             end=end,
             closed=True
         )
-        self.assertRaises(StoreClosed, Store.checkOpen, store, before, today)
+        self.assertRaises(StoreClosed, Store.is_open, store, before, today)
 
-        self.assertRaises(StoreClosed, Store.checkOpen, store, between, today)
-        self.assertRaises(StoreClosed, Store.checkOpen, store, after, today)
+        self.assertRaises(StoreClosed, Store.is_open, store, between, today)
+        self.assertRaises(StoreClosed, Store.is_open, store, after, today)
 
         hp.closed = False
         hp.save()
-        self.assertIsNone(Store.checkOpen(store, before, today))
-        self.assertIsNone(Store.checkOpen(store, between, today))
-        self.assertIsNone(Store.checkOpen(store, after, today))
+        self.assertIsNone(Store.is_open(store, before, today))
+        self.assertIsNone(Store.is_open(store, between, today))
+        self.assertIsNone(Store.is_open(store, after, today))
 
         hp.closed = True
         hp.end = between
         hp.save()
-        self.assertRaises(StoreClosed, Store.checkOpen, store, before, today)
-        self.assertRaises(StoreClosed, Store.checkOpen, store, between, today)
-        self.assertIsNone(Store.checkOpen(store, between + timedelta(minutes=1), today))
+        self.assertRaises(StoreClosed, Store.is_open, store, before, today)
+        self.assertRaises(StoreClosed, Store.is_open, store, between, today)
+        self.assertIsNone(Store.is_open(store, between + timedelta(minutes=1), today))
 
     @mock.patch('requests.Response.json')
     @mock.patch('requests.get')
@@ -502,10 +502,10 @@ class LunchTests(LunchbreakTestCase):
         for i in range(2):
             # Ordering without minDays should always return true
             now -= timedelta(hours=1)
-            self.assertTrue(food.canOrder(pickup, now=now))
+            self.assertTrue(food.is_orderable(pickup, now=now))
 
             now += timedelta(hours=2)
-            self.assertTrue(food.canOrder(pickup, now=now))
+            self.assertTrue(food.is_orderable(pickup, now=now))
 
             # Ordering before the orderTime should add 1 minDay in the background
             # and should therefore return false if wanting to pick up the next day.
@@ -514,28 +514,28 @@ class LunchTests(LunchbreakTestCase):
             food.minDays = 1
             food.save()
             now -= timedelta(hours=2)
-            self.assertFalse(food.canOrder(pickup, now=now))
+            self.assertFalse(food.is_orderable(pickup, now=now))
 
             now += timedelta(hours=2)
-            self.assertFalse(food.canOrder(pickup, now=now))
+            self.assertFalse(food.is_orderable(pickup, now=now))
 
             # with minDays == 1:
             #   * ordering before orderTime should allow for next day ordering.
             #   * ordering after orderTime should not allow for next day ordering.
             pickup += timedelta(days=1)
             now -= timedelta(hours=2)
-            self.assertTrue(food.canOrder(pickup, now=now))
+            self.assertTrue(food.is_orderable(pickup, now=now))
 
             now += timedelta(hours=2)
-            self.assertFalse(food.canOrder(pickup, now=now))
+            self.assertFalse(food.is_orderable(pickup, now=now))
 
             # If it's ordered for within 2 days, before/after orderTime doesn't matter
             pickup += timedelta(days=1)
             now -= timedelta(hours=2)
-            self.assertTrue(food.canOrder(pickup, now=now))
+            self.assertTrue(food.is_orderable(pickup, now=now))
 
             now += timedelta(hours=2)
-            self.assertTrue(food.canOrder(pickup, now=now))
+            self.assertTrue(food.is_orderable(pickup, now=now))
 
             # with minDays == 2:
             #   * ordering before orderTime should allow for 2 day ordering.
@@ -543,18 +543,18 @@ class LunchTests(LunchbreakTestCase):
             food.minDays = 2
             food.save()
             now -= timedelta(hours=2)
-            self.assertTrue(food.canOrder(pickup, now=now))
+            self.assertTrue(food.is_orderable(pickup, now=now))
 
             now += timedelta(hours=2)
-            self.assertFalse(food.canOrder(pickup, now=now))
+            self.assertFalse(food.is_orderable(pickup, now=now))
 
             # If it's ordered for within 3 days, before/after orderTime doesn't matter
             pickup += timedelta(days=1)
             now -= timedelta(hours=2)
-            self.assertTrue(food.canOrder(pickup, now=now))
+            self.assertTrue(food.is_orderable(pickup, now=now))
 
             now += timedelta(hours=2)
-            self.assertTrue(food.canOrder(pickup, now=now))
+            self.assertTrue(food.is_orderable(pickup, now=now))
 
             food.minDays = 0
             food.save()

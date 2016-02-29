@@ -289,7 +289,9 @@ class Store(models.Model):
         return self.hearts.count()
 
     @staticmethod
-    def checkOpen(store, pickup, now=None):
+    def is_open(store, pickup, now=None):
+        """Check whether the store is open at the specified time."""
+
         now = timezone.now() if now is None else now
 
         if pickup < now:
@@ -682,7 +684,7 @@ class Food(models.Model):
                 ingredientRelation.typical = False
                 ingredientRelation.save()
 
-    def canOrder(self, pickup, now=None):
+    def is_orderable(self, pickup, now=None):
         '''
         Check whether this food can be ordered for the given day.
         This does not check whether the Store.minTime has been exceeded!

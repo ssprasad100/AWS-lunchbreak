@@ -4,27 +4,27 @@ from customers.config import RESERVATION_STATUS_PLACED, RESERVATION_STATUS_USER
 from customers.exceptions import (AmountInvalid, CostCheckFailed,
                                   MinDaysExceeded)
 from customers.models import Order, OrderedFood, Reservation, User, UserToken
-from lunch import serializers as lunchSerializers
+from lunch import serializers as lunch_serializers
 from lunch.config import INPUT_SI_SET, INPUT_SI_VARIABLE
 from lunch.exceptions import BadRequest
 from lunch.models import Food, IngredientGroup, Store
 from rest_framework import serializers
 
 
-class StoreHeartSerializer(lunchSerializers.StoreSerializer):
+class StoreHeartSerializer(lunch_serializers.StoreSerializer):
     hearted = serializers.BooleanField()
 
     class Meta:
         model = Store
-        fields = lunchSerializers.StoreSerializer.Meta.fields + (
+        fields = lunch_serializers.StoreSerializer.Meta.fields + (
             'hearted',
         )
-        read_only_fields = lunchSerializers.StoreSerializer.Meta.fields + (
+        read_only_fields = lunch_serializers.StoreSerializer.Meta.fields + (
             'hearted',
         )
 
 
-class StoreHeartSerializerV3(lunchSerializers.StoreSerializer):
+class StoreHeartSerializerV3(lunch_serializers.StoreSerializer):
     minTime = serializers.IntegerField(
         source='minTimeV3'
     )
@@ -32,10 +32,10 @@ class StoreHeartSerializerV3(lunchSerializers.StoreSerializer):
 
     class Meta:
         model = Store
-        fields = lunchSerializers.StoreSerializer.Meta.fields + (
+        fields = lunch_serializers.StoreSerializer.Meta.fields + (
             'hearted',
         )
-        read_only_fields = lunchSerializers.StoreSerializer.Meta.fields + (
+        read_only_fields = lunch_serializers.StoreSerializer.Meta.fields + (
             'hearted',
         )
 
@@ -92,7 +92,7 @@ class ReservationSerializer(serializers.ModelSerializer):
 
 
 class OrderedFoodSerializer(serializers.ModelSerializer):
-    ingredient_groups = lunchSerializers.IngredientGroupSerializer(
+    ingredient_groups = lunch_serializers.IngredientGroupSerializer(
         many=True,
         read_only=True
     )
@@ -134,23 +134,23 @@ class ShortOrderSerializer(serializers.ModelSerializer):
 
     '''Used after placing an order for confirmation.'''
 
-    orderedFood = OrderedFoodSerializer(
+    orderedfood = OrderedFoodSerializer(
         many=True,
         write_only=True
     )
 
-    def costCheck(self, calculatedCost, food, amount, givenCost):
+    def check_cost(self, cost_calculated, food, amount, cost_given):
         if math.ceil(
                 (
-                    calculatedCost * amount * (
+                    cost_calculated * amount * (
                         food.amount
                         if food.foodType.inputType == INPUT_SI_SET
                         else 1
                     )
-                ) * 100) / 100.0 != float(givenCost):
+                ) * 100) / 100.0 != float(cost_given):
             raise CostCheckFailed()
 
-    def amountCheck(self, food, amount):
+    def check_amount(self, food, amount):
         if amount <= 0 or (
             not float(amount).is_integer() and
             food.foodType.inputType != INPUT_SI_VARIABLE
@@ -162,31 +162,36 @@ class ShortOrderSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         pickup = validated_data['pickup']
-        orderedFood = validated_data['orderedFood']
+        user_orderedfood = validated_data['orderedfood']
         store = validated_data['store']
         description = validated_data.get('description', '')
 
-        if len(orderedFood) == 0:
-            raise BadRequest('orderedFood empty.')
+        if len(user_orderedfood) == 0:
+            raise BadRequest('"orderedfood" is empty.')
 
-        Store.checkOpen(store, pickup)
+        Store.is_open(store, pickup)
 
         user = self.context['user']
 
-        order = Order(user=user, store=store, pickup=pickup, description=description)
+        order = Order(
+            user=user,
+            store=store,
+            pickup=pickup,
+            description=description
+        )
         order.save()
 
         try:
-            for f in orderedFood:
+            for f in user_orderedfood:
                 original = f['original']
-                if not original.canOrder(pickup):
+                if not original.is_orderable(pickup):
                     raise MinDaysExceeded()
                 amount = f['amount'] if 'amount' in f else 1
-                self.amountCheck(original, amount)
+                self.check_amount(original, amount)
                 cost = f['cost']
                 comment = f['comment'] if 'comment' in f and original.canComment else ''
 
-                orderedF = OrderedFood(
+                orderedfood = OrderedFood(
                     amount=amount,
                     cost=cost,
                     order=order,
@@ -195,23 +200,23 @@ class ShortOrderSerializer(serializers.ModelSerializer):
                 )
 
                 if 'ingredients' in f:
-                    orderedF.save()
+                    orderedfood.save()
                     ingredients = f['ingredients']
 
                     closestFood = Food.objects.closestFood(ingredients, original)
-                    self.amountCheck(closestFood, amount)
+                    self.check_amount(closestFood, amount)
                     IngredientGroup.checkIngredients(ingredients, closestFood)
-                    calculatedCost = OrderedFood.calculate_cost(ingredients, closestFood)
-                    self.costCheck(calculatedCost, closestFood, amount, cost)
+                    cost_calculated = OrderedFood.calculate_cost(ingredients, closestFood)
+                    self.check_cost(cost_calculated, closestFood, amount, cost)
 
-                    orderedF.cost = calculatedCost
-                    orderedF.ingredients = ingredients
+                    orderedfood.cost = cost_calculated
+                    orderedfood.ingredients = ingredients
                 else:
-                    self.costCheck(original.cost, original, amount, cost)
-                    orderedF.cost = original.cost
-                    orderedF.is_original = True
+                    self.check_cost(original.cost, original, amount, cost)
+                    orderedfood.cost = original.cost
+                    orderedfood.is_original = True
 
-                orderedF.save()
+                orderedfood.save()
         except:
             order.delete()
             raise
@@ -228,7 +233,7 @@ class ShortOrderSerializer(serializers.ModelSerializer):
             'paid',
             'total',
             'total_confirmed',
-            'orderedFood',
+            'orderedfood',
             'status',
             'description',
         )
@@ -248,7 +253,7 @@ class OrderSerializer(serializers.ModelSerializer):
 
     '''Used for listing a specific or all orders.'''
 
-    store = lunchSerializers.StoreSerializer(
+    store = lunch_serializers.StoreSerializer(
         read_only=True
     )
     orderedfood = OrderedFoodSerializer(
@@ -357,30 +362,30 @@ class UserSerializer(serializers.ModelSerializer):
         )
 
 
-class MultiUserTokenSerializer(lunchSerializers.MultiTokenSerializer):
+class MultiUserTokenSerializer(lunch_serializers.MultiTokenSerializer):
     user = UserSerializer(
         read_only=True
     )
 
     class Meta:
         model = UserToken
-        fields = lunchSerializers.MultiTokenSerializer.Meta.fields + (
+        fields = lunch_serializers.MultiTokenSerializer.Meta.fields + (
             'user',
         )
-        read_only_fields = lunchSerializers.MultiTokenSerializer.Meta.read_only_fields + (
+        read_only_fields = lunch_serializers.MultiTokenSerializer.Meta.read_only_fields + (
             'user',
         )
 
 
-class UserTokenSerializer(lunchSerializers.TokenSerializer):
+class UserTokenSerializer(lunch_serializers.TokenSerializer):
     user = UserSerializer()
 
     class Meta:
         model = UserToken
-        fields = lunchSerializers.TokenSerializer.Meta.fields + (
+        fields = lunch_serializers.TokenSerializer.Meta.fields + (
             'user',
         )
-        read_only_fields = lunchSerializers.TokenSerializer.Meta.read_only_fields + (
+        read_only_fields = lunch_serializers.TokenSerializer.Meta.read_only_fields + (
             'user',
         )
 

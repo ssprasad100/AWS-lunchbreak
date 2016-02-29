@@ -202,7 +202,7 @@ class Reservation(models.Model):
         if self.seats > self.store.maxSeats:
             raise MaxSeatsExceeded()
 
-        Store.checkOpen(self.store, self.reservation_time)
+        Store.is_open(self.store, self.reservation_time)
 
         super(Reservation, self).clean(*args, **kwargs)
 
