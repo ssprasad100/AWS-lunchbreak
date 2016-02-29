@@ -11,22 +11,12 @@ urlpatterns = patterns(
         r'^food/category/(?P<foodcategory_id>\d+)/?$',
         views.FoodListView.as_view()
     ),
-    # Version 3 deprecated, use /store/{id}/food
-    url(
-        r'^food/store/(?P<store_id>\d+)/?$',
-        views.FoodListView.as_view()
-    ),
 
     url(
         r'^foodcategory/(?P<pk>\d+)/?$',
         views.FoodCategoryRetrieveView.as_view()
     ),
 
-    # Version 3 deprecated, use /user/order/ instead
-    url(
-        r'^order/?$',
-        views.OrderView.as_view(),
-    ),
     url(
         r'^order/(?P<pk>\d+)/?$',
         views.OrderRetrieveView.as_view()
@@ -42,21 +32,6 @@ urlpatterns = patterns(
         name='reservation'
     ),
 
-    # Deprecated version 3, user /store/{id}/{option}/
-    url(
-        r'^store/(?P<option>heart|unheart)/(?P<pk>\d+)/?$',
-        views.StoreHeartView.as_view()
-    ),
-    # Deprecated version 3, use /store/{id}/holidayperiods
-    url(
-        r'^store/holiday/(?P<store_id>\d+)/?$',
-        views.HolidayPeriodListView.as_view()
-    ),
-    # Deprecated version 3, use /store/{id}/openinghours
-    url(
-        r'^store/hours/(?P<store_id>\d+)/?$',
-        views.OpeningHoursListView.as_view()
-    ),
     url(
         r'^store/(?P<pk>\d+)/?$',
         views.StoreHeartView.as_view()
@@ -101,12 +76,6 @@ urlpatterns = patterns(
         r'/(?P<longitude>-?\d+.?\d*)'
         r'/(?P<proximity>\d+.?\d*)/?$',
         views.StoreMultiView.as_view()
-    ),
-    # Deprecated version 3, use /store/{id}/hours
-    url(
-        r'^store/open'
-        r'/(?P<store_id>\d+)/?$',
-        views.StoreHoursView.as_view()
     ),
     url(
         r'^store/recent/?$',

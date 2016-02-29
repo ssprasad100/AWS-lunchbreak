@@ -350,7 +350,9 @@ class OrderedFood(models.Model):
 
     @staticmethod
     def calculateCost(orderedIngredients, food):
-        foodIngredientRelations = food.ingredientrelation_set.select_related('ingredient__group').all()
+        foodIngredientRelations = food.ingredientrelation_set.select_related(
+            'ingredient__group'
+        ).all()
 
         foodIngredients = []
         foodGroups = []
