@@ -1,9 +1,9 @@
-Lunchbreak-API
-==============
+Lunchbreak-Backend
+==================
 
-De Lunchbreak API geschreven in Python Django.
+De Lunchbreak backend geschreven in Python Django.
 
-[![Build status](https://magnum.travis-ci.com/AndreasBackx/Lunchbreak-API.svg?token=gsVV9n7i3zDy19arRrp7&branch=development)](https://magnum.travis-ci.com/AndreasBackx/Lunchbreak-API "Ga naar de Travis pagina.")
+[![Build status](https://magnum.travis-ci.com/AndreasBackx/Lunchbreak-Backend.svg?token=gsVV9n7i3zDy19arRrp7&branch=development)](https://magnum.travis-ci.com/AndreasBackx/Lunchbreak-Backend "Ga naar de Travis pagina.")
 
 Lunchbreak kan gemakkelijk door middel van Vagrant opgestart worden op eender welk systeem en is beschikbaar op poort 8080 voor http en 4430 voor https. Om dit mogelijk te maken moet er eerst een pillar toegevoegd worden in `salt/synced/pillar/secret.sls`. Een template van dit bestand is hieronder te vinden, alle waarden moeten ingevuld worden. Daarnaast moet de map _keys_ toegevoegd worden aan `salt/synced/salt` met de volgende bestanden:
 
