@@ -10,30 +10,73 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 
-def getOpeningHours(storeId):
-    return OpeningHours.objects.filter(store_id=storeId).order_by('day', 'opening')
+class OpeningHoursListViewBase(generics.ListAPIView):
+    serializer_class = OpeningHoursSerializer
+    pagination_class = None
+
+    def get_store_id(self):
+        raise NotImplementedError('get_store_id() needs to return the id of the store.')
+
+    def get_queryset(self):
+        return self._get_queryset(self.get_store_id())
+
+    @staticmethod
+    def _get_queryset(store_id):
+        return OpeningHours.objects.filter(
+            store_id=store_id
+        ).order_by(
+            'day',
+            'opening'
+        )
 
 
-def getHolidayPeriods(storeId):
-    return HolidayPeriod.objects.filter(store_id=storeId, start__lte=timezone.now() + datetime.timedelta(days=7), end__gte=timezone.now())
+class HolidayPeriodListViewBase(generics.ListAPIView):
+    serializer_class = HolidayPeriodSerializer
+    pagination_class = None
+
+    def get_store_id(self):
+        raise NotImplementedError('get_store_id() needs to return the id of the store.')
+
+    def get_queryset(self):
+        return self._get_queryset(self.get_store_id())
+
+    @staticmethod
+    def _get_queryset(store_id):
+        return HolidayPeriod.objects.filter(
+            store_id=store_id,
+            start__lte=timezone.now() + datetime.timedelta(days=7),
+            end__gte=timezone.now()
+        )
 
 
-def getOpeningAndHoliday(storeId):
-    '''
-    Return both the the opening hours and holiday periods as a Response.
-    '''
-    openingHours = OpeningHoursSerializer(getOpeningHours(storeId), many=True)
-    holidayPeriods = HolidayPeriodSerializer(getHolidayPeriods(storeId), many=True)
+class OpeningListViewBase(generics.ListAPIView):
+    serializer_class = OpeningHoursSerializer
+    pagination_class = None
 
-    data = {
-        'openingHours': openingHours.data,
-        'holidayPeriods': holidayPeriods.data
-    }
+    def get_store_id(self):
+        raise NotImplementedError('get_store_id() needs to return the id of the store.')
 
-    return Response(data=data, status=status.HTTP_200_OK)
+    def get(self):
+        store_id = self.get_store_id()
+        openinghours = OpeningHoursSerializer(
+            OpeningHoursListViewBase._get_queryset(store_id),
+            many=True
+        )
+        holidayperiods = HolidayPeriodSerializer(
+            HolidayPeriodListViewBase._get_queryset(store_id),
+            many=True
+        )
+
+        data = {
+            'openinghours': openinghours.data,
+            'holidayperiods': holidayperiods.data
+        }
+
+        return Response(data=data, status=status.HTTP_200_OK)
 
 
 class StoreCategoryListViewBase(generics.ListAPIView):
+
     '''
     List all of the store categories.
     '''

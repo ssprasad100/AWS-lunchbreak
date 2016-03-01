@@ -1,30 +1,24 @@
 from customers.authentication import CustomerAuthentication
 from customers.config import DEMO_DIGITS_ID, DEMO_PHONE
-from customers.digits import Digits
 from customers.models import (Heart, Order, OrderedFood, Reservation, User,
                               UserToken)
 from customers.serializers import (MultiUserTokenSerializer,
                                    OrderedFoodPriceSerializer, OrderSerializer,
                                    ReservationSerializer, ShortOrderSerializer,
-                                   StoreHeartSerializer,
-                                   StoreHeartSerializerV3, UserLoginSerializer,
-                                   UserRegisterSerializer, UserSerializer,
+                                   StoreHeartSerializer, UserLoginSerializer,
+                                   UserRegisterSerializer,
                                    UserTokenUpdateSerializer)
-from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404
 from django.shortcuts import get_object_or_404
-from django.utils import timezone
 from lunch.models import Food, FoodCategory, IngredientGroup, Store
 from lunch.pagination import SimplePagination
 from lunch.renderers import JPEGRenderer
 from lunch.responses import BadRequest
-from lunch.serializers import (FoodCategorySerializer, HolidayPeriodSerializer,
-                               HoursSerializer, MultiFoodSerializer,
-                               OpeningHoursSerializer,
+from lunch.serializers import (FoodCategorySerializer, MultiFoodSerializer,
                                ShortFoodCategorySerializer,
                                ShortStoreSerializer, SingleFoodSerializer)
-from lunch.views import (StoreCategoryListViewBase, getHolidayPeriods,
-                         getOpeningAndHoliday, getOpeningHours)
+from lunch.views import (HolidayPeriodListViewBase, OpeningHoursListViewBase,
+                         OpeningListViewBase, StoreCategoryListViewBase)
 from Lunchbreak.exceptions import LunchbreakException
 from rest_framework import generics, status
 from rest_framework.response import Response
@@ -115,27 +109,27 @@ class OrderView(generics.ListCreateAPIView):
         )
 
     def create(self, request, pay=False, *args, **kwargs):
-        serializerClass = self.get_serializer_class()
-        orderSerializer = serializerClass(
+        serializer_class = self.get_serializer_class()
+        serializer = serializer_class(
             data=request.data,
             context={
                 'user': request.user
             }
         )
 
-        if orderSerializer.is_valid():
+        if serializer.is_valid():
             try:
                 if pay:
                     pass
 
-                orderSerializer.save()
+                serializer.save()
                 return Response(
-                    data=orderSerializer.data,
+                    data=serializer.data,
                     status=status.HTTP_201_CREATED
                 )
             except LunchbreakException as e:
                 return e.getResponse()
-        return BadRequest(orderSerializer.errors)
+        return BadRequest(serializer.errors)
 
 
 class OrderRetrieveView(generics.RetrieveAPIView):
@@ -155,25 +149,28 @@ class OrderPriceView(generics.CreateAPIView):
 
     def post(self, request, format=None):
         """Return the price of the food."""
-        priceSerializer = OrderedFoodPriceSerializer(data=request.data, many=True)
-        if priceSerializer.is_valid():
+        serializer = OrderedFoodPriceSerializer(
+            data=request.data,
+            many=True
+        )
+        if serializer.is_valid():
             result = []
-            for priceCheck in priceSerializer.validated_data:
-                priceInfo = {}
-                original = priceCheck['original']
-                if 'ingredients' in priceCheck:
-                    ingredients = priceCheck['ingredients']
-                    closestFood = Food.objects.closestFood(ingredients, original)
-                    IngredientGroup.checkIngredients(ingredients, closestFood)
+            for price_check in serializer.validated_data:
+                price_info = {}
+                original = price_check['original']
+                if 'ingredients' in price_check:
+                    ingredients = price_check['ingredients']
+                    food_closest = Food.objects.closestFood(ingredients, original)
+                    IngredientGroup.checkIngredients(ingredients, food_closest)
 
-                    priceInfo['cost'] = OrderedFood.calculate_cost(ingredients, closestFood)
-                    priceInfo['food'] = closestFood.id
+                    price_info['cost'] = OrderedFood.calculate_cost(ingredients, food_closest)
+                    price_info['food'] = food_closest.id
                 else:
-                    priceInfo['cost'] = original.cost
-                    priceInfo['food'] = original.id
-                result.append(priceInfo)
+                    price_info['cost'] = original.cost
+                    price_info['food'] = original.id
+                result.append(price_info)
             return Response(data=result, status=status.HTTP_200_OK)
-        return BadRequest(priceSerializer.errors)
+        return BadRequest(serializer.errors)
 
 
 class ReservationSingleView(generics.RetrieveUpdateAPIView):
@@ -192,12 +189,6 @@ class StoreHeartView(generics.RetrieveUpdateAPIView):
     authentication_classes = (CustomerAuthentication,)
     serializer_class = StoreHeartSerializer
     queryset = Store.objects.all()
-
-    def get_serializer_class(self):
-        if self.request.version >= 4:
-            return StoreHeartSerializer
-        else:
-            return StoreHeartSerializerV3
 
     def get(self, request, pk, **kwargs):
         store = get_object_or_404(Store, id=pk)
@@ -226,28 +217,16 @@ class StoreHeartView(generics.RetrieveUpdateAPIView):
             return Response(status=status.HTTP_200_OK)
 
 
-class HolidayPeriodListView(generics.ListAPIView):
-
-    """List the holiday periods of a store."""
-
+class OpeningHoursListView(OpeningHoursListViewBase):
     authentication_classes = (CustomerAuthentication,)
-    serializer_class = HolidayPeriodSerializer
-    pagination_class = None
-
-    def get_queryset(self):
-        return getHolidayPeriods(self.kwargs['store_id'])
 
 
-class OpeningHoursListView(generics.ListAPIView):
-
-    """List the opening hours of a store."""
-
+class HolidayPeriodListView(HolidayPeriodListViewBase):
     authentication_classes = (CustomerAuthentication,)
-    serializer_class = OpeningHoursSerializer
-    pagination_class = None
 
-    def get_queryset(self):
-        return getOpeningHours(self.kwargs['store_id'])
+
+class StoreHoursView(OpeningListViewBase):
+    authentication_classes = (CustomerAuthentication,)
 
 
 class FoodCategoryListView(generics.ListAPIView):
@@ -262,7 +241,10 @@ class FoodCategoryListView(generics.ListAPIView):
         if 'store_id' in self.kwargs:
             return FoodCategory.objects.filter(
                 store_id=self.kwargs['store_id']
-            ).order_by('-priority', 'name')
+            ).order_by(
+                '-priority',
+                'name'
+            )
 
 
 class StoreHeaderView(APIView):
@@ -273,22 +255,13 @@ class StoreHeaderView(APIView):
         store = get_object_or_404(Store, id=store_id)
         if store.header is None:
             raise Http404('That store does not have a header.')
-        image = store.header.retrieve_from_source('original', int(width), int(height))
+        image = store.header.retrieve_from_source(
+            'original',
+            int(width),
+            int(height)
+        )
         image.open()
         return Response(image)
-
-
-class StoreHoursView(generics.ListAPIView):
-
-    """List the opening hours and holiday periods of a store."""
-
-    authentication_classes = (CustomerAuthentication,)
-    serializer_class = HoursSerializer
-    pagination_class = None
-    queryset = None
-
-    def get(self, request, *args, **kwargs):
-        return getOpeningAndHoliday(self.kwargs['store_id'])
 
 
 class StoreMultiView(generics.ListAPIView):
@@ -338,120 +311,6 @@ class UserTokenView(generics.ListAPIView):
         )
 
 
-class UserView(generics.CreateAPIView):
-
-    serializer_class = UserSerializer
-
-    # For all these methods a try-except is not needed because
-    # a DigitsException is generated which will provide everything
-    def register(self, digits, phone):
-        try:
-            digits.register(phone)
-            return True
-        except:
-            return self.signIn(digits, phone)
-
-    def signIn(self, digits, phone):
-        content = digits.signin(phone)
-        return {
-            'digits_id': content['login_verification_user_id'],
-            'request_id': content['login_verification_request_id']
-        }
-
-    def confirmRegistration(self, digits, phone, pin):
-        content = digits.confirmRegistration(phone, pin)
-        return content['id']
-
-    def confirmSignin(self, digits, request_id, digits_id, pin):
-        digits.confirmSignin(request_id, digits_id, pin)
-        return True
-
-    def getRegistrationResponse(self, hasName=False):
-        if hasName:
-            return Response(status=status.HTTP_200_OK)
-        return Response(status=status.HTTP_201_CREATED)
-
-    @staticmethod
-    def createGetToken(user, device):
-        return UserToken.response(user, device)
-
-    def create(self, request, *args, **kwargs):
-        userSerializer = UserSerializer(data=request.data)
-        if userSerializer.is_valid():
-            phone = request.data.__getitem__('phone')
-            queryset = User.objects.filter(phone=phone)
-            digits = Digits()
-            if not queryset:
-                result = self.register(digits, phone)
-                if result:
-                    user = User(phone=phone)
-                    if type(result) is dict:
-                        user.digits_id = result['digits_id']
-                        user.request_id = result['request_id']
-                    user.save()
-                    return self.getRegistrationResponse()
-            else:
-                pin = request.data.get('pin', False)
-                user = queryset[0]
-                hasName = user.name != ''
-                givenName = request.data.get('name', False)
-                name = givenName if givenName else user.name
-                if not pin:
-                    # The user is in the database, but isn't sending a pin code so he's trying
-                    # to signin/register
-                    if user.confirmedAt:
-                        result = self.signIn(digits, phone)
-                        if result:
-                            user.digits_id = result['digits_id']
-                            user.request_id = result['request_id']
-                            user.save()
-                            return self.getRegistrationResponse(hasName)
-                    else:
-                        result = self.register(digits, phone)
-                        if result:
-                            if type(result) is dict:
-                                user.digits_id = result['digits_id']
-                                user.request_id = result['request_id']
-                            user.save()
-                            return self.getRegistrationResponse(hasName)
-                elif name:
-                    device = request.data.get('device', False)
-                    user.name = name
-                    success = False
-                    if device:
-                        if not user.confirmedAt:
-                            user.confirmedAt = timezone.now()
-
-                        if not user.request_id and not user.digits_id:
-                            # The user already got a message, but just got added to the Digits
-                            # database
-                            user.digits_id = self.confirmRegistration(digits, phone, pin)
-                            user.save()
-                            success = True
-                        else:
-                            # The user already was in the Digits database and got a request and
-                            # user id
-                            self.confirmSignin(digits, user.request_id, user.digits_id, pin)
-                            user.save()
-                            success = True
-
-                        if success:
-                            return UserView.createGetToken(user, device)
-        elif request.data.get('phone', False) == DEMO_PHONE:
-            if 'pin' not in request.data:
-                return Response(status=status.HTTP_200_OK)
-
-            if 'device' in request.data:
-                try:
-                    demoUser = User.objects.get(
-                        phone=request.data['phone'], request_id=request.data['pin'], digits_id='demo')
-                except ObjectDoesNotExist:
-                    pass
-                else:
-                    return UserView.createGetToken(demoUser, request.data['device'])
-        return BadRequest(userSerializer.errors)
-
-
 class UserTokenUpdateView(generics.UpdateAPIView):
 
     serializer_class = UserTokenUpdateSerializer
@@ -495,9 +354,9 @@ class UserLoginView(generics.CreateAPIView):
     serializer_class = UserLoginSerializer
 
     def create(self, request, *args, **kwargs):
-        loginSerializer = UserLoginView.serializer_class(data=request.data)
+        serializer = UserLoginView.serializer_class(data=request.data)
         phone = request.data.get('phone', False)
-        if loginSerializer.is_valid():
+        if serializer.is_valid():
             pin = request.data['pin']
             name = request.data.get('name', None)
             token = request.data.get('token', None)
@@ -507,15 +366,18 @@ class UserLoginView(generics.CreateAPIView):
                 'device' in request.data['token'] and
                 'pin' in request.data):
             try:
-                demoUser = User.objects.get(
+                user_demo = User.objects.get(
                     phone=phone,
                     request_id=request.data['pin'],
                     digits_id=DEMO_DIGITS_ID
                 )
-                return UserView.createGetToken(demoUser, request.data['token']['device'])
+                return UserToken.response(
+                    user_demo,
+                    request.data['token']['device']
+                )
             except User.DoesNotExist:
                 pass
-        return BadRequest(loginSerializer.errors)
+        return BadRequest(serializer.errors)
 
 
 class ReservationMultiView(generics.ListCreateAPIView):

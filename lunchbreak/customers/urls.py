@@ -92,10 +92,6 @@ urlpatterns = patterns(
     ),
 
     url(
-        r'^user/?$',
-        views.UserView.as_view()
-    ),
-    url(
         r'^user/token/?$',
         views.UserTokenUpdateView.as_view(),
         name='user-token'

@@ -26,11 +26,10 @@ from django.utils import timezone
 from lunch.models import (Food, FoodCategory, FoodType, Ingredient,
                           IngredientGroup, Quantity, Store)
 from lunch.responses import BadRequest
-from lunch.serializers import (FoodTypeSerializer, HolidayPeriodSerializer,
-                               OpeningHoursSerializer, QuantitySerializer,
+from lunch.serializers import (FoodTypeSerializer, QuantitySerializer,
                                ShortFoodCategorySerializer)
-from lunch.views import (StoreCategoryListViewBase, getHolidayPeriods,
-                         getOpeningAndHoliday, getOpeningHours)
+from lunch.views import (HolidayPeriodListViewBase, OpeningHoursListViewBase,
+                         OpeningListViewBase, StoreCategoryListViewBase)
 from rest_framework import generics, status, viewsets
 from rest_framework.exceptions import MethodNotAllowed
 from rest_framework.response import Response
@@ -460,32 +459,16 @@ class StoreSingleView(generics.RetrieveUpdateAPIView):
         )
 
 
-class OpeningHoursListView(generics.ListAPIView):
+class OpeningHoursListView(OpeningHoursListViewBase):
     authentication_classes = (EmployeeAuthentication,)
-    serializer_class = OpeningHoursSerializer
-    pagination_class = None
-
-    def get_queryset(self):
-        return getOpeningHours(self.request.user.staff.store_id)
 
 
-class HolidayPeriodListView(generics.ListAPIView):
+class HolidayPeriodListView(HolidayPeriodListViewBase):
     authentication_classes = (EmployeeAuthentication,)
-    serializer_class = HolidayPeriodSerializer
-    pagination_class = None
-
-    def get_queryset(self):
-        return getHolidayPeriods(self.request.user.staff.store_id)
 
 
-class StoreOpenView(generics.ListAPIView):
+class StoreOpenView(OpeningListViewBase):
     authentication_classes = (EmployeeAuthentication,)
-    serializer_class = OpeningHoursSerializer
-    pagination_class = None
-    queryset = None
-
-    def get(self, request, *args, **kwargs):
-        return getOpeningAndHoliday(self.request.user.staff.store_id)
 
 
 class StoreCategoryListView(StoreCategoryListViewBase):

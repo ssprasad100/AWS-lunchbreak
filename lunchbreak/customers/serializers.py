@@ -24,22 +24,6 @@ class StoreHeartSerializer(lunch_serializers.StoreSerializer):
         )
 
 
-class StoreHeartSerializerV3(lunch_serializers.StoreSerializer):
-    minTime = serializers.IntegerField(
-        source='minTimeV3'
-    )
-    hearted = serializers.BooleanField()
-
-    class Meta:
-        model = Store
-        fields = lunch_serializers.StoreSerializer.Meta.fields + (
-            'hearted',
-        )
-        read_only_fields = lunch_serializers.StoreSerializer.Meta.fields + (
-            'hearted',
-        )
-
-
 class ReservationSerializer(serializers.ModelSerializer):
     user = serializers.ModelField(
         model_field=Reservation()._meta.get_field('user'),
