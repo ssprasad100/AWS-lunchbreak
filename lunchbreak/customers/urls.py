@@ -1,5 +1,6 @@
 from django.conf.urls import patterns, url
-from customers import views
+
+from . import views
 
 urlpatterns = patterns(
     '',

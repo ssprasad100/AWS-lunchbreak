@@ -1,14 +1,14 @@
 import math
 
-from customers.config import RESERVATION_STATUS_PLACED, RESERVATION_STATUS_USER
-from customers.exceptions import (AmountInvalid, CostCheckFailed,
-                                  MinDaysExceeded)
-from customers.models import Order, OrderedFood, Reservation, User, UserToken
 from lunch import serializers as lunch_serializers
 from lunch.config import INPUT_SI_SET, INPUT_SI_VARIABLE
 from lunch.exceptions import BadRequest
 from lunch.models import Food, IngredientGroup, Store
 from rest_framework import serializers
+
+from .config import RESERVATION_STATUS_PLACED, RESERVATION_STATUS_USER
+from .exceptions import AmountInvalid, CostCheckFailed, MinDaysExceeded
+from .models import Order, OrderedFood, Reservation, User, UserToken
 
 
 class StoreHeartSerializer(lunch_serializers.StoreSerializer):

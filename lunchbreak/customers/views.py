@@ -1,13 +1,3 @@
-from customers.authentication import CustomerAuthentication
-from customers.config import DEMO_DIGITS_ID, DEMO_PHONE
-from customers.models import (Heart, Order, OrderedFood, Reservation, User,
-                              UserToken)
-from customers.serializers import (MultiUserTokenSerializer,
-                                   OrderedFoodPriceSerializer, OrderSerializer,
-                                   ReservationSerializer, ShortOrderSerializer,
-                                   StoreHeartSerializer, UserLoginSerializer,
-                                   UserRegisterSerializer,
-                                   UserTokenUpdateSerializer)
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from lunch.models import Food, FoodCategory, IngredientGroup, Store
@@ -23,6 +13,15 @@ from Lunchbreak.exceptions import LunchbreakException
 from rest_framework import filters, generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
+from .authentication import CustomerAuthentication
+from .config import DEMO_DIGITS_ID, DEMO_PHONE
+from .models import Heart, Order, OrderedFood, Reservation, User, UserToken
+from .serializers import (MultiUserTokenSerializer, OrderedFoodPriceSerializer,
+                          OrderSerializer, ReservationSerializer,
+                          ShortOrderSerializer, StoreHeartSerializer,
+                          UserLoginSerializer, UserRegisterSerializer,
+                          UserTokenUpdateSerializer)
 
 
 class FoodRetrieveView(generics.RetrieveAPIView):

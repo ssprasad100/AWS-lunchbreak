@@ -4,13 +4,6 @@ from __future__ import unicode_literals
 from datetime import timedelta
 
 import mock
-from customers import views
-from customers.config import (DEMO_DIGITS_ID, DEMO_PHONE,
-                              ORDER_STATUS_COMPLETED, RESERVATION_STATUS,
-                              RESERVATION_STATUS_USER)
-from customers.exceptions import MaxSeatsExceeded, UserNameEmpty
-from customers.models import (Heart, Order, OrderedFood, Reservation, User,
-                              UserToken)
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.http import Http404
@@ -23,6 +16,12 @@ from Lunchbreak.test import LunchbreakTestCase
 from push_notifications.models import SERVICE_APNS, SERVICE_GCM
 from rest_framework import status
 from rest_framework.test import APIRequestFactory
+
+from . import views
+from .config import (DEMO_DIGITS_ID, DEMO_PHONE, ORDER_STATUS_COMPLETED,
+                     RESERVATION_STATUS, RESERVATION_STATUS_USER)
+from .exceptions import MaxSeatsExceeded, UserNameEmpty
+from .models import Heart, Order, OrderedFood, Reservation, User, UserToken
 
 
 class CustomersTests(LunchbreakTestCase):

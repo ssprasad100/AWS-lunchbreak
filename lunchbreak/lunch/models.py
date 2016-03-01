@@ -700,7 +700,9 @@ class Food(models.Model):
             now = datetime.now() if now is None else now
             # Amount of days needed to order in advance
             # (add 1 if it isn't before the preorder_time)
-            preorder_days = self.preorder_days + (1 if now.time() > self.store.preorder_time else 0)
+            preorder_days = self.preorder_days + (
+                1 if now.time() > self.store.preorder_time else 0
+            )
 
             # Calculate the amount of days between pickup and now
             difference_day = (pickup - now).days

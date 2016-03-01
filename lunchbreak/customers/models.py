@@ -3,14 +3,6 @@ from __future__ import unicode_literals
 import math
 
 from business.models import StaffToken
-from customers.config import (ORDER_ENDED, ORDER_STATUS,
-                              ORDER_STATUS_COMPLETED, ORDER_STATUS_PLACED,
-                              ORDER_STATUS_WAITING, RESERVATION_STATUS,
-                              RESERVATION_STATUS_DENIED,
-                              RESERVATION_STATUS_PLACED)
-from customers.digits import Digits
-from customers.exceptions import (DigitsException, MaxSeatsExceeded,
-                                  UserDisabled, UserNameEmpty)
 from dirtyfields import DirtyFieldsMixin
 from django.core.validators import MinValueValidator
 from django.db import models
@@ -23,6 +15,15 @@ from phonenumber_field.modelfields import PhoneNumberField
 from push_notifications.models import SERVICE_INACTIVE
 from rest_framework import status
 from rest_framework.response import Response
+
+from .config import (GROUP_PAYMENT_OPTIONS, GROUP_PAYMENT_SEPARATE,
+                     ORDER_ENDED, ORDER_STATUS, ORDER_STATUS_COMPLETED,
+                     ORDER_STATUS_PLACED, ORDER_STATUS_WAITING,
+                     RESERVATION_STATUS, RESERVATION_STATUS_DENIED,
+                     RESERVATION_STATUS_PLACED)
+from .digits import Digits
+from .exceptions import (DigitsException, MaxSeatsExceeded, UserDisabled,
+                         UserNameEmpty)
 
 
 class User(models.Model):
@@ -143,6 +144,59 @@ class User(models.Model):
             )
         except User.DoesNotExist:
             return DoesNotExist()
+
+
+class Group(models.Model):
+    name = models.CharField(
+        max_length=255
+    )
+    payment = models.IntegerField(
+        default=GROUP_PAYMENT_SEPARATE,
+        choices=GROUP_PAYMENT_OPTIONS
+    )
+    users = models.ManyToManyField(
+        User,
+        through='Membership',
+        through_fields=('group', 'user',)
+    )
+
+    @classmethod
+    def create(cls, name, user):
+        group = cls.objects.create(
+            name=name
+        )
+        group.save()
+        Membership.objects.create(
+            user=user,
+            group=group,
+            leader=True
+        )
+
+        return group
+
+    def __unicode__(self):
+        return self.name
+
+
+class Membership(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE
+    )
+    group = models.ForeignKey(
+        Group,
+        on_delete=models.CASCADE
+    )
+
+    leader = models.BooleanField(
+        default=False
+    )
+
+    def __unicode__(self):
+        return '{group}: {user}'.format(
+            group=self.group,
+            user=self.user
+        )
 
 
 class Heart(models.Model):

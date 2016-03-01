@@ -3,8 +3,9 @@ import json
 import urllib
 
 import requests
-from customers.exceptions import DigitsException
 from Lunchbreak.exceptions import LunchbreakException
+
+from .exceptions import DigitsException
 
 
 class Digits:
