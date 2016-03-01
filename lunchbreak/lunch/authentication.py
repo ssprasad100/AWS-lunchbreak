@@ -22,7 +22,7 @@ class TokenAuthentication(authentication.BaseAuthentication):
                 **arguments
             )
             for modelToken in modelTokens:
-                if modelToken.checkIdentifier(identifier):
+                if modelToken.check_identifier(identifier):
                     return (getattr(modelToken, self.MODEL_NAME), modelToken)
         except self.TOKEN_MODEL.DoesNotExist:
             pass

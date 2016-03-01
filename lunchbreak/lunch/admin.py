@@ -11,15 +11,15 @@ admin.site.register(StoreCategory)
 @admin.register(Quantity)
 class QuantityAdmin(admin.ModelAdmin):
     list_display = (
-        'foodType',
+        'foodtype',
         'store',
-        'amountMin',
-        'amountMax',
+        'min',
+        'max',
         'id',
     )
     readonly_fields = (
         'id',
-        'lastModified',
+        'modified',
     )
 
 
@@ -50,7 +50,7 @@ class StoreAdmin(admin.ModelAdmin):
         'name',
         'city',
         'country',
-        'minTime',
+        'wait',
         'id',
     )
     readonly_fields = (
@@ -108,7 +108,7 @@ class FoodTypeAdmin(admin.ModelAdmin):
     list_display = (
         'name',
         'quantifier',
-        'inputType',
+        'inputtype',
         'id',
     )
     readonly_fields = (
@@ -131,7 +131,7 @@ class FoodAdmin(admin.ModelAdmin):
         'id',
     )
     readonly_fields = (
-        'lastModified',
+        'modified',
         'id',
     )
     inlines = (IngredientsRelationInline,)
@@ -154,7 +154,7 @@ class IngredientGroupAdmin(admin.ModelAdmin):
         'minimum',
         'priority',
         'cost',
-        'foodType',
+        'foodtype',
         'store',
         'id',
     )

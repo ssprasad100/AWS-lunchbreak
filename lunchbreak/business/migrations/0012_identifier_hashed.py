@@ -7,10 +7,10 @@ from django.db import migrations, models
 
 def hashIdentifiers(apps, schema_editor):
     for row in StaffToken.objects.all():
-        row.save(forceHashing=True)
+        row.save(force_hashing=True)
 
     for row in EmployeeToken.objects.all():
-        row.save(forceHashing=True)
+        row.save(force_hashing=True)
 
 
 class Migration(migrations.Migration):

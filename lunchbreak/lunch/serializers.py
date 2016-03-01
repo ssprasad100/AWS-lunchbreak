@@ -35,8 +35,8 @@ class ShortStoreSerializer(serializers.ModelSerializer):
             'latitude',
             'longitude',
             'categories',
-            'heartsCount',
-            'lastModified',
+            'hearts_count',
+            'modified',
         )
         read_only_fields = fields
 
@@ -56,8 +56,8 @@ class StoreSerializer(ShortStoreSerializer):
             'postcode',
             'street',
             'number',
-            'minTime',
-            'orderTime',
+            'wait',
+            'preorder_time',
         )
         read_only_fields = ShortStoreSerializer.Meta.read_only_fields
 
@@ -170,7 +170,7 @@ class ShortIngredientGroupSerializer(serializers.ModelSerializer):
             'minimum',
             'priority',
             'cost',
-            'foodType',
+            'foodtype',
         )
         read_only_fields = (
             'id',
@@ -222,7 +222,7 @@ class FoodTypeSerializer(serializers.ModelSerializer):
             'id',
             'name',
             'quantifier',
-            'inputType',
+            'inputtype',
             'customisable',
         )
         read_only_fields = (
@@ -236,13 +236,13 @@ class ShortQuantitySerializer(serializers.ModelSerializer):
         model = Quantity
         fields = (
             'id',
-            'amountMin',
-            'amountMax',
-            'lastModified',
+            'min',
+            'max',
+            'modified',
         )
         read_only_fields = (
             'id',
-            'lastModified',
+            'modified',
         )
 
 
@@ -251,20 +251,20 @@ class QuantitySerializer(ShortQuantitySerializer):
     class Meta:
         model = ShortQuantitySerializer.Meta.model
         fields = ShortQuantitySerializer.Meta.fields + (
-            'foodType',
+            'foodtype',
         )
         read_only_fields = ShortQuantitySerializer.Meta.read_only_fields
 
 
 class SingleFoodSerializer(serializers.ModelSerializer):
-    ingredient_groups = ShortIngredientGroupSerializer(
+    ingredientgroups = ShortIngredientGroupSerializer(
         many=True,
         read_only=True
     )
     category = ShortFoodCategorySerializer(
         many=False
     )
-    foodType = FoodTypeSerializer(
+    foodtype = FoodTypeSerializer(
         many=False
     )
     ingredients = IngredientRelationSerializer(
@@ -283,36 +283,36 @@ class SingleFoodSerializer(serializers.ModelSerializer):
             'description',
             'amount',
             'cost',
-            'foodType',
-            'minDays',
-            'canComment',
+            'foodtype',
+            'preorder_days',
+            'commentable',
             'priority',
 
             'category',
             'ingredients',
             'store',
 
-            'lastModified',
+            'modified',
 
-            'ingredient_groups',
+            'ingredientgroups',
             'quantity',
         )
         read_only_fields = (
             'id',
-            'ingredient_groups',
-            'lastModified',
+            'ingredientgroups',
+            'modified',
         )
 
     def to_representation(self, obj):
         result = super(SingleFoodSerializer, self).to_representation(obj)
 
         addedIngredientRelations = []
-        ingredient_groups = obj.ingredient_groups.all().prefetch_related(
+        ingredientgroups = obj.ingredientgroups.all().prefetch_related(
             'ingredient_set'
         )
         objIngredients = obj.ingredients.all()
 
-        for ingredientGroup in ingredient_groups:
+        for ingredientGroup in ingredientgroups:
             ingredients = ingredientGroup.ingredient_set.all()
             for ingredient in ingredients:
                 if ingredient not in objIngredients:
@@ -331,7 +331,7 @@ class SingleFoodSerializer(serializers.ModelSerializer):
 
 
 class MultiFoodSerializer(serializers.ModelSerializer):
-    foodType = FoodTypeSerializer(
+    foodtype = FoodTypeSerializer(
         many=False
     )
     category = ShortFoodCategorySerializer(
@@ -349,15 +349,15 @@ class MultiFoodSerializer(serializers.ModelSerializer):
             'amount',
             'cost',
             'category',
-            'foodType',
+            'foodtype',
             'priority',
-            'hasIngredients',
+            'has_ingredients',
             'quantity',
-            'minDays',
+            'preorder_days',
         )
         read_only_fields = (
             'id',
-            'hasIngredients',
+            'has_ingredients',
         )
 
 

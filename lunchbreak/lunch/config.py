@@ -1,3 +1,5 @@
+import random
+
 COST_GROUP_ALWAYS = 0
 COST_GROUP_ADDITIONS = 1
 COST_GROUP_BOTH = 2
@@ -42,3 +44,8 @@ INPUT_TYPES = (
 
 TOKEN_IDENTIFIER_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWabcdefghijklmnopqrstuvwxyz0123456789'
 TOKEN_IDENTIFIER_LENGTH = 64
+
+
+def random_token():
+    rnd = random.SystemRandom()
+    return ''.join(rnd.choice(TOKEN_IDENTIFIER_CHARS) for _ in range(TOKEN_IDENTIFIER_LENGTH))

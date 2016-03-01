@@ -199,7 +199,7 @@ class Reservation(models.Model):
     )
 
     def clean(self, *args, **kwargs):
-        if self.seats > self.store.maxSeats:
+        if self.seats > self.store.seats_max:
             raise MaxSeatsExceeded()
 
         Store.is_open(self.store, self.reservation_time)
@@ -330,12 +330,12 @@ class OrderedFood(models.Model):
         verbose_name_plural = 'Ordered food'
 
     @cached_property
-    def ingredient_groups(self):
-        return self.original.ingredient_groups
+    def ingredientgroups(self):
+        return self.original.ingredientgroups
 
     @cached_property
     def amount_food(self):
-        return self.original.amount if self.original.foodType.inputType == INPUT_SI_SET else 1
+        return self.original.amount if self.original.foodtype.inputtype == INPUT_SI_SET else 1
 
     @cached_property
     def total(self):
@@ -362,7 +362,7 @@ class OrderedFood(models.Model):
 
         for ingredient in ordered_ingredients:
             if ingredient not in food_ingredients:
-                if ingredient.group.costCalculation in [COST_GROUP_BOTH, COST_GROUP_ADDITIONS]:
+                if ingredient.group.calculation in [COST_GROUP_BOTH, COST_GROUP_ADDITIONS]:
                     cost += ingredient.cost
                 elif ingredient.group not in foodGroups:
                     cost += ingredient.group.cost
@@ -372,7 +372,7 @@ class OrderedFood(models.Model):
         groups_removed = []
         for ingredient in food_ingredients:
             if ingredient not in ordered_ingredients:
-                if ingredient.group.costCalculation == COST_GROUP_BOTH:
+                if ingredient.group.calculation == COST_GROUP_BOTH:
                     cost -= ingredient.cost
                 elif ingredient.group not in groups_removed:
                     groups_removed.append(ingredient.group)
@@ -394,7 +394,7 @@ class UserToken(BaseToken):
     def response(user, device, service=SERVICE_INACTIVE, registration_id=''):
         from customers.serializers import UserTokenSerializer
 
-        token, created = UserToken.objects.createToken(
+        token, created = UserToken.objects.create_token(
             arguments={
                 'user': user,
                 'device': device

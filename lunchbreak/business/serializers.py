@@ -25,22 +25,22 @@ class StoreSerializer(serializers.ModelSerializer):
             'latitude',
             'longitude',
             'categories',
-            'heartsCount',
+            'hearts_count',
             'country',
             'province',
             'city',
             'postcode',
             'street',
             'number',
-            'minTime',
-            'orderTime',
+            'wait',
+            'preorder_time',
             'enabled',
         )
         read_only_fields = (
             'id',
             'latitude',
             'longitude',
-            'heartsCount',
+            'hearts_count',
             'categories',
         )
 
@@ -53,8 +53,8 @@ class StoreSerializerV3(StoreSerializer):
         read_only_fields = StoreSerializer.Meta.read_only_fields
 
     def save(self):
-        if 'minTime' in self.validated_data:
-            self.validated_data['minTime'] *= 60
+        if 'wait' in self.validated_data:
+            self.validated_data['wait'] *= 60
         super(StoreSerializer, self).save()
 
 
@@ -310,7 +310,7 @@ class ShortIngredientGroupSerializer(serializers.ModelSerializer):
             'minimum',
             'priority',
             'cost',
-            'foodType',
+            'foodtype',
         )
         read_only_fields = (
             'id',
@@ -357,14 +357,14 @@ class ShortFoodSerializer(serializers.ModelSerializer):
             'description',
             'amount',
             'cost',
-            'foodType',
-            'minDays',
-            'canComment',
+            'foodtype',
+            'preorder_days',
+            'commentable',
             'priority',
 
             'category',
             'ingredients',
-            'ingredient_groups',
+            'ingredientgroups',
 
             'ingredientRelations',
             'orderAmount',
@@ -437,7 +437,7 @@ class IngredientGroupSerializer(serializers.ModelSerializer):
             'ingredients',
             'priority',
             'cost',
-            'foodType',
+            'foodtype',
         )
         read_only_fields = (
             'id',

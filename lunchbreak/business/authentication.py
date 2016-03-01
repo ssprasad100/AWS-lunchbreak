@@ -10,7 +10,7 @@ from django.core.mail import BadHeaderError, EmailMultiAlternatives
 from django.core.validators import validate_email
 from django.template.loader import render_to_string
 from lunch.authentication import TokenAuthentication
-from lunch.models import tokenGenerator
+from lunch.config import random_token
 from lunch.responses import BadRequest, DoesNotExist
 from push_notifications.models import SERVICE_INACTIVE
 from rest_framework import status
@@ -42,7 +42,7 @@ class BusinessAuthentication(TokenAuthentication):
             )
 
         if model.checkPassword(rawPassword):
-            token, created = cls.TOKEN_MODEL.objects.createToken(
+            token, created = cls.TOKEN_MODEL.objects.create_token(
                 arguments={
                     cls.MODEL_NAME: model,
                     'device': device
@@ -85,7 +85,7 @@ class BusinessAuthentication(TokenAuthentication):
             except cls.MODEL.DoesNotExist:
                 return InvalidEmail('Email address not found.').getResponse()
 
-        model.passwordReset = tokenGenerator()
+        model.passwordReset = random_token()
         model.save()
 
         subject = 'Lunchbreak wachtwoord herstellen'

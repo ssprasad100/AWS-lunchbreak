@@ -101,14 +101,14 @@ class CustomersTests(LunchbreakTestCase):
 
         self.ingredientGroup = IngredientGroup.objects.create(
             name='IngredientGroup test',
-            foodType=self.foodtype,
+            foodtype=self.foodtype,
             store=self.store
         )
 
         self.food = Food.objects.create(
             name='Food test',
             cost=1.00,
-            foodType=self.foodtype,
+            foodtype=self.foodtype,
             category=self.foodcategory,
             store=self.store
         )
@@ -463,13 +463,13 @@ class CustomersTests(LunchbreakTestCase):
         response = self.authenticate_request(request, views.ReservationMultiView)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        content['seats'] = self.store.maxSeats + 1
+        content['seats'] = self.store.seats_max + 1
 
         request = self.factory.post(url, content, format=CustomersTests.FORMAT)
         response = self.authenticate_request(request, views.ReservationMultiView)
         self.assertEqualException(response, MaxSeatsExceeded)
 
-        content['seats'] = self.store.maxSeats
+        content['seats'] = self.store.seats_max
 
         request = self.factory.post(url, content, format=CustomersTests.FORMAT)
         response = self.authenticate_request(request, views.ReservationMultiView)
@@ -483,14 +483,14 @@ class CustomersTests(LunchbreakTestCase):
             store=self.store,
             # For some reason Travis running Python 2.7.9 saves microseconds and 2.7.10 doesn't
             reservation_time=(timezone.now() + timedelta(days=1)).replace(microsecond=0),
-            seats=self.store.maxSeats
+            seats=self.store.seats_max
         )
 
         kwargs = {'pk': reservation.id}
         url = reverse('reservation', kwargs=kwargs)
 
         attributed_denied = {
-            'seats': self.store.maxSeats - 1,
+            'seats': self.store.seats_max - 1,
             'reservation_time': (timezone.now() + timedelta(days=2)).strftime(settings.DATETIME_FORMAT),
             'store': self.store_other.id,
             'user': self.user_other.id

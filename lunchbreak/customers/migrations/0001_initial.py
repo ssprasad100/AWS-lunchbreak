@@ -62,7 +62,7 @@ class Migration(migrations.Migration):
             name='UserToken',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('identifier', models.CharField(default=lunch.models.tokenGenerator, max_length=64)),
+                ('identifier', models.CharField(default=lunch.config.random_token, max_length=64)),
                 ('device', models.CharField(max_length=128)),
                 ('user', models.ForeignKey(to='customers.User')),
             ],

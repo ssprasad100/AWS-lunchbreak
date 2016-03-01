@@ -158,7 +158,7 @@ class FoodListView(generics.ListAPIView):
         if since is not None:
             result = Food.objects.filter(
                 store=self.request.user.staff.store,
-                lastModified__gte=since
+                modified__gte=since
             )
         else:
             result = Food.objects.filter(
@@ -246,7 +246,7 @@ class IngredientMultiView(ListCreateStoreView):
         result = Ingredient.objects.filter(store=self.request.user.staff.store)
         since = getDatetime(self.request, self.kwargs, arg='datetime')
         if since is not None:
-            return result.filter(lastModified__gte=since)
+            return result.filter(modified__gte=since)
         return result
 
 
@@ -260,7 +260,7 @@ class IngredientSingleView(generics.RetrieveUpdateDestroyAPIView):
         if since is not None:
             result = Ingredient.objects.filter(
                 store=self.request.user.staff.store,
-                lastModified__gte=since
+                modified__gte=since
             )
         else:
             result = Ingredient.objects.filter(

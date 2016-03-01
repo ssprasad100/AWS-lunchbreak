@@ -225,7 +225,7 @@ class LunchTests(LunchbreakTestCase):
             number=10
         )
 
-        firstModified = store.lastModified
+        firstModified = store.modified
 
         OpeningHours.objects.create(
             store=store, day=0,
@@ -233,7 +233,7 @@ class LunchTests(LunchbreakTestCase):
             closing='01:00'
         )
 
-        secondModified = store.lastModified
+        secondModified = store.modified
 
         self.assertGreater(secondModified, firstModified)
 
@@ -246,7 +246,7 @@ class LunchTests(LunchbreakTestCase):
             end=tomorrow
         )
 
-        self.assertGreater(store.lastModified, secondModified)
+        self.assertGreater(store.modified, secondModified)
 
     @mock.patch('requests.Response.json')
     @mock.patch('requests.get')
@@ -262,11 +262,11 @@ class LunchTests(LunchbreakTestCase):
             number=10
         )
 
-        foodType = FoodType.objects.create(name='type')
+        foodtype = FoodType.objects.create(name='type')
 
         group = IngredientGroup(
             name='group',
-            foodType=foodType,
+            foodtype=foodtype,
             store=store,
             maximum=0,
             minimum=1
@@ -290,7 +290,7 @@ class LunchTests(LunchbreakTestCase):
     @mock.patch('requests.get')
     def testQuantity(self, mock_get, mock_json):
         self.mock_address_response(mock_get, mock_json)
-        foodType = FoodType.objects.create(name='type')
+        foodtype = FoodType.objects.create(name='type')
 
         store = Store.objects.create(
             name='valid',
@@ -305,17 +305,17 @@ class LunchTests(LunchbreakTestCase):
         self.assertRaises(
             ValidationError,
             Quantity.objects.create,
-            foodType=foodType,
+            foodtype=foodtype,
             store=store,
-            amountMin=2,
-            amountMax=1
+            min=2,
+            max=1
         )
 
         Quantity.objects.create(
-            foodType=foodType,
+            foodtype=foodtype,
             store=store,
-            amountMin=1,
-            amountMax=2
+            min=1,
+            max=2
         )
 
     @mock.patch('requests.Response.json')
@@ -332,16 +332,16 @@ class LunchTests(LunchbreakTestCase):
             number=10
         )
 
-        foodType = FoodType.objects.create(name='type')
+        foodtype = FoodType.objects.create(name='type')
 
         quantity = Quantity.objects.create(
-            foodType=foodType,
+            foodtype=foodtype,
             store=store,
-            amountMin=1,
-            amountMax=10
+            min=1,
+            max=10
         )
 
-        inputTypes = [
+        inputtypes = [
             {
                 'type': INPUT_AMOUNT,
                 'float': False,
@@ -357,14 +357,14 @@ class LunchTests(LunchbreakTestCase):
             }
         ]
 
-        for it in inputTypes:
-            foodType.inputType = it['type']
+        for it in inputtypes:
+            foodtype.inputtype = it['type']
 
-            self.assertEqual(foodType.isValidAmount(1), it['integer'])
-            self.assertEqual(foodType.isValidAmount(1.5), it['float'])
+            self.assertEqual(foodtype.is_valid_amount(1), it['integer'])
+            self.assertEqual(foodtype.is_valid_amount(1.5), it['float'])
 
-            quantity.amountMin = 1.5
-            quantity.amountMax = 9.5
+            quantity.min = 1.5
+            quantity.max = 9.5
 
             try:
                 quantity.save()
@@ -374,8 +374,8 @@ class LunchTests(LunchbreakTestCase):
                         'Input type is float, but raises exception.'
                     )
                 elif it['integer']:
-                    quantity.amountMin = 1
-                    quantity.amountMax = 9
+                    quantity.min = 1
+                    quantity.max = 9
 
                     try:
                         quantity.save()
@@ -406,10 +406,10 @@ class LunchTests(LunchbreakTestCase):
             PastOrderDenied, Store.is_open, store, today, today + timedelta(hours=1))
 
         # MinTimeExceeded
-        minTime = timedelta(minutes=15)
-        openingMinTime = minTime * 2
+        wait = timedelta(minutes=15)
+        openingMinTime = wait * 2
         closingHours = 10
-        store.minTime = minTime
+        store.wait = wait
 
         opening = (today + openingMinTime)
         closing = (opening + timedelta(hours=closingHours))
@@ -421,7 +421,7 @@ class LunchTests(LunchbreakTestCase):
             closing=closing
         )
         self.assertRaises(MinTimeExceeded, Store.is_open, store,
-                          opening + minTime - timedelta(minutes=1), opening)
+                          opening + wait - timedelta(minutes=1), opening)
 
         # Before and after opening hours
         before = opening - timedelta(minutes=1)
@@ -461,7 +461,7 @@ class LunchTests(LunchbreakTestCase):
     @mock.patch('requests.get')
     def testFoodCanOrder(self, mock_get, mock_json):
         self.mock_address_response(mock_get, mock_json)
-        orderTime = time(hour=12)
+        preorder_time = time(hour=12)
 
         store = Store.objects.create(
             name='valid',
@@ -471,12 +471,12 @@ class LunchTests(LunchbreakTestCase):
             postcode='9230',
             street='Dendermondesteenweg',
             number=10,
-            orderTime=orderTime,
-            minTime=timedelta()
+            preorder_time=preorder_time,
+            wait=timedelta()
         )
 
-        foodType = FoodType.objects.create(
-            name='Test foodType'
+        foodtype = FoodType.objects.create(
+            name='Test foodtype'
         )
 
         foodCategory = FoodCategory.objects.create(
@@ -487,10 +487,10 @@ class LunchTests(LunchbreakTestCase):
         food = Food.objects.create(
             name='Test food',
             cost=1,
-            foodType=foodType,
+            foodtype=foodtype,
             category=foodCategory,
             store=store,
-            minDays=0
+            preorder_days=0
         )
 
         now = datetime.now()
@@ -500,18 +500,18 @@ class LunchTests(LunchbreakTestCase):
         pickup = pickup.replace(hour=12, minute=0)
 
         for i in range(2):
-            # Ordering without minDays should always return true
+            # Ordering without preorder_days should always return true
             now -= timedelta(hours=1)
             self.assertTrue(food.is_orderable(pickup, now=now))
 
             now += timedelta(hours=2)
             self.assertTrue(food.is_orderable(pickup, now=now))
 
-            # Ordering before the orderTime should add 1 minDay in the background
+            # Ordering before the preorder_time should add 1 minDay in the background
             # and should therefore return false if wanting to pick up the next day.
 
-            # with minDays == 1, same day order is impossible
-            food.minDays = 1
+            # with preorder_days == 1, same day order is impossible
+            food.preorder_days = 1
             food.save()
             now -= timedelta(hours=2)
             self.assertFalse(food.is_orderable(pickup, now=now))
@@ -519,9 +519,9 @@ class LunchTests(LunchbreakTestCase):
             now += timedelta(hours=2)
             self.assertFalse(food.is_orderable(pickup, now=now))
 
-            # with minDays == 1:
-            #   * ordering before orderTime should allow for next day ordering.
-            #   * ordering after orderTime should not allow for next day ordering.
+            # with preorder_days == 1:
+            #   * ordering before preorder_time should allow for next day ordering.
+            #   * ordering after preorder_time should not allow for next day ordering.
             pickup += timedelta(days=1)
             now -= timedelta(hours=2)
             self.assertTrue(food.is_orderable(pickup, now=now))
@@ -529,7 +529,7 @@ class LunchTests(LunchbreakTestCase):
             now += timedelta(hours=2)
             self.assertFalse(food.is_orderable(pickup, now=now))
 
-            # If it's ordered for within 2 days, before/after orderTime doesn't matter
+            # If it's ordered for within 2 days, before/after preorder_time doesn't matter
             pickup += timedelta(days=1)
             now -= timedelta(hours=2)
             self.assertTrue(food.is_orderable(pickup, now=now))
@@ -537,10 +537,10 @@ class LunchTests(LunchbreakTestCase):
             now += timedelta(hours=2)
             self.assertTrue(food.is_orderable(pickup, now=now))
 
-            # with minDays == 2:
-            #   * ordering before orderTime should allow for 2 day ordering.
-            #   * ordering after orderTime should not allow for 2 day ordering.
-            food.minDays = 2
+            # with preorder_days == 2:
+            #   * ordering before preorder_time should allow for 2 day ordering.
+            #   * ordering after preorder_time should not allow for 2 day ordering.
+            food.preorder_days = 2
             food.save()
             now -= timedelta(hours=2)
             self.assertTrue(food.is_orderable(pickup, now=now))
@@ -548,7 +548,7 @@ class LunchTests(LunchbreakTestCase):
             now += timedelta(hours=2)
             self.assertFalse(food.is_orderable(pickup, now=now))
 
-            # If it's ordered for within 3 days, before/after orderTime doesn't matter
+            # If it's ordered for within 3 days, before/after preorder_time doesn't matter
             pickup += timedelta(days=1)
             now -= timedelta(hours=2)
             self.assertTrue(food.is_orderable(pickup, now=now))
@@ -556,7 +556,7 @@ class LunchTests(LunchbreakTestCase):
             now += timedelta(hours=2)
             self.assertTrue(food.is_orderable(pickup, now=now))
 
-            food.minDays = 0
+            food.preorder_days = 0
             food.save()
             now = datetime.now()
             now = now.replace(hour=12, minute=0)

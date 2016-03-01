@@ -34,13 +34,13 @@ class FoodRetrieveView(generics.RetrieveAPIView):
 
     def get_queryset(self):
         return Food.objects.select_related(
-            'foodType',
+            'foodtype',
             'category',
         ).filter(
             deleted=False
         ).prefetch_related(
             'ingredientrelation_set__ingredient',
-            'ingredient_groups',
+            'ingredientgroups',
         )
 
 
@@ -64,9 +64,9 @@ class FoodListView(generics.ListAPIView):
             )
         return result.select_related(
             'category',
-            'foodType',
+            'foodtype',
         ).prefetch_related(
-            'ingredients',  # Food.hasIngredients
+            'ingredients',  # Food.has_ingredients
         ).order_by(
             '-category__priority',
             'category__name',
@@ -160,8 +160,8 @@ class OrderPriceView(generics.CreateAPIView):
                 original = price_check['original']
                 if 'ingredients' in price_check:
                     ingredients = price_check['ingredients']
-                    food_closest = Food.objects.closestFood(ingredients, original)
-                    IngredientGroup.checkIngredients(ingredients, food_closest)
+                    food_closest = Food.objects.closest(ingredients, original)
+                    IngredientGroup.check_ingredients(ingredients, food_closest)
 
                     price_info['cost'] = OrderedFood.calculate_cost(ingredients, food_closest)
                     price_info['food'] = food_closest.id

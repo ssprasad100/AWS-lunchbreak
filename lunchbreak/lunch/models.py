@@ -1,8 +1,6 @@
 from __future__ import unicode_literals
 
 import copy
-import math
-import random
 from datetime import datetime, time, timedelta
 
 import requests
@@ -19,8 +17,7 @@ from django.utils import timezone
 from django.utils.functional import cached_property
 from imagekit.models import ImageSpecField
 from lunch.config import (COST_GROUP_ALWAYS, COST_GROUP_CALCULATIONS, DAYS,
-                          ICONS, INPUT_AMOUNT, INPUT_TYPES,
-                          TOKEN_IDENTIFIER_CHARS, TOKEN_IDENTIFIER_LENGTH)
+                          ICONS, INPUT_AMOUNT, INPUT_TYPES, random_token)
 from lunch.exceptions import (AddressNotFound, IngredientGroupMaxExceeded,
                               IngredientGroupsMinimumNotMet,
                               InvalidFoodTypeAmount, InvalidIngredientLinking,
@@ -35,7 +32,15 @@ class LunchbreakManager(models.Manager):
 
     def nearby(self, latitude, longitude, proximity):
         # Haversine formule is het beste om te gebruiken bij korte afstanden.
-        # d = 2 * r * asin( sqrt( sin^2( ( lat2-lat1 ) / 2 ) + cos(lat1)*cos(lat2)*sin^2( (lon2-lon1) / 2 ) ) )
+        # d = 2 * r * asin(
+        #   sqrt(
+        #       sin^2(
+        #           ( lat2-lat1 ) / 2
+        #       ) + cos(lat1)*cos(lat2)*sin^2(
+        #           (lon2-lon1) / 2
+        #       )
+        #   )
+        # )
         haversine = '''
         (
             (2*6371)
@@ -86,11 +91,11 @@ class LunchbreakManager(models.Manager):
             ]
         )
 
-    def closestFood(self, ingredients, original):
-        if not original.foodType.customisable:
+    def closest(self, ingredients, original):
+        if not original.foodtype.customisable:
             return original
 
-        ingredientsIn = -1 if len(ingredients) == 0 else '''
+        ingredients_in = -1 if len(ingredients) == 0 else '''
             CASE WHEN lunch_ingredient.id IN (%s)
                 THEN
                     1
@@ -109,7 +114,7 @@ class LunchbreakManager(models.Manager):
                 LEFT JOIN
                     `lunch_ingredient` ON lunch_ingredientrelation.ingredient_id = lunch_ingredient.id
             WHERE
-                lunch_food.foodType_id = %s AND
+                lunch_food.foodtype_id = %s AND
                 lunch_food.store_id = %s
             GROUP BY
                 lunch_food.id
@@ -125,9 +130,9 @@ class LunchbreakManager(models.Manager):
                 lunch_food.id = %s DESC,
                 lunch_food.cost ASC;
             ''', [
-            original.foodType.id,
+            original.foodtype.id,
             original.store.id,
-            ingredientsIn,
+            ingredients_in,
             original.id
         ])[0]
 
@@ -221,10 +226,10 @@ class Store(models.Model):
     )
 
     categories = models.ManyToManyField(StoreCategory)
-    minTime = models.DurationField(
+    wait = models.DurationField(
         default=timedelta(seconds=60)
     )
-    orderTime = models.TimeField(
+    preorder_time = models.TimeField(
         default=time(hour=12)
     )
     hearts = models.ManyToManyField(
@@ -232,14 +237,14 @@ class Store(models.Model):
         through='customers.Heart',
         blank=True
     )
-    maxSeats = models.PositiveIntegerField(
+    seats_max = models.PositiveIntegerField(
         default=10,
         validators=[
             MinValueValidator(1)
         ]
     )
 
-    lastModified = models.DateTimeField(
+    modified = models.DateTimeField(
         auto_now=True
     )
     enabled = models.BooleanField(
@@ -281,11 +286,7 @@ class Store(models.Model):
         )
 
     @cached_property
-    def minTimeV3(self):
-        return math.ceil(self.minTime.total_seconds() / 60)
-
-    @cached_property
-    def heartsCount(self):
+    def hearts_count(self):
         return self.hearts.count()
 
     @staticmethod
@@ -297,15 +298,18 @@ class Store(models.Model):
         if pickup < now:
             raise PastOrderDenied()
 
-        if pickup - now < store.minTime:
+        if pickup - now < store.wait:
             raise MinTimeExceeded()
 
-        holidayPeriods = HolidayPeriod.objects.filter(
-            store=store, start__lte=pickup, end__gte=pickup)
+        holidayperiods = HolidayPeriod.objects.filter(
+            store=store,
+            start__lte=pickup,
+            end__gte=pickup
+        )
 
         closed = False
-        for holidayPeriod in holidayPeriods:
-            if not holidayPeriod.closed:
+        for holidayperiod in holidayperiods:
+            if not holidayperiod.closed:
                 break
             else:
                 closed = True
@@ -316,12 +320,12 @@ class Store(models.Model):
 
             # datetime.weekday(): return monday 0 - sunday 6
             # datetime.strftime('%w'): return sunday 0 - monday 6
-            pickupDay = pickup.strftime('%w')
-            openingHours = OpeningHours.objects.filter(store=store, day=pickupDay)
-            pTime = pickup.time()
+            pickup_day = pickup.strftime('%w')
+            openinghours = OpeningHours.objects.filter(store=store, day=pickup_day)
+            pickup_time = pickup.time()
 
-            for o in openingHours:
-                if o.opening <= pTime <= o.closing:
+            for o in openinghours:
+                if o.opening <= pickup_time <= o.closing:
                     break
             else:
                 # If the for loop is not stopped by the break, it means that the time of
@@ -398,7 +402,7 @@ class FoodType(models.Model):
         blank=True,
         null=True
     )
-    inputType = models.PositiveIntegerField(
+    inputtype = models.PositiveIntegerField(
         choices=INPUT_TYPES,
         default=INPUT_TYPES[0][0]
     )
@@ -406,11 +410,11 @@ class FoodType(models.Model):
         default=False
     )
 
-    def isValidAmount(self, amount, quantity=None):
+    def is_valid_amount(self, amount, quantity=None):
         return (
             amount > 0 and
-            (self.inputType != INPUT_AMOUNT or float(amount).is_integer()) and
-            (quantity is None or quantity.amountMin <= amount <= quantity.amountMax)
+            (self.inputtype != INPUT_AMOUNT or float(amount).is_integer()) and
+            (quantity is None or quantity.min <= amount <= quantity.max)
         )
 
     def __unicode__(self):
@@ -421,7 +425,7 @@ class IngredientGroup(models.Model):
     name = models.CharField(
         max_length=255
     )
-    foodType = models.ForeignKey(FoodType)
+    foodtype = models.ForeignKey(FoodType)
     store = models.ForeignKey(Store)
 
     maximum = models.PositiveIntegerField(
@@ -443,7 +447,7 @@ class IngredientGroup(models.Model):
         max_digits=7,
         decimal_places=2
     )
-    costCalculation = models.PositiveIntegerField(
+    calculation = models.PositiveIntegerField(
         choices=COST_GROUP_CALCULATIONS,
         default=COST_GROUP_ALWAYS
     )
@@ -457,39 +461,40 @@ class IngredientGroup(models.Model):
         super(IngredientGroup, self).save(*args, **kwargs)
 
     @staticmethod
-    def checkIngredients(ingredients, food):
+    def check_ingredients(ingredients, food):
         '''
-        Check whether the given ingredients can be made into an OrderedFood based on the closest food.
+        Check whether the given ingredients can be made into an OrderedFood
+        based on the closest food.
         '''
 
-        ingredient_groups = {}
+        ingredientgroups = {}
         for ingredient in ingredients:
             group = ingredient.group
             amount = 1
-            if group.id in ingredient_groups:
-                amount += ingredient_groups[group.id]
+            if group.id in ingredientgroups:
+                amount += ingredientgroups[group.id]
             if group.maximum > 0 and amount > group.maximum:
                 raise IngredientGroupMaxExceeded()
-            ingredient_groups[group.id] = amount
+            ingredientgroups[group.id] = amount
 
-        foodTypeGroups = food.foodType.ingredientgroup_set.all()
+        foodtype_groups = food.foodtype.ingredientgroup_set.all()
 
-        for ingredientGroup in ingredient_groups:
-            for foodTypeGroup in foodTypeGroups:
-                if foodTypeGroup.id == ingredientGroup:
+        for ingredientgroup in ingredientgroups:
+            for foodtype_group in foodtype_groups:
+                if foodtype_group.id == ingredientgroup:
                     break
             else:
                 raise InvalidIngredientLinking()
 
-        originalIngredients = food.ingredients.all()
+        original_ingredients = food.ingredients.all()
 
-        for ingredient in originalIngredients:
+        for ingredient in original_ingredients:
             group = ingredient.group
             if group.minimum > 0:
-                inGroups = group.id in ingredient_groups
-                if not inGroups:
+                in_groups = group.id in ingredientgroups
+                if not in_groups:
                     raise IngredientGroupsMinimumNotMet()
-                amount = ingredient_groups[group.id]
+                amount = ingredientgroups[group.id]
 
                 if amount < group.minimum:
                     raise IngredientGroupsMinimumNotMet()
@@ -515,7 +520,7 @@ class Ingredient(models.Model, DirtyFieldsMixin):
     group = models.ForeignKey(IngredientGroup)
     store = models.ForeignKey(Store)
 
-    lastModified = models.DateTimeField(
+    modified = models.DateTimeField(
         auto_now=True
     )
 
@@ -526,7 +531,7 @@ class Ingredient(models.Model, DirtyFieldsMixin):
         dirty_fields = self.get_dirty_fields(check_relationship=True)
         if 'group' in dirty_fields:
             for food in self.food_set.all():
-                food.updateTypicalIngredients()
+                food.update_typical()
 
         super(Ingredient, self).save(*args, **kwargs)
 
@@ -555,33 +560,33 @@ class FoodCategory(models.Model):
 
 
 class Quantity(models.Model):
-    foodType = models.ForeignKey(FoodType)
+    foodtype = models.ForeignKey(FoodType)
     store = models.ForeignKey(Store)
 
-    amountMin = models.DecimalField(
+    min = models.DecimalField(
         decimal_places=3,
         max_digits=7,
         default=1
     )
-    amountMax = models.DecimalField(
+    max = models.DecimalField(
         decimal_places=3,
         max_digits=7,
         default=10
     )
 
-    lastModified = models.DateTimeField(
+    modified = models.DateTimeField(
         auto_now=True
     )
 
     class Meta:
-        unique_together = ('foodType', 'store',)
+        unique_together = ('foodtype', 'store',)
         verbose_name_plural = 'Quantities'
 
     def clean(self):
-        if self.amountMin > self.amountMax:
+        if self.min > self.max:
             raise ValidationError('Amount maximum need to be greater or equal to its minimum.')
-        if not self.foodType.isValidAmount(self.amountMin) or \
-                not self.foodType.isValidAmount(self.amountMax):
+        if not self.foodtype.is_valid_amount(self.min) or \
+                not self.foodtype.is_valid_amount(self.max):
             raise InvalidFoodTypeAmount()
 
     def save(self, *args, **kwargs):
@@ -589,9 +594,9 @@ class Quantity(models.Model):
         super(Quantity, self).save(*args, **kwargs)
 
     def __unicode__(self):
-        return '{amountMin}-{amountMax}'.format(
-            amountMin=self.amountMin,
-            amountMax=self.amountMax
+        return '{min}-{max}'.format(
+            min=self.min,
+            max=self.max
         )
 
 
@@ -611,11 +616,11 @@ class Food(models.Model):
         decimal_places=2,
         max_digits=7
     )
-    foodType = models.ForeignKey(FoodType)
-    minDays = models.PositiveIntegerField(
+    foodtype = models.ForeignKey(FoodType)
+    preorder_days = models.PositiveIntegerField(
         default=0
     )
-    canComment = models.BooleanField(
+    commentable = models.BooleanField(
         default=False
     )
     priority = models.BigIntegerField(
@@ -628,13 +633,13 @@ class Food(models.Model):
         through='IngredientRelation',
         blank=True
     )
-    ingredient_groups = models.ManyToManyField(
+    ingredientgroups = models.ManyToManyField(
         IngredientGroup,
         blank=True
     )
     store = models.ForeignKey(Store)
 
-    lastModified = models.DateTimeField(
+    modified = models.DateTimeField(
         auto_now=True
     )
     deleted = models.BooleanField(
@@ -646,70 +651,70 @@ class Food(models.Model):
         verbose_name_plural = 'Food'
 
     @cached_property
-    def hasIngredients(self):
-        # TODO Optimise this.
-        return self.ingredients.count() > 0 and self.ingredient_groups.count() > 0
+    def has_ingredients(self):
+        return self.ingredients.count() > 0 and self.ingredientgroups.count() > 0
 
     @cached_property
     def quantity(self):
-        # TODO Optimise this.
         try:
             return Quantity.objects.get(
-                foodType_id=self.foodType_id,
+                foodtype_id=self.foodtype_id,
                 store_id=self.store_id
             )
         except Quantity.DoesNotExist:
             return None
 
     @staticmethod
-    def ingredientChange(sender, instance, action, reverse, model, pk_set, using, **kwargs):
+    def changed_ingredients(sender, instance, action, reverse, model, pk_set, using, **kwargs):
         if len(action) > 4 and action[:4] == 'post':
             if isinstance(instance, Food):
-                instance.updateTypicalIngredients()
+                instance.update_typical()
             elif instance.__class__ in [Ingredient, IngredientGroup]:
                 for food in instance.food_set.all():
-                    food.updateTypicalIngredients()
+                    food.update_typical()
 
-    def updateTypicalIngredients(self):
-        ingredient_groups = self.ingredient_groups.all()
-        ingredientRelations = self.ingredientrelation_set.select_related('ingredient__group').all()
+    def update_typical(self):
+        ingredientgroups = self.ingredientgroups.all()
+        ingredientrelations = self.ingredientrelation_set.select_related(
+            'ingredient__group'
+        ).all()
 
-        for ingredientRelation in ingredientRelations:
-            ingredient = ingredientRelation.ingredient
-            if ingredient.group not in ingredient_groups:
-                if not ingredientRelation.typical:
-                    ingredientRelation.typical = True
-                    ingredientRelation.save()
-            elif ingredientRelation.typical:
-                ingredientRelation.typical = False
-                ingredientRelation.save()
+        for ingredientrelation in ingredientrelations:
+            ingredient = ingredientrelation.ingredient
+            if ingredient.group not in ingredientgroups:
+                if not ingredientrelation.typical:
+                    ingredientrelation.typical = True
+                    ingredientrelation.save()
+            elif ingredientrelation.typical:
+                ingredientrelation.typical = False
+                ingredientrelation.save()
 
     def is_orderable(self, pickup, now=None):
         '''
         Check whether this food can be ordered for the given day.
-        This does not check whether the Store.minTime has been exceeded!
+        This does not check whether the Store.wait has been exceeded!
         '''
-        if self.minDays == 0:
+        if self.preorder_days == 0:
             return True
         else:
             now = datetime.now() if now is None else now
             # Amount of days needed to order in advance
-            # (add 1 if it isn't before the orderTime)
-            minDays = self.minDays + (1 if now.time() > self.store.orderTime else 0)
+            # (add 1 if it isn't before the preorder_time)
+            preorder_days = self.preorder_days + (1 if now.time() > self.store.preorder_time else 0)
 
             # Calculate the amount of days between pickup and now
-            dayDifference = (pickup - now).days
-            dayDifference += (
+            difference_day = (pickup - now).days
+            difference_day += (
                 1
                 if pickup.time() < now.time() and
                 (now + (pickup - now)).day != now.day
                 else 0
             )
 
-            return dayDifference >= minDays
+            return difference_day >= preorder_days
 
     def save(self, *args, **kwargs):
-        if not self.foodType.isValidAmount(self.amount):
+        if not self.foodtype.is_valid_amount(self.amount):
             raise InvalidFoodTypeAmount()
         if self.category.store_id != self.store_id:
             raise InvalidStoreLinking()
@@ -749,7 +754,7 @@ class IngredientRelation(models.Model, DirtyFieldsMixin):
 
         dirty_fields = self.get_dirty_fields(check_relationship=True)
         if 'ingredient' in dirty_fields:
-            self.food.updateTypicalIngredients()
+            self.food.update_typical()
 
         super(IngredientRelation, self).save(*args, **kwargs)
 
@@ -757,15 +762,11 @@ class IngredientRelation(models.Model, DirtyFieldsMixin):
         return unicode(self.ingredient)
 
 
-def tokenGenerator():
-    return ''.join(random.choice(TOKEN_IDENTIFIER_CHARS) for a in xrange(TOKEN_IDENTIFIER_LENGTH))
-
-
 class BaseTokenManager(DeviceManager):
 
-    def createToken(self, arguments, defaults, clone=False):
-        rawIdentifier = tokenGenerator()
-        defaults['identifier'] = rawIdentifier
+    def create_token(self, arguments, defaults, clone=False):
+        identifier_raw = random_token()
+        defaults['identifier'] = identifier_raw
 
         try:
             token, created = self.update_or_create(
@@ -780,9 +781,9 @@ class BaseTokenManager(DeviceManager):
             )
 
         if clone:
-            tokenCopy = copy.copy(token)
-            tokenCopy.identifier = rawIdentifier
-            return (tokenCopy, created,)
+            token_copy = copy.copy(token)
+            token_copy.identifier = identifier_raw
+            return (token_copy, created,)
         return (token, created,)
 
 
@@ -796,26 +797,27 @@ class BaseToken(BareDevice, DirtyFieldsMixin):
 
     objects = BaseTokenManager()
 
+    class Meta:
+        abstract = True
+
     def save(self, *args, **kwargs):
-        forceHashing = kwargs.pop('forceHashing', False)
+        # forced hashing can be removed when resetting migrations
+        force_hashing = kwargs.pop('force_hashing', False)
 
-        if self.pk is None or self.is_dirty() or forceHashing:
-            dirtyIdentifier = self.get_dirty_fields().get('identifier', None)
+        if self.pk is None or self.is_dirty() or force_hashing:
+            identifier_dirty = self.get_dirty_fields().get('identifier', None)
 
-            if self.pk is None or dirtyIdentifier is not None or forceHashing:
+            if self.pk is None or identifier_dirty is not None or force_hashing:
                 self.identifier = make_password(self.identifier, hasher='sha1')
 
         super(BaseToken, self).save(*args, **kwargs)
 
-    class Meta:
-        abstract = True
-
-    def checkIdentifier(self, rawIdentifier):
-        return check_password(rawIdentifier, self.identifier)
+    def check_identifier(self, identifier_raw):
+        return check_password(identifier_raw, self.identifier)
 
     def __unicode__(self):
         return self.device
 
 
-m2m_changed.connect(Food.ingredientChange, sender=Food.ingredient_groups.through)
-m2m_changed.connect(Food.ingredientChange, sender=Food.ingredients.through)
+m2m_changed.connect(Food.changed_ingredients, sender=Food.ingredientgroups.through)
+m2m_changed.connect(Food.changed_ingredients, sender=Food.ingredients.through)
