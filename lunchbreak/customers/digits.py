@@ -24,7 +24,7 @@ class Digits:
 
     @property
     def header_bearer(self):
-        return 'Bearer ' + self.app_token()
+        return 'Bearer ' + self.app_token
 
     @property
     def header_auth(self):

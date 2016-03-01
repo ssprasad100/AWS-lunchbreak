@@ -1,6 +1,7 @@
-from customers.models import UserToken
 from lunch.authentication import TokenAuthentication
-from customers.exceptions import UserDisabled
+
+from .exceptions import UserDisabled
+from .models import UserToken
 
 
 class CustomerAuthentication(TokenAuthentication):

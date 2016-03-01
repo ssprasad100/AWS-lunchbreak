@@ -33,6 +33,10 @@ urlpatterns = patterns(
     ),
 
     url(
+        r'^store/?$',
+        views.StoreMultiView.as_view()
+    ),
+    url(
         r'^store/(?P<pk>\d+)/?$',
         views.StoreHeartView.as_view()
     ),
@@ -79,7 +83,10 @@ urlpatterns = patterns(
     ),
     url(
         r'^store/recent/?$',
-        views.StoreMultiView.as_view()
+        views.StoreMultiView.as_view(),
+        {
+            'recent': True
+        }
     ),
     url(
         r'^storecategory/?$',

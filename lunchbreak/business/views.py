@@ -124,12 +124,12 @@ class FoodSingleView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (StoreOwnerPermission,)
     authentication_classes = (EmployeeAuthentication,)
 
-    def get_queryset(self, *args, **kwargs):
+    def get_queryset(self):
         return Food.objects.filter(
             store=self.request.user.staff.store
         )
 
-    def get_serializer_class(self, *args, **kwargs):
+    def get_serializer_class(self):
         if self.request.method == 'GET':
             return SingleFoodSerializer
         else:

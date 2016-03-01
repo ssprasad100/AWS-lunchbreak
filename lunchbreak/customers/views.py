@@ -20,7 +20,7 @@ from lunch.serializers import (FoodCategorySerializer, MultiFoodSerializer,
 from lunch.views import (HolidayPeriodListViewBase, OpeningHoursListViewBase,
                          OpeningListViewBase, StoreCategoryListViewBase)
 from Lunchbreak.exceptions import LunchbreakException
-from rest_framework import generics, status
+from rest_framework import filters, generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -270,10 +270,12 @@ class StoreMultiView(generics.ListAPIView):
 
     authentication_classes = (CustomerAuthentication,)
     serializer_class = ShortStoreSerializer
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name', 'city', 'street',)
 
     def get_queryset(self):
-        proximity = self.kwargs['proximity'] if 'proximity' in self.kwargs else 5
         if 'latitude' in self.kwargs and 'longitude' in self.kwargs:
+            proximity = self.kwargs['proximity'] if 'proximity' in self.kwargs else 5
             return Store.objects.nearby(
                 self.kwargs['latitude'],
                 self.kwargs['longitude'],
@@ -282,14 +284,18 @@ class StoreMultiView(generics.ListAPIView):
                 enabled=True
             )
         else:
-            return Store.objects.prefetch_related(
+            result = Store.objects.prefetch_related(
                 'categories',
             ).filter(
-                order__user=self.request.user,
                 enabled=True
-            ).order_by(
-                '-order__placed'
             ).distinct()
+            if 'recent' in self.kwargs:
+                result = result.filter(
+                    order__user=self.request.user
+                ).order_by(
+                    '-order__placed'
+                )
+            return result
 
 
 class StoreCategoryListView(StoreCategoryListViewBase):
