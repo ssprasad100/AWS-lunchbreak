@@ -82,7 +82,7 @@ class User(models.Model):
             user = User.objects.get(phone=phone)
 
             if not user.enabled:
-                return UserDisabled().getResponse()
+                return UserDisabled().response
 
             if user.confirmed_at:
                 digits_result = User.digits_login(digits, phone)
@@ -115,11 +115,11 @@ class User(models.Model):
             user = User.objects.get(phone=phone)
 
             if not user.enabled:
-                return UserDisabled().getResponse()
+                return UserDisabled().response
 
             if not user.name:
                 if not name:
-                    return UserNameEmpty().getResponse()
+                    return UserNameEmpty().response
 
             if name:
                 user.name = name

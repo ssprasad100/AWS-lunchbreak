@@ -20,7 +20,9 @@ def lunchbreakExceptionHandler(exception, context):
     else:
         raise
 
-    response.status_code = exception.status_code if hasattr(exception, 'status_code') else status.HTTP_400_BAD_REQUEST
+    response.status_code = (exception.status_code
+                            if hasattr(exception, 'status_code')
+                            else status.HTTP_400_BAD_REQUEST)
     return response
 
 
@@ -36,5 +38,6 @@ class LunchbreakException(APIException):
         else:
             super(LunchbreakException, self).__init__(detail)
 
-    def getResponse(self):
+    @property
+    def response(self):
         return lunchbreakExceptionHandler(self, None)

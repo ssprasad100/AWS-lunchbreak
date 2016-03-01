@@ -21,49 +21,49 @@ class BusinessAuthentication(TokenAuthentication):
 
     @classmethod
     def login(cls, request):
-        modelTokenSerializer = cls.TOKEN_SERIALIZER(data=request.data)
-        if not modelTokenSerializer.is_valid():
-            return BadRequest(modelTokenSerializer.errors)
+        serializer_model_token = cls.TOKEN_SERIALIZER(data=request.data)
+        if not serializer_model_token.is_valid():
+            return BadRequest(serializer_model_token.errors)
 
-        rawPassword = request.data['password']
-        modelId = request.data[cls.MODEL_NAME]
+        password_raw = request.data['password']
+        model_id = request.data[cls.MODEL_NAME]
         device = request.data['device']
-        registrationId = request.data.get('registration_id', '')
+        registration_id = request.data.get('registration_id', '')
         service = request.data.get('service', SERVICE_INACTIVE)
         device = request.data['device']
 
         try:
-            model = cls.MODEL.objects.get(id=modelId)
+            model = cls.MODEL.objects.get(id=model_id)
         except cls.MODEL.DoesNotExist:
             return DoesNotExist(
-                '{modelName} does not exist.'.format(
-                    modelName=cls.MODEL_NAME.capitalize()
+                '{model_name} does not exist.'.format(
+                    model_name=cls.MODEL_NAME.capitalize()
                 )
             )
 
-        if model.checkPassword(rawPassword):
+        if model.check_password(password_raw):
             token, created = cls.TOKEN_MODEL.objects.create_token(
                 arguments={
                     cls.MODEL_NAME: model,
                     'device': device
                 },
                 defaults={
-                    'registration_id': registrationId,
+                    'registration_id': registration_id,
                     'service': service
                 },
                 clone=True
             )
-            tokenSerializer = cls.TOKEN_SERIALIZER(token)
+            serializer_token = cls.TOKEN_SERIALIZER(token)
             return Response(
-                tokenSerializer.data,
+                serializer_token.data,
                 status=(
                     status.HTTP_201_CREATED if created else status.HTTP_200_OK
                 )
             )
-        return IncorrectPassword().getResponse()
+        return IncorrectPassword().response
 
     @classmethod
-    def requestPasswordReset(cls, request):
+    def password_reset_request(cls, request):
         serializer = cls.REQUEST_SERIALIZER(data=request.data)
         if not serializer.is_valid():
             return BadRequest(serializer.errors)
@@ -81,27 +81,27 @@ class BusinessAuthentication(TokenAuthentication):
                 validate_email(to_email)
                 model = cls.MODEL.objects.get(email=to_email)
             except ValidationError:
-                return InvalidEmail().getResponse()
+                return InvalidEmail().response
             except cls.MODEL.DoesNotExist:
-                return InvalidEmail('Email address not found.').getResponse()
+                return InvalidEmail('Email address not found.').response
 
-        model.passwordReset = random_token()
+        model.password_reset = random_token()
         model.save()
 
         subject = 'Lunchbreak wachtwoord herstellen'
 
-        url = 'lunchbreakstore://reset/{model}/{email}/{passwordReset}'.format(
+        url = 'lunchbreakstore://reset/{model}/{email}/{password_reset}'.format(
             model=cls.MODEL_NAME,
             email=to_email,
-            passwordReset=model.passwordReset
+            password_reset=model.password_reset
         )
 
-        templateArguments = {
+        template_args = {
             'name': model.name,
             'url': url
         }
-        plaintext = render_to_string('requestReset.txt', templateArguments)
-        html = render_to_string('requestReset.html', templateArguments)
+        plaintext = render_to_string('reset_request.txt', template_args)
+        html = render_to_string('reset_request.html', template_args)
 
         msg = EmailMultiAlternatives(
             subject,

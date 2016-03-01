@@ -42,20 +42,20 @@ AVAILABLE_STATUSES = [
 ]
 
 
-def getDatetime(request, kwargs, arg, methodCheck=False):
-    if (methodCheck or request.method == 'GET') and \
+def datetime_request(request, kwargs, arg, method_check=False):
+    if (method_check or request.method == 'GET') and \
         arg in kwargs and \
             kwargs[arg] is not None:
-        datetimeString = kwargs[arg]
+        datetime_string = kwargs[arg]
         try:
             return timezone.datetime.strptime(
-                datetimeString,
+                datetime_string,
                 settings.DATETIME_FORMAT_URL
             )
         except ValueError:
             try:
                 return timezone.datetime.strptime(
-                    datetimeString,
+                    datetime_string,
                     '%d-%m-%Y-%H-%M-%S'
                 )
             except ValueError:
@@ -77,47 +77,47 @@ class EmployeeView(generics.ListAPIView):
 
 class PasswordResetView(generics.CreateAPIView):
 
-    def post(self, request, model, tokenModel, serializerClass,
+    def post(self, request, model, token_model, serializer_class,
              employee=False, *args, **kwargs):
-        passwordSerializer = serializerClass(data=request.data)
-        if passwordSerializer.is_valid():
+        serializer = serializer_class(data=request.data)
+        if serializer.is_valid():
             email = request.data['email']
-            passwordReset = request.data['passwordReset']
+            password_reset = request.data['password_reset']
 
             try:
                 validate_email(email)
                 if employee:
                     m = model.objects.get(
                         staff__email=email,
-                        passwordReset=passwordReset
+                        password_reset=password_reset
                     )
                 else:
                     m = model.objects.get(
                         email=email,
-                        passwordReset=passwordReset
+                        password_reset=password_reset
                     )
             except ValidationError:
-                return InvalidEmail().getResponse()
+                return InvalidEmail().response
             except model.DoesNotExist:
-                return InvalidPasswordReset().getResponse()
+                return InvalidPasswordReset().response
 
-            m.passwordReset = None
-            m.setPassword(request.data['password'])
+            m.password_reset = None
+            m.set_password(request.data['password'])
             m.save()
 
-            tokenModel.objects.filter(
+            token_model.objects.filter(
                 **{
                     model.__name__.lower(): m
                 }
             ).delete()
             return Response(status=status.HTTP_200_OK)
-        return BadRequest(passwordSerializer.errors)
+        return BadRequest(serializer.errors)
 
 
 class ResetRequestView(generics.CreateAPIView):
 
     def post(self, request, authentication, *args, **kwargs):
-        return authentication.requestPasswordReset(request)
+        return authentication.password_reset_request(request)
 
 
 class FoodSingleView(generics.RetrieveUpdateDestroyAPIView):
@@ -154,7 +154,7 @@ class FoodListView(generics.ListAPIView):
     serializer_class = ShortFoodSerializer
 
     def get_queryset(self):
-        since = getDatetime(self.request, self.kwargs, arg='since')
+        since = datetime_request(self.request, self.kwargs, arg='since')
         if since is not None:
             result = Food.objects.filter(
                 store=self.request.user.staff.store,
@@ -184,8 +184,8 @@ class FoodPopularView(generics.ListAPIView):
     serializer_class = ShortFoodSerializer
 
     def get_queryset(self):
-        frm = getDatetime(self.request, self.kwargs, arg='frm')
-        to = getDatetime(self.request, self.kwargs, arg='to')
+        frm = datetime_request(self.request, self.kwargs, arg='frm')
+        to = datetime_request(self.request, self.kwargs, arg='to')
 
         if frm is not None:
             to = to if to is not None else timezone.now()
@@ -194,8 +194,8 @@ class FoodPopularView(generics.ListAPIView):
                 orderedfood__order__pickup__gt=frm,
                 orderedfood__order__pickup__lt=to
             ).annotate(
-                orderAmount=Count('orderedfood')
-            ).order_by('-orderAmount')
+                orderedfood_count=Count('orderedfood')
+            ).order_by('-orderedfood_count')
         else:
             raise Http404()
 
@@ -244,7 +244,7 @@ class IngredientMultiView(ListCreateStoreView):
 
     def get_queryset(self):
         result = Ingredient.objects.filter(store=self.request.user.staff.store)
-        since = getDatetime(self.request, self.kwargs, arg='datetime')
+        since = datetime_request(self.request, self.kwargs, arg='datetime')
         if since is not None:
             return result.filter(modified__gte=since)
         return result
@@ -256,7 +256,7 @@ class IngredientSingleView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (StoreOwnerPermission,)
 
     def get_queryset(self):
-        since = getDatetime(self.request, self.kwargs, arg='datetime')
+        since = datetime_request(self.request, self.kwargs, arg='datetime')
         if since is not None:
             result = Ingredient.objects.filter(
                 store=self.request.user.staff.store,
@@ -303,11 +303,11 @@ class OrderListView(generics.ListAPIView):
         }
 
         if self.request.method == 'GET':
-            since = getDatetime(
+            since = datetime_request(
                 self.request,
                 self.kwargs,
                 arg='datetime',
-                methodCheck=True
+                method_check=True
             )
 
             if 'option' in self.kwargs \
@@ -345,10 +345,10 @@ class OrderSpreadView(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         unit = self.kwargs['unit']
 
-        storeId = self.request.user.staff.store_id
+        store_id = self.request.user.staff.store_id
 
-        frm = getDatetime(self.request, self.kwargs, arg='frm')
-        to = getDatetime(self.request, self.kwargs, arg='to')
+        frm = datetime_request(self.request, self.kwargs, arg='frm')
+        to = datetime_request(self.request, self.kwargs, arg='to')
         if to is None:
             to = timezone.now()
 
@@ -372,7 +372,7 @@ class OrderSpreadView(viewsets.ReadOnlyModelViewSet):
                 unit;
         '''.format(
             unit=unit
-        ), [frm, to, storeId, ORDER_STATUS_COMPLETED])
+        ), [frm, to, store_id, ORDER_STATUS_COMPLETED])
 
 
 class QuantityMultiView(ListCreateStoreView):

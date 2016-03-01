@@ -128,7 +128,7 @@ class OrderView(generics.ListCreateAPIView):
                     status=status.HTTP_201_CREATED
                 )
             except LunchbreakException as e:
-                return e.getResponse()
+                return e.response
         return BadRequest(serializer.errors)
 
 
@@ -401,5 +401,5 @@ class ReservationMultiView(generics.ListCreateAPIView):
                     status=status.HTTP_201_CREATED
                 )
             except LunchbreakException as e:
-                return e.getResponse()
+                return e.response
         return BadRequest(serializer.errors)

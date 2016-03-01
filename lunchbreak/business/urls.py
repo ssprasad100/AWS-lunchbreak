@@ -16,8 +16,8 @@ urlpatterns = patterns(
         views.PasswordResetView.as_view(),
         {
             'model': Employee,
-            'tokenModel': EmployeeToken,
-            'serializerClass': EmployeePasswordSerializer,
+            'token_model': EmployeeToken,
+            'serializer_class': EmployeePasswordSerializer,
             'employee': True
         }
     ),
@@ -138,8 +138,8 @@ urlpatterns = patterns(
         views.PasswordResetView.as_view(),
         {
             'model': Staff,
-            'tokenModel': StaffToken,
-            'serializerClass': StaffPasswordSerializer
+            'token_model': StaffToken,
+            'serializer_class': StaffPasswordSerializer
         }
     ),
     url(

@@ -81,7 +81,7 @@ class BusinessTests(LunchbreakTestCase):
             store=self.store
         )
 
-        self.ingredientGroup = IngredientGroup.objects.create(
+        self.ingredientgroup = IngredientGroup.objects.create(
             name='IngredientGroup test',
             foodtype=self.foodtype,
             store=self.store
@@ -99,7 +99,7 @@ class BusinessTests(LunchbreakTestCase):
             IngredientRelation(
                 ingredient=Ingredient.objects.create(
                     name='Ingredient 1',
-                    group=self.ingredientGroup,
+                    group=self.ingredientgroup,
                     store=self.store
                 ),
                 food=self.food
@@ -107,7 +107,7 @@ class BusinessTests(LunchbreakTestCase):
             IngredientRelation(
                 ingredient=Ingredient.objects.create(
                     name='Ingredient 2',
-                    group=self.ingredientGroup,
+                    group=self.ingredientgroup,
                     store=self.store
                 ),
                 food=self.food
@@ -115,7 +115,7 @@ class BusinessTests(LunchbreakTestCase):
             IngredientRelation(
                 ingredient=Ingredient.objects.create(
                     name='Ingredient 3',
-                    group=self.ingredientGroup,
+                    group=self.ingredientgroup,
                     store=self.store
                 ),
                 food=self.food
@@ -123,7 +123,7 @@ class BusinessTests(LunchbreakTestCase):
             IngredientRelation(
                 ingredient=Ingredient.objects.create(
                     name='Ingredient 4',
-                    group=self.ingredientGroup,
+                    group=self.ingredientgroup,
                     store=self.store
                 ),
                 food=self.food
@@ -131,7 +131,7 @@ class BusinessTests(LunchbreakTestCase):
             IngredientRelation(
                 ingredient=Ingredient.objects.create(
                     name='Ingredient 5',
-                    group=self.ingredientGroup,
+                    group=self.ingredientgroup,
                     store=self.store
                 ),
                 food=self.food
@@ -147,7 +147,7 @@ class BusinessTests(LunchbreakTestCase):
             )
         ])
 
-    def testDeleteFood(self):
+    def test_food_delete(self):
         food = Food.objects.get(id=self.food.id)
         food.pk = None
         food.save()
@@ -158,23 +158,23 @@ class BusinessTests(LunchbreakTestCase):
             pickup=timezone.now() + timedelta(days=1)
         )
 
-        orderedFood = OrderedFood.objects.create(
+        orderedfood = OrderedFood.objects.create(
             cost=1,
             order=order,
             original=food,
             is_original=True
         )
 
-        duplicateFood = Food.objects.get(id=self.food.id)
-        duplicateFood.pk = None
-        duplicateFood.save()
+        food_duplicate = Food.objects.get(id=self.food.id)
+        food_duplicate.pk = None
+        food_duplicate.save()
 
-        urlKwargs = {
+        url_kwargs = {
             'pk': food.id
         }
         url = reverse(
             'business-food-single',
-            kwargs=urlKwargs
+            kwargs=url_kwargs
         )
 
         # Trying to delete it while there still is a depending OrderedFood
@@ -184,7 +184,7 @@ class BusinessTests(LunchbreakTestCase):
             request,
             views.FoodSingleView,
             user=self.owner,
-            **urlKwargs
+            **url_kwargs
         )
 
         try:
@@ -203,7 +203,7 @@ class BusinessTests(LunchbreakTestCase):
             request,
             views.FoodSingleView,
             user=self.owner,
-            **urlKwargs
+            **url_kwargs
         )
 
         self.assertRaises(Food.DoesNotExist, Food.objects.get, id=food.id)
@@ -211,16 +211,16 @@ class BusinessTests(LunchbreakTestCase):
 
         # If the food is not yet marked as deleted, but has no
         # unfinished orders, a 204 should be returned.
-        urlKwargs['pk'] = duplicateFood.id
-        orderedFood.original = duplicateFood
-        orderedFood.save()
+        url_kwargs['pk'] = food_duplicate.id
+        orderedfood.original = food_duplicate
+        orderedfood.save()
 
         request = self.factory.delete(url, format=BusinessTests.FORMAT)
         response = self.authenticate_request(
             request,
             views.FoodSingleView,
             user=self.owner,
-            **urlKwargs
+            **url_kwargs
         )
 
         self.assertRaises(Food.DoesNotExist, Food.objects.get, id=food.id)

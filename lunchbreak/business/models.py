@@ -10,7 +10,7 @@ class PasswordModel(models.Model):
     password = models.CharField(
         max_length=255
     )
-    passwordReset = models.CharField(
+    password_reset = models.CharField(
         max_length=TOKEN_IDENTIFIER_LENGTH,
         null=True,
         default=None
@@ -19,11 +19,11 @@ class PasswordModel(models.Model):
     class Meta:
         abstract = True
 
-    def setPassword(self, rawPassword):
-        self.password = make_password(rawPassword)
+    def set_password(self, password_raw):
+        self.password = make_password(password_raw)
 
-    def checkPassword(self, rawPassword):
-        return check_password(rawPassword, self.password)
+    def check_password(self, password_raw):
+        return check_password(password_raw, self.password)
 
 
 class Staff(PasswordModel):
@@ -41,7 +41,7 @@ class Staff(PasswordModel):
         return self.store.name
 
     def __unicode__(self):
-        return self.store.name
+        return self.name
 
 
 class StaffToken(BaseToken):
