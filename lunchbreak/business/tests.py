@@ -76,7 +76,7 @@ class BusinessTests(LunchbreakTestCase):
             name='FoodType test'
         )
 
-        self.foodCategory = FoodCategory.objects.create(
+        self.foodcategory = FoodCategory.objects.create(
             name='FoodCategory test',
             store=self.store
         )
@@ -91,7 +91,7 @@ class BusinessTests(LunchbreakTestCase):
             name='Food test',
             cost=1.00,
             foodtype=self.foodtype,
-            category=self.foodCategory,
+            category=self.foodcategory,
             store=self.store
         )
 

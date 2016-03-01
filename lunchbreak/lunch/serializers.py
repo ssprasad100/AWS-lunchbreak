@@ -92,19 +92,19 @@ class HolidayPeriodSerializer(serializers.ModelSerializer):
 
 # Only here for RAML (atm)
 class HoursSerializer(serializers.Serializer):
-    holidayPeriods = HolidayPeriodSerializer(
+    holidayperiods = HolidayPeriodSerializer(
         many=True,
         read_only=True
     )
-    openingHours = OpeningHoursSerializer(
+    openinghours = OpeningHoursSerializer(
         many=True,
         read_only=True
     )
 
     class Meta:
         fields = (
-            'holidayPeriods',
-            'openingHours',
+            'holidayperiods',
+            'openinghours',
         )
         read_only_fields = fields
 
@@ -306,26 +306,26 @@ class SingleFoodSerializer(serializers.ModelSerializer):
     def to_representation(self, obj):
         result = super(SingleFoodSerializer, self).to_representation(obj)
 
-        addedIngredientRelations = []
+        ingredientrelations_added = []
         ingredientgroups = obj.ingredientgroups.all().prefetch_related(
             'ingredient_set'
         )
-        objIngredients = obj.ingredients.all()
+        obj_ingredients = obj.ingredients.all()
 
-        for ingredientGroup in ingredientgroups:
-            ingredients = ingredientGroup.ingredient_set.all()
+        for ingredientgroup in ingredientgroups:
+            ingredients = ingredientgroup.ingredient_set.all()
             for ingredient in ingredients:
-                if ingredient not in objIngredients:
-                    addedIngredientRelations.append(
+                if ingredient not in obj_ingredients:
+                    ingredientrelations_added.append(
                         IngredientRelation(ingredient=ingredient)
                     )
 
         serializer = IngredientRelationSerializer(
             many=True
         )
-        relationRepresentation = serializer.to_representation(addedIngredientRelations)
+        relation_representation = serializer.to_representation(ingredientrelations_added)
 
-        result['ingredients'] += relationRepresentation
+        result['ingredients'] += relation_representation
 
         return result
 

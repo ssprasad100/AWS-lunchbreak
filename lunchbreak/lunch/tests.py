@@ -15,7 +15,7 @@ class LunchTests(LunchbreakTestCase):
 
     @mock.patch('requests.Response.json')
     @mock.patch('requests.get')
-    def testAddressNotFound(self, mock_get, mock_json):
+    def test_address(self, mock_get, mock_json):
         ''' Test for the AddressNotFound exception. '''
         try:
             mock_fail = {
@@ -50,7 +50,7 @@ class LunchTests(LunchbreakTestCase):
 
     @mock.patch('requests.Response.json')
     @mock.patch('requests.get')
-    def testNearbyStores(self, mock_get, mock_json):
+    def test_stores_nearby(self, mock_get, mock_json):
         ''' Test whether LunchbreakManager.nearby returns the right stores. '''
         Store.objects.all().delete()
 
@@ -60,7 +60,7 @@ class LunchTests(LunchbreakTestCase):
             lat=51.0111595,
             lng=3.9075993
         )
-        centerStore = Store.objects.create(
+        store_center = Store.objects.create(
             name='center',
             country='Belgie',
             province='Oost-Vlaanderen',
@@ -76,7 +76,7 @@ class LunchTests(LunchbreakTestCase):
             lat=51.0076504,
             lng=3.8892806
         )
-        underTwoKmStore = Store.objects.create(
+        store_under2 = Store.objects.create(
             name='1,34km',
             country='Belgie',
             province='Oost-Vlaanderen',
@@ -92,7 +92,7 @@ class LunchTests(LunchbreakTestCase):
             lat=51.0089506,
             lng=3.8392584
         )
-        underFiveKmStore = Store.objects.create(
+        store_under5 = Store.objects.create(
             name='4,79km',
             country='Belgie',
             province='Oost-Vlaanderen',
@@ -108,7 +108,7 @@ class LunchTests(LunchbreakTestCase):
             lat=51.0267939,
             lng=3.7968594
         )
-        underEightKmStore = Store.objects.create(
+        store_under8 = Store.objects.create(
             name='7,95km',
             country='Belgie',
             province='Oost-Vlaanderen',
@@ -118,24 +118,24 @@ class LunchTests(LunchbreakTestCase):
             number=1
         )
 
-        lat = centerStore.latitude
-        lng = centerStore.longitude
+        lat = store_center.latitude
+        lng = store_center.longitude
 
         self.assertInCount(
             Store.objects.nearby(lat, lng, 1),
-            [centerStore]
+            [store_center]
         )
         self.assertInCount(
             Store.objects.nearby(lat, lng, 2),
-            [centerStore, underTwoKmStore]
+            [store_center, store_under2]
         )
         self.assertInCount(
             Store.objects.nearby(lat, lng, 5),
-            [centerStore, underTwoKmStore, underFiveKmStore]
+            [store_center, store_under2, store_under5]
         )
         self.assertInCount(
             Store.objects.nearby(lat, lng, 8),
-            [centerStore, underTwoKmStore, underFiveKmStore, underEightKmStore]
+            [store_center, store_under2, store_under5, store_under8]
         )
 
     def assertInCount(self, haystack, needles):
@@ -146,7 +146,118 @@ class LunchTests(LunchbreakTestCase):
 
     @mock.patch('requests.Response.json')
     @mock.patch('requests.get')
-    def testOpeningHours(self, mock_get, mock_json):
+    def test_store_modified(self, mock_get, mock_json):
+        '''Test whether updating OpeningHours and HolidayPeriod objects updates the Store.'''
+        self.mock_address_response(mock_get, mock_json)
+        store = Store.objects.create(
+            name='valid',
+            country='Belgie',
+            province='Oost-Vlaanderen',
+            city='Wetteren',
+            postcode='9230',
+            street='Dendermondesteenweg',
+            number=10
+        )
+
+        modified_first = store.modified
+
+        OpeningHours.objects.create(
+            store=store, day=0,
+            opening='00:00',
+            closing='01:00'
+        )
+
+        modified_second = store.modified
+
+        self.assertGreater(modified_second, modified_first)
+
+        now = datetime.now()
+        tomorrow = now + timedelta(days=1)
+        HolidayPeriod.objects.create(
+            store=store,
+            description='description',
+            start=now,
+            end=tomorrow
+        )
+
+        self.assertGreater(store.modified, modified_second)
+
+    @mock.patch('requests.Response.json')
+    @mock.patch('requests.get')
+    def test_store_store_is_open(self, mock_get, mock_json):
+        self.mock_address_response(mock_get, mock_json)
+        store = Store.objects.create(
+            name='valid',
+            country='Belgie',
+            province='Oost-Vlaanderen',
+            city='Wetteren',
+            postcode='9230',
+            street='Dendermondesteenweg',
+            number=10
+        )
+
+        today = datetime.now()
+        today = today.replace(hour=0, minute=0, second=0, microsecond=0)
+
+        # PastOrderDenied
+        self.assertRaises(
+            PastOrderDenied, Store.is_open, store, today, today + timedelta(hours=1))
+
+        # MinTimeExceeded
+        wait = timedelta(minutes=15)
+        opening_wait = wait * 2
+        hours_closing = 10
+        store.wait = wait
+
+        opening = (today + opening_wait)
+        closing = (opening + timedelta(hours=hours_closing))
+        day = opening.strftime('%w')
+        OpeningHours.objects.create(
+            store=store,
+            day=day,
+            opening=opening,
+            closing=closing
+        )
+        self.assertRaises(MinTimeExceeded, Store.is_open, store,
+                          opening + wait - timedelta(minutes=1), opening)
+
+        # Before and after opening hours
+        before = opening - timedelta(minutes=1)
+        between = opening + timedelta(hours=hours_closing / 2)
+        after = closing + timedelta(hours=1)
+        end = after + timedelta(hours=1)
+
+        self.assertRaises(StoreClosed, Store.is_open, store, before, today)
+        self.assertIsNone(Store.is_open(store, between, today))
+        self.assertRaises(StoreClosed, Store.is_open, store, after, today)
+
+        hp = HolidayPeriod.objects.create(
+            store=store,
+            start=today,
+            end=end,
+            closed=True
+        )
+        self.assertRaises(StoreClosed, Store.is_open, store, before, today)
+
+        self.assertRaises(StoreClosed, Store.is_open, store, between, today)
+        self.assertRaises(StoreClosed, Store.is_open, store, after, today)
+
+        hp.closed = False
+        hp.save()
+        self.assertIsNone(Store.is_open(store, before, today))
+        self.assertIsNone(Store.is_open(store, between, today))
+        self.assertIsNone(Store.is_open(store, after, today))
+
+        hp.closed = True
+        hp.end = between
+        hp.save()
+        self.assertRaises(StoreClosed, Store.is_open, store, before, today)
+        self.assertRaises(StoreClosed, Store.is_open, store, between, today)
+        self.assertIsNone(Store.is_open(store, between + timedelta(minutes=1), today))
+
+    @mock.patch('requests.Response.json')
+    @mock.patch('requests.get')
+    def test_openinghours(self, mock_get, mock_json):
         self.mock_address_response(mock_get, mock_json)
         store = Store.objects.create(
             name='valid',
@@ -177,7 +288,7 @@ class LunchTests(LunchbreakTestCase):
 
     @mock.patch('requests.Response.json')
     @mock.patch('requests.get')
-    def testHolidayPeriod(self, mock_get, mock_json):
+    def test_holidayperiod(self, mock_get, mock_json):
         self.mock_address_response(mock_get, mock_json)
         store = Store.objects.create(
             name='valid',
@@ -212,45 +323,7 @@ class LunchTests(LunchbreakTestCase):
 
     @mock.patch('requests.Response.json')
     @mock.patch('requests.get')
-    def testStoreLastModified(self, mock_get, mock_json):
-        '''Test whether updating OpeningHours and HolidayPeriod objects updates the Store.'''
-        self.mock_address_response(mock_get, mock_json)
-        store = Store.objects.create(
-            name='valid',
-            country='Belgie',
-            province='Oost-Vlaanderen',
-            city='Wetteren',
-            postcode='9230',
-            street='Dendermondesteenweg',
-            number=10
-        )
-
-        firstModified = store.modified
-
-        OpeningHours.objects.create(
-            store=store, day=0,
-            opening='00:00',
-            closing='01:00'
-        )
-
-        secondModified = store.modified
-
-        self.assertGreater(secondModified, firstModified)
-
-        now = datetime.now()
-        tomorrow = now + timedelta(days=1)
-        HolidayPeriod.objects.create(
-            store=store,
-            description='description',
-            start=now,
-            end=tomorrow
-        )
-
-        self.assertGreater(store.modified, secondModified)
-
-    @mock.patch('requests.Response.json')
-    @mock.patch('requests.get')
-    def testIngredientGroup(self, mock_get, mock_json):
+    def test_ingredientgroup(self, mock_get, mock_json):
         self.mock_address_response(mock_get, mock_json)
         store = Store.objects.create(
             name='valid',
@@ -288,7 +361,7 @@ class LunchTests(LunchbreakTestCase):
 
     @mock.patch('requests.Response.json')
     @mock.patch('requests.get')
-    def testQuantity(self, mock_get, mock_json):
+    def test_quantity(self, mock_get, mock_json):
         self.mock_address_response(mock_get, mock_json)
         foodtype = FoodType.objects.create(name='type')
 
@@ -320,7 +393,7 @@ class LunchTests(LunchbreakTestCase):
 
     @mock.patch('requests.Response.json')
     @mock.patch('requests.get')
-    def testFoodType(self, mock_get, mock_json):
+    def test_foodtype(self, mock_get, mock_json):
         self.mock_address_response(mock_get, mock_json)
         store = Store.objects.create(
             name='valid',
@@ -386,80 +459,7 @@ class LunchTests(LunchbreakTestCase):
 
     @mock.patch('requests.Response.json')
     @mock.patch('requests.get')
-    def testStoreCheckOpen(self, mock_get, mock_json):
-        self.mock_address_response(mock_get, mock_json)
-        store = Store.objects.create(
-            name='valid',
-            country='Belgie',
-            province='Oost-Vlaanderen',
-            city='Wetteren',
-            postcode='9230',
-            street='Dendermondesteenweg',
-            number=10
-        )
-
-        today = datetime.now()
-        today = today.replace(hour=0, minute=0, second=0, microsecond=0)
-
-        # PastOrderDenied
-        self.assertRaises(
-            PastOrderDenied, Store.is_open, store, today, today + timedelta(hours=1))
-
-        # MinTimeExceeded
-        wait = timedelta(minutes=15)
-        openingMinTime = wait * 2
-        closingHours = 10
-        store.wait = wait
-
-        opening = (today + openingMinTime)
-        closing = (opening + timedelta(hours=closingHours))
-        day = opening.strftime('%w')
-        OpeningHours.objects.create(
-            store=store,
-            day=day,
-            opening=opening,
-            closing=closing
-        )
-        self.assertRaises(MinTimeExceeded, Store.is_open, store,
-                          opening + wait - timedelta(minutes=1), opening)
-
-        # Before and after opening hours
-        before = opening - timedelta(minutes=1)
-        between = opening + timedelta(hours=closingHours / 2)
-        after = closing + timedelta(hours=1)
-        end = after + timedelta(hours=1)
-
-        self.assertRaises(StoreClosed, Store.is_open, store, before, today)
-        self.assertIsNone(Store.is_open(store, between, today))
-        self.assertRaises(StoreClosed, Store.is_open, store, after, today)
-
-        hp = HolidayPeriod.objects.create(
-            store=store,
-            start=today,
-            end=end,
-            closed=True
-        )
-        self.assertRaises(StoreClosed, Store.is_open, store, before, today)
-
-        self.assertRaises(StoreClosed, Store.is_open, store, between, today)
-        self.assertRaises(StoreClosed, Store.is_open, store, after, today)
-
-        hp.closed = False
-        hp.save()
-        self.assertIsNone(Store.is_open(store, before, today))
-        self.assertIsNone(Store.is_open(store, between, today))
-        self.assertIsNone(Store.is_open(store, after, today))
-
-        hp.closed = True
-        hp.end = between
-        hp.save()
-        self.assertRaises(StoreClosed, Store.is_open, store, before, today)
-        self.assertRaises(StoreClosed, Store.is_open, store, between, today)
-        self.assertIsNone(Store.is_open(store, between + timedelta(minutes=1), today))
-
-    @mock.patch('requests.Response.json')
-    @mock.patch('requests.get')
-    def testFoodCanOrder(self, mock_get, mock_json):
+    def test_food_orderable(self, mock_get, mock_json):
         self.mock_address_response(mock_get, mock_json)
         preorder_time = time(hour=12)
 
@@ -479,8 +479,8 @@ class LunchTests(LunchbreakTestCase):
             name='Test foodtype'
         )
 
-        foodCategory = FoodCategory.objects.create(
-            name='Test foodCategory',
+        foodcategory = FoodCategory.objects.create(
+            name='Test foodcategory',
             store=store
         )
 
@@ -488,7 +488,7 @@ class LunchTests(LunchbreakTestCase):
             name='Test food',
             cost=1,
             foodtype=foodtype,
-            category=foodCategory,
+            category=foodcategory,
             store=store,
             preorder_days=0
         )
@@ -507,7 +507,7 @@ class LunchTests(LunchbreakTestCase):
             now += timedelta(hours=2)
             self.assertTrue(food.is_orderable(pickup, now=now))
 
-            # Ordering before the preorder_time should add 1 minDay in the background
+            # Ordering before the preorder_time should add 1 preorder_day in the background
             # and should therefore return false if wanting to pick up the next day.
 
             # with preorder_days == 1, same day order is impossible
