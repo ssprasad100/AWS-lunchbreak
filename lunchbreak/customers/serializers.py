@@ -8,7 +8,8 @@ from rest_framework import serializers
 
 from .config import RESERVATION_STATUS_PLACED, RESERVATION_STATUS_USER
 from .exceptions import AmountInvalid, CostCheckFailed, MinDaysExceeded
-from .models import Order, OrderedFood, Reservation, User, UserToken
+from .models import (Group, Membership, Order, OrderedFood, Reservation, User,
+                     UserToken)
 
 
 class StoreHeartSerializer(lunch_serializers.StoreSerializer):
@@ -343,6 +344,56 @@ class UserSerializer(serializers.ModelSerializer):
             'phone',
             'pin',
             'device',
+        )
+
+
+class UserMembershipSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = (
+            'name',
+        )
+
+
+class MembershipSerializer(serializers.ModelSerializer):
+    user = UserMembershipSerializer()
+
+    class Meta:
+        model = Membership
+        fields = (
+            'id',
+            'leader',
+            'user',
+        )
+
+
+class GroupSerializer(serializers.ModelSerializer):
+    memberships = MembershipSerializer(
+        many=True,
+        source='membership_set'
+    )
+
+    class Meta:
+        model = Group
+        fields = (
+            'name',
+            'billing',
+            'memberships',
+        )
+        read_only_fields = (
+            'memberships',
+        )
+
+    def create(self, validated_data):
+        name = validated_data['name']
+        billing = validated_data['billing']
+        user = validated_data['authenticated_user']
+
+        return Group.create(
+            name=name,
+            user=user,
+            billing=billing,
         )
 
 

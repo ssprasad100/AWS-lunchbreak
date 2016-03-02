@@ -1,5 +1,6 @@
-from Lunchbreak.exceptions import lunchbreakExceptionHandler
 from rest_framework.response import Response
+
+from .exceptions import lunchbreak_exception_handler
 
 
 class LunchbreakResponse(Response):
@@ -18,7 +19,7 @@ class LunchbreakResponse(Response):
             if detail is not None:
                 data['error']['detail'] = detail
         else:
-            response = lunchbreakExceptionHandler(exception)
+            response = lunchbreak_exception_handler(exception)
             data = response.data
 
         super(LunchbreakResponse, self).__init__(

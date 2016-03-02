@@ -19,6 +19,11 @@ urlpatterns = patterns(
     ),
 
     url(
+        r'^group/?$',
+        views.GroupView.as_view()
+    ),
+
+    url(
         r'^order/(?P<pk>\d+)/?$',
         views.OrderRetrieveView.as_view()
     ),

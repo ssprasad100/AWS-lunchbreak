@@ -3,7 +3,7 @@ from rest_framework.exceptions import APIException
 from rest_framework.response import Response
 
 
-def lunchbreakExceptionHandler(exception, context):
+def lunchbreak_exception_handler(exception, context):
     response = Response()
     response.data = {'error': {}}
     if exception is None:
@@ -40,4 +40,4 @@ class LunchbreakException(APIException):
 
     @property
     def response(self):
-        return lunchbreakExceptionHandler(self, None)
+        return lunchbreak_exception_handler(self, None)

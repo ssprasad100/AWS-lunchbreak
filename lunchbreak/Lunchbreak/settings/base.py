@@ -169,7 +169,7 @@ REST_FRAMEWORK = {
 
     'COERCE_DECIMAL_TO_STRING': False,
 
-    'EXCEPTION_HANDLER': 'Lunchbreak.exceptions.lunchbreakExceptionHandler',
+    'EXCEPTION_HANDLER': 'Lunchbreak.exceptions.lunchbreak_exception_handler',
 
     'TEST_REQUEST_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',

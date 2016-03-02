@@ -16,7 +16,7 @@ from push_notifications.models import SERVICE_INACTIVE
 from rest_framework import status
 from rest_framework.response import Response
 
-from .config import (GROUP_PAYMENT_OPTIONS, GROUP_PAYMENT_SEPARATE,
+from .config import (GROUP_BILLING_OPTIONS, GROUP_BILLING_SEPARATE,
                      ORDER_ENDED, ORDER_STATUS, ORDER_STATUS_COMPLETED,
                      ORDER_STATUS_PLACED, ORDER_STATUS_WAITING,
                      RESERVATION_STATUS, RESERVATION_STATUS_DENIED,
@@ -150,21 +150,23 @@ class Group(models.Model):
     name = models.CharField(
         max_length=255
     )
-    payment = models.IntegerField(
-        default=GROUP_PAYMENT_SEPARATE,
-        choices=GROUP_PAYMENT_OPTIONS
+    billing = models.IntegerField(
+        default=GROUP_BILLING_SEPARATE,
+        choices=GROUP_BILLING_OPTIONS
     )
-    users = models.ManyToManyField(
+    memberships = models.ManyToManyField(
         User,
         through='Membership',
         through_fields=('group', 'user',)
     )
 
     @classmethod
-    def create(cls, name, user):
+    def create(cls, name, user, billing=None):
         group = cls.objects.create(
             name=name
         )
+        if billing is not None:
+            group.billing = billing
         group.save()
         Membership.objects.create(
             user=user,

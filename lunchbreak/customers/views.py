@@ -16,12 +16,13 @@ from rest_framework.views import APIView
 
 from .authentication import CustomerAuthentication
 from .config import DEMO_DIGITS_ID, DEMO_PHONE
-from .models import Heart, Order, OrderedFood, Reservation, User, UserToken
-from .serializers import (MultiUserTokenSerializer, OrderedFoodPriceSerializer,
-                          OrderSerializer, ReservationSerializer,
-                          ShortOrderSerializer, StoreHeartSerializer,
-                          UserLoginSerializer, UserRegisterSerializer,
-                          UserTokenUpdateSerializer)
+from .models import (Group, Heart, Order, OrderedFood, Reservation, User,
+                     UserToken)
+from .serializers import (GroupSerializer, MultiUserTokenSerializer,
+                          OrderedFoodPriceSerializer, OrderSerializer,
+                          ReservationSerializer, ShortOrderSerializer,
+                          StoreHeartSerializer, UserLoginSerializer,
+                          UserRegisterSerializer, UserTokenUpdateSerializer)
 
 
 class FoodRetrieveView(generics.RetrieveAPIView):
@@ -178,7 +179,9 @@ class ReservationSingleView(generics.RetrieveUpdateAPIView):
     serializer_class = ReservationSerializer
 
     def get_queryset(self):
-        return Reservation.objects.filter(user=self.request.user)
+        return Reservation.objects.filter(
+            user=self.request.user
+        )
 
 
 class StoreHeartView(generics.RetrieveUpdateAPIView):
@@ -385,22 +388,18 @@ class UserLoginView(generics.CreateAPIView):
         return BadRequest(serializer.errors)
 
 
-class ReservationMultiView(generics.ListCreateAPIView):
+class LunchbreakCreateMixin(object):
 
-    authentication_classes = (CustomerAuthentication,)
-    serializer_class = ReservationSerializer
-
-    def get_queryset(self):
-        return Reservation.objects.filter(user=self.request.user)
-
-    def create(self, request, *args, **kwargs):
+    def create(self, request):
         serializer = self.get_serializer(
             data=request.data
         )
 
         if serializer.is_valid():
             try:
-                serializer.save()
+                serializer.save(
+                    authenticated_user=request.user
+                )
                 return Response(
                     data=serializer.data,
                     status=status.HTTP_201_CREATED
@@ -408,3 +407,23 @@ class ReservationMultiView(generics.ListCreateAPIView):
             except LunchbreakException as e:
                 return e.response
         return BadRequest(serializer.errors)
+
+
+class GroupView(LunchbreakCreateMixin, generics.ListCreateAPIView):
+
+    authentication_classes = (CustomerAuthentication,)
+    serializer_class = GroupSerializer
+
+    def get_queryset(self):
+        return self.request.user.group_set.all()
+
+
+class ReservationMultiView(generics.ListCreateAPIView, LunchbreakCreateMixin):
+
+    authentication_classes = (CustomerAuthentication,)
+    serializer_class = ReservationSerializer
+
+    def get_queryset(self):
+        return Reservation.objects.filter(
+            user=self.request.user
+        )
