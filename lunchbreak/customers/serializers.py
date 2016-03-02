@@ -1,5 +1,6 @@
 import math
 
+from django.core.exceptions import ObjectDoesNotExist
 from lunch import serializers as lunch_serializers
 from lunch.config import INPUT_SI_SET, INPUT_SI_VARIABLE
 from lunch.exceptions import BadRequest
@@ -8,8 +9,62 @@ from rest_framework import serializers
 
 from .config import RESERVATION_STATUS_PLACED, RESERVATION_STATUS_USER
 from .exceptions import AmountInvalid, CostCheckFailed, MinDaysExceeded
-from .models import (Group, Membership, Order, OrderedFood, Reservation, User,
-                     UserToken)
+from .models import (Group, Invite, Membership, Order, OrderedFood,
+                     Reservation, User, UserToken)
+
+from rest_framework.fields import *  # NOQA # isort:skip
+from rest_framework.relations import *  # NOQA # isort:skip
+
+
+class PrimaryInternalMixin(serializers.Serializer):
+
+    def to_internal_value(self, data):
+        """
+        Dict of native values <- Dict of primitive datatypes.
+        """
+        if not isinstance(data, dict):
+            message = self.error_messages['invalid'].format(
+                datatype=type(data).__name__
+            )
+            raise ValidationError({
+                api_settings.NON_FIELD_ERRORS_KEY: [message]
+            })
+
+        ret = OrderedDict()
+        errors = OrderedDict()
+        fields = self._writable_fields
+
+        for field in fields:
+            validate_method = getattr(self, 'validate_' + field.field_name, None)
+            primitive_value = field.get_value(data)
+            try:
+                if issubclass(field.__class__, serializers.ModelSerializer) and \
+                        primitive_value != empty:
+                    model = field.Meta.model
+                    print field.field_name
+                    print primitive_value
+                    validated_value = model.objects.get(
+                        pk=primitive_value
+                    )
+                else:
+                    validated_value = field.run_validation(primitive_value)
+                    if validate_method is not None:
+                        validated_value = validate_method(validated_value)
+            except ValidationError as exc:
+                errors[field.field_name] = exc.detail
+            except ObjectDoesNotExist as exc:
+                errors[field.field_name] = exc.message
+            except DjangoValidationError as exc:
+                errors[field.field_name] = list(exc.messages)
+            except SkipField:
+                pass
+            else:
+                set_value(ret, field.source_attrs, validated_value)
+
+        if errors:
+            raise ValidationError(errors)
+
+        return ret
 
 
 class StoreHeartSerializer(lunch_serializers.StoreSerializer):
@@ -352,6 +407,7 @@ class UserMembershipSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = (
+            'id',
             'name',
         )
 
@@ -370,13 +426,15 @@ class MembershipSerializer(serializers.ModelSerializer):
 
 class GroupSerializer(serializers.ModelSerializer):
     memberships = MembershipSerializer(
+        source='membership_set',
         many=True,
-        source='membership_set'
+        read_only=True
     )
 
     class Meta:
         model = Group
         fields = (
+            'id',
             'name',
             'billing',
             'memberships',
@@ -386,14 +444,55 @@ class GroupSerializer(serializers.ModelSerializer):
         )
 
     def create(self, validated_data):
-        name = validated_data['name']
-        billing = validated_data['billing']
-        user = validated_data['authenticated_user']
+        values = {
+            'name': validated_data['name'],
+            'user': validated_data['leader']
+        }
+        if 'billing' in validated_data:
+            values['billing'] = validated_data['billing']
 
         return Group.create(
-            name=name,
-            user=user,
-            billing=billing,
+            **values
+        )
+
+
+class GroupInviteSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Group
+        fields = (
+            'id',
+            'name',
+        )
+
+
+class InviteSerializer(serializers.ModelSerializer, PrimaryInternalMixin):
+    group = GroupInviteSerializer()
+    invited_by = UserMembershipSerializer(
+        read_only=True
+    )
+
+    class Meta:
+        model = Invite
+        fields = (
+            'id',
+            'group',
+            'user',
+            'invited_by',
+            'status',
+        )
+        read_only_fields = (
+            'invited_by',
+            'status',
+        )
+
+
+class InviteUpdateSerializer(InviteSerializer):
+
+    class Meta:
+        model = Invite
+        fields = (
+            'status',
         )
 
 

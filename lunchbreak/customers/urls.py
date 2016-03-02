@@ -24,6 +24,15 @@ urlpatterns = patterns(
     ),
 
     url(
+        r'^invite/?$',
+        views.InviteMultiView.as_view()
+    ),
+    url(
+        r'^invite/(?P<pk>\d+)/?$',
+        views.InviteSingleView.as_view()
+    ),
+
+    url(
         r'^order/(?P<pk>\d+)/?$',
         views.OrderRetrieveView.as_view()
     ),

@@ -1,7 +1,8 @@
 from django.contrib import admin
 from lunch.admin import BaseTokenAdmin
 
-from .models import Order, OrderedFood, Reservation, User, UserToken
+from .models import (Group, Invite, Membership, Order, OrderedFood,
+                     Reservation, User, UserToken)
 
 
 @admin.register(OrderedFood)
@@ -14,6 +15,21 @@ class OrderedFoodAdmin(admin.ModelAdmin):
 class UserAdmin(admin.ModelAdmin):
     list_display = ('name', 'phone', 'confirmed_at',)
     readonly_fields = ('digits_id', 'request_id', 'confirmed_at',)
+
+
+@admin.register(Group)
+class GroupAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Membership)
+class MembershipAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Invite)
+class InviteAdmin(admin.ModelAdmin):
+    pass
 
 
 @admin.register(Reservation)

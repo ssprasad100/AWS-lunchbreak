@@ -16,9 +16,9 @@ from rest_framework.views import APIView
 
 from .authentication import CustomerAuthentication
 from .config import DEMO_DIGITS_ID, DEMO_PHONE
-from .models import (Group, Heart, Order, OrderedFood, Reservation, User,
-                     UserToken)
-from .serializers import (GroupSerializer, MultiUserTokenSerializer,
+from .models import Heart, Order, OrderedFood, Reservation, User, UserToken
+from .serializers import (GroupSerializer, InviteSerializer,
+                          InviteUpdateSerializer, MultiUserTokenSerializer,
                           OrderedFoodPriceSerializer, OrderSerializer,
                           ReservationSerializer, ShortOrderSerializer,
                           StoreHeartSerializer, UserLoginSerializer,
@@ -388,7 +388,7 @@ class UserLoginView(generics.CreateAPIView):
         return BadRequest(serializer.errors)
 
 
-class LunchbreakCreateMixin(object):
+class CreateMixin(object):
 
     def create(self, request):
         serializer = self.get_serializer(
@@ -398,7 +398,9 @@ class LunchbreakCreateMixin(object):
         if serializer.is_valid():
             try:
                 serializer.save(
-                    authenticated_user=request.user
+                    **{
+                        self.authenticated_user: request.user
+                    }
                 )
                 return Response(
                     data=serializer.data,
@@ -409,16 +411,35 @@ class LunchbreakCreateMixin(object):
         return BadRequest(serializer.errors)
 
 
-class GroupView(LunchbreakCreateMixin, generics.ListCreateAPIView):
+class GroupView(CreateMixin, generics.ListCreateAPIView):
 
     authentication_classes = (CustomerAuthentication,)
     serializer_class = GroupSerializer
+    authenticated_user = 'leader'
 
     def get_queryset(self):
         return self.request.user.group_set.all()
 
 
-class ReservationMultiView(generics.ListCreateAPIView, LunchbreakCreateMixin):
+class InviteView(CreateMixin):
+
+    authentication_classes = (CustomerAuthentication,)
+    serializer_class = InviteSerializer
+    authenticated_user = 'invited_by'
+
+    def get_queryset(self):
+        return self.request.user.invite_set.all()
+
+
+class InviteMultiView(InviteView, generics.ListCreateAPIView):
+    pass
+
+
+class InviteSingleView(InviteView, generics.UpdateAPIView):
+    serializer_class = InviteUpdateSerializer
+
+
+class ReservationMultiView(CreateMixin, generics.ListCreateAPIView):
 
     authentication_classes = (CustomerAuthentication,)
     serializer_class = ReservationSerializer

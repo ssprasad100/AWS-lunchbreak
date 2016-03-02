@@ -13,6 +13,7 @@ MINDAYS_EXCEEDED = 706
 USER_NAME_EMPTY = 707
 USER_DISABLED = 708
 MAX_SEATS_EXCEEDED = 709
+NO_INVITE_PERMISSIONS = 710
 
 DIGITS_UNKNOWN = -1
 DIGITS_LEGACY_ERROR = 0
@@ -147,3 +148,9 @@ class MaxSeatsExceeded(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
     code = MAX_SEATS_EXCEEDED
     information = 'The amount of seats exceeds the store\'s maximum.'
+
+
+class NoInvitePermissions(LunchbreakException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    code = NO_INVITE_PERMISSIONS
+    information = 'You cannot invite a user to this group.'

@@ -16,14 +16,14 @@ from push_notifications.models import SERVICE_INACTIVE
 from rest_framework import status
 from rest_framework.response import Response
 
-from .config import (GROUP_BILLING_OPTIONS, GROUP_BILLING_SEPARATE,
-                     ORDER_ENDED, ORDER_STATUS, ORDER_STATUS_COMPLETED,
-                     ORDER_STATUS_PLACED, ORDER_STATUS_WAITING,
-                     RESERVATION_STATUS, RESERVATION_STATUS_DENIED,
-                     RESERVATION_STATUS_PLACED)
+from .config import (GROUP_BILLING_CHOICES, GROUP_BILLING_SEPARATE,
+                     INVITE_STATUS_CHOICES, INVITE_STATUS_WAITING, ORDER_ENDED,
+                     ORDER_STATUS, ORDER_STATUS_COMPLETED, ORDER_STATUS_PLACED,
+                     ORDER_STATUS_WAITING, RESERVATION_STATUS,
+                     RESERVATION_STATUS_DENIED, RESERVATION_STATUS_PLACED)
 from .digits import Digits
-from .exceptions import (DigitsException, MaxSeatsExceeded, UserDisabled,
-                         UserNameEmpty)
+from .exceptions import (DigitsException, MaxSeatsExceeded,
+                         NoInvitePermissions, UserDisabled, UserNameEmpty)
 
 
 class User(models.Model):
@@ -146,15 +146,60 @@ class User(models.Model):
             return DoesNotExist()
 
 
+class Invite(models.Model):
+    group = models.ForeignKey(
+        'Group',
+        on_delete=models.CASCADE
+    )
+    user = models.ForeignKey(
+        'User',
+        on_delete=models.CASCADE
+    )
+    invited_by = models.ForeignKey(
+        'User',
+        on_delete=models.CASCADE,
+        related_name='sent_invites'
+    )
+    membership = models.ForeignKey(
+        'Membership',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
+    )
+    status = models.IntegerField(
+        default=INVITE_STATUS_WAITING,
+        choices=INVITE_STATUS_CHOICES
+    )
+
+    def save(self, *args, **kwargs):
+        if self.pk is None:
+            leadership = Membership.objects.filter(
+                user=self.invited_by,
+                group=self.group,
+                leader=True
+            )
+            if not leadership.exists():
+                raise NoInvitePermissions()
+
+        super(Invite, self).save(*args, **kwargs)
+
+    def __unicode__(self):
+        return '{user} -> {group}, {status}'.format(
+            user=self.user,
+            group=self.group,
+            status=self.get_status_display()
+        )
+
+
 class Group(models.Model):
     name = models.CharField(
         max_length=255
     )
     billing = models.IntegerField(
         default=GROUP_BILLING_SEPARATE,
-        choices=GROUP_BILLING_OPTIONS
+        choices=GROUP_BILLING_CHOICES
     )
-    memberships = models.ManyToManyField(
+    users = models.ManyToManyField(
         User,
         through='Membership',
         through_fields=('group', 'user',)
@@ -181,12 +226,12 @@ class Group(models.Model):
 
 
 class Membership(models.Model):
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE
-    )
     group = models.ForeignKey(
         Group,
+        on_delete=models.CASCADE
+    )
+    user = models.ForeignKey(
+        User,
         on_delete=models.CASCADE
     )
 
