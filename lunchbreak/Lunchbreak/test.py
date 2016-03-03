@@ -1,5 +1,6 @@
 import requests
 from rest_framework.test import APITestCase, force_authenticate
+import json
 
 
 class LunchbreakTestCase(APITestCase):
@@ -29,8 +30,9 @@ class LunchbreakTestCase(APITestCase):
         mock_json.return_value = return_value
 
     def assertEqualException(self, response, exception):
-        self.assertEqual(response.data['error']['code'], exception.code)
-        self.assertEqual(response.status_code, exception.status_code)
+        error_message = json.dumps(response.data, indent=4)
+        self.assertEqual(response.data['error']['code'], exception.code, error_message)
+        self.assertEqual(response.status_code, exception.status_code, error_message)
 
     def authenticate_request(self, request, view, user=None, *args, **kwargs):
         if user is None:

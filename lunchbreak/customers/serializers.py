@@ -309,12 +309,22 @@ class UserLoginSerializer(serializers.ModelSerializer):
     token = UserTokenLoginSerializer(
         write_only=True
     )
+    name = serializers.CharField(
+        max_length=255,
+        required=False,
+        write_only=True
+    )
+    email = serializers.EmailField(
+        required=False,
+        write_only=True
+    )
 
     class Meta:
         model = User
         fields = (
             'phone',
             'name',
+            'email',
             'pin',
             'token',
         )
@@ -336,6 +346,7 @@ class UserSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'name',
+            'email',
             'phone',
             'pin',
             'device',

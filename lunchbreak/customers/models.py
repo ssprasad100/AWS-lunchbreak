@@ -9,6 +9,7 @@ from django.db import models
 from django.utils import timezone
 from django.utils.functional import cached_property
 from lunch.config import COST_GROUP_ADDITIONS, COST_GROUP_BOTH, INPUT_SI_SET
+from lunch.exceptions import BadRequest
 from lunch.models import BaseToken, Food, Ingredient, Store
 from lunch.responses import DoesNotExist
 from phonenumber_field.modelfields import PhoneNumberField
@@ -20,15 +21,15 @@ from .config import *  # NOQA
 from .digits import Digits
 from .exceptions import (AlreadyMembership, DigitsException,
                          InvalidStatusChange, MaxSeatsExceeded,
-                         NoInvitePermissions, UserDisabled, UserNameEmpty)
+                         NoInvitePermissions, UserDisabled)
 
 
 class User(models.Model):
     phone = PhoneNumberField()
     name = models.CharField(
-        max_length=255,
-        blank=True
+        max_length=255
     )
+    email = models.EmailField()
     digits_id = models.CharField(
         unique=True,
         max_length=10,
@@ -108,19 +109,22 @@ class User(models.Model):
                 return Response(status=status.HTTP_201_CREATED)
 
     @staticmethod
-    def login(phone, pin, name, token):
+    def login(phone, pin, name, email, token):
         try:
             user = User.objects.get(phone=phone)
 
             if not user.enabled:
                 return UserDisabled().response
 
-            if not user.name:
-                if not name:
-                    return UserNameEmpty().response
-
             if name:
                 user.name = name
+            elif not user.name:
+                return BadRequest().response
+
+            if email:
+                user.email = email
+            elif not user.email:
+                return BadRequest().response
 
             digits = Digits()
             # User just got registered in the Digits database

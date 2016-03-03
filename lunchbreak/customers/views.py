@@ -362,13 +362,14 @@ class UserLoginView(generics.CreateAPIView):
     serializer_class = UserLoginSerializer
 
     def create(self, request, *args, **kwargs):
-        serializer = UserLoginView.serializer_class(data=request.data)
+        serializer = self.serializer_class(data=request.data)
         phone = request.data.get('phone', False)
         if serializer.is_valid():
             pin = request.data['pin']
             name = request.data.get('name', None)
+            email = request.data.get('email', None)
             token = request.data.get('token', None)
-            return User.login(phone, pin, name, token)
+            return User.login(phone, pin, name, email, token)
         elif(phone == DEMO_PHONE and
                 'token' in request.data and
                 'device' in request.data['token'] and

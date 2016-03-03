@@ -20,7 +20,7 @@ from rest_framework.test import APIRequestFactory
 from . import views
 from .config import *  # NOQA
 from .exceptions import (AlreadyMembership, InvalidStatusChange,
-                         MaxSeatsExceeded, NoInvitePermissions, UserNameEmpty)
+                         MaxSeatsExceeded, NoInvitePermissions)
 from .models import (Group, Heart, Invite, Membership, Order, OrderedFood,
                      Reservation, User, UserToken)
 
@@ -36,6 +36,8 @@ class CustomersTests(LunchbreakTestCase):
     PIN = '123456'
     NAME = 'Meneer De Bolle'
     NAME_ALTERNATE = 'Mevrouw De Bolle'
+    EMAIL = 'meneer@debolle.com'
+    EMAIL_ALTERNATE = 'mevrouw@debolle.com'
     DEVICE = 'Test device'
     REGISTRATION_ID = '123456789'
 
@@ -247,11 +249,20 @@ class CustomersTests(LunchbreakTestCase):
 
         # A username is required
         response = self.client.post(url, content, format=CustomersTests.FORMAT)
-        self.assertEqualException(response, UserNameEmpty)
+        self.assertEqualException(response, BadRequest)
         self.assertFalse(user.name)
+        self.assertFalse(user.email)
         self.assertFalse(user.confirmed_at)
 
+        # An email is required
         content['name'] = CustomersTests.NAME
+        response = self.client.post(url, content, format=CustomersTests.FORMAT)
+        self.assertEqualException(response, BadRequest)
+        self.assertFalse(user.name)
+        self.assertFalse(user.email)
+        self.assertFalse(user.confirmed_at)
+
+        content['email'] = CustomersTests.EMAIL
         response = self.client.post(url, content, format=CustomersTests.FORMAT)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         user.refresh_from_db()
@@ -260,9 +271,11 @@ class CustomersTests(LunchbreakTestCase):
         identifier = tokens[0].identifier
         self.assertTrue(user.confirmed_at)
         self.assertEqual(user.name, CustomersTests.NAME)
+        self.assertEqual(user.email, CustomersTests.EMAIL)
         confirmed_at = user.confirmed_at
 
         content['name'] = CustomersTests.NAME_ALTERNATE
+        content['email'] = CustomersTests.EMAIL_ALTERNATE
         response = self.client.post(url, content, format=CustomersTests.FORMAT)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         user.refresh_from_db()
@@ -270,6 +283,7 @@ class CustomersTests(LunchbreakTestCase):
         self.assertEqual(len(tokens), 1)
         self.assertNotEqual(identifier, tokens[0].identifier)
         self.assertEqual(user.name, CustomersTests.NAME_ALTERNATE)
+        self.assertEqual(user.email, CustomersTests.EMAIL_ALTERNATE)
         self.assertEqual(user.confirmed_at, confirmed_at)
 
         user.delete()

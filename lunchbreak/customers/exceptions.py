@@ -10,12 +10,11 @@ DIGITS_UNAVAILABLE = 703
 STORE_CLOSED = 704
 AMOUNT_INVALID = 705
 MINDAYS_EXCEEDED = 706
-USER_NAME_EMPTY = 707
-USER_DISABLED = 708
-MAX_SEATS_EXCEEDED = 709
-NO_INVITE_PERMISSIONS = 710
-ALREADY_MEMBERSHIP = 711
-INVALID_STATUS_CHANGE = 712
+USER_DISABLED = 707
+MAX_SEATS_EXCEEDED = 708
+NO_INVITE_PERMISSIONS = 709
+ALREADY_MEMBERSHIP = 710
+INVALID_STATUS_CHANGE = 711
 
 DIGITS_UNKNOWN = -1
 DIGITS_LEGACY_ERROR = 0
@@ -132,12 +131,6 @@ class MinDaysExceeded(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
     code = MINDAYS_EXCEEDED
     information = 'An order must be placed earlier.'
-
-
-class UserNameEmpty(LunchbreakException):
-    status_code = status.HTTP_400_BAD_REQUEST
-    code = USER_NAME_EMPTY
-    information = 'A user needs a name for logging in.'
 
 
 class UserDisabled(LunchbreakException):
