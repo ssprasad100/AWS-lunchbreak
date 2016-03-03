@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
             name='Invite',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('status', models.IntegerField(default=0, choices=[(0, b'Waiting'), (1, b'Accepted'), (2, b'Declined'), (3, b'Removed')])),
+                ('status', models.IntegerField(default=0, choices=[(0, b'Waiting'), (1, b'Accepted'), (2, b'Ignored')])),
             ],
             bases=(models.Model, dirtyfields.dirtyfields.DirtyFieldsMixin),
         ),

@@ -612,7 +612,57 @@ class CustomersTests(LunchbreakTestCase):
 
         Group.objects.all().delete()
 
-    def test_invite_invalid_status(self):
+    def test_invite_accept(self):
+        group = Group.create(
+            name='Test',
+            user=self.user
+        )
+
+        invite = Invite.objects.create(
+            group=group,
+            user=self.user_other,
+            invited_by=self.user
+        )
+
+        invite.status = INVITE_STATUS_ACCEPTED
+        invite.save()
+
+        self.assertIsNotNone(invite.membership)
+
+    def test_invite_delete(self):
+        group = Group.create(
+            name='Test',
+            user=self.user
+        )
+
+        invite = Invite.objects.create(
+            group=group,
+            user=self.user_other,
+            invited_by=self.user
+        )
+
+        invite.delete()
+        self.assertRaises(
+            Invite.DoesNotExist,
+            Invite.objects.get,
+            group=group,
+            user=self.user_other,
+            invited_by=self.user,
+        )
+
+        invite.status = INVITE_STATUS_ACCEPTED
+        invite.save()
+        invite.delete()
+        self.assertEqual(
+            Invite.objects.filter(
+                group=group,
+                user=self.user_other,
+                invited_by=self.user
+            ).count(),
+            1
+        )
+
+    def test_invite_status(self):
         group = Group.create(
             name='Test',
             user=self.user
@@ -622,39 +672,33 @@ class CustomersTests(LunchbreakTestCase):
             INVITE_STATUS_WAITING: {
                 'valid': [
                     INVITE_STATUS_ACCEPTED,
-                    INVITE_STATUS_DECLINED
+                    INVITE_STATUS_IGNORED
                 ],
                 'invalid': [
-                    INVITE_STATUS_REMOVED
                 ]
             },
             INVITE_STATUS_ACCEPTED: {
                 'valid': [],
                 'invalid': [
                     INVITE_STATUS_WAITING,
-                    INVITE_STATUS_DECLINED,
-                    INVITE_STATUS_REMOVED
+                    INVITE_STATUS_IGNORED
                 ]
             },
-            INVITE_STATUS_DECLINED: {
-                'valid': [
-                    INVITE_STATUS_REMOVED
-                ],
+            INVITE_STATUS_IGNORED: {
+                'valid': [],
                 'invalid': [
                     INVITE_STATUS_WAITING,
                     INVITE_STATUS_ACCEPTED
-                ]
-            },
-            INVITE_STATUS_REMOVED: {
-                'valid': [],
-                'invalid': [
-
                 ]
             },
         }
 
         def invite_reset(status):
             Invite.objects.all().delete()
+            Membership.objects.filter(
+                group=group,
+                user=self.user_other
+            ).delete()
             return Invite.objects.create(
                 group=group,
                 user=self.user_other,

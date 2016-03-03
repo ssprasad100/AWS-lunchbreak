@@ -195,14 +195,20 @@ class Invite(models.Model, DirtyFieldsMixin):
         if 'status' in dirty_fields:
             status_dirty = dirty_fields['status']
 
-            if status_dirty == INVITE_STATUS_WAITING and self.status == INVITE_STATUS_REMOVED:
-                raise InvalidStatusChange()
-            if status_dirty == INVITE_STATUS_ACCEPTED:
-                raise InvalidStatusChange()
-            if status_dirty == INVITE_STATUS_DECLINED and self.status != INVITE_STATUS_REMOVED:
+            if status_dirty != INVITE_STATUS_WAITING:
                 raise InvalidStatusChange()
 
+            if self.status == INVITE_STATUS_ACCEPTED:
+                self.membership = Membership.objects.create(
+                    group=self.group,
+                    user=self.user
+                )
+
         super(Invite, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        if self.status != INVITE_STATUS_ACCEPTED:
+            super(Invite, self).delete(*args, **kwargs)
 
     def __unicode__(self):
         return '{user} -> {group}, {status}'.format(
