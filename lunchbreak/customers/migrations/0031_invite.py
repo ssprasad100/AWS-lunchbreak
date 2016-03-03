@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
+import dirtyfields.dirtyfields
 
 
 class Migration(migrations.Migration):
@@ -17,6 +18,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('status', models.IntegerField(default=0, choices=[(0, b'Waiting'), (1, b'Accepted'), (2, b'Declined'), (3, b'Removed')])),
             ],
+            bases=(models.Model, dirtyfields.dirtyfields.DirtyFieldsMixin),
         ),
         migrations.RenameField(
             model_name='group',
@@ -36,11 +38,15 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='invite',
             name='membership',
-            field=models.ForeignKey(to='customers.Membership', null=True),
+            field=models.ForeignKey(blank=True, to='customers.Membership', null=True),
         ),
         migrations.AddField(
             model_name='invite',
             name='user',
             field=models.ForeignKey(to='customers.User'),
+        ),
+        migrations.AlterUniqueTogether(
+            name='invite',
+            unique_together=set([('group', 'user')]),
         ),
     ]

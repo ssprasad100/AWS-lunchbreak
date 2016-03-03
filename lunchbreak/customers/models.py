@@ -16,13 +16,10 @@ from push_notifications.models import SERVICE_INACTIVE
 from rest_framework import status
 from rest_framework.response import Response
 
-from .config import (GROUP_BILLING_CHOICES, GROUP_BILLING_SEPARATE,
-                     INVITE_STATUS_CHOICES, INVITE_STATUS_WAITING, ORDER_ENDED,
-                     ORDER_STATUS, ORDER_STATUS_COMPLETED, ORDER_STATUS_PLACED,
-                     ORDER_STATUS_WAITING, RESERVATION_STATUS,
-                     RESERVATION_STATUS_DENIED, RESERVATION_STATUS_PLACED)
+from .config import *  # NOQA
 from .digits import Digits
-from .exceptions import (DigitsException, MaxSeatsExceeded,
+from .exceptions import (AlreadyMembership, DigitsException,
+                         InvalidStatusChange, MaxSeatsExceeded,
                          NoInvitePermissions, UserDisabled, UserNameEmpty)
 
 
@@ -146,7 +143,7 @@ class User(models.Model):
             return DoesNotExist()
 
 
-class Invite(models.Model):
+class Invite(models.Model, DirtyFieldsMixin):
     group = models.ForeignKey(
         'Group',
         on_delete=models.CASCADE
@@ -171,8 +168,14 @@ class Invite(models.Model):
         choices=INVITE_STATUS_CHOICES
     )
 
+    class Meta:
+        unique_together = ('group', 'user',)
+
     def save(self, *args, **kwargs):
-        if self.pk is None:
+        dirty_fields = self.get_dirty_fields()
+        changed_invited_group = 'invited_by' in dirty_fields or 'group' in dirty_fields
+
+        if self.pk is None or changed_invited_group:
             leadership = Membership.objects.filter(
                 user=self.invited_by,
                 group=self.group,
@@ -180,6 +183,24 @@ class Invite(models.Model):
             )
             if not leadership.exists():
                 raise NoInvitePermissions()
+
+        if self.pk is None or 'user' in dirty_fields:
+            membership = Membership.objects.filter(
+                user=self.user,
+                group=self.group
+            )
+            if membership.exists():
+                raise AlreadyMembership()
+
+        if 'status' in dirty_fields:
+            status_dirty = dirty_fields['status']
+
+            if status_dirty == INVITE_STATUS_WAITING and self.status == INVITE_STATUS_REMOVED:
+                raise InvalidStatusChange()
+            if status_dirty == INVITE_STATUS_ACCEPTED:
+                raise InvalidStatusChange()
+            if status_dirty == INVITE_STATUS_DECLINED and self.status != INVITE_STATUS_REMOVED:
+                raise InvalidStatusChange()
 
         super(Invite, self).save(*args, **kwargs)
 

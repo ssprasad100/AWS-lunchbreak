@@ -10,7 +10,7 @@ from lunch.serializers import (FoodCategorySerializer, MultiFoodSerializer,
 from lunch.views import (HolidayPeriodListViewBase, OpeningHoursListViewBase,
                          OpeningListViewBase, StoreCategoryListViewBase)
 from Lunchbreak.exceptions import LunchbreakException
-from rest_framework import filters, generics, mixins, status, viewsets
+from rest_framework import filters, generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -388,37 +388,7 @@ class UserLoginView(generics.CreateAPIView):
         return BadRequest(serializer.errors)
 
 
-class CreateMixin(object):
-
-    def create(self, request):
-        serializer = self.get_serializer(
-            data=request.data
-        )
-
-        if serializer.is_valid():
-            try:
-                serializer.save(
-                    **{
-                        self.authenticated_user: request.user
-                    }
-                )
-                return Response(
-                    data=serializer.data,
-                    status=status.HTTP_201_CREATED
-                )
-            except LunchbreakException as e:
-                return e.response
-        return BadRequest(serializer.errors)
-
-
-class CreateListRetrieveViewSet(mixins.CreateModelMixin,
-                                mixins.ListModelMixin,
-                                mixins.RetrieveModelMixin,
-                                viewsets.GenericViewSet):
-    pass
-
-
-class GroupView(CreateMixin, generics.ListCreateAPIView):
+class GroupView(generics.ListCreateAPIView):
 
     authentication_classes = (CustomerAuthentication,)
     serializer_class = GroupSerializer
@@ -432,7 +402,6 @@ class InviteView(object):
 
     authentication_classes = (CustomerAuthentication,)
     serializer_class = InviteSerializer
-    #authenticated_user = 'invited_by'
 
     def get_queryset(self):
         return self.request.user.invite_set.all()
@@ -446,14 +415,7 @@ class InviteSingleView(InviteView, generics.UpdateAPIView):
     serializer_class = InviteUpdateSerializer
 
 
-class InviteViewSet(CreateListRetrieveViewSet):
-
-    authentication_classes = (CustomerAuthentication,)
-    serializer_class = InviteSerializer
-    authenticated_user = 'invited_by'
-
-
-class ReservationMultiView(CreateMixin, generics.ListCreateAPIView):
+class ReservationMultiView(generics.ListCreateAPIView):
 
     authentication_classes = (CustomerAuthentication,)
     serializer_class = ReservationSerializer

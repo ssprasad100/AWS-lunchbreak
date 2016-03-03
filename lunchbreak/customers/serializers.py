@@ -6,14 +6,13 @@ from lunch.exceptions import BadRequest
 from lunch.models import Food, IngredientGroup, Store
 from Lunchbreak.serializers import PrimaryModelSerializer
 from rest_framework import serializers
+from rest_framework.fields import *  # NOQA
+from rest_framework.relations import *  # NOQA
 
 from .config import RESERVATION_STATUS_PLACED, RESERVATION_STATUS_USER
 from .exceptions import AmountInvalid, CostCheckFailed, MinDaysExceeded
 from .models import (Group, Invite, Membership, Order, OrderedFood,
                      Reservation, User, UserToken)
-
-from rest_framework.fields import *  # NOQA # isort:skip
-from rest_framework.relations import *  # NOQA # isort:skip
 
 
 class StoreHeartSerializer(lunch_serializers.StoreSerializer):
@@ -33,7 +32,7 @@ class ReservationSerializer(serializers.ModelSerializer):
     user = serializers.ModelField(
         model_field=Reservation()._meta.get_field('user'),
         read_only=True,
-        default=serializers.CurrentUserDefault()
+        default=CreateOnlyDefault(serializers.CurrentUserDefault())
     )
     status = serializers.ChoiceField(
         choices=RESERVATION_STATUS_USER,
@@ -379,6 +378,9 @@ class GroupSerializer(serializers.ModelSerializer):
         many=True,
         read_only=True
     )
+    user = serializers.HiddenField(
+        default=CreateOnlyDefault(serializers.CurrentUserDefault())
+    )
 
     class Meta:
         model = Group
@@ -387,15 +389,19 @@ class GroupSerializer(serializers.ModelSerializer):
             'name',
             'billing',
             'memberships',
+            'user',
         )
         read_only_fields = (
             'memberships',
+        )
+        write_only_fields = (
+            'user',
         )
 
     def create(self, validated_data):
         values = {
             'name': validated_data['name'],
-            'user': validated_data['leader']
+            'user': validated_data['user']
         }
         if 'billing' in validated_data:
             values['billing'] = validated_data['billing']

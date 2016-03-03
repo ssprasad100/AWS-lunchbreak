@@ -14,6 +14,8 @@ USER_NAME_EMPTY = 707
 USER_DISABLED = 708
 MAX_SEATS_EXCEEDED = 709
 NO_INVITE_PERMISSIONS = 710
+ALREADY_MEMBERSHIP = 711
+INVALID_STATUS_CHANGE = 712
 
 DIGITS_UNKNOWN = -1
 DIGITS_LEGACY_ERROR = 0
@@ -154,3 +156,15 @@ class NoInvitePermissions(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
     code = NO_INVITE_PERMISSIONS
     information = 'You cannot invite a user to this group.'
+
+
+class AlreadyMembership(LunchbreakException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    code = ALREADY_MEMBERSHIP
+    information = 'User already a member of the specified group.'
+
+
+class InvalidStatusChange(LunchbreakException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    code = INVALID_STATUS_CHANGE
+    information = 'Invalid status change.'

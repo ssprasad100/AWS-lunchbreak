@@ -3,7 +3,7 @@ bcrypt==1.1.0
 cffi==0.9.0
 Django==1.8.9
 django-compressor==2.0
-django-dirtyfields==0.7
+django-dirtyfields==0.8.1
 django-phonenumber-field==0.7.2
 django-split-settings==0.1.2
 djangorestframework==3.3.2
