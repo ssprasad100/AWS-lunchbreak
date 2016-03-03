@@ -23,6 +23,7 @@ def lunchbreak_exception_handler(exception, context):
     response.status_code = (exception.status_code
                             if hasattr(exception, 'status_code')
                             else status.HTTP_400_BAD_REQUEST)
+
     return response
 
 

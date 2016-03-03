@@ -10,7 +10,7 @@ from lunch.serializers import (FoodCategorySerializer, MultiFoodSerializer,
 from lunch.views import (HolidayPeriodListViewBase, OpeningHoursListViewBase,
                          OpeningListViewBase, StoreCategoryListViewBase)
 from Lunchbreak.exceptions import LunchbreakException
-from rest_framework import filters, generics, status
+from rest_framework import filters, generics, mixins, status, viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -411,6 +411,13 @@ class CreateMixin(object):
         return BadRequest(serializer.errors)
 
 
+class CreateListRetrieveViewSet(mixins.CreateModelMixin,
+                                mixins.ListModelMixin,
+                                mixins.RetrieveModelMixin,
+                                viewsets.GenericViewSet):
+    pass
+
+
 class GroupView(CreateMixin, generics.ListCreateAPIView):
 
     authentication_classes = (CustomerAuthentication,)
@@ -421,11 +428,11 @@ class GroupView(CreateMixin, generics.ListCreateAPIView):
         return self.request.user.group_set.all()
 
 
-class InviteView(CreateMixin):
+class InviteView(object):
 
     authentication_classes = (CustomerAuthentication,)
     serializer_class = InviteSerializer
-    authenticated_user = 'invited_by'
+    #authenticated_user = 'invited_by'
 
     def get_queryset(self):
         return self.request.user.invite_set.all()
@@ -437,6 +444,13 @@ class InviteMultiView(InviteView, generics.ListCreateAPIView):
 
 class InviteSingleView(InviteView, generics.UpdateAPIView):
     serializer_class = InviteUpdateSerializer
+
+
+class InviteViewSet(CreateListRetrieveViewSet):
+
+    authentication_classes = (CustomerAuthentication,)
+    serializer_class = InviteSerializer
+    authenticated_user = 'invited_by'
 
 
 class ReservationMultiView(CreateMixin, generics.ListCreateAPIView):

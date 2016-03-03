@@ -17,9 +17,15 @@ class UserAdmin(admin.ModelAdmin):
     readonly_fields = ('digits_id', 'request_id', 'confirmed_at',)
 
 
+class MembershipInline(admin.TabularInline):
+    model = Membership
+    extra = 2
+
+
 @admin.register(Group)
 class GroupAdmin(admin.ModelAdmin):
-    pass
+    fields = ('name', 'billing',)
+    inlines = (MembershipInline,)
 
 
 @admin.register(Membership)
