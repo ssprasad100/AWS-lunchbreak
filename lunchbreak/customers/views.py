@@ -10,7 +10,8 @@ from lunch.serializers import (FoodCategorySerializer, MultiFoodSerializer,
 from lunch.views import (HolidayPeriodListViewBase, OpeningHoursListViewBase,
                          OpeningListViewBase, StoreCategoryListViewBase)
 from Lunchbreak.exceptions import LunchbreakException
-from rest_framework import filters, generics, status
+from rest_framework import filters, generics, mixins, status, viewsets
+from rest_framework.decorators import list_route
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -304,65 +305,27 @@ class StoreCategoryListView(StoreCategoryListViewBase):
     authentication_classes = (CustomerAuthentication,)
 
 
-class UserTokenView(generics.ListAPIView):
+class UserViewSet(viewsets.GenericViewSet):
 
-    """Return all of the Tokens for the authenticated user."""
+    queryset = User.objects.all()
 
-    authentication_classes = (CustomerAuthentication,)
-    serializer_class = MultiUserTokenSerializer
-
-    def get_queryset(self):
-        return UserToken.objects.select_related(
-            'user',
-        ).filter(
-            user=self.request.user
+    @list_route(methods=['post'])
+    def register(self, request):
+        serializer = UserRegisterSerializer(
+            data=request.data
         )
-
-
-class UserTokenUpdateView(generics.UpdateAPIView):
-
-    serializer_class = UserTokenUpdateSerializer
-    authentication_classes = (CustomerAuthentication,)
-
-    def update(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid():
-            request.auth.registration_id = request.data.get(
-                'registration_id', request.auth.registration_id)
-            request.auth.service = request.data.get('service', request.auth.service)
-            request.auth.save()
-            return Response(
-                status=status.HTTP_200_OK
-            )
-        return BadRequest(serializer.errors)
-
-    def put(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
-
-    def patch(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
-
-
-class UserRegisterView(generics.CreateAPIView):
-
-    serializer_class = UserRegisterSerializer
-
-    def create(self, request, *args, **kwargs):
-        registerSerializer = UserRegisterView.serializer_class(data=request.data)
         phone = request.data.get('phone', False)
-        if registerSerializer.is_valid():
+        if serializer.is_valid():
             return User.register(phone)
         elif phone == DEMO_PHONE:
             return Response(status=status.HTTP_200_OK)
-        return BadRequest(registerSerializer.errors)
+        return BadRequest(serializer.errors)
 
-
-class UserLoginView(generics.CreateAPIView):
-
-    serializer_class = UserLoginSerializer
-
-    def create(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data)
+    @list_route(methods=['post'])
+    def login(self, request):
+        serializer = UserLoginSerializer(
+            data=request.data
+        )
         phone = request.data.get('phone', False)
         if serializer.is_valid():
             pin = request.data['pin']
@@ -386,6 +349,54 @@ class UserLoginView(generics.CreateAPIView):
                 )
             except User.DoesNotExist:
                 pass
+        return BadRequest(serializer.errors)
+
+    @list_route(methods=['get', 'put', 'patch'], authentication_classes=[CustomerAuthentication])
+    def token(self, request):
+        if request.method == 'GET':
+            serializer = MultiUserTokenSerializer(
+                UserToken.objects.select_related(
+                    'user',
+                ).filter(
+                    user=self.request.user
+                ),
+                many=True
+            )
+            return Response(
+                serializer.data
+            )
+        else:
+            serializer = UserTokenUpdateSerializer(
+                data=request.data
+            )
+            if serializer.is_valid():
+                request.auth.registration_id = request.data.get(
+                    'registration_id',
+                    request.auth.registration_id
+                )
+                request.auth.service = request.data.get(
+                    'service',
+                    request.auth.service
+                )
+                request.auth.save()
+                return Response(
+                    status=status.HTTP_200_OK
+                )
+        return BadRequest(serializer.errors)
+
+    @list_route(methods=['get'], authentication_classes=[CustomerAuthentication])
+    def reservation(self, request):
+        serializer = MultiUserTokenSerializer(
+            UserToken.objects.select_related(
+                'user',
+            ).filter(
+                user=self.request.user
+            ),
+            many=True
+        )
+        return Response(
+            serializer.data
+        )
         return BadRequest(serializer.errors)
 
 

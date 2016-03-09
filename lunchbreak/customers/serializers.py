@@ -465,19 +465,16 @@ class InviteUpdateSerializer(InviteSerializer):
         )
 
 
-class MultiUserTokenSerializer(lunch_serializers.MultiTokenSerializer):
-    user = UserSerializer(
-        read_only=True
-    )
+class MultiUserTokenSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserToken
-        fields = lunch_serializers.MultiTokenSerializer.Meta.fields + (
-            'user',
+        fields = (
+            'id',
+            'device',
+            'active',
         )
-        read_only_fields = lunch_serializers.MultiTokenSerializer.Meta.read_only_fields + (
-            'user',
-        )
+        read_only_fields = fields
 
 
 class UserTokenSerializer(lunch_serializers.TokenSerializer):

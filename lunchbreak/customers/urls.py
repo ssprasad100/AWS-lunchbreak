@@ -1,8 +1,11 @@
 from django.conf.urls import patterns, url
+from rest_framework.routers import DefaultRouter
 
 from . import views
 
-urlpatterns = patterns(
+router = DefaultRouter()
+router.register(r'user', views.UserViewSet)
+urlpatterns = router.urls + patterns(
     '',
     url(
         r'^food/(?P<pk>\d+)/?$',
@@ -33,6 +36,11 @@ urlpatterns = patterns(
     ),
 
     url(
+        r'^order(/(?P<pay>pay))?/?$',
+        views.OrderView.as_view(),
+        name='order'
+    ),
+    url(
         r'^order/(?P<pk>\d+)/?$',
         views.OrderRetrieveView.as_view()
     ),
@@ -41,6 +49,11 @@ urlpatterns = patterns(
         views.OrderPriceView.as_view()
     ),
 
+    url(
+        r'^reservation/?$',
+        views.ReservationMultiView.as_view(),
+        name='user-reservation'
+    ),
     url(
         r'^reservation/(?P<pk>\d+)/?$',
         views.ReservationSingleView.as_view(),
@@ -106,36 +119,5 @@ urlpatterns = patterns(
     url(
         r'^storecategory/?$',
         views.StoreCategoryListView.as_view()
-    ),
-
-    url(
-        r'^token/?$',
-        views.UserTokenView.as_view()
-    ),
-
-    url(
-        r'^user/token/?$',
-        views.UserTokenUpdateView.as_view(),
-        name='user-token'
-    ),
-    url(
-        r'^user/register/?$',
-        views.UserRegisterView.as_view(),
-        name='user-registration'
-    ),
-    url(
-        r'^user/login/?$',
-        views.UserLoginView.as_view(),
-        name='user-login'
-    ),
-    url(
-        r'^user/reservation/?$',
-        views.ReservationMultiView.as_view(),
-        name='user-reservation'
-    ),
-    url(
-        r'^user/order(/(?P<pay>pay))?/?$',
-        views.OrderView.as_view(),
-        name='order'
     ),
 )
