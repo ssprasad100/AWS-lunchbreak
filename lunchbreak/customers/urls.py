@@ -36,7 +36,7 @@ urlpatterns = router.urls + patterns(
     ),
 
     url(
-        r'^order(/(?P<pay>pay))?/?$',
+        r'^order/?$',
         views.OrderView.as_view(),
         name='order'
     ),

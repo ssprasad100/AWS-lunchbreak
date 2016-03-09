@@ -9,8 +9,7 @@ from lunch.serializers import (FoodCategorySerializer, MultiFoodSerializer,
                                ShortStoreSerializer, SingleFoodSerializer)
 from lunch.views import (HolidayPeriodListViewBase, OpeningHoursListViewBase,
                          OpeningListViewBase, StoreCategoryListViewBase)
-from Lunchbreak.exceptions import LunchbreakException
-from rest_framework import filters, generics, mixins, status, viewsets
+from rest_framework import filters, generics, status, viewsets
 from rest_framework.decorators import list_route
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -108,29 +107,6 @@ class OrderView(generics.ListCreateAPIView):
         ).order_by(
             '-pickup'
         )
-
-    def create(self, request, pay=False, *args, **kwargs):
-        serializer_class = self.get_serializer_class()
-        serializer = serializer_class(
-            data=request.data,
-            context={
-                'user': request.user
-            }
-        )
-
-        if serializer.is_valid():
-            try:
-                if pay:
-                    pass
-
-                serializer.save()
-                return Response(
-                    data=serializer.data,
-                    status=status.HTTP_201_CREATED
-                )
-            except LunchbreakException as e:
-                return e.response
-        return BadRequest(serializer.errors)
 
 
 class OrderRetrieveView(generics.RetrieveAPIView):
@@ -382,21 +358,6 @@ class UserViewSet(viewsets.GenericViewSet):
                 return Response(
                     status=status.HTTP_200_OK
                 )
-        return BadRequest(serializer.errors)
-
-    @list_route(methods=['get'], authentication_classes=[CustomerAuthentication])
-    def reservation(self, request):
-        serializer = MultiUserTokenSerializer(
-            UserToken.objects.select_related(
-                'user',
-            ).filter(
-                user=self.request.user
-            ),
-            many=True
-        )
-        return Response(
-            serializer.data
-        )
         return BadRequest(serializer.errors)
 
 

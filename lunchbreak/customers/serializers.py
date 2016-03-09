@@ -126,6 +126,34 @@ class ShortOrderSerializer(serializers.ModelSerializer):
         many=True,
         write_only=True
     )
+    user = serializers.HiddenField(
+        default=serializers.CurrentUserDefault()
+    )
+
+    class Meta:
+        model = Order
+        fields = (
+            'id',
+            'store',
+            'pickup',
+            'paid',
+            'total',
+            'total_confirmed',
+            'orderedfood',
+            'status',
+            'description',
+            'user',
+        )
+        read_only_fields = (
+            'id',
+            'paid',
+            'total',
+            'total_confirmed',
+            'status',
+        )
+        write_only_fields = (
+            'description',
+        )
 
     def check_cost(self, cost_calculated, food, amount, cost_given):
         if math.ceil(
@@ -153,13 +181,12 @@ class ShortOrderSerializer(serializers.ModelSerializer):
         user_orderedfood = validated_data['orderedfood']
         store = validated_data['store']
         description = validated_data.get('description', '')
+        user = validated_data['user']
 
         if len(user_orderedfood) == 0:
             raise BadRequest('"orderedfood" is empty.')
 
         Store.is_open(store, pickup)
-
-        user = self.context['user']
 
         order = Order(
             user=user,
@@ -211,30 +238,6 @@ class ShortOrderSerializer(serializers.ModelSerializer):
 
         order.save()
         return order
-
-    class Meta:
-        model = Order
-        fields = (
-            'id',
-            'store',
-            'pickup',
-            'paid',
-            'total',
-            'total_confirmed',
-            'orderedfood',
-            'status',
-            'description',
-        )
-        read_only_fields = (
-            'id',
-            'paid',
-            'total',
-            'total_confirmed',
-            'status',
-        )
-        write_only_fields = (
-            'description',
-        )
 
 
 class OrderSerializer(serializers.ModelSerializer):
