@@ -155,89 +155,14 @@ class ShortOrderSerializer(serializers.ModelSerializer):
             'description',
         )
 
-    def check_cost(self, cost_calculated, food, amount, cost_given):
-        if math.ceil(
-                (
-                    cost_calculated * amount * (
-                        food.amount
-                        if food.foodtype.inputtype == INPUT_SI_SET
-                        else 1
-                    )
-                ) * 100) / 100.0 != float(cost_given):
-            raise CostCheckFailed()
-
-    def check_amount(self, food, amount):
-        if amount <= 0 or (
-            not float(amount).is_integer() and
-            food.foodtype.inputtype != INPUT_SI_VARIABLE
-        ) or (
-            food.quantity is not None and
-            not food.quantity.min <= amount <= food.quantity.max
-        ):
-            raise AmountInvalid()
-
     def create(self, validated_data):
         pickup = validated_data['pickup']
-        user_orderedfood = validated_data['orderedfood']
+        orderedfood_list = validated_data['orderedfood']
         store = validated_data['store']
-        description = validated_data.get('description', '')
         user = validated_data['user']
+        description = validated_data.get('description', '')
 
-        if len(user_orderedfood) == 0:
-            raise BadRequest('"orderedfood" is empty.')
-
-        Store.is_open(store, pickup)
-
-        order = Order(
-            user=user,
-            store=store,
-            pickup=pickup,
-            description=description
-        )
-        order.save()
-
-        try:
-            for f in user_orderedfood:
-                original = f['original']
-                if not original.is_orderable(pickup):
-                    raise MinDaysExceeded()
-                amount = f['amount'] if 'amount' in f else 1
-                self.check_amount(original, amount)
-                cost = f['cost']
-                comment = f['comment'] if 'comment' in f and original.commentable else ''
-
-                orderedfood = OrderedFood(
-                    amount=amount,
-                    cost=cost,
-                    order=order,
-                    original=original,
-                    comment=comment
-                )
-
-                if 'ingredients' in f:
-                    orderedfood.save()
-                    ingredients = f['ingredients']
-
-                    closest = Food.objects.closest(ingredients, original)
-                    self.check_amount(closest, amount)
-                    IngredientGroup.check_ingredients(ingredients, closest)
-                    cost_calculated = OrderedFood.calculate_cost(ingredients, closest)
-                    self.check_cost(cost_calculated, closest, amount, cost)
-
-                    orderedfood.cost = cost_calculated
-                    orderedfood.ingredients = ingredients
-                else:
-                    self.check_cost(original.cost, original, amount, cost)
-                    orderedfood.cost = original.cost
-                    orderedfood.is_original = True
-
-                orderedfood.save()
-        except:
-            order.delete()
-            raise
-
-        order.save()
-        return order
+        return Order.create(pickup, orderedfood_list, store, user, description)
 
 
 class OrderSerializer(serializers.ModelSerializer):

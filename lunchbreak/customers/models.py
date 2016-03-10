@@ -422,6 +422,87 @@ class Order(models.Model, DirtyFieldsMixin):
                 except Food.DoesNotExist:
                     pass
 
+    @staticmethod
+    def check_cost(cost_calculated, food, amount, cost_given):
+        if math.ceil(
+                (
+                    cost_calculated * amount * (
+                        food.amount
+                        if food.foodtype.inputtype == INPUT_SI_SET
+                        else 1
+                    )
+                ) * 100) / 100.0 != float(cost_given):
+            raise CostCheckFailed()
+
+    @staticmethod
+    def check_amount(food, amount):
+        if amount <= 0 or (
+            not float(amount).is_integer() and
+            food.foodtype.inputtype != INPUT_SI_VARIABLE
+        ) or (
+            food.quantity is not None and
+            not food.quantity.min <= amount <= food.quantity.max
+        ):
+            raise AmountInvalid()
+
+    @classmethod
+    def create(cls, pickup, orderedfood_list, store, user, description=''):
+        if len(orderedfood_list) == 0:
+            raise BadRequest('"orderedfood" is empty.')
+
+        Store.is_open(store, pickup)
+
+        order = Order(
+            user=user,
+            store=store,
+            pickup=pickup,
+            description=description
+        )
+        order.save()
+
+        try:
+            for f in orderedfood_list:
+                original = f['original']
+                if not original.is_orderable(pickup):
+                    raise MinDaysExceeded()
+                amount = f['amount'] if 'amount' in f else 1
+                cls.check_amount(original, amount)
+                cost = f['cost']
+                comment = f['comment'] if 'comment' in f and original.commentable else ''
+
+                orderedfood = OrderedFood(
+                    amount=amount,
+                    cost=cost,
+                    order=order,
+                    original=original,
+                    comment=comment
+                )
+
+                if 'ingredients' in f:
+                    orderedfood.save()
+                    ingredients = f['ingredients']
+
+                    closest = Food.objects.closest(ingredients, original)
+                    cls.check_amount(closest, amount)
+                    IngredientGroup.check_ingredients(ingredients, closest)
+                    cost_calculated = OrderedFood.calculate_cost(ingredients, closest)
+                    cls.check_cost(cost_calculated, closest, amount, cost)
+
+                    orderedfood.cost = cost_calculated
+                    orderedfood.ingredients = ingredients
+                else:
+                    cls.check_cost(original.cost, original, amount, cost)
+                    orderedfood.cost = original.cost
+                    orderedfood.is_original = True
+
+                orderedfood.save()
+        except:
+            order.delete()
+            raise
+
+        order.save()
+        return order
+
     def __unicode__(self):
         return '{user} {id}'.format(
             user=self.user,
