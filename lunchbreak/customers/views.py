@@ -306,9 +306,8 @@ class UserViewSet(viewsets.GenericViewSet):
         if serializer.is_valid():
             pin = request.data['pin']
             name = request.data.get('name', None)
-            email = request.data.get('email', None)
             token = request.data.get('token', None)
-            return User.login(phone, pin, name, email, token)
+            return User.login(phone, pin, name, token)
         elif(phone == DEMO_PHONE and
                 'token' in request.data and
                 'device' in request.data['token'] and

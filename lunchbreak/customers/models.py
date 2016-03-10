@@ -29,7 +29,6 @@ class User(models.Model):
     name = models.CharField(
         max_length=255
     )
-    email = models.EmailField()
     digits_id = models.CharField(
         unique=True,
         max_length=10,
@@ -109,7 +108,7 @@ class User(models.Model):
                 return Response(status=status.HTTP_201_CREATED)
 
     @staticmethod
-    def login(phone, pin, name, email, token):
+    def login(phone, pin, name, token):
         try:
             user = User.objects.get(phone=phone)
 
@@ -119,11 +118,6 @@ class User(models.Model):
             if name:
                 user.name = name
             elif not user.name:
-                return BadRequest().response
-
-            if email:
-                user.email = email
-            elif not user.email:
                 return BadRequest().response
 
             digits = Digits()

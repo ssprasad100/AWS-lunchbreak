@@ -177,7 +177,7 @@ class CustomersTests(LunchbreakTestCase):
         mock_login.return_value = mock_info
         mock_register.return_value = mock_info
 
-        url = reverse('user-registration')
+        url = reverse('user-register')
         content = {
             'phone': CustomersTests.VALID_PHONE
         }
@@ -192,7 +192,7 @@ class CustomersTests(LunchbreakTestCase):
 
     @mock.patch('customers.models.User.register')
     def test_registration_demo(self, mock_register):
-        url = reverse('user-registration')
+        url = reverse('user-register')
         content = {
             'phone': DEMO_PHONE
         }
@@ -205,7 +205,7 @@ class CustomersTests(LunchbreakTestCase):
 
     @mock.patch('customers.models.User.register')
     def test_registration_invalid(self, mock_register):
-        url = reverse('user-registration')
+        url = reverse('user-register')
         content = {
             'phone': CustomersTests.INVALID_PHONE
         }
@@ -251,18 +251,9 @@ class CustomersTests(LunchbreakTestCase):
         response = self.client.post(url, content, format=CustomersTests.FORMAT)
         self.assertEqualException(response, BadRequest)
         self.assertFalse(user.name)
-        self.assertFalse(user.email)
         self.assertFalse(user.confirmed_at)
 
-        # An email is required
         content['name'] = CustomersTests.NAME
-        response = self.client.post(url, content, format=CustomersTests.FORMAT)
-        self.assertEqualException(response, BadRequest)
-        self.assertFalse(user.name)
-        self.assertFalse(user.email)
-        self.assertFalse(user.confirmed_at)
-
-        content['email'] = CustomersTests.EMAIL
         response = self.client.post(url, content, format=CustomersTests.FORMAT)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         user.refresh_from_db()
@@ -271,11 +262,9 @@ class CustomersTests(LunchbreakTestCase):
         identifier = tokens[0].identifier
         self.assertTrue(user.confirmed_at)
         self.assertEqual(user.name, CustomersTests.NAME)
-        self.assertEqual(user.email, CustomersTests.EMAIL)
         confirmed_at = user.confirmed_at
 
         content['name'] = CustomersTests.NAME_ALTERNATE
-        content['email'] = CustomersTests.EMAIL_ALTERNATE
         response = self.client.post(url, content, format=CustomersTests.FORMAT)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         user.refresh_from_db()
@@ -283,7 +272,6 @@ class CustomersTests(LunchbreakTestCase):
         self.assertEqual(len(tokens), 1)
         self.assertNotEqual(identifier, tokens[0].identifier)
         self.assertEqual(user.name, CustomersTests.NAME_ALTERNATE)
-        self.assertEqual(user.email, CustomersTests.EMAIL_ALTERNATE)
         self.assertEqual(user.confirmed_at, confirmed_at)
 
         user.delete()
@@ -408,20 +396,26 @@ class CustomersTests(LunchbreakTestCase):
         self.food, original = self.clone_model(self.food)
 
         content = {}
+        view_data_patch = {
+            'patch': 'token'
+        }
+        view_data_put = {
+            'put': 'token'
+        }
         url = reverse('user-token')
 
         request = self.factory.patch(url, content, format=CustomersTests.FORMAT)
-        response = self.authenticate_request(request, views.UserTokenUpdateView)
+        response = self.authenticate_request(request, views.UserViewSet, view_data=view_data_patch)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         request = self.factory.put(url, content, format=CustomersTests.FORMAT)
-        response = self.authenticate_request(request, views.UserTokenUpdateView)
+        response = self.authenticate_request(request, views.UserViewSet, view_data=view_data_put)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         content['registration_id'] = 'blab'
 
         request = self.factory.patch(url, content, format=CustomersTests.FORMAT)
-        response = self.authenticate_request(request, views.UserTokenUpdateView)
+        response = self.authenticate_request(request, views.UserViewSet, view_data=view_data_patch)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.usertoken.refresh_from_db()
         self.assertEqual(self.usertoken.registration_id, content['registration_id'])
@@ -430,7 +424,7 @@ class CustomersTests(LunchbreakTestCase):
         self.usertoken.save()
 
         request = self.factory.put(url, content, format=CustomersTests.FORMAT)
-        response = self.authenticate_request(request, views.UserTokenUpdateView)
+        response = self.authenticate_request(request, views.UserViewSet, view_data=view_data_put)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.usertoken.refresh_from_db()
         self.assertEqual(self.usertoken.registration_id, content['registration_id'])
@@ -440,7 +434,7 @@ class CustomersTests(LunchbreakTestCase):
         content['service'] = SERVICE_GCM
 
         request = self.factory.patch(url, content, format=CustomersTests.FORMAT)
-        response = self.authenticate_request(request, views.UserTokenUpdateView)
+        response = self.authenticate_request(request, views.UserViewSet, view_data=view_data_patch)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.usertoken.refresh_from_db()
         self.assertEqual(self.usertoken.registration_id, content['registration_id'])
@@ -450,7 +444,7 @@ class CustomersTests(LunchbreakTestCase):
         self.usertoken.save()
 
         request = self.factory.put(url, content, format=CustomersTests.FORMAT)
-        response = self.authenticate_request(request, views.UserTokenUpdateView)
+        response = self.authenticate_request(request, views.UserViewSet, view_data=view_data_put)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.usertoken.refresh_from_db()
         self.assertEqual(self.usertoken.registration_id, content['registration_id'])
