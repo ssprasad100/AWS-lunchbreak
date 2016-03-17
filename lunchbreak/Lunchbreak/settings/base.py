@@ -23,14 +23,15 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
 
     'push_notifications',
     'rest_framework',
     'opbeat.contrib.django',
     'private_media',
-
     'compressor',
     'sass_processor',
+    'subdomains',
 
     'imagekit',
     'polaroid',
@@ -43,6 +44,7 @@ INSTALLED_APPS = (
 )
 
 MIDDLEWARE_CLASSES = (
+    'subdomains.middleware.SubdomainURLRoutingMiddleware',
     'opbeat.contrib.django.middleware.OpbeatAPMMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -54,7 +56,14 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.locale.LocaleMiddleware',
 )
 
-ROOT_URLCONF = 'Lunchbreak.urls'
+HOST = 'lunchbreak.eu'
+ROOT_URLCONF = 'Lunchbreak.urls.api'
+SUBDOMAIN_URLCONFS = {
+    None: 'Lunchbreak.urls.frontend',
+    'www': 'Lunchbreak.urls.frontend',
+    'api': 'Lunchbreak.urls.api',
+}
+SITE_ID = 1
 
 WSGI_APPLICATION = 'Lunchbreak.wsgi.application'
 
@@ -100,13 +109,14 @@ DATETIME_INPUT_FORMATS = (
     DATETIME_FORMAT_URL,
 )
 
-STATIC_RELATIVE = '/static/'
+STATIC_RELATIVE = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, STATIC_RELATIVE)
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'frontend/static'),
     os.path.join(BASE_DIR, 'frontend/scss')
 ]
+
 COMPRESS_ROOT = os.path.join(BASE_DIR, 'frontend/static')
 SASS_PROCESSOR_ROOT = os.path.join(BASE_DIR, 'frontend/static/css')
 COMPRESS_ENABLED = True

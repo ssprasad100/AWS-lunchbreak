@@ -9,7 +9,8 @@ Vagrant.configure('2') do |config|
     web.vm.network :forwarded_port, guest: 80, host: 8080, auto_correct: true
     web.vm.network :forwarded_port, guest: 443, host: 4430, auto_correct: true
 
-    web.vm.synced_folder 'salt/synced/', '/srv/'
+    web.vm.synced_folder 'salt/synced/', '/srv/', owner: "www-data", group: "www-data"
+    web.vm.synced_folder './', '/vagrant', owner: "www-data", group: "www-data"
 
 
     web.vm.provision :salt do |salt|

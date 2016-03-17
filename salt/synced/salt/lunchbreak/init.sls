@@ -89,7 +89,7 @@ github.com:
   cmd.run:
     - name: {{ pillar.virtualenv_path }}{{ branch }}/bin/python {{ project_path }}/manage.py migrate --noinput
     - env:
-      - LB_{{ branch }}_password: {{ secret_config.mysql.password }}
+      - MYSQL_PASSWORD: {{ secret_config.mysql.password }}
       - DJANGO_SETTINGS_BRANCH: {{ branch }}
     - require:
       - virtualenv: {{ branch }}-virtualenv

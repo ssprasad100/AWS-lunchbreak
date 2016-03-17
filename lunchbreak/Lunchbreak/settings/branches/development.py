@@ -1,7 +1,7 @@
 import os
 
+HOST = 'lunchbreak.dev'
 BRANCH = 'development'
-PORT = '8002'
 
 SSL = False
 DEBUG = True
@@ -12,6 +12,9 @@ MIDDLEWARE_CLASSES += (
     'lunch.middleware.PrintExceptionMiddleware',
     'qinspect.middleware.QueryInspectMiddleware',
 )
+
+APNS_HOST = 'gateway.sandbox.push.apple.com'
+APNS_FEEDBACK_HOST = 'feedback.sandbox.push.apple.com'
 
 BUSINESS_APNS_CERTIFICATE = '../salt/synced/salt/keys/apns/business_development.pem'
 CUSTOMERS_APNS_CERTIFICATE = '../salt/synced/salt/keys/apns/customers_development.pem'

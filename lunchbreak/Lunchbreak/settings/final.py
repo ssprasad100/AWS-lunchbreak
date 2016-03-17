@@ -1,7 +1,5 @@
 import os
 
-HOST = HOST if 'HOST' in globals() else '%s.lunchbreakapp.be' % BRANCH
-
 if 'ALLOWED_HOSTS' not in globals():
     ALLOWED_HOSTS = []
 
@@ -11,9 +9,8 @@ if HOST not in ALLOWED_HOSTS:
 DB_NAME = DB_NAME if 'DB_NAME' in globals() else 'LB_%s' % BRANCH
 DB_USER = DB_USER if 'DB_USER' in globals() else DB_NAME
 
-DB_PASS_VAR = 'LB_%s_password' % BRANCH
 if 'DB_PASS' not in globals():
-    DB_PASS = os.environ.get(DB_PASS_VAR)
+    DB_PASS = os.environ.get('MYSQL_PASSWORD')
 DB_PASS = DB_PASS if DB_PASS is not None else DB_NAME
 
 DATABASES = {

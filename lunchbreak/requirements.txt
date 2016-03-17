@@ -6,6 +6,7 @@ django-compressor==2.0
 django-dirtyfields==0.8.1
 django-phonenumber-field==0.7.2
 django-split-settings==0.1.2
+-e git+git://github.com/ezheidtmann/django-subdomains.git@3dbf57c8bc55fa6dd75327fae5d19af4cb6651a3#egg=django-subdomains
 djangorestframework==3.3.2
 djangorestframework-jsonp==1.0.0
 ecdsa==0.13
@@ -30,3 +31,5 @@ pillow==2.9.0
 uwsgidecorators==1.1.0
 -e git+git://github.com/AndreasBackx/django-sass-processor.git@7863c560851b0b1fe7c43795025f8b56a33762c7#egg=django-sass-processor
 gocardless-pro==0.2.0
+Jinja2==2.8
+Markupsafe==0.23

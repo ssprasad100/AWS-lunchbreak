@@ -58,6 +58,7 @@ uwsgi:
 {% call(branch, config) foreach_branch() %}
 
 {% set path = pillar.project_path + branch %}
+{% set path_project = path + '/lunchbreak' %}
 {% set secret_config = pillar.secret_branches[branch] %}
 
 {{ apps }}/{{ config.host }}.ini:
@@ -69,10 +70,9 @@ uwsgi:
     - defaults:
         branch: {{ branch }}
         host: {{ config.host }}
-        chdir: {{ path }}
+        chdir: {{ path_project }}
         virtualenv: {{ pillar.virtualenv_path }}{{ branch }}
-        password_var: LB_{{ branch }}_password
-        password: {{ secret_config.mysql.password }}
+        mysql_password: {{ secret_config.mysql.password }}
         business_apns_certificate: {{ pillar.certificate_directory }}{{ config.certificates.business }}
         customers_apns_certificate: {{ pillar.certificate_directory }}{{ config.certificates.customers }}
         opbeat_organization_id: {{ pillar.opbeat.organization_id }}

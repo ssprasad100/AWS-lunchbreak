@@ -2,8 +2,8 @@ innodb_buffer_pool_size: 100M
 
 branches:
   development:
-    path: /vagrant/lunchbreak
-    host: local.lunchbreakapp.be
+    path: /vagrant
+    host: lunchbreak.dev
     ssl: False
     certificates:
       business: business_development.pem

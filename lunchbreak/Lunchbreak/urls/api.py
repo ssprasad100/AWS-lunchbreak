@@ -11,19 +11,15 @@ urlpatterns = patterns(
     ),
     url(
         r'^business/',
-        include('business.urls')
+        include('business.urls.api')
     ),
     url(
         r'^customers/',
-        include('customers.urls')
+        include('customers.urls.api')
     ),
     url(
         r'^gocardless/',
         include('django_gocardless.urls')
-    ),
-    url(
-        r'^',
-        include('frontend.urls')
     ),
     url(
         r'^',

@@ -30,6 +30,8 @@ nginx:
 {% call(branch, config) foreach_branch() %}
 
 {% set path = pillar.project_path + branch %}
+{% set path_project = path + '/lunchbreak' %}
+
 
 {% if config.ssl %}
   {% set source = 'salt://nginx/files/server-https' %}
@@ -46,7 +48,7 @@ nginx:
     - defaults:
         upstream: {{ config.host | replace('.', '-') }}
         host: {{ config.host }}
-        path: {{ path }}
+        path: {{ path_project }}
         static_url: {{ pillar.static.url }}
         static_relative: {{ pillar.static.relative_path }}
         ssl_path: {{ nginx_dir }}/ssl
