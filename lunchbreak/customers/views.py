@@ -9,7 +9,7 @@ from lunch.serializers import (FoodCategorySerializer, MultiFoodSerializer,
                                ShortStoreSerializer, SingleFoodSerializer)
 from lunch.views import (HolidayPeriodListViewBase, OpeningHoursListViewBase,
                          OpeningListViewBase, StoreCategoryListViewBase)
-from rest_framework import filters, generics, status, viewsets
+from rest_framework import filters, generics, mixins, status, viewsets
 from rest_framework.decorators import list_route
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -92,14 +92,56 @@ class FoodCategoryRetrieveView(generics.RetrieveAPIView):
     ).all()
 
 
-class OrderView(generics.ListCreateAPIView):
+class CreateListRetrieveViewSet(mixins.CreateModelMixin,
+                                mixins.ListModelMixin,
+                                mixins.RetrieveModelMixin,
+                                viewsets.GenericViewSet):
 
-    """Place an order and list a specific or all of the user's orders."""
+    """ViewSet that provides `retrieve`, `create` and `list` actions.
 
-    authentication_classes = (CustomerAuthentication,)
-    serializer_class = ShortOrderSerializer
+    Allows for a `.retrieve_serializer_class`, `.create_serializer_class`,
+    `.list_serializer_class` to be used.
+    """
+
+    def get_action(self, attribute, action):
+        attribute += '_' + action
+        if self.action == action and hasattr(self, attribute):
+            return getattr(self, attribute)
+        return None
+
+    def get_attr_action(self, attribute):
+        for action in ['create', 'list', 'retrieve']:
+            value = self.get_action(attribute, action)
+            if value is not None:
+                return value
+        return getattr(self, attribute)
+
+    def get_serializer_class(self):
+        return self.get_attr_action('serializer_class')
 
     def get_queryset(self):
+        return self.get_attr_action('queryset')
+
+
+class OrderViewSet(CreateListRetrieveViewSet):
+
+    authentication_classes = (CustomerAuthentication,)
+
+    serializer_class_retrieve = OrderSerializer
+    serializer_class_create = ShortOrderSerializer
+    serializer_class_list = ShortOrderSerializer
+
+    queryset = Order.objects.all()
+    queryset_retrieve = Order.objects.select_related(
+        'store',
+    ).all()
+
+    @property
+    def queryset_create(self):
+        return self.queryset_list
+
+    @property
+    def queryset_list(self):
         return Order.objects.select_related(
             'store',
         ).filter(
@@ -108,23 +150,8 @@ class OrderView(generics.ListCreateAPIView):
             '-pickup'
         )
 
-
-class OrderRetrieveView(generics.RetrieveAPIView):
-
-    """Retrieve a single order."""
-
-    authentication_classes = (CustomerAuthentication,)
-    queryset = Order.objects.select_related(
-        'store',
-    ).all()
-    serializer_class = OrderSerializer
-
-
-class OrderPriceView(generics.CreateAPIView):
-    authentication_classes = (CustomerAuthentication,)
-    serializer_class = OrderedFoodPriceSerializer
-
-    def post(self, request, format=None):
+    @list_route(methods=['post'])
+    def price(self, request):
         """Return the price of the food."""
         serializer = OrderedFoodPriceSerializer(
             data=request.data,

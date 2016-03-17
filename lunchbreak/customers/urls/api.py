@@ -5,6 +5,7 @@ from .. import views
 
 router = DefaultRouter()
 router.register(r'user', views.UserViewSet)
+router.register(r'order', views.OrderViewSet)
 urlpatterns = router.urls + patterns(
     '',
     url(
@@ -33,20 +34,6 @@ urlpatterns = router.urls + patterns(
     url(
         r'^invite/(?P<pk>\d+)/?$',
         views.InviteSingleView.as_view()
-    ),
-
-    url(
-        r'^order/?$',
-        views.OrderView.as_view(),
-        name='order'
-    ),
-    url(
-        r'^order/(?P<pk>\d+)/?$',
-        views.OrderRetrieveView.as_view()
-    ),
-    url(
-        r'^order/price/?$',
-        views.OrderPriceView.as_view()
     ),
 
     url(
