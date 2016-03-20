@@ -6,7 +6,8 @@ from lunch.models import (BaseToken, Food, Ingredient, IngredientGroup,
                           IngredientRelation, Store)
 from rest_framework import serializers
 
-from .models import Employee, EmployeeToken, PasswordModel, Staff, StaffToken
+from .models import (AbstractPassword, Employee, EmployeeToken, Staff,
+                     StaffToken)
 
 
 class StoreSerializer(serializers.ModelSerializer):
@@ -88,7 +89,7 @@ class PasswordSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        model = PasswordModel
+        model = AbstractPassword
         fields = (
             'password',
             'password_reset',

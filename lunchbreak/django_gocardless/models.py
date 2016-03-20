@@ -365,9 +365,6 @@ class RedirectFlow(models.Model, GCCreateMixin):
     description = models.TextField(
         blank=True
     )
-    redirect_url = models.URLField(
-        blank=True
-    )
     scheme = models.CharField(
         max_length=255,
         blank=True,

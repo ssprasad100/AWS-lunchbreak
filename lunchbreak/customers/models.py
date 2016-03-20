@@ -448,7 +448,7 @@ class Order(models.Model, DirtyFieldsMixin):
     @classmethod
     def create(cls, pickup, orderedfood_list, store, user, description=''):
         if len(orderedfood_list) == 0:
-            raise BadRequest('"orderedfood" is empty.')
+            raise BadRequest('"orderedfood" cannot be empty.')
 
         Store.is_open(store, pickup)
 

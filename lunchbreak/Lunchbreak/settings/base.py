@@ -67,6 +67,7 @@ SITE_ID = 1
 
 WSGI_APPLICATION = 'Lunchbreak.wsgi.application'
 
+AUTH_USER_MODEL = 'business.Staff'
 PASSWORD_HASHERS = (
     'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
     'django.contrib.auth.hashers.SHA1PasswordHasher',
