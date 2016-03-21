@@ -26,7 +26,7 @@
         <div class="footer-right">
             <nav>
                 {% for foot in footer -%}
-                    <a href="{# {{ url(foot.url) }} #}">{{ foot.title }}</a>
+                    <a href="{{ url(foot.url) }}">{{ foot.title }}</a>
                 {%- endfor %}
             </nav>
         </div>

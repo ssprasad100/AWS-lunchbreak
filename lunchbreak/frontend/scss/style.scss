@@ -729,7 +729,7 @@ margin-top: 40px;
 	line-height: 200px;
 	padding: 0px 20px;
 }
-.partner, .partner:link, .partner:visited, .partner:active{
+.partner, .partner:link, .partner:visited, .partner:active {
 	margin: 0 50px;
 	vertical-align: middle;
 	border: 0;
@@ -743,7 +743,8 @@ input{
 	border: 0;
 	display: block;
 	outline: none;
-	&.text{
+
+	&[type='text'], &[type='password'] {
 		padding: 8px 22px;
 		border-width: 1px;
 		border-style: solid;

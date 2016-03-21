@@ -65,7 +65,8 @@ class Staff(AbstractBaseUser, AbstractPasswordReset):
     )
     email = models.EmailField(
         max_length=255,
-        unique=True
+        unique=True,
+        help_text='Email address'
     )
     first_name = models.CharField(
         max_length=255
@@ -88,7 +89,7 @@ class Staff(AbstractBaseUser, AbstractPasswordReset):
 
     @cached_property
     def name(self):
-        return self.store.name
+        return self.get_full_name()
 
     @cached_property
     def is_staff(self):

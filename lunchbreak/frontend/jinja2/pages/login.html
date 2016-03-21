@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% include 'include/menu.html' %}
+
+<div class="centered white box">
+    <div class="small bundle">
+        {% if not request.user.is_authenticated() %}
+            <h1>{{ login.title }}</h1>
+            <p class="center">{{ login.description }}</p>
+
+            {% if login.form.errors -%}
+                <h2 style="margin-bottom: 0;">{{ login.error.title }}</h2>
+                <p class="center">{{ login.error.description }}
+            {%- endif %}
+
+            <form action="" method="POST">
+                <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                {% for field in login.form -%}
+                    {% if field.name in login.form.errors %}
+                        <span class="signal"></span>
+                    {% endif %}
+                    {{ field }}
+                {%- endfor %}
+                <div class="center">
+                    <input type="submit" class="red button" value="{{ login.submit }}">
+                </div>
+            </form>
+        {% else %}
+            <p>Logged in!</p>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

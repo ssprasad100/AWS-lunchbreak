@@ -9,7 +9,8 @@ from jinja2 import Environment
 def environment(**kwargs):
     added_extensions = [
         'sass_processor.jinja2.ext.SassSrc',
-        'compressor.contrib.jinja2ext.CompressorExtension'
+        'compressor.contrib.jinja2ext.CompressorExtension',
+        'jinja2.ext.loopcontrols'
     ]
     if 'extensions' not in kwargs:
         kwargs['extensions'] = added_extensions

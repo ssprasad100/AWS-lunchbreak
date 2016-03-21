@@ -4,13 +4,16 @@ import collections
 import copy
 
 from django.conf import settings
+from django.contrib.auth import login, logout
 from django.core.mail import BadHeaderError, EmailMultiAlternatives
+from django.core.urlresolvers import reverse
+from django.shortcuts import HttpResponseRedirect, render
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import View
-from django.views.generic.base import TemplateResponseMixin
+from django.views.generic.base import RedirectView, TemplateResponseMixin
 
-from .forms import TrialForm
+from .forms import CustomAuthenticationForm, TrialForm
 
 language_flags = {
     'nl-be': 'be',
@@ -62,8 +65,17 @@ class PageView(View, TemplateResponseMixin):
 
         return context
 
+    def render(self, *args, **kwargs):
+        return render(
+            self.request,
+            self.template_name,
+            *args,
+            **kwargs
+        )
+
     def get(self, request, *args, **kwargs):
-        return self.render_to_response(
+        return self.render(
+            *args,
             context=self.context.copy(),
             **kwargs
         )
@@ -86,6 +98,16 @@ class Page(PageView):
                 {
                     'title': _('Pricing'),
                     'url': 'frontend-pricing',
+                },
+                {
+                    'title': _('Login'),
+                    'url': 'frontend-login',
+                    'authentication': False
+                },
+                {
+                    'title': _('Logout'),
+                    'url': 'frontend-logout',
+                    'authentication': True
                 },
                 {
                     'title': _('Free trial'),
@@ -112,7 +134,7 @@ class Page(PageView):
         'footer': [
             {
                 'title': _('Terms'),
-                'url': _('frontend-trial'),
+                'url': 'frontend-terms',
             }
         ]
     }
@@ -612,7 +634,7 @@ class TrialPage(Page):
         else:
             context['trial']['form'] = form
 
-        return self.render_to_response(
+        return self.render(
             context=context,
             **kwargs
         )
@@ -623,3 +645,62 @@ class TermsPage(Page):
     context = {
 
     }
+
+
+class LogoutView(RedirectView):
+    permanent = True
+    query_string = False
+    pattern_name = 'frontend-business'
+
+    def get_redirect_url(self, *args, **kwargs):
+        logout(self.request)
+        return super(LogoutView, self).get_redirect_url(*args, **kwargs)
+
+
+class LoginPage(Page):
+    template_name = 'pages/login.html'
+    context = {
+        'title': _('Lunchbreak: Login'),
+        'description': _('Login to your Lunchbreak business account.'),
+
+        'menu': {
+            'background': 'white'
+        },
+
+        'login': {
+            'title': _('Login'),
+            'description': _('Please login with your store\'s credentials.'),
+
+            'error': {
+                'title': _('Slight problem!'),
+                'description': _('Check for any errors in your entry and try again.'),
+            },
+
+            'submit': _('Login'),
+
+            'form': CustomAuthenticationForm()
+        }
+    }
+
+    def get(self, request, *args, **kwargs):
+        if request.user.is_authenticated():
+            return HttpResponseRedirect(reverse('frontend-business'))
+
+        self.context['login']['form'] = CustomAuthenticationForm()
+        return super(LoginPage, self).get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        if request.user.is_authenticated():
+            return HttpResponseRedirect(reverse('frontend-business'))
+
+        form = CustomAuthenticationForm(
+            data=request.POST
+        )
+
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)
+            return HttpResponseRedirect('frontend-business')
+
+        self.context['login']['form'] = form
+        return super(LoginPage, self).get(request, *args, **kwargs)

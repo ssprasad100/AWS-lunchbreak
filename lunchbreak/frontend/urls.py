@@ -20,6 +20,16 @@ urlpatterns = patterns(
         name='frontend-trial'
     ),
     url(
+        r'^login$',
+        views.LoginPage.as_view(),
+        name='frontend-login'
+    ),
+    url(
+        r'^logout$',
+        views.LogoutView.as_view(),
+        name='frontend-logout'
+    ),
+    url(
         r'^terms$',
         views.TermsPage.as_view(),
         name='frontend-terms'
