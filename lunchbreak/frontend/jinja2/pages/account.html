@@ -6,18 +6,33 @@
 
 <div class="centered white box">
     <div class="small bundle">
-            <form action="" method="POST">
-                <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
-                {% for field in account.form -%}
-                    {% if field.name in account.form.errors %}
-                        <span class="signal"></span>
-                    {% endif %}
-                    {{ field }}
-                {%- endfor %}
-                <div class="center">
-                    <input type="submit" class="red button" value="{{ account.submit }}">
-                </div>
-            </form>
+        <form action="" method="POST">
+            <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+            {% for field in account.form -%}
+                {% if field.name in account.form.errors %}
+                    <span class="signal"></span>
+                {% endif %}
+                {{ field }}
+            {%- endfor %}
+            <div class="center">
+                {% if not request.user.merchant %}
+                    <a href="{{ url(merchant.url) }}" alt="{{ merchant.alt }}">
+                        <span class="red center">{{ merchant.title }}</span>
+                    </a>
+                {% elif not request.user.merchant.organisation_id %}
+                    <a href="{{ url(merchant.url) }}" alt="{{ merchant.alt }}">
+                        <span class="red center">{{ merchant.retry }}</span>
+                    </a>
+                {% else %}
+                    <span>GoCardless linked!</span>
+                {% endif %}
+            </div>
+
+            <div class="center">
+                <input type="submit" class="red button" value="{{ account.submit }}">
+            </div>
+        </form>
+
     </div>
 </div>
 

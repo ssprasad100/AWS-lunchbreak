@@ -5,39 +5,49 @@ from . import views
 urlpatterns = patterns(
     '',
     url(
-        r'^customers$',
+        r'^customers/?$',
         views.CustomersPage.as_view(),
         name='frontend-customers'
     ),
     url(
-        r'^pricing$',
+        r'^pricing/?$',
         views.PricingPage.as_view(),
         name='frontend-pricing'
     ),
     url(
-        r'^trial$',
+        r'^trial/?$',
         views.TrialPage.as_view(),
         name='frontend-trial'
     ),
     url(
-        r'^login$',
+        r'^login/?$',
         views.LoginPage.as_view(),
         name='frontend-login'
     ),
     url(
-        r'^account$',
+        r'^account/(?P<status>\w+)/?$',
         views.AccountPage.as_view(),
         name='frontend-account'
     ),
     url(
-        r'^logout$',
+        r'^account/?$',
+        views.AccountPage.as_view(),
+        name='frontend-account'
+    ),
+    url(
+        r'^logout/?$',
         views.LogoutView.as_view(),
         name='frontend-logout'
     ),
     url(
-        r'^terms$',
+        r'^terms/?$',
         views.TermsPage.as_view(),
         name='frontend-terms'
+    ),
+    url(
+        r'^gocardless/?$',
+        views.GoCardlessAuthorisation.as_view(),
+        name='frontend-gocardless-authorisation'
     ),
     url(
         r'^',

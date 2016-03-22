@@ -5,6 +5,10 @@ from django.conf.urls.static import static
 urlpatterns = patterns(
     '',
     url(
+        r'^gocardless/',
+        include('django_gocardless.urls')
+    ),
+    url(
         r'^',
         include('frontend.urls')
     ),

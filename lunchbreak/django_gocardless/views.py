@@ -4,15 +4,17 @@ import json
 
 from django.conf import settings
 from django.http import HttpResponse
+from django.shortcuts import HttpResponseRedirect
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import RedirectView, View
 from gocardless_pro.resources import Event
 
 from .exceptions import (BadRequest, DjangoGoCardlessException,
+                         ExchangeAuthorisationException,
                          RedirectFlowAlreadyCompleted, RedirectFlowIncomplete)
 from .handlers import EventHandler
-from .models import RedirectFlow
+from .models import Merchant, RedirectFlow
 
 
 class RedirectFlowCreateView(RedirectView):
@@ -102,4 +104,42 @@ class WebhookView(CSRFExemptView):
 
         return HttpResponse(
             status=400
+        )
+
+
+class OAuthRedirectView(CSRFExemptView):
+
+    def get(self, request, *args, **kwargs):
+
+        for error in ['invalid_request', 'invalid_scope', 'unsupported_response_type']:
+            if error in request.GET:
+                return HttpResponseRedirect(
+                    settings.GOCARDLESS['app']['redirect']['error']
+                )
+
+        if 'access_denied' in request.GET:
+            return HttpResponseRedirect(
+                settings.GOCARDLESS['app']['redirect']['error']
+            )
+
+        code = request.GET.get('code', None)
+        state = request.GET.get('state', None)
+
+        if code is None or state is None:
+            return HttpResponseRedirect(
+                settings.GOCARDLESS['app']['redirect']['error']
+            )
+
+        try:
+            Merchant.exchange_authorisation(
+                state=state,
+                code=code
+            )
+        except ExchangeAuthorisationException:
+            return HttpResponseRedirect(
+                settings.GOCARDLESS['app']['redirect']['error']
+            )
+
+        return HttpResponseRedirect(
+            settings.GOCARDLESS['app']['redirect']['success']
         )

@@ -1,5 +1,6 @@
 import os
 
+from django.core.urlresolvers import reverse_lazy
 from django.utils.translation import ugettext_lazy as _
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
@@ -258,12 +259,25 @@ GOCARDLESS = {
     'access_token': 'fGTKM_yaVZ7t-twTQ9uTJWo6Gy6f8nK70kGgjQTr',
     'environment': 'sandbox',
     'app': {
-        'redirect_uri': 'lunchbreakstore://gocardless/redirect',
-        'client_id': '',
-        'client_secret': '',
+        'redirect_uri': 'https://rtfwypwcam.localtunnel.me/gocardless/redirect',
+        'client_id': '2J4hQVvc7nIdFkpYvM9luLD7JCJWf6Iwco3W7Hu5yFOcmBPNSzQq1XwXurg-B17i',
+        'client_secret': 'u9p1M_5j25uBmGdxTG04E-i_ZnCPERRHQkYFwqYZ3NCwUMyfraS-NJUg63WlJ18w',
+        #'client_secret': '4ImuvtnP-3QqynNnjU4v7uG6wLTb0G963nvJ2y4F',
         'oauth_baseurl': {
             'live': 'https://connect.gocardless.com',
             'sandbox': 'https://connect-sandbox.gocardless.com'
+        },
+        'redirect': {
+            'success': reverse_lazy(
+                'frontend-account', kwargs={
+                    'status': 'success'
+                }
+            ),
+            'error': reverse_lazy(
+                'frontend-account', kwargs={
+                    'status': 'error'
+                }
+            )
         }
     },
     'app_redirect': {

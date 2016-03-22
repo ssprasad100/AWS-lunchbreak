@@ -7,12 +7,13 @@ from django.conf import settings
 from django.contrib.auth import login, logout
 from django.core.mail import BadHeaderError, EmailMultiAlternatives
 from django.core.urlresolvers import reverse
-from django.shortcuts import HttpResponseRedirect, render
+from django.shortcuts import HttpResponseRedirect
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
-from django.views.generic import TemplateView, View
+from django.views.generic import TemplateView
 from django.views.generic.base import (ContextMixin, RedirectView,
                                        TemplateResponseMixin)
+from django_gocardless.models import Merchant
 
 from .forms import CustomAuthenticationForm, StaffForm, TrialForm
 
@@ -78,6 +79,7 @@ class PageView(TemplateView, TemplateResponseMixin, ContextMixin):
             )
 
         return context
+
 
 class Page(PageView):
     context = {
@@ -706,6 +708,24 @@ class LoginPage(Page):
         return super(LoginPage, self).get(request, *args, **kwargs)
 
 
+class GoCardlessAuthorisation(LoginRequiredMixin, RedirectView):
+    permanent = False
+    query_string = False
+
+    def get_redirect_url(self, *args, **kwargs):
+        staff = self.request.user
+        if staff.merchant is not None and staff.merchant.organisation_id:
+            return reverse('frontend-account')
+        merchant, url = Merchant.authorisation_link(
+            email=self.request.user.email
+        )
+
+        staff.merchant = merchant
+        staff.save()
+
+        return url
+
+
 class AccountPage(LoginRequiredMixin, Page):
     template_name = 'pages/account.html'
     context = {
@@ -719,6 +739,14 @@ class AccountPage(LoginRequiredMixin, Page):
         'account': {
             'form': None,
             'submit': _('Save')
+        },
+
+        'merchant': {
+            'title': _('Link GoCardless'),
+            'retry': _('Retry GoCardless linking'),
+            'alt': _('Link your bank account'),
+
+            'url': 'frontend-gocardless-authorisation'
         }
     }
 
@@ -734,11 +762,8 @@ class AccountPage(LoginRequiredMixin, Page):
             instance=request.user
         )
 
-        print request.POST
-        print request.user.store_id
-
         if form.is_valid():
-            staff = form.save()
+            form.save()
 
         self.context['account']['form'] = form
         kwargs['keep_form'] = True

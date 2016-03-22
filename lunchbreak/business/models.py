@@ -5,7 +5,7 @@ from django.db import models
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from lunch.config import TOKEN_IDENTIFIER_LENGTH
-from lunch.models import BaseToken, Store
+from lunch.models import BaseToken
 
 
 class AbstractPasswordReset(models.Model):
@@ -60,7 +60,7 @@ class StaffManager(BaseUserManager):
 
 class Staff(AbstractBaseUser, AbstractPasswordReset):
     store = models.ForeignKey(
-        Store,
+        'lunch.Store',
         on_delete=models.CASCADE,
         null=True
     )
@@ -76,6 +76,11 @@ class Staff(AbstractBaseUser, AbstractPasswordReset):
     last_name = models.CharField(
         max_length=255,
         help_text=_('Last name')
+    )
+    merchant = models.ForeignKey(
+        'django_gocardless.Merchant',
+        on_delete=models.SET_NULL,
+        null=True
     )
 
     is_superuser = models.BooleanField(

@@ -17,6 +17,7 @@ from .config import (CURRENCIES, MANDATE_STATUSES, PAYMENT_STATUSES,
 from .exceptions import ExchangeAuthorisationException
 from .mixins import GCCacheMixin, GCCreateMixin, GCCreateUpdateMixin
 from .utils import model_from_links
+from django.utils.translation import ugettext as _
 
 
 class Merchant(models.Model):
@@ -33,25 +34,30 @@ class Merchant(models.Model):
     '''
 
     access_token = models.CharField(
-        max_length=255
+        max_length=255,
+        blank=True
     )
     organisation_id = models.CharField(
-        max_length=255
+        max_length=255,
+        blank=True
     )
     state = models.CharField(
         max_length=56,
-        help_text='CSRF Token'
+        help_text='CSRF Token',
+        blank=True
     )
     created_at = models.DateTimeField(
         auto_now_add=True
     )
 
     def __unicode__(self):
-        return self.organisation_id
+        return self.organisation_id if self.organisation_id else _('In progress')
 
     @classmethod
     def authorisation_link(cls, email=None, initial_view='signup'):
-        state = get_random_string(length=56)
+        state = None
+        while state is None or cls.objects.filter(state=state).count() > 0:
+            state = get_random_string(length=56)
 
         merchant = cls.objects.create(
             state=state
@@ -60,7 +66,7 @@ class Merchant(models.Model):
         params = {
             'response_type': 'code',
             'client_id': settings.GOCARDLESS['app']['client_id'],
-            'scope': 'full_access',
+            'scope': 'read_write',
             'redirect_uri': settings.GOCARDLESS['app']['redirect_uri'],
             'state': merchant.state,
             'initial_view': initial_view
@@ -69,17 +75,20 @@ class Merchant(models.Model):
         if email is not None:
             params['prefill[email]'] = email
 
-        return '{baseurl}?{params}'.format(
+        url = '{baseurl}/oauth/authorize?{params}'.format(
             baseurl=settings.GOCARDLESS['app']['oauth_baseurl'][
                 settings.GOCARDLESS['environment']],
             params=urllib.urlencode(params)
         )
 
-    def exchange_authorisation(self, code):
+        return (merchant, url)
+
+    @classmethod
+    def exchange_authorisation(cls, state, code):
         data = {
             'grant_type': 'authorization_code',
             'code': code,
-            'redirect_uri': settings.GOCARDLESS['app']['redirect_url'],
+            'redirect_uri': settings.GOCARDLESS['app']['redirect_uri'],
             'client_id': settings.GOCARDLESS['app']['client_id'],
             'client_secret': settings.GOCARDLESS['app']['client_secret']
         }
@@ -95,13 +104,20 @@ class Merchant(models.Model):
         try:
             response_data = response.json()
 
-            if ('error' not in response_data and
-                    response_data.get('scope', None) == 'full_access'):
-                self.access_token = response_data['access_token']
-                self.organisation_id = response_data['organisation_id']
-                self.save()
+            if 'error' in response_data:
+                raise ExchangeAuthorisationException(response_data['error'])
+
+            if response_data.get('scope', None) == 'read_write':
+                merchant = cls.objects.get(state=state)
+                merchant.state = ''
+                merchant.access_token = response_data['access_token']
+                merchant.organisation_id = response_data['organisation_id']
+                merchant.save()
+                return merchant
             else:
-                raise ExchangeAuthorisationException()
+                raise ExchangeAuthorisationException('Scope not read_write.')
+        except cls.DoesNotExist:
+            raise ExchangeAuthorisationException()
         except ValueError:
             raise ExchangeAuthorisationException()
 

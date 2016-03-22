@@ -8,9 +8,6 @@ class EditOnly(admin.ModelAdmin):
     def has_add_permission(self, request, obj=None):
         return False
 
-    def has_delete_permission(self, request, obj=None):
-        return False
-
 
 @admin.register(Merchant)
 class MerchantAdmin(EditOnly):
