@@ -10,10 +10,11 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import HttpResponseRedirect, render
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
-from django.views.generic import View
-from django.views.generic.base import RedirectView, TemplateResponseMixin
+from django.views.generic import TemplateView, View
+from django.views.generic.base import (ContextMixin, RedirectView,
+                                       TemplateResponseMixin)
 
-from .forms import CustomAuthenticationForm, TrialForm
+from .forms import CustomAuthenticationForm, StaffForm, TrialForm
 
 language_flags = {
     'nl-be': 'be',
@@ -23,7 +24,17 @@ language_flags = {
 }
 
 
-class PageView(View, TemplateResponseMixin):
+class LoginRequiredMixin(object):
+
+    """Require users to login mixin."""
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated():
+            return HttpResponseRedirect(reverse('frontend-business'))
+        return super(LoginRequiredMixin, self).dispatch(request, *args, **kwargs)
+
+
+class PageView(TemplateView, TemplateResponseMixin, ContextMixin):
     template_name = None
     context = {}
 
@@ -31,6 +42,9 @@ class PageView(View, TemplateResponseMixin):
         self = super(PageView, cls).__new__(cls)
         cls.context = self.update_context()
         return self
+
+    def get_context_data(self, **kwargs):
+        return self.context
 
     @classmethod
     def update(cls, default, new):
@@ -65,22 +79,6 @@ class PageView(View, TemplateResponseMixin):
 
         return context
 
-    def render(self, *args, **kwargs):
-        return render(
-            self.request,
-            self.template_name,
-            *args,
-            **kwargs
-        )
-
-    def get(self, request, *args, **kwargs):
-        return self.render(
-            *args,
-            context=self.context.copy(),
-            **kwargs
-        )
-
-
 class Page(PageView):
     context = {
         'title': _('Lunchbreak'),
@@ -103,6 +101,11 @@ class Page(PageView):
                     'title': _('Login'),
                     'url': 'frontend-login',
                     'authentication': False
+                },
+                {
+                    'title': _('Account'),
+                    'url': 'frontend-account',
+                    'authentication': True
                 },
                 {
                     'title': _('Logout'),
@@ -647,7 +650,7 @@ class TermsPage(Page):
     }
 
 
-class LogoutView(RedirectView):
+class LogoutView(LoginRequiredMixin, RedirectView):
     permanent = True
     query_string = False
     pattern_name = 'frontend-business'
@@ -690,9 +693,6 @@ class LoginPage(Page):
         return super(LoginPage, self).get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        if request.user.is_authenticated():
-            return HttpResponseRedirect(reverse('frontend-business'))
-
         form = CustomAuthenticationForm(
             data=request.POST
         )
@@ -700,7 +700,47 @@ class LoginPage(Page):
         if form.is_valid():
             user = form.get_user()
             login(request, user)
-            return HttpResponseRedirect('frontend-business')
+            return HttpResponseRedirect(reverse('frontend-business'))
 
         self.context['login']['form'] = form
         return super(LoginPage, self).get(request, *args, **kwargs)
+
+
+class AccountPage(LoginRequiredMixin, Page):
+    template_name = 'pages/account.html'
+    context = {
+        'title': _('Account settings'),
+        'description': _('Update your Lunchbreak account settings.'),
+
+        'menu': {
+            'background': 'white'
+        },
+
+        'account': {
+            'form': None,
+            'submit': _('Save')
+        }
+    }
+
+    def get_context_data(self, **kwargs):
+        context = super(AccountPage, self).get_context_data(**kwargs)
+        if not kwargs.get('keep_form', False):
+            context['account']['form'] = StaffForm(instance=self.request.user)
+        return context
+
+    def post(self, request, *args, **kwargs):
+        form = StaffForm(
+            request.POST,
+            instance=request.user
+        )
+
+        print request.POST
+        print request.user.store_id
+
+        if form.is_valid():
+            staff = form.save()
+
+        self.context['account']['form'] = form
+        kwargs['keep_form'] = True
+
+        return super(AccountPage, self).get(request, *args, **kwargs)

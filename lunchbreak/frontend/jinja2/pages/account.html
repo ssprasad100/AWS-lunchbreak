@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% include 'include/menu.html' %}
+
+<div class="centered white box">
+    <div class="small bundle">
+            <form action="" method="POST">
+                <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                {% for field in account.form -%}
+                    {% if field.name in account.form.errors %}
+                        <span class="signal"></span>
+                    {% endif %}
+                    {{ field }}
+                {%- endfor %}
+                <div class="center">
+                    <input type="submit" class="red button" value="{{ account.submit }}">
+                </div>
+            </form>
+    </div>
+</div>
+
+{% endblock %}

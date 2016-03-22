@@ -3,6 +3,7 @@ from django.contrib.auth.hashers import check_password, make_password
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models
 from django.utils.functional import cached_property
+from django.utils.translation import ugettext_lazy as _
 from lunch.config import TOKEN_IDENTIFIER_LENGTH
 from lunch.models import BaseToken, Store
 
@@ -66,13 +67,15 @@ class Staff(AbstractBaseUser, AbstractPasswordReset):
     email = models.EmailField(
         max_length=255,
         unique=True,
-        help_text='Email address'
+        help_text=_('Email address')
     )
     first_name = models.CharField(
-        max_length=255
+        max_length=255,
+        help_text=_('First name')
     )
     last_name = models.CharField(
-        max_length=255
+        max_length=255,
+        help_text=_('Last name')
     )
 
     is_superuser = models.BooleanField(

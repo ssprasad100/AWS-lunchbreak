@@ -1,7 +1,27 @@
+from business.models import Staff
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 from django.utils.translation import ugettext_lazy as _
 from phonenumber_field.formfields import PhoneNumberField
+
+
+class PlaceholderMixin(object):
+
+    def __init__(self, *args, **kwargs):
+        super(PlaceholderMixin, self).__init__(*args, **kwargs)
+        has_help_texts = hasattr(self.Meta, 'help_texts')
+
+        for field_name in self.fields:
+            field = self.fields.get(field_name)
+            if field:
+                placeholder = self.Meta.help_texts[field_name] \
+                    if has_help_texts and field_name in self.Meta.help_texts \
+                    else field.help_text
+                field.widget.attrs.update(
+                    {
+                        'placeholder': placeholder
+                    }
+                )
 
 
 class TrialForm(forms.Form):
@@ -45,21 +65,14 @@ class TrialForm(forms.Form):
     )
 
 
-class CustomAuthenticationForm(AuthenticationForm):
+class StaffForm(PlaceholderMixin, forms.ModelForm):
 
-    def __init__(self, *args, **kwargs):
-        super(CustomAuthenticationForm, self).__init__(*args, **kwargs)
+    class Meta:
+        model = Staff
+        fields = ['email', 'first_name', 'last_name']
 
-        for field_name in self.fields:
-            field = self.fields.get(field_name)
-            if field:
-                placeholder = self.Meta.help_texts[field_name] \
-                    if field_name in self.Meta.help_texts else field.help_text
-                field.widget.attrs.update(
-                    {
-                        'placeholder': placeholder
-                    }
-                )
+
+class CustomAuthenticationForm(PlaceholderMixin, AuthenticationForm):
 
     class Meta:
         help_texts = {

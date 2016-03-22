@@ -744,7 +744,7 @@ input{
 	display: block;
 	outline: none;
 
-	&[type='text'], &[type='password'] {
+	&[type='text'], &[type='password'], &[type='email'] {
 		padding: 8px 22px;
 		border-width: 1px;
 		border-style: solid;

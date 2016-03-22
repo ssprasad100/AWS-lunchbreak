@@ -25,6 +25,11 @@ urlpatterns = patterns(
         name='frontend-login'
     ),
     url(
+        r'^account$',
+        views.AccountPage.as_view(),
+        name='frontend-account'
+    ),
+    url(
         r'^logout$',
         views.LogoutView.as_view(),
         name='frontend-logout'
