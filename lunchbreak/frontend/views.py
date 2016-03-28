@@ -714,7 +714,7 @@ class GoCardlessAuthorisation(LoginRequiredMixin, RedirectView):
 
     def get_redirect_url(self, *args, **kwargs):
         staff = self.request.user
-        if staff.merchant is not None and staff.merchant.organisation_id:
+        if staff.is_merchant:
             return reverse('frontend-account')
         merchant, url = Merchant.authorisation_link(
             email=self.request.user.email

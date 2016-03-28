@@ -8,20 +8,31 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils import timezone
 from django.utils.functional import cached_property
-from lunch.config import COST_GROUP_ADDITIONS, COST_GROUP_BOTH, INPUT_SI_SET
+from django.utils.translation import ugettext as _
+from django_gocardless.models import Payment, RedirectFlow
+from lunch.config import (COST_GROUP_ADDITIONS, COST_GROUP_BOTH, INPUT_SI_SET,
+                          INPUT_SI_VARIABLE)
 from lunch.exceptions import BadRequest
-from lunch.models import BaseToken, Food, Ingredient, Store
+from lunch.models import BaseToken, Food, Ingredient, IngredientGroup, Store
 from lunch.responses import DoesNotExist
 from phonenumber_field.modelfields import PhoneNumberField
 from push_notifications.models import SERVICE_INACTIVE
 from rest_framework import status
 from rest_framework.response import Response
 
-from .config import *  # NOQA
+from .config import (GROUP_BILLING_SEPARATE, GROUP_BILLINGS,
+                     INVITE_STATUS_ACCEPTED, INVITE_STATUS_WAITING,
+                     INVITE_STATUSES, ORDER_ENDED, ORDER_STATUS_PLACED,
+                     ORDER_STATUS_WAITING, ORDER_STATUSES, PAYMENT_METHOD_CASH,
+                     PAYMENT_METHOD_GOCARDLESS, PAYMENT_METHODS,
+                     RESERVATION_STATUS_DENIED, RESERVATION_STATUS_PLACED,
+                     RESERVATION_STATUSES)
 from .digits import Digits
-from .exceptions import (AlreadyMembership, DigitsException,
-                         InvalidStatusChange, MaxSeatsExceeded,
-                         NoInvitePermissions, UserDisabled)
+from .exceptions import (AlreadyMembership, AmountInvalid, CostCheckFailed,
+                         DigitsException, InvalidStatusChange,
+                         MaxSeatsExceeded, MinDaysExceeded,
+                         NoInvitePermissions, NoPaymentLink,
+                         OnlinePaymentDisabled, UserDisabled)
 
 
 class User(models.Model):
@@ -49,6 +60,13 @@ class User(models.Model):
     )
     enabled = models.BooleanField(
         default=True
+    )
+
+    paymentlinks = models.ManyToManyField(
+        Store,
+        through='PaymentLink',
+        through_fields=('user', 'store',),
+        blank=True
     )
 
     def __unicode__(self):
@@ -141,6 +159,43 @@ class User(models.Model):
             return DoesNotExist()
 
 
+class PaymentLink(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE
+    )
+    store = models.ForeignKey(
+        Store,
+        on_delete=models.CASCADE
+    )
+
+    redirectflow = models.ForeignKey(
+        RedirectFlow,
+        on_delete=models.CASCADE
+    )
+
+    class Meta:
+        unique_together = ('user', 'store',)
+
+    @classmethod
+    def create(cls, user, store):
+        if not store.staff.is_merchant:
+            raise OnlinePaymentDisabled()
+
+        merchant = store.staff.merchant
+
+        redirectflow = RedirectFlow.create(
+            description=_('Lunchbreak orders'),
+            merchant=merchant
+        )
+
+        return cls.objects.create(
+            user=user,
+            store=store,
+            redirectflow=redirectflow
+        )
+
+
 class Invite(models.Model, DirtyFieldsMixin):
     group = models.ForeignKey(
         'Group',
@@ -163,7 +218,7 @@ class Invite(models.Model, DirtyFieldsMixin):
     )
     status = models.IntegerField(
         default=INVITE_STATUS_WAITING,
-        choices=INVITE_STATUS_CHOICES
+        choices=INVITE_STATUSES
     )
 
     class Meta:
@@ -222,7 +277,7 @@ class Group(models.Model):
     )
     billing = models.IntegerField(
         default=GROUP_BILLING_SEPARATE,
-        choices=GROUP_BILLING_CHOICES
+        choices=GROUP_BILLINGS
     )
     users = models.ManyToManyField(
         User,
@@ -320,7 +375,7 @@ class Reservation(models.Model):
     )
 
     status = models.IntegerField(
-        choices=RESERVATION_STATUS,
+        choices=RESERVATION_STATUSES,
         default=RESERVATION_STATUS_PLACED
     )
 
@@ -352,11 +407,8 @@ class Order(models.Model, DirtyFieldsMixin):
         verbose_name='Time of pickup'
     )
     status = models.PositiveIntegerField(
-        choices=ORDER_STATUS,
+        choices=ORDER_STATUSES,
         default=ORDER_STATUS_PLACED
-    )
-    paid = models.BooleanField(
-        default=False
     )
     total = models.DecimalField(
         decimal_places=2,
@@ -377,6 +429,15 @@ class Order(models.Model, DirtyFieldsMixin):
         Reservation,
         null=True,
         blank=True
+    )
+    payment_method = models.IntegerField(
+        choices=PAYMENT_METHODS,
+        default=PAYMENT_METHOD_CASH
+    )
+    payment = models.ForeignKey(
+        Payment,
+        on_delete=models.SET_NULL,
+        null=True
     )
 
     def save(self, *args, **kwargs):
@@ -408,9 +469,6 @@ class Order(models.Model, DirtyFieldsMixin):
                         ),
                         sound='default'
                     )
-
-                if self.status == ORDER_STATUS_COMPLETED:
-                    self.paid = True
 
         super(Order, self).save(*args, **kwargs)
 
@@ -446,17 +504,23 @@ class Order(models.Model, DirtyFieldsMixin):
             raise AmountInvalid()
 
     @classmethod
-    def create(cls, pickup, orderedfood_list, store, user, description=''):
+    def create(cls, pickup, orderedfood_list, store, user,
+               payment_method=PAYMENT_METHOD_CASH, description=''):
         if len(orderedfood_list) == 0:
             raise BadRequest('"orderedfood" cannot be empty.')
 
         Store.is_open(store, pickup)
 
+        if payment_method == PAYMENT_METHOD_GOCARDLESS and \
+                not PaymentLink.objects.filter(user=user, store=store).exists():
+            raise NoPaymentLink()
+
         order = Order(
             user=user,
             store=store,
             pickup=pickup,
-            description=description
+            description=description,
+            payment_method=payment_method
         )
         order.save()
 

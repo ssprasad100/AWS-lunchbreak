@@ -182,9 +182,16 @@ class CustomersTests(LunchbreakTestCase):
             'phone': CustomersTests.VALID_PHONE
         }
 
+        view = views.UserViewSet
+        view_data = {
+            'post': 'register'
+        }
+
         # As long as the name is not in the database, it should return 201
         for i in range(0, 2):
-            response = self.client.post(url, content, format=CustomersTests.FORMAT)
+            request = self.factory.post(url, content)
+            response = self.as_view(request, view, view_data)
+            response.render()
             self.assertEqual(response.content, '')
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -197,8 +204,15 @@ class CustomersTests(LunchbreakTestCase):
             'phone': DEMO_PHONE
         }
 
+        view = views.UserViewSet
+        view_data = {
+            'post': 'register'
+        }
+
         # The demo should always return 200
-        response = self.client.post(url, content, format=CustomersTests.FORMAT)
+        request = self.factory.post(url, content)
+        response = self.as_view(request, view, view_data)
+        response.render()
         self.assertEqual(response.content, '')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertFalse(mock_register.called)
@@ -210,13 +224,20 @@ class CustomersTests(LunchbreakTestCase):
             'phone': CustomersTests.INVALID_PHONE
         }
 
-        response = self.client.post(url, content, format=CustomersTests.FORMAT)
+        view = views.UserViewSet
+        view_data = {
+            'post': 'register'
+        }
+
+        request = self.factory.post(url, content)
+        response = self.as_view(request, view, view_data)
         self.assertEqualException(response, BadRequest)
         self.assertFalse(mock_register.called)
 
         content = {}
 
-        response = self.client.post(url, content, format=CustomersTests.FORMAT)
+        request = self.factory.post(url, content)
+        response = self.as_view(request, view, view_data)
         self.assertEqualException(response, BadRequest)
         self.assertFalse(mock_register.called)
 
@@ -239,8 +260,14 @@ class CustomersTests(LunchbreakTestCase):
             }
         }
 
+        view = views.UserViewSet
+        view_data = {
+            'post': 'login'
+        }
+
         # You cannot login without registering first
-        response = self.client.post(url, content, format=CustomersTests.FORMAT)
+        request = self.factory.post(url, content)
+        response = self.as_view(request, view, view_data)
         self.assertEqualException(response, DoesNotExist)
 
         user = User.objects.create(
@@ -248,13 +275,15 @@ class CustomersTests(LunchbreakTestCase):
         )
 
         # A username is required
-        response = self.client.post(url, content, format=CustomersTests.FORMAT)
+        request = self.factory.post(url, content)
+        response = self.as_view(request, view, view_data)
         self.assertEqualException(response, BadRequest)
         self.assertFalse(user.name)
         self.assertFalse(user.confirmed_at)
 
         content['name'] = CustomersTests.NAME
-        response = self.client.post(url, content, format=CustomersTests.FORMAT)
+        request = self.factory.post(url, content)
+        response = self.as_view(request, view, view_data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         user.refresh_from_db()
         tokens = UserToken.objects.filter(user=user)
@@ -265,7 +294,8 @@ class CustomersTests(LunchbreakTestCase):
         confirmed_at = user.confirmed_at
 
         content['name'] = CustomersTests.NAME_ALTERNATE
-        response = self.client.post(url, content, format=CustomersTests.FORMAT)
+        request = self.factory.post(url, content)
+        response = self.as_view(request, view, view_data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         user.refresh_from_db()
         tokens = UserToken.objects.filter(user=user)
@@ -290,19 +320,27 @@ class CustomersTests(LunchbreakTestCase):
             }
         }
 
+        view = views.UserViewSet
+        view_data = {
+            'post': 'login'
+        }
+
         # Demo account is only allowed when it's in the database
-        response = self.client.post(url, content, format=CustomersTests.FORMAT)
+        request = self.factory.post(url, content)
+        response = self.as_view(request, view, view_data)
         self.assertEqualException(response, BadRequest)
 
         demoPin = '1337'
         demo = User.objects.create(phone=DEMO_PHONE, request_id=demoPin, digits_id=DEMO_DIGITS_ID)
 
         # Invalid pin
-        response = self.client.post(url, content, format=CustomersTests.FORMAT)
+        request = self.factory.post(url, content)
+        response = self.as_view(request, view, view_data)
         self.assertEqualException(response, BadRequest)
 
         content['pin'] = demoPin
-        response = self.client.post(url, content, format=CustomersTests.FORMAT)
+        request = self.factory.post(url, content)
+        response = self.as_view(request, view, view_data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(UserToken.objects.filter(user=demo).count(), 1)
 
@@ -316,22 +354,22 @@ class CustomersTests(LunchbreakTestCase):
         unheart_kwargs = {'option': 'unheart', 'pk': self.store.id}
         unheart_url = reverse('store-heart', kwargs=unheart_kwargs)
 
-        request = self.factory.patch(heart_url, {}, format=CustomersTests.FORMAT)
+        request = self.factory.patch(heart_url, {})
         response = self.authenticate_request(request, views.StoreHeartView, **heart_kwargs)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Heart.objects.filter(user=self.user).count(), 1)
 
-        request = self.factory.patch(heart_url, {}, format=CustomersTests.FORMAT)
+        request = self.factory.patch(heart_url, {})
         response = self.authenticate_request(request, views.StoreHeartView, **heart_kwargs)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(Heart.objects.filter(user=self.user).count(), 1)
 
-        request = self.factory.patch(unheart_url, {}, format=CustomersTests.FORMAT)
+        request = self.factory.patch(unheart_url, {})
         response = self.authenticate_request(request, views.StoreHeartView, **unheart_kwargs)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(Heart.objects.filter(user=self.user).count(), 0)
 
-        request = self.factory.patch(unheart_url, {}, format=CustomersTests.FORMAT)
+        request = self.factory.patch(unheart_url, {})
         self.assertRaises(
             Http404, self.authenticate_request, request, views.StoreHeartView, **unheart_kwargs)
 
@@ -343,7 +381,7 @@ class CustomersTests(LunchbreakTestCase):
 
     def test_order(self):
         '''
-        Test whether an order's total, paid and marked Food's are deleted on save.
+        Test an order's total and whether marked Food's are deleted on save.
         '''
 
         self.food, original = self.clone_model(self.food)
@@ -364,22 +402,17 @@ class CustomersTests(LunchbreakTestCase):
                 }
             ]
         }
-        url = reverse('order')
+        url = reverse('order-list')
 
-        request = self.factory.post(url, content, format=CustomersTests.FORMAT)
-        response = self.authenticate_request(request, views.OrderView)
+        view_data = {
+            'post': 'create'
+        }
+
+        request = self.factory.post(url, content)
+        response = self.authenticate_request(request, views.OrderViewSet, view_data=view_data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         order = Order.objects.get(id=response.data['id'])
         self.assertEqual(order.total, original.cost * 2)
-        self.assertFalse(order.paid)
-
-        order.status = ORDER_STATUS_COMPLETED
-        order.save()
-        self.assertTrue(order.paid)
-
-        request = self.factory.post(url, content, format=CustomersTests.FORMAT)
-        response = self.authenticate_request(request, views.OrderView)
-        order = Order.objects.get(id=response.data['id'])
 
         original.delete()
         self.assertTrue(original.deleted)
@@ -404,17 +437,17 @@ class CustomersTests(LunchbreakTestCase):
         }
         url = reverse('user-token')
 
-        request = self.factory.patch(url, content, format=CustomersTests.FORMAT)
+        request = self.factory.patch(url, content)
         response = self.authenticate_request(request, views.UserViewSet, view_data=view_data_patch)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        request = self.factory.put(url, content, format=CustomersTests.FORMAT)
+        request = self.factory.put(url, content)
         response = self.authenticate_request(request, views.UserViewSet, view_data=view_data_put)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         content['registration_id'] = 'blab'
 
-        request = self.factory.patch(url, content, format=CustomersTests.FORMAT)
+        request = self.factory.patch(url, content)
         response = self.authenticate_request(request, views.UserViewSet, view_data=view_data_patch)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.usertoken.refresh_from_db()
@@ -423,7 +456,7 @@ class CustomersTests(LunchbreakTestCase):
         self.usertoken.registration_id = 'else'
         self.usertoken.save()
 
-        request = self.factory.put(url, content, format=CustomersTests.FORMAT)
+        request = self.factory.put(url, content)
         response = self.authenticate_request(request, views.UserViewSet, view_data=view_data_put)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.usertoken.refresh_from_db()
@@ -433,7 +466,7 @@ class CustomersTests(LunchbreakTestCase):
         self.usertoken.save()
         content['service'] = SERVICE_GCM
 
-        request = self.factory.patch(url, content, format=CustomersTests.FORMAT)
+        request = self.factory.patch(url, content)
         response = self.authenticate_request(request, views.UserViewSet, view_data=view_data_patch)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.usertoken.refresh_from_db()
@@ -443,7 +476,7 @@ class CustomersTests(LunchbreakTestCase):
         self.usertoken.service = SERVICE_APNS
         self.usertoken.save()
 
-        request = self.factory.put(url, content, format=CustomersTests.FORMAT)
+        request = self.factory.put(url, content)
         response = self.authenticate_request(request, views.UserViewSet, view_data=view_data_put)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.usertoken.refresh_from_db()
@@ -467,19 +500,19 @@ class CustomersTests(LunchbreakTestCase):
             'seats': 0
         }
 
-        request = self.factory.post(url, content, format=CustomersTests.FORMAT)
+        request = self.factory.post(url, content)
         response = self.authenticate_request(request, views.ReservationMultiView)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         content['seats'] = self.store.seats_max + 1
 
-        request = self.factory.post(url, content, format=CustomersTests.FORMAT)
+        request = self.factory.post(url, content)
         response = self.authenticate_request(request, views.ReservationMultiView)
         self.assertEqualException(response, MaxSeatsExceeded)
 
         content['seats'] = self.store.seats_max
 
-        request = self.factory.post(url, content, format=CustomersTests.FORMAT)
+        request = self.factory.post(url, content)
         response = self.authenticate_request(request, views.ReservationMultiView)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -512,7 +545,7 @@ class CustomersTests(LunchbreakTestCase):
                 attribute: value
             }
 
-            request = self.factory.patch(url, content, format=CustomersTests.FORMAT)
+            request = self.factory.patch(url, content)
             response = self.authenticate_request(request, views.ReservationSingleView, **kwargs)
             self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -527,7 +560,7 @@ class CustomersTests(LunchbreakTestCase):
                 'status': status_allowed
             }
 
-            request = self.factory.patch(url, content, format=CustomersTests.FORMAT)
+            request = self.factory.patch(url, content)
             response = self.authenticate_request(request, views.ReservationSingleView, **kwargs)
             self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -537,7 +570,7 @@ class CustomersTests(LunchbreakTestCase):
             reservation.status = status_original
             reservation.save()
 
-        for tuple_denied in RESERVATION_STATUS:
+        for tuple_denied in RESERVATION_STATUSES:
             if tuple_denied in RESERVATION_STATUS_USER:
                 continue
 
@@ -548,7 +581,7 @@ class CustomersTests(LunchbreakTestCase):
                 'status': status_denied
             }
 
-            request = self.factory.patch(url, content, format=CustomersTests.FORMAT)
+            request = self.factory.patch(url, content)
             response = self.authenticate_request(request, views.ReservationSingleView, **kwargs)
             self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 

@@ -225,7 +225,6 @@ class ShortOrderSerializer(serializers.ModelSerializer):
             'placed',
             'pickup',
             'status',
-            'paid',
             'total',
             'total_confirmed',
         )
@@ -234,7 +233,6 @@ class ShortOrderSerializer(serializers.ModelSerializer):
             'user',
             'placed',
             'pickup',
-            'paid',
             'total',
             'total_confirmed',
         )
@@ -293,7 +291,6 @@ class OrderSerializer(ShortOrderSerializer):
             'user',
             'placed',
             'pickup',
-            'paid',
             'total',
             'orderedfood',
             'description',

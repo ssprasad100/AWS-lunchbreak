@@ -5,10 +5,11 @@ import urllib
 import requests
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.crypto import get_random_string
 from django.utils.functional import cached_property
+from django.utils.translation import ugettext as _
+from subdomains.utils import reverse
 
 from .config import (CURRENCIES, MANDATE_STATUSES, PAYMENT_STATUSES,
                      PAYOUT_STATUSES, SCHEMES, SUBSCRIPTION_DAY_OF_MONTH,
@@ -17,7 +18,6 @@ from .config import (CURRENCIES, MANDATE_STATUSES, PAYMENT_STATUSES,
 from .exceptions import ExchangeAuthorisationException
 from .mixins import GCCacheMixin, GCCreateMixin, GCCreateUpdateMixin
 from .utils import model_from_links
-from django.utils.translation import ugettext as _
 
 
 class Merchant(models.Model):
@@ -290,9 +290,11 @@ class Mandate(models.Model, GCCacheMixin):
         default=MANDATE_STATUSES[0][0]
     )
 
-    customer_bank_account = models.ForeignKey(
+    customer_bank_account = models.OneToOneField(
         CustomerBankAccount,
-        null=True
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
     )
 
     def __unicode__(self):
@@ -395,42 +397,47 @@ class RedirectFlow(models.Model, GCCreateMixin):
         blank=True
     )
 
-    customer = models.ForeignKey(
+    customer = models.OneToOneField(
         Customer,
+        on_delete=models.CASCADE,
         null=True,
         blank=True
     )
-    customer_bank_account = models.ForeignKey(
+    customer_bank_account = models.OneToOneField(
         CustomerBankAccount,
+        on_delete=models.CASCADE,
         null=True,
         blank=True
     )
-    mandate = models.ForeignKey(
+    mandate = models.OneToOneField(
         Mandate,
+        on_delete=models.CASCADE,
         null=True,
         blank=True
     )
-
-    @cached_property
-    def merchant(self):
-        return self.customer.merchant if self.customer is not None else None
+    merchant = models.ForeignKey(
+        Merchant,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
+    )
 
     @classmethod
-    def create(cls, description='', *args, **kwargs):
+    def create(cls, description='', merchant=None, *args, **kwargs):
         redirectflow = cls(
             session_token='SESS_{random}'.format(
                 random=get_random_string(length=56)
             ),
-            description=description
+            description=description,
+            merchant=None
         )
 
         params = {
             'session_token': redirectflow.session_token,
             'description': description,
-            'success_redirect_url': '{protocol}://{baseurl}{path}'.format(
-                protocol='https' if settings.SSL else 'http',
-                baseurl=settings.HOST,
-                path=reverse('gocardless_redirectflow_success')
+            'success_redirect_url': reverse(
+                'gocardless-redirectflow-success',
+                subdomain='api'
             )
         }
 

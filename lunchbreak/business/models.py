@@ -59,7 +59,7 @@ class StaffManager(BaseUserManager):
 
 
 class Staff(AbstractBaseUser, AbstractPasswordReset):
-    store = models.ForeignKey(
+    store = models.OneToOneField(
         'lunch.Store',
         on_delete=models.CASCADE,
         null=True
@@ -106,6 +106,10 @@ class Staff(AbstractBaseUser, AbstractPasswordReset):
     @cached_property
     def is_active(self):
         return True
+
+    @property
+    def is_merchant(self):
+        return self.merchant is not None and self.merchant.organisation_id
 
     def get_full_name(self):
         return '{first_name} {last_name}'.format(

@@ -15,6 +15,8 @@ MAX_SEATS_EXCEEDED = 708
 NO_INVITE_PERMISSIONS = 709
 ALREADY_MEMBERSHIP = 710
 INVALID_STATUS_CHANGE = 711
+ONLINE_PAYMENTS_DISABLED = 712
+NO_PAYMENT_LINK = 713
 
 DIGITS_UNKNOWN = -1
 DIGITS_LEGACY_ERROR = 0
@@ -161,3 +163,15 @@ class InvalidStatusChange(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
     code = INVALID_STATUS_CHANGE
     information = 'Invalid status change.'
+
+
+class OnlinePaymentDisabled(LunchbreakException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    code = ONLINE_PAYMENTS_DISABLED
+    information = 'Given storen has disabled online payments.'
+
+
+class NoPaymentLink(LunchbreakException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    code = NO_PAYMENT_LINK
+    information = 'User does not have PaymentLink with given store.'

@@ -1,6 +1,9 @@
-import requests
-from rest_framework.test import APITestCase, force_authenticate
 import json
+
+import requests
+from django.conf import settings
+from django.test.utils import override_settings
+from rest_framework.test import APITestCase, force_authenticate
 
 
 class LunchbreakTestCase(APITestCase):
@@ -18,6 +21,19 @@ class LunchbreakTestCase(APITestCase):
         ]
     }
 
+    def setUp(self):
+        from django.contrib.sites.models import Site
+        self.site = Site.objects.get_current()
+        self.site.domain = settings.HOST
+        self.site.save()
+
+    @override_settings(
+        DEFAULT_URL_SCHEME='http',
+        ROOT_URLCONF='Lunchbreak.urls.tests'
+    )
+    def run(self, *args, **kwargs):
+        super(LunchbreakTestCase, self).run(*args, **kwargs)
+
     def mock_address_response(self, mock_get, mock_json, return_value=None, lat=None, lng=None):
         if return_value is None:
             return_value = self.MOCK_ADDRESS
@@ -30,17 +46,22 @@ class LunchbreakTestCase(APITestCase):
         mock_json.return_value = return_value
 
     def assertEqualException(self, response, exception):
+        if not hasattr(response, 'data'):
+            self.fail('Could not read data: ' + str(response.content))
         error_message = json.dumps(response.data, indent=4)
         self.assertEqual(response.data['error']['code'], exception.code, error_message)
         self.assertEqual(response.status_code, exception.status_code, error_message)
 
-    def authenticate_request(self, request, view, user=None, view_data=None, *args, **kwargs):
-        if user is None:
-            user = self.user
-        force_authenticate(request, user=user, token=self.usertoken)
-
+    def as_view(self, request, view, view_data=None, *args, **kwargs):
         if isinstance(view_data, dict):
             result_view = view.as_view(view_data)
         else:
             result_view = view.as_view()
         return result_view(request, *args, **kwargs)
+
+
+    def authenticate_request(self, request, view, user=None, view_data=None, *args, **kwargs):
+        if user is None:
+            user = self.user
+        force_authenticate(request, user=user, token=self.usertoken)
+        return self.as_view(request, view, view_data, *args, **kwargs)

@@ -183,6 +183,7 @@ REST_FRAMEWORK = {
 
     'EXCEPTION_HANDLER': 'Lunchbreak.exceptions.lunchbreak_exception_handler',
 
+    'TEST_REQUEST_DEFAULT_FORMAT': 'json',
     'TEST_REQUEST_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
     ],

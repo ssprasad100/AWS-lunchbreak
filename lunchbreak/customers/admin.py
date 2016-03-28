@@ -2,7 +2,7 @@ from django.contrib import admin
 from lunch.admin import BaseTokenAdmin
 
 from .models import (Group, Invite, Membership, Order, OrderedFood,
-                     Reservation, User, UserToken)
+                     PaymentLink, Reservation, User, UserToken)
 
 
 @admin.register(OrderedFood)
@@ -11,10 +11,16 @@ class OrderedFoodAdmin(admin.ModelAdmin):
     readonly_fields = ('ingredientgroups',)
 
 
+class PaymentLinkInline(admin.TabularInline):
+    model = PaymentLink
+    extra = 2
+
+
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
     list_display = ('name', 'phone', 'confirmed_at',)
     readonly_fields = ('digits_id', 'request_id', 'confirmed_at',)
+    inlines = (PaymentLinkInline,)
 
 
 class MembershipInline(admin.TabularInline):
@@ -45,7 +51,7 @@ class ReservationAdmin(admin.ModelAdmin):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('user', 'store', 'placed', 'pickup', 'status', 'paid',)
+    list_display = ('user', 'store', 'placed', 'pickup', 'status', 'payment',)
     readonly_fields = ('placed',)
 
 

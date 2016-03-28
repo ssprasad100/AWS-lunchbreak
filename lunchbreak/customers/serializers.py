@@ -1,16 +1,11 @@
-import math
-
 from lunch import serializers as lunch_serializers
-from lunch.config import INPUT_SI_SET, INPUT_SI_VARIABLE
-from lunch.exceptions import BadRequest
-from lunch.models import Food, IngredientGroup, Store
+from lunch.models import Store
 from Lunchbreak.serializers import PrimaryModelSerializer
 from rest_framework import serializers
 from rest_framework.fields import *  # NOQA
 from rest_framework.relations import *  # NOQA
 
 from .config import RESERVATION_STATUS_PLACED, RESERVATION_STATUS_USER
-from .exceptions import AmountInvalid, CostCheckFailed, MinDaysExceeded
 from .models import (Group, Invite, Membership, Order, OrderedFood,
                      Reservation, User, UserToken)
 
@@ -136,7 +131,6 @@ class ShortOrderSerializer(serializers.ModelSerializer):
             'id',
             'store',
             'pickup',
-            'paid',
             'total',
             'total_confirmed',
             'orderedfood',
@@ -146,7 +140,6 @@ class ShortOrderSerializer(serializers.ModelSerializer):
         )
         read_only_fields = (
             'id',
-            'paid',
             'total',
             'total_confirmed',
             'status',
@@ -162,7 +155,13 @@ class ShortOrderSerializer(serializers.ModelSerializer):
         user = validated_data['user']
         description = validated_data.get('description', '')
 
-        return Order.create(pickup, orderedfood_list, store, user, description)
+        return Order.create(
+            pickup=pickup,
+            orderedfood_list=orderedfood_list,
+            store=store,
+            user=user,
+            description=description
+        )
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -186,7 +185,6 @@ class OrderSerializer(serializers.ModelSerializer):
             'placed',
             'pickup',
             'status',
-            'paid',
             'total',
             'total_confirmed',
             'orderedfood',
@@ -198,7 +196,6 @@ class OrderSerializer(serializers.ModelSerializer):
             'placed',
             'pickup',
             'status',
-            'paid',
             'total',
             'total_confirmed',
             'orderedfood',
