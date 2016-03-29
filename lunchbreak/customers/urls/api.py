@@ -1,11 +1,12 @@
 from django.conf.urls import patterns, url
-from rest_framework.routers import DefaultRouter
+from rest_framework.routers import SimpleRouter
 
 from .. import views
 
-router = DefaultRouter()
+router = SimpleRouter()
 router.register(r'user', views.UserViewSet)
 router.register(r'order', views.OrderViewSet)
+router.register(r'store', views.StoreViewSet)
 urlpatterns = router.urls + patterns(
     '',
     url(
@@ -14,7 +15,11 @@ urlpatterns = router.urls + patterns(
     ),
     url(
         r'^food/category/(?P<foodcategory_id>\d+)/?$',
-        views.FoodListView.as_view()
+        views.StoreViewSet.as_view(
+            {
+                'get': 'food'
+            }
+        )
     ),
 
     url(
@@ -48,57 +53,49 @@ urlpatterns = router.urls + patterns(
     ),
 
     url(
-        r'^store/?$',
-        views.StoreMultiView.as_view()
-    ),
-    url(
-        r'^store/(?P<pk>\d+)/?$',
-        views.StoreHeartView.as_view()
-    ),
-    url(
-        r'^store/(?P<pk>\d+)/(?P<option>heart|unheart)/?$',
-        views.StoreHeartView.as_view(), name='store-heart'
-    ),
-    url(
-        r'^store/(?P<store_id>\d+)/food/?$',
-        views.FoodListView.as_view()
-    ),
-    url(
-        r'^store/(?P<store_id>\d+)/foodcategories/?$',
-        views.FoodCategoryListView.as_view()
-    ),
-    url(
         r'^store/(?P<store_id>\d+)/header/(?P<width>\d+)/(?P<height>\d+)/?$',
         views.StoreHeaderView.as_view()
     ),
     url(
-        r'^store/(?P<store_id>\d+)/holidayperiods/?$',
+        r'^store/(?P<pk>\d+)/holidayperiods/?$',
         views.HolidayPeriodListView.as_view()
     ),
     url(
-        r'^store/(?P<store_id>\d+)/hours/?$',
+        r'^store/(?P<pk>\d+)/hours/?$',
         views.StoreHoursView.as_view()
     ),
     url(
-        r'^store/(?P<store_id>\d+)/openinghours/?$',
+        r'^store/(?P<pk>\d+)/openinghours/?$',
         views.OpeningHoursListView.as_view()
     ),
     url(
         r'^store/nearby'
         r'/(?P<latitude>-?\d+.?\d*)'
         r'/(?P<longitude>-?\d+.?\d*)/?$',
-        views.StoreMultiView.as_view()
+        views.StoreViewSet.as_view(
+            {
+                'get': 'list'
+            }
+        )
     ),
     url(
         r'^store/nearby'
         r'/(?P<latitude>-?\d+.?\d*)'
         r'/(?P<longitude>-?\d+.?\d*)'
         r'/(?P<proximity>\d+.?\d*)/?$',
-        views.StoreMultiView.as_view()
+        views.StoreViewSet.as_view(
+            {
+                'get': 'list'
+            }
+        )
     ),
     url(
         r'^store/recent/?$',
-        views.StoreMultiView.as_view(),
+        views.StoreViewSet.as_view(
+            {
+                'get': 'list'
+            }
+        ),
         {
             'recent': True
         }

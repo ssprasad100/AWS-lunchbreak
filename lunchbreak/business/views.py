@@ -459,17 +459,23 @@ class StoreSingleView(generics.RetrieveUpdateAPIView):
         )
 
 
-class OpeningHoursListView(OpeningHoursListViewBase):
+class GetStoreMixin(object):
+
+    def get_store_id(self):
+        return self.request.user.staff.store_id
+
+
+class OpeningHoursListView(GetStoreMixin, OpeningHoursListViewBase):
     authentication_classes = (EmployeeAuthentication,)
 
 
-class HolidayPeriodListView(HolidayPeriodListViewBase):
+class HolidayPeriodListView(GetStoreMixin, HolidayPeriodListViewBase):
     authentication_classes = (EmployeeAuthentication,)
 
 
-class StoreOpenView(OpeningListViewBase):
+class StoreOpenView(GetStoreMixin, OpeningListViewBase):
     authentication_classes = (EmployeeAuthentication,)
 
 
-class StoreCategoryListView(StoreCategoryListViewBase):
+class StoreCategoryListView(GetStoreMixin, StoreCategoryListViewBase):
     authentication_classes = (EmployeeAuthentication,)

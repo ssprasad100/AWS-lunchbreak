@@ -56,7 +56,7 @@ class OpeningListViewBase(generics.ListAPIView):
     def get_store_id(self):
         raise NotImplementedError('get_store_id() needs to return the id of the store.')
 
-    def get(self):
+    def get(self, request, pk=None):
         store_id = self.get_store_id()
         openinghours = OpeningHoursSerializer(
             OpeningHoursListViewBase._get_queryset(store_id),

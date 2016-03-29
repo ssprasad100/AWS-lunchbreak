@@ -10,7 +10,7 @@ from lunch.serializers import (FoodCategorySerializer, MultiFoodSerializer,
 from lunch.views import (HolidayPeriodListViewBase, OpeningHoursListViewBase,
                          OpeningListViewBase, StoreCategoryListViewBase)
 from rest_framework import filters, generics, mixins, status, viewsets
-from rest_framework.decorators import list_route
+from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -44,43 +44,6 @@ class FoodRetrieveView(generics.RetrieveAPIView):
         )
 
 
-class FoodListView(generics.ListAPIView):
-
-    """List the available food."""
-
-    authentication_classes = (CustomerAuthentication,)
-    serializer_class = MultiFoodSerializer
-
-    def get_queryset(self):
-        if 'store_id' in self.kwargs:
-            result = Food.objects.filter(
-                store_id=self.kwargs['store_id'],
-                deleted=False
-            )
-        elif 'foodcategory_id' in self.kwargs:
-            result = Food.objects.filter(
-                category_id=self.kwargs['foodcategory_id'],
-                deleted=False
-            )
-        return result.select_related(
-            'category',
-            'foodtype',
-        ).prefetch_related(
-            'ingredients',  # Food.has_ingredients
-        ).order_by(
-            '-category__priority',
-            'category__name',
-            '-priority',
-            'name'
-        )
-
-    @property
-    def pagination_class(self):
-        if 'foodcategory_id' in self.kwargs:
-            return None
-        return SimplePagination
-
-
 class FoodCategoryRetrieveView(generics.RetrieveAPIView):
 
     """List all food categories."""
@@ -92,7 +55,41 @@ class FoodCategoryRetrieveView(generics.RetrieveAPIView):
     ).all()
 
 
-class CreateListRetrieveViewSet(mixins.CreateModelMixin,
+class TargettedViewSet(object):
+
+    def get_attr_action(self, attribute):
+        action_attribute = '{attribute}_{action}'.format(
+            attribute=attribute,
+            action=self.action
+        )
+        if hasattr(self, action_attribute):
+            return getattr(self, action_attribute)
+        return getattr(self, attribute)
+
+    def get_serializer_class(self):
+        return self.get_attr_action('serializer_class') or \
+            super(TargettedViewSet, self).get_serializer_class()
+
+    def get_queryset(self):
+        return self.get_attr_action('queryset') or \
+            super(TargettedViewSet, self).get_queryset()
+
+    def get_pagination_class(self):
+        return self.get_attr_action('pagination_class') or \
+            super(TargettedViewSet, self).get_pagination_class()
+
+    def _list(self, request):
+        queryset = self.get_queryset()
+        serializer_class = self.get_serializer_class()
+        serializer = serializer_class(queryset, many=True)
+        return Response(
+            data=serializer.data,
+            status=status.HTTP_200_OK
+        )
+
+
+class CreateListRetrieveViewSet(TargettedViewSet,
+                                mixins.CreateModelMixin,
                                 mixins.ListModelMixin,
                                 mixins.RetrieveModelMixin,
                                 viewsets.GenericViewSet):
@@ -102,25 +99,7 @@ class CreateListRetrieveViewSet(mixins.CreateModelMixin,
     Allows for a `.retrieve_serializer_class`, `.create_serializer_class`,
     `.list_serializer_class` to be used.
     """
-
-    def get_action(self, attribute, action):
-        attribute += '_' + action
-        if self.action == action and hasattr(self, attribute):
-            return getattr(self, attribute)
-        return None
-
-    def get_attr_action(self, attribute):
-        for action in ['create', 'list', 'retrieve']:
-            value = self.get_action(attribute, action)
-            if value is not None:
-                return value
-        return getattr(self, attribute)
-
-    def get_serializer_class(self):
-        return self.get_attr_action('serializer_class')
-
-    def get_queryset(self):
-        return self.get_attr_action('queryset')
+    pass
 
 
 class OrderViewSet(CreateListRetrieveViewSet):
@@ -177,109 +156,27 @@ class OrderViewSet(CreateListRetrieveViewSet):
         return BadRequest(serializer.errors)
 
 
-class ReservationSingleView(generics.RetrieveUpdateAPIView):
+class StoreViewSet(TargettedViewSet,
+                   mixins.ListModelMixin,
+                   mixins.RetrieveModelMixin,
+                   viewsets.GenericViewSet):
 
     authentication_classes = (CustomerAuthentication,)
-    serializer_class = ReservationSerializer
-
-    def get_queryset(self):
-        return Reservation.objects.filter(
-            user=self.request.user
-        )
-
-
-class StoreHeartView(generics.RetrieveUpdateAPIView):
-
-    """Heart or unheart a store."""
-
-    authentication_classes = (CustomerAuthentication,)
-    serializer_class = StoreHeartSerializer
-    queryset = Store.objects.all()
-
-    def get(self, request, pk, **kwargs):
-        store = get_object_or_404(Store, id=pk)
-        store.hearted = request.user in store.hearts.all()
-        serializer = self.get_serializer_class()(store)
-        return Response(data=serializer.data, status=status.HTTP_200_OK)
-
-    def update(self, request, pk, **kwargs):
-        heart = 'option' in self.kwargs and self.kwargs['option'] == 'heart'
-        store = get_object_or_404(Store, id=pk)
-
-        if heart:
-            heart, created = Heart.objects.get_or_create(
-                store=store,
-                user=request.user
-            )
-            statusCode = status.HTTP_201_CREATED if created else status.HTTP_200_OK
-            return Response(status=statusCode)
-        else:
-            heart = get_object_or_404(
-                Heart,
-                store=store,
-                user=request.user
-            )
-            heart.delete()
-            return Response(status=status.HTTP_200_OK)
-
-
-class OpeningHoursListView(OpeningHoursListViewBase):
-    authentication_classes = (CustomerAuthentication,)
-
-
-class HolidayPeriodListView(HolidayPeriodListViewBase):
-    authentication_classes = (CustomerAuthentication,)
-
-
-class StoreHoursView(OpeningListViewBase):
-    authentication_classes = (CustomerAuthentication,)
-
-
-class FoodCategoryListView(generics.ListAPIView):
-
-    """ List all food categories. """
-
-    authentication_classes = (CustomerAuthentication,)
-    serializer_class = ShortFoodCategorySerializer
-    pagination_class = None
-
-    def get_queryset(self):
-        if 'store_id' in self.kwargs:
-            return FoodCategory.objects.filter(
-                store_id=self.kwargs['store_id']
-            ).order_by(
-                '-priority',
-                'name'
-            )
-
-
-class StoreHeaderView(APIView):
-
-    renderer_classes = (JPEGRenderer,)
-
-    def get(self, request, store_id, width, height):
-        store = get_object_or_404(Store, id=store_id)
-        if store.header is None:
-            raise Http404('That store does not have a header.')
-        image = store.header.retrieve_from_source(
-            'original',
-            int(width),
-            int(height)
-        )
-        image.open()
-        return Response(image)
-
-
-class StoreMultiView(generics.ListAPIView):
-
-    """List the stores."""
-
-    authentication_classes = (CustomerAuthentication,)
-    serializer_class = ShortStoreSerializer
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name', 'city', 'street',)
 
-    def get_queryset(self):
+    serializer_class_retrieve = ShortStoreSerializer
+    serializer_class_create = ShortStoreSerializer
+    serializer_class_list = ShortStoreSerializer
+    serializer_class_food = MultiFoodSerializer
+    serializer_class_foodcategory = ShortFoodCategorySerializer
+    serializer_class_heart = StoreHeartSerializer
+    serializer_class_unheart = StoreHeartSerializer
+
+    queryset = Store.objects.all()
+
+    @property
+    def queryset_list(self):
         if 'latitude' in self.kwargs and 'longitude' in self.kwargs:
             proximity = self.kwargs['proximity'] if 'proximity' in self.kwargs else 5
             return Store.objects.nearby(
@@ -302,6 +199,139 @@ class StoreMultiView(generics.ListAPIView):
                     '-order__placed'
                 )
             return result
+
+    @property
+    def pagination_class_food(self):
+        if 'foodcategory_id' in self.kwargs:
+            return None
+        return SimplePagination
+
+    @property
+    def queryset_food(self):
+        if 'pk' in self.kwargs:
+            result = Food.objects.filter(
+                store_id=self.kwargs['pk'],
+                deleted=False
+            )
+        elif 'foodcategory_id' in self.kwargs:
+            result = Food.objects.filter(
+                category_id=self.kwargs['foodcategory_id'],
+                deleted=False
+            )
+        return result.select_related(
+            'category',
+            'foodtype',
+        ).prefetch_related(
+            'ingredients',  # Food.has_ingredients
+        ).order_by(
+            '-category__priority',
+            'category__name',
+            '-priority',
+            'name'
+        )
+
+    @property
+    def queryset_foodcategory(self):
+        # Check if filter for store_id is required
+        return FoodCategory.objects.filter(
+            store_id=self.kwargs['pk']
+        ).order_by(
+            '-priority',
+            'name'
+        )
+
+    def _heart(self, request, pk, option):
+        store = self.get_object()
+
+        if option == 'heart':
+            heart, created = Heart.objects.get_or_create(
+                store=store,
+                user=request.user
+            )
+            status_code = status.HTTP_201_CREATED if created else status.HTTP_200_OK
+            return Response(
+                status=status_code
+            )
+        else:
+            heart = get_object_or_404(
+                Heart,
+                store=store,
+                user=request.user
+            )
+            heart.delete()
+            return Response(
+                status=status.HTTP_204_NO_CONTENT
+            )
+
+    @detail_route(methods=['patch'])
+    def heart(self, request, pk=None):
+        return self._heart(
+            request=request,
+            pk=pk,
+            option='heart'
+        )
+
+    @detail_route(methods=['patch'])
+    def unheart(self, request, pk=None):
+        return self._heart(
+            request=request,
+            pk=pk,
+            option='unheart'
+        )
+
+    @detail_route(methods=['get'])
+    def food(self, request, pk=None, foodcategory_id=None):
+        return self._list(request)
+
+    @detail_route(methods=['get'])
+    def foodcategory(self, request, pk=None):
+        return self._list(request)
+
+
+class ReservationSingleView(generics.RetrieveUpdateAPIView):
+
+    authentication_classes = (CustomerAuthentication,)
+    serializer_class = ReservationSerializer
+
+    def get_queryset(self):
+        return Reservation.objects.filter(
+            user=self.request.user
+        )
+
+
+class GetStoreMixin(object):
+
+    def get_store_id(self):
+        return self.kwargs['pk']
+
+
+class OpeningHoursListView(GetStoreMixin, OpeningHoursListViewBase):
+    authentication_classes = (CustomerAuthentication,)
+
+
+class HolidayPeriodListView(GetStoreMixin, HolidayPeriodListViewBase):
+    authentication_classes = (CustomerAuthentication,)
+
+
+class StoreHoursView(GetStoreMixin, OpeningListViewBase):
+    authentication_classes = (CustomerAuthentication,)
+
+
+class StoreHeaderView(APIView):
+
+    renderer_classes = (JPEGRenderer,)
+
+    def get(self, request, store_id, width, height):
+        store = get_object_or_404(Store, id=store_id)
+        if store.header is None:
+            raise Http404('That store does not have a header.')
+        image = store.header.retrieve_from_source(
+            'original',
+            int(width),
+            int(height)
+        )
+        image.open()
+        return Response(image)
 
 
 class StoreCategoryListView(StoreCategoryListViewBase):
