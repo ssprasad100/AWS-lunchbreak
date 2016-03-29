@@ -7,7 +7,7 @@ from rest_framework.relations import *  # NOQA
 
 from .config import RESERVATION_STATUS_PLACED, RESERVATION_STATUS_USER
 from .models import (Group, Invite, Membership, Order, OrderedFood,
-                     Reservation, User, UserToken)
+                     PaymentLink, Reservation, User, UserToken)
 
 
 class StoreHeartSerializer(lunch_serializers.StoreSerializer):
@@ -423,4 +423,26 @@ class UserTokenUpdateSerializer(UserTokenSerializer):
             'device',
             'active',
             'user',
+        )
+
+
+class PaymentLinkSerializer(serializers.ModelSerializer):
+    user = serializers.HiddenField(
+        default=serializers.CurrentUserDefault()
+    )
+
+    class Meta:
+        model = PaymentLink
+        fields = (
+            'user',
+        )
+        read_only_fields = (
+            'store',
+        )
+
+    def create(self, validated_data):
+        print self.context
+        return PaymentLink.create(
+            user=validated_data['user'],
+            store=self.context['store']
         )

@@ -20,9 +20,10 @@ from .models import Heart, Order, OrderedFood, Reservation, User, UserToken
 from .serializers import (GroupSerializer, InviteSerializer,
                           InviteUpdateSerializer, MultiUserTokenSerializer,
                           OrderedFoodPriceSerializer, OrderSerializer,
-                          ReservationSerializer, ShortOrderSerializer,
-                          StoreHeartSerializer, UserLoginSerializer,
-                          UserRegisterSerializer, UserTokenUpdateSerializer)
+                          PaymentLinkSerializer, ReservationSerializer,
+                          ShortOrderSerializer, StoreHeartSerializer,
+                          UserLoginSerializer, UserRegisterSerializer,
+                          UserTokenUpdateSerializer)
 
 
 class FoodRetrieveView(generics.RetrieveAPIView):
@@ -77,6 +78,10 @@ class TargettedViewSet(object):
     def get_pagination_class(self):
         return self.get_attr_action('pagination_class') or \
             super(TargettedViewSet, self).get_pagination_class()
+
+    def get_serializer_context(self):
+        return self.get_attr_action('serializer_context') or \
+            super(TargettedViewSet, self).get_serializer_context()
 
     def _list(self, request):
         queryset = self.get_queryset()
@@ -136,7 +141,7 @@ class OrderViewSet(CreateListRetrieveViewSet):
             data=request.data,
             many=True
         )
-        if serializer.is_valid():
+        if serializer.is_valid(raise_exception=True):
             result = []
             for price_check in serializer.validated_data:
                 price_info = {}
@@ -153,7 +158,6 @@ class OrderViewSet(CreateListRetrieveViewSet):
                     price_info['food'] = original.id
                 result.append(price_info)
             return Response(data=result, status=status.HTTP_200_OK)
-        return BadRequest(serializer.errors)
 
 
 class StoreViewSet(TargettedViewSet,
@@ -172,6 +176,7 @@ class StoreViewSet(TargettedViewSet,
     serializer_class_foodcategory = ShortFoodCategorySerializer
     serializer_class_heart = StoreHeartSerializer
     serializer_class_unheart = StoreHeartSerializer
+    serializer_class_paymentlink = PaymentLinkSerializer
 
     queryset = Store.objects.all()
 
@@ -240,6 +245,16 @@ class StoreViewSet(TargettedViewSet,
             'name'
         )
 
+    @property
+    def serializer_context_paymentlink(self):
+        context = super(TargettedViewSet, self).get_serializer_context()
+        context.update(
+            {
+                'store': self.get_object()
+            }
+        )
+        return context
+
     def _heart(self, request, pk, option):
         store = self.get_object()
 
@@ -286,6 +301,20 @@ class StoreViewSet(TargettedViewSet,
     @detail_route(methods=['get'])
     def foodcategory(self, request, pk=None):
         return self._list(request)
+
+    @detail_route(methods=['post'])
+    def paymentlink(self, request, pk=None):
+        serializer = self.get_serializer(
+            data=request.data
+        )
+        print serializer
+
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(
+                data=serializer.data,
+                status=status.HTTP_200_OK
+            )
 
 
 class ReservationSingleView(generics.RetrieveUpdateAPIView):
@@ -401,7 +430,7 @@ class UserViewSet(viewsets.GenericViewSet):
             serializer = UserTokenUpdateSerializer(
                 data=request.data
             )
-            if serializer.is_valid():
+            if serializer.is_valid(raise_exception=True):
                 request.auth.registration_id = request.data.get(
                     'registration_id',
                     request.auth.registration_id
