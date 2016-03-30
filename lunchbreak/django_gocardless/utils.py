@@ -1,6 +1,5 @@
 from django.apps import apps
 from django.db import models
-from gocardless_pro.errors import InvalidApiUsageError
 
 from .exceptions import UnsupportedLinksError
 
@@ -21,7 +20,7 @@ LINKS_MODELS = {
 }
 
 
-def model_from_links(links, attr):
+def model_from_links(links, attr, client=None):
     if attr not in LINKS_MODELS:
         raise UnsupportedLinksError(
             '{attr} is not a supported links model.'.format(
@@ -51,13 +50,11 @@ def model_from_links(links, attr):
                 **where
             )
         except model.DoesNotExist:
-            try:
-                model_instance = model.fetch(
-                    instance=None,
-                    where=where
-                )
-            except InvalidApiUsageError:
-                pass
+            model_instance = model.fetch(
+                instance=None,
+                where=where,
+                client=client
+            )
 
     return model_instance
 

@@ -302,6 +302,8 @@ class Mandate(models.Model, GCCacheMixin):
 
     @cached_property
     def merchant(self):
+        if self.redirectflow is not None:
+            return self.redirectflow.merchant
         return self.customer_bank_account.merchant\
             if self.customer_bank_account is not None\
             else None
@@ -422,6 +424,10 @@ class RedirectFlow(models.Model, GCCreateMixin):
         blank=True
     )
 
+    @property
+    def is_completed(self):
+        return self.customer is not None
+
     @classmethod
     def create(cls, description='', merchant=None, *args, **kwargs):
         redirectflow = cls(
@@ -449,7 +455,8 @@ class RedirectFlow(models.Model, GCCreateMixin):
         )
 
     def complete(self, *args, **kwargs):
-        resource = self.client.redirect_flows.complete(
+        resource = self.from_api(
+            self.api.complete,
             self.id,
             params={
                 'session_token': self.session_token
@@ -617,7 +624,7 @@ class Subscription(models.Model, GCCreateUpdateMixin):
 
     @property
     def upcoming_payments(self):
-        raise NotImplementedError('Future payments are not yet implemented.')
+        raise NotImplementedError('Upcoming payments are not yet implemented.')
 
     @classmethod
     def create(cls, given, *args, **kwargs):

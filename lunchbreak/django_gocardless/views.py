@@ -44,6 +44,7 @@ class RedirectFlowSuccessView(View):
                 redirectflow.complete()
                 response['Location'] = settings.GOCARDLESS['app_redirect']['success']
             except (RedirectFlow.DoesNotExist, DjangoGoCardlessException) as e:
+                raise
                 if isinstance(e, RedirectFlowIncompleteError):
                     response['Location'] = settings.GOCARDLESS[
                         'app_redirect']['error']['incomplete']

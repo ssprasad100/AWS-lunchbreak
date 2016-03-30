@@ -45,20 +45,36 @@ class GCCacheMixin(object):
             environment=settings.GOCARDLESS['environment']
         )
 
+    @classmethod
+    def api_from_client(cls, client):
+        '''Appropriate GoCardless Service for model.'''
+
+        class_name = cls.__name__
+        return getattr(client, CLIENT_PROPERTIES[class_name])
+
     @cached_property
     def api(self):
-        '''
-        Appropriate GoCardless Service for model.
-        '''
+        return self.api_from_client(self.client)
 
-        class_name = self.__class__.__name__
-        return getattr(self.client, CLIENT_PROPERTIES[class_name])
+    @staticmethod
+    def field_default(field):
+        cls = field.__class__
 
-    def from_resource(self, resource):
+        default = getattr(field, 'default', None)
+        default = None if default is models.NOT_PROVIDED else default
+
+        if (default is None and
+            (issubclass(cls, models.CharField) or
+             issubclass(cls, models.TextField))):
+            return ''
+        return default
+
+    def from_resource(self, resource, client=None):
         '''
         Set a GCCacheMixin's attributes based on a GoCardless resource.
         '''
 
+        client = self.client if client is None else client
         fields = self.__class__._meta.get_fields()
 
         for field in fields:
@@ -67,21 +83,26 @@ class GCCacheMixin(object):
 
             value = field_default(field)
             temp = None
+            is_resource_field = False
 
             if hasattr(resource, field.name):
                 temp = getattr(resource, field.name)
+                is_resource_field = True
             elif hasattr(resource, 'links') and hasattr(resource.links, field.name):
-                temp = model_from_links(resource.links, field.name)
+                temp = model_from_links(resource.links, field.name, client)
+                is_resource_field = True
 
-            value = temp if temp is not None else value
-
-            setattr(self, field.name, value)
+            if is_resource_field:
+                value = temp if temp is not None else value
+                setattr(self, field.name, value)
 
     def from_api(self, method, *args, **kwargs):
         '''
         Shorthand for `self.from_resource(resource)` with `resource` generated
         from the given GoCardless Service method.
         '''
+
+        client = kwargs.pop('client', None)
 
         try:
             resource = method(
@@ -90,10 +111,11 @@ class GCCacheMixin(object):
             )
         except GoCardlessProError as e:
             raise DjangoGoCardlessException.from_gocardless_exception(e)
-        self.from_resource(resource)
+        client = self.client if client is None else client
+        self.from_resource(resource, client)
 
     @classmethod
-    def fetch(cls, instance=None, where=None, *args, **kwargs):
+    def fetch(cls, instance=None, where=None, client=None, *args, **kwargs):
         '''
         Fetch information from the GoCardless API, update and save the instance.
         '''
@@ -105,9 +127,13 @@ class GCCacheMixin(object):
                     **where
                 )
 
+        client = instance.client if client is None else client
+        api = cls.api_from_client(client)
+
         instance.from_api(
-            instance.api.get,
-            instance.id
+            api.get,
+            instance.id,
+            client=client
         )
         instance.save(*args, **kwargs)
 

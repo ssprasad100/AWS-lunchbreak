@@ -32,7 +32,8 @@ from .exceptions import (AlreadyMembership, AmountInvalid, CostCheckFailed,
                          DigitsException, InvalidStatusChange,
                          MaxSeatsExceeded, MinDaysExceeded,
                          NoInvitePermissions, NoPaymentLink,
-                         OnlinePaymentDisabled, UserDisabled)
+                         OnlinePaymentDisabled, PaymentLinkNotConfirmed,
+                         UserDisabled)
 
 
 class User(models.Model):
@@ -178,9 +179,12 @@ class PaymentLink(models.Model):
         unique_together = ('user', 'store',)
 
     @classmethod
-    def create(cls, user, store):
+    def create(cls, user, store, instance=None):
         if not store.staff.is_merchant:
             raise OnlinePaymentDisabled()
+
+        if instance is not None and isinstance(instance, cls):
+            instance.delete()
 
         merchant = store.staff.merchant
 
@@ -511,9 +515,16 @@ class Order(models.Model, DirtyFieldsMixin):
 
         Store.is_open(store, pickup)
 
-        if payment_method == PAYMENT_METHOD_GOCARDLESS and \
-                not PaymentLink.objects.filter(user=user, store=store).exists():
-            raise NoPaymentLink()
+        if payment_method == PAYMENT_METHOD_GOCARDLESS:
+            try:
+                paymentlink = PaymentLink.objects.get(
+                    user=user,
+                    store=store
+                )
+                if not paymentlink.redirectflow.is_completed:
+                    raise PaymentLinkNotConfirmed()
+            except PaymentLink.DoesNotExist:
+                raise NoPaymentLink()
 
         order = Order(
             user=user,

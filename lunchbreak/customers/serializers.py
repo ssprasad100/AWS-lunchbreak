@@ -1,3 +1,4 @@
+from django_gocardless.serializers import RedirectFlowSerializer
 from lunch import serializers as lunch_serializers
 from lunch.models import Store
 from Lunchbreak.serializers import PrimaryModelSerializer
@@ -435,18 +436,30 @@ class PaymentLinkSerializer(serializers.ModelSerializer):
     user = serializers.HiddenField(
         default=serializers.CurrentUserDefault()
     )
+    redirectflow = RedirectFlowSerializer(
+        read_only=True
+    )
 
     class Meta:
         model = PaymentLink
         fields = (
             'user',
+            'redirectflow',
         )
         read_only_fields = (
             'store',
+            'redirectflow',
         )
 
     def create(self, validated_data):
         return PaymentLink.create(
             user=validated_data['user'],
             store=self.context['store']
+        )
+
+    def update(self, instance, validated_data):
+        return PaymentLink.create(
+            user=validated_data['user'],
+            store=self.context['store'],
+            instance=instance
         )

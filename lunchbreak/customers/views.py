@@ -303,7 +303,7 @@ class StoreViewSet(TargettedViewSet,
     def foodcategory(self, request, pk=None):
         return self._list(request)
 
-    @detail_route(methods=['post'])
+    @detail_route(methods=['post', 'get'])
     def paymentlink(self, request, pk=None):
         try:
             paymentlink = PaymentLink.objects.get(
@@ -313,18 +313,32 @@ class StoreViewSet(TargettedViewSet,
         except PaymentLink.DoesNotExist:
             paymentlink = None
 
-        serializer = self.get_serializer(
-            paymentlink,
-            data=request.data
-        )
-
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
+        if request.method == 'GET':
+            if paymentlink is None:
+                return Response(
+                    status=status.HTTP_404_NOT_FOUND
+                )
+            serializer = self.get_serializer(
+                paymentlink
+            )
             return Response(
                 data=serializer.data,
-                status=status.HTTP_201_CREATED
-                if paymentlink is None else status.HTTP_200_OK
+                status=status.HTTP_200_OK
             )
+
+        else:
+            serializer = self.get_serializer(
+                paymentlink,
+                data=request.data
+            )
+
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
+                return Response(
+                    data=serializer.data,
+                    status=status.HTTP_201_CREATED
+                    if paymentlink is None else status.HTTP_200_OK
+                )
 
 
 class ReservationSingleView(generics.RetrieveUpdateAPIView):

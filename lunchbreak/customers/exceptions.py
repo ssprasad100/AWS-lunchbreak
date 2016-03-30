@@ -17,6 +17,7 @@ ALREADY_MEMBERSHIP = 710
 INVALID_STATUS_CHANGE = 711
 ONLINE_PAYMENTS_DISABLED = 712
 NO_PAYMENT_LINK = 713
+PAYMENT_LINK_NOT_CONFIRMED = 714
 
 DIGITS_UNKNOWN = -1
 DIGITS_LEGACY_ERROR = 0
@@ -175,3 +176,9 @@ class NoPaymentLink(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
     code = NO_PAYMENT_LINK
     information = 'User does not have PaymentLink with given store.'
+
+
+class PaymentLinkNotConfirmed(LunchbreakException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    code = PAYMENT_LINK_NOT_CONFIRMED
+    information = 'User has not confirmed the RedirectFlow of the PaymentLink.'

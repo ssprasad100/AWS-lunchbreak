@@ -6,10 +6,12 @@ from gocardless_pro.errors import ApiError, GoCardlessProError
 
 class DjangoGoCardlessException(Exception):
 
-    def __init__(self):
-        if hasattr(self, 'message'):
-            return super(DjangoGoCardlessException, self).__init__(self.message)
-        return super(DjangoGoCardlessException, self).__init__()
+    def __init__(self, reason=None):
+        message = '{message} ({reason})'.format(
+            message=getattr(self, 'message', 'No message supplied'),
+            reason=reason
+        )
+        return super(DjangoGoCardlessException, self).__init__(message)
 
     @classmethod
     def _subclasses(cls):
@@ -39,7 +41,7 @@ class DjangoGoCardlessException(Exception):
                 reason = error['reason']
                 for subclass in subclasses:
                     if hasattr(subclass, 'reasons') and reason in subclass.reasons:
-                        return subclass()
+                        return subclass(reason)
         return cls(exception)
 
 
@@ -76,7 +78,7 @@ class UnsupportedLinksError(DjangoGoCardlessException):
     message = 'Model not supported by Django GoCardless.'
 
 
-class MerchantAccessException(DjangoGoCardlessException):
+class MerchantAccessError(DjangoGoCardlessException):
     message = 'Merchant API access denied, check access token.'
     reasons = [
         'access_token_not_active',
