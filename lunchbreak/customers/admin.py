@@ -21,6 +21,7 @@ class UserAdmin(admin.ModelAdmin):
     list_display = ('name', 'phone', 'confirmed_at',)
     readonly_fields = ('digits_id', 'request_id', 'confirmed_at',)
     inlines = (PaymentLinkInline,)
+    search_fields = ('name',)
 
 
 class MembershipInline(admin.TabularInline):

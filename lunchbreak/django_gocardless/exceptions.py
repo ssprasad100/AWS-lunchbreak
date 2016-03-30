@@ -1,54 +1,84 @@
+import inspect
+import sys
+
+from gocardless_pro.errors import ApiError, GoCardlessProError
+
 
 class DjangoGoCardlessException(Exception):
 
+    def __init__(self):
+        if hasattr(self, 'message'):
+            return super(DjangoGoCardlessException, self).__init__(self.message)
+        return super(DjangoGoCardlessException, self).__init__()
+
+    @classmethod
+    def _subclasses(cls):
+        return [
+            obj
+            for name, obj in inspect.getmembers(sys.modules[__name__])
+            if inspect.isclass(obj) and issubclass(obj, DjangoGoCardlessException)
+        ]
+
     @classmethod
     def from_gocardless_exception(cls, exception):
-        try:
-            errors = exception.errors
+        if not issubclass(exception.__class__, GoCardlessProError):
+            raise NotImplementedError(
+                '{cls} does not support non {gc} classes.'.format(
+                    cls=cls.__name__,
+                    gc=GoCardlessProError.__name__
+                )
+            )
+        if not issubclass(exception.__class__, ApiError):
+            return cls(exception)
 
-            for error in errors:
-                if hasattr(error, 'reason'):
-                    if error.reason in exception_reasons:
-                        return exception_reasons[error.reason]
-        except AttributeError:
-            pass
+        errors = exception.errors
+        subclasses = cls._subclasses()
+
+        for error in errors:
+            if 'reason' in error:
+                reason = error['reason']
+                for subclass in subclasses:
+                    if hasattr(subclass, 'reasons') and reason in subclass.reasons:
+                        return subclass()
         return cls(exception)
 
 
-class ExchangeAuthorisationException(DjangoGoCardlessException):
-    pass
+class ExchangeAuthorisationError(DjangoGoCardlessException):
+    message = 'Error exhcanging authorisation.'
 
 
-class RedirectFlowCompleteException(DjangoGoCardlessException):
-    pass
+class RedirectFlowIncompleteError(DjangoGoCardlessException):
+    message = 'RedirectFlow not yet completed'
+    reasons = [
+        'redirect_flow_incomplete'
+    ]
 
 
-class RedirectFlowIncomplete(DjangoGoCardlessException):
-    pass
+class RedirectFlowAlreadyCompletedError(DjangoGoCardlessException):
+    message = 'RedirectFlow has already been completed.'
+    reasons = [
+        'redirect_flow_already_completed'
+    ]
 
 
-class RedirectFlowAlreadyCompleted(DjangoGoCardlessException):
-    pass
+class BadRequestError(DjangoGoCardlessException):
+    message = 'Check request data.'
+    reasons = [
+        'bad_request'
+    ]
 
 
-class BadRequest(DjangoGoCardlessException):
-    pass
+class UnsupportedEventError(DjangoGoCardlessException):
+    message = 'Event is not supported by Django GoCardless.'
 
 
-class UnsupportedEvent(DjangoGoCardlessException):
-    pass
+class UnsupportedLinksError(DjangoGoCardlessException):
+    message = 'Model not supported by Django GoCardless.'
 
 
-class UnsupportedLinks(DjangoGoCardlessException):
-    pass
-
-
-class AccessDenied(DjangoGoCardlessException):
-    pass
-
-
-exception_reasons = {
-    'redirect_flow_incomplete': RedirectFlowIncomplete,
-    'redirect_flow_already_completed': RedirectFlowAlreadyCompleted,
-    'bad_request': BadRequest
-}
+class MerchantAccessException(DjangoGoCardlessException):
+    message = 'Merchant API access denied, check access token.'
+    reasons = [
+        'access_token_not_active',
+        'access_token_not_found'
+    ]

@@ -16,7 +16,8 @@ from rest_framework.views import APIView
 
 from .authentication import CustomerAuthentication
 from .config import DEMO_DIGITS_ID, DEMO_PHONE
-from .models import Heart, Order, OrderedFood, Reservation, User, UserToken
+from .models import (Heart, Order, OrderedFood, PaymentLink, Reservation, User,
+                     UserToken)
 from .serializers import (GroupSerializer, InviteSerializer,
                           InviteUpdateSerializer, MultiUserTokenSerializer,
                           OrderedFoodPriceSerializer, OrderSerializer,
@@ -65,7 +66,7 @@ class TargettedViewSet(object):
         )
         if hasattr(self, action_attribute):
             return getattr(self, action_attribute)
-        return getattr(self, attribute)
+        return None
 
     def get_serializer_class(self):
         return self.get_attr_action('serializer_class') or \
@@ -304,16 +305,25 @@ class StoreViewSet(TargettedViewSet,
 
     @detail_route(methods=['post'])
     def paymentlink(self, request, pk=None):
+        try:
+            paymentlink = PaymentLink.objects.get(
+                user=request.user,
+                store=self.get_object()
+            )
+        except PaymentLink.DoesNotExist:
+            paymentlink = None
+
         serializer = self.get_serializer(
+            paymentlink,
             data=request.data
         )
-        print serializer
 
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(
                 data=serializer.data,
-                status=status.HTTP_200_OK
+                status=status.HTTP_201_CREATED
+                if paymentlink is None else status.HTTP_200_OK
             )
 
 

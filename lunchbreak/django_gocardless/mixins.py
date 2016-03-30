@@ -5,8 +5,10 @@ import six
 from django.conf import settings
 from django.db import models
 from django.utils.functional import cached_property
+from gocardless_pro.errors import GoCardlessProError
 
 from .config import CLIENT_PROPERTIES
+from .exceptions import DjangoGoCardlessException
 from .utils import field_default, model_from_links
 
 
@@ -81,10 +83,13 @@ class GCCacheMixin(object):
         from the given GoCardless Service method.
         '''
 
-        resource = method(
-            *args,
-            **kwargs
-        )
+        try:
+            resource = method(
+                *args,
+                **kwargs
+            )
+        except GoCardlessProError as e:
+            raise DjangoGoCardlessException.from_gocardless_exception(e)
         self.from_resource(resource)
 
     @classmethod

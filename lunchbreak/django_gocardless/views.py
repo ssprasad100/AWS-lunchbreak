@@ -10,9 +10,9 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import RedirectView, View
 from gocardless_pro.resources import Event
 
-from .exceptions import (BadRequest, DjangoGoCardlessException,
-                         ExchangeAuthorisationException,
-                         RedirectFlowAlreadyCompleted, RedirectFlowIncomplete)
+from .exceptions import (BadRequestError, DjangoGoCardlessException,
+                         ExchangeAuthorisationError,
+                         RedirectFlowAlreadyCompletedError, RedirectFlowIncompleteError)
 from .handlers import EventHandler
 from .models import Merchant, RedirectFlow
 
@@ -44,13 +44,13 @@ class RedirectFlowSuccessView(View):
                 redirectflow.complete()
                 response['Location'] = settings.GOCARDLESS['app_redirect']['success']
             except (RedirectFlow.DoesNotExist, DjangoGoCardlessException) as e:
-                if isinstance(e, RedirectFlowIncomplete):
+                if isinstance(e, RedirectFlowIncompleteError):
                     response['Location'] = settings.GOCARDLESS[
                         'app_redirect']['error']['incomplete']
-                elif isinstance(e, RedirectFlowAlreadyCompleted):
+                elif isinstance(e, RedirectFlowAlreadyCompletedError):
                     response['Location'] = settings.GOCARDLESS[
                         'app_redirect']['error']['completed']
-                elif isinstance(e, BadRequest):
+                elif isinstance(e, BadRequestError):
                     response['Location'] = settings.GOCARDLESS['app_redirect']['error']['invalid']
                 else:
                     response['Location'] = settings.GOCARDLESS['app_redirect']['error']['default']
@@ -135,7 +135,7 @@ class OAuthRedirectView(CSRFExemptView):
                 state=state,
                 code=code
             )
-        except ExchangeAuthorisationException:
+        except ExchangeAuthorisationError:
             return HttpResponseRedirect(
                 settings.GOCARDLESS['app']['redirect']['error']
             )

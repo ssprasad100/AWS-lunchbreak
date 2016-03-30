@@ -15,7 +15,7 @@ from .config import (CURRENCIES, MANDATE_STATUSES, PAYMENT_STATUSES,
                      PAYOUT_STATUSES, SCHEMES, SUBSCRIPTION_DAY_OF_MONTH,
                      SUBSCRIPTION_INTERVAL_UNIT, SUBSCRIPTION_MONTHS,
                      SUBSCRIPTION_STATUSES)
-from .exceptions import ExchangeAuthorisationException
+from .exceptions import ExchangeAuthorisationError
 from .mixins import GCCacheMixin, GCCreateMixin, GCCreateUpdateMixin
 from .utils import model_from_links
 
@@ -105,7 +105,7 @@ class Merchant(models.Model):
             response_data = response.json()
 
             if 'error' in response_data:
-                raise ExchangeAuthorisationException(response_data['error'])
+                raise ExchangeAuthorisationError(response_data['error'])
 
             if response_data.get('scope', None) == 'read_write':
                 merchant = cls.objects.get(state=state)
@@ -115,11 +115,11 @@ class Merchant(models.Model):
                 merchant.save()
                 return merchant
             else:
-                raise ExchangeAuthorisationException('Scope not read_write.')
+                raise ExchangeAuthorisationError('Scope not read_write.')
         except cls.DoesNotExist:
-            raise ExchangeAuthorisationException()
+            raise ExchangeAuthorisationError()
         except ValueError:
-            raise ExchangeAuthorisationException()
+            raise ExchangeAuthorisationError()
 
 
 class Customer(models.Model, GCCacheMixin):
@@ -429,7 +429,7 @@ class RedirectFlow(models.Model, GCCreateMixin):
                 random=get_random_string(length=56)
             ),
             description=description,
-            merchant=None
+            merchant=merchant
         )
 
         params = {

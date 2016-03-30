@@ -2,7 +2,7 @@ from django.apps import apps
 from django.db import models
 from gocardless_pro.errors import InvalidApiUsageError
 
-from .exceptions import UnsupportedLinks
+from .exceptions import UnsupportedLinksError
 
 LINKS_MODELS = {
     'mandate': 'Mandate',
@@ -23,7 +23,7 @@ LINKS_MODELS = {
 
 def model_from_links(links, attr):
     if attr not in LINKS_MODELS:
-        raise UnsupportedLinks(
+        raise UnsupportedLinksError(
             '{attr} is not a supported links model.'.format(
                 attr=attr
             )

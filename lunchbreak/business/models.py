@@ -62,7 +62,8 @@ class Staff(AbstractBaseUser, AbstractPasswordReset):
     store = models.OneToOneField(
         'lunch.Store',
         on_delete=models.CASCADE,
-        null=True
+        null=True,
+        blank=True
     )
     email = models.EmailField(
         max_length=255,
@@ -80,7 +81,8 @@ class Staff(AbstractBaseUser, AbstractPasswordReset):
     merchant = models.ForeignKey(
         'django_gocardless.Merchant',
         on_delete=models.SET_NULL,
-        null=True
+        null=True,
+        blank=True
     )
 
     is_superuser = models.BooleanField(
@@ -130,7 +132,10 @@ class Staff(AbstractBaseUser, AbstractPasswordReset):
         verbose_name_plural = 'Staff'
 
     def __unicode__(self):
-        return self.name
+        return '{store}: {name}'.format(
+            store=self.store,
+            name=self.name
+        )
 
 
 class StaffToken(BaseToken):

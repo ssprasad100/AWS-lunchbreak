@@ -260,10 +260,9 @@ GOCARDLESS = {
     'access_token': 'fGTKM_yaVZ7t-twTQ9uTJWo6Gy6f8nK70kGgjQTr',
     'environment': 'sandbox',
     'app': {
-        'redirect_uri': 'https://rtfwypwcam.localtunnel.me/gocardless/redirect',
+        'redirect_uri': 'https://sovdjuyasx.localtunnel.me/gocardless/redirect',
         'client_id': '2J4hQVvc7nIdFkpYvM9luLD7JCJWf6Iwco3W7Hu5yFOcmBPNSzQq1XwXurg-B17i',
         'client_secret': 'u9p1M_5j25uBmGdxTG04E-i_ZnCPERRHQkYFwqYZ3NCwUMyfraS-NJUg63WlJ18w',
-        #'client_secret': '4ImuvtnP-3QqynNnjU4v7uG6wLTb0G963nvJ2y4F',
         'oauth_baseurl': {
             'live': 'https://connect.gocardless.com',
             'sandbox': 'https://connect-sandbox.gocardless.com'

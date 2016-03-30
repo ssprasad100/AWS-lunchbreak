@@ -59,7 +59,24 @@ class UserAdmin(BaseUserAdmin):
         (
             None,
             {
-                'fields': ('email', 'password')
+                'fields': (
+                    'email',
+                    'first_name',
+                    'last_name',
+                    'password'
+                )
+            }
+        ),
+        (
+            'Lunchbreak',
+            {
+                'fields': ('store',)
+            }
+        ),
+        (
+            'GoCardless',
+            {
+                'fields': ('merchant',)
             }
         ),
         (

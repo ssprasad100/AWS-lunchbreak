@@ -1,6 +1,6 @@
 from gocardless_pro.resources import Event
 
-from .exceptions import UnsupportedEvent, UnsupportedLinks
+from .exceptions import UnsupportedEventError, UnsupportedLinksError
 from .signals import *
 from .utils import model_from_links
 
@@ -52,7 +52,7 @@ class EventHandler(object):
             raise ValueError('The EventHandler needs to be provided with an Event object.')
 
         if event.resource_type not in self.ACTIONS:
-            raise UnsupportedEvent(
+            raise UnsupportedEventError(
                 'Unsupported resource_type: {type}'.format(
                     type=event.resource_type
                 )
@@ -61,7 +61,7 @@ class EventHandler(object):
         actions = self.ACTIONS[event.resource_type]
 
         if event.action not in actions:
-            raise UnsupportedEvent(
+            raise UnsupportedEventError(
                 'Unsupported action: {action}'.format(
                    action=event.action
                 )
@@ -73,7 +73,7 @@ class EventHandler(object):
         for arg in signal.providing_args:
             try:
                 arguments[arg] = model_from_links(event.links, arg)
-            except UnsupportedLinks:
+            except UnsupportedLinksError:
                 continue
 
         signal.send(
