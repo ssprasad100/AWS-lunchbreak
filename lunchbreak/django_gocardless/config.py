@@ -16,6 +16,9 @@ SCHEMES = (
     ('sepa_cor1', 'Sepa Cor1',),
 )
 
+CURRENCY_EUR = 'EUR'
+CURRENCY_GBP = 'GBP'
+CURRENCY_SEK = 'SEK'
 CURRENCIES = (
     ('EUR', 'Euro'),
     ('GBP', 'British Pound'),

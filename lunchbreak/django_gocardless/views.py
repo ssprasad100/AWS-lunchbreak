@@ -101,7 +101,7 @@ class WebhookView(CSRFExemptView):
                     status=200
                 )
         except ValueError:
-            pass
+            raise
 
         return HttpResponse(
             status=400

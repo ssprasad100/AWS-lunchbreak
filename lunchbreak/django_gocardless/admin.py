@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django_gocardless.models import (Customer, CustomerBankAccount, Mandate,
-                                      Merchant, RedirectFlow)
+                                      Merchant, Payment, Payout, RedirectFlow,
+                                      Subscription)
 
 
 class EditOnly(admin.ModelAdmin):
@@ -31,4 +32,19 @@ class MandateAdmin(EditOnly):
 
 @admin.register(RedirectFlow)
 class RedirectFlowAdmin(EditOnly):
+    pass
+
+
+@admin.register(Payout)
+class PayoutAdmin(EditOnly):
+    pass
+
+
+@admin.register(Payment)
+class PaymentAdmin(EditOnly):
+    pass
+
+
+@admin.register(Subscription)
+class SubscriptionAdmin(EditOnly):
     pass

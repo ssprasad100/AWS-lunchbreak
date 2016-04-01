@@ -302,55 +302,58 @@ class Mandate(models.Model, GCCacheMixin):
 
     @cached_property
     def merchant(self):
-        if self.redirectflow is not None:
-            return self.redirectflow.merchant
+        try:
+            if self.redirectflow is not None:
+                return self.redirectflow.merchant
+        except RedirectFlow.DoesNotExist:
+            pass
         return self.customer_bank_account.merchant\
             if self.customer_bank_account is not None\
             else None
 
-    @classmethod
-    def created(cls, mandate, event, **kwargs):
+    @staticmethod
+    def created(sender, mandate, event, merchant=None, **kwargs):
         mandate.status = MANDATE_STATUSES[0][0]
         mandate.save()
 
-    @classmethod
-    def submitted(cls, mandate, event, **kwargs):
+    @staticmethod
+    def submitted(sender, mandate, event, merchant=None, **kwargs):
         mandate.status = MANDATE_STATUSES[1][0]
         mandate.save()
 
-    @classmethod
-    def active(cls, mandate, event, **kwargs):
+    @staticmethod
+    def active(sender, mandate, event, merchant=None, **kwargs):
         mandate.status = MANDATE_STATUSES[2][0]
         mandate.save()
 
-    @classmethod
-    def reinstated(cls, mandate, event, **kwargs):
+    @staticmethod
+    def reinstated(sender, mandate, event, merchant=None, **kwargs):
         mandate.status = MANDATE_STATUSES[2][0]
         mandate.save()
 
-    @classmethod
-    def transferred(cls, mandate, event, previous_customer_bank_account,
+    @staticmethod
+    def transferred(sender, mandate, event, previous_customer_bank_account,
                     new_customer_bank_account, **kwargs):
         # TODO Update customer bank account
         pass
 
-    @classmethod
-    def cancelled(cls, mandate, event, **kwargs):
+    @staticmethod
+    def cancelled(sender, mandate, event, merchant=None, **kwargs):
         mandate.status = MANDATE_STATUSES[4][0]
         mandate.save()
 
-    @classmethod
-    def failed(cls, mandate, event, **kwargs):
+    @staticmethod
+    def failed(sender, mandate, event, merchant=None, **kwargs):
         mandate.status = MANDATE_STATUSES[3][0]
         mandate.save()
 
-    @classmethod
-    def expired(cls, mandate, event, **kwargs):
+    @staticmethod
+    def expired(sender, mandate, event, merchant=None, **kwargs):
         mandate.status = MANDATE_STATUSES[5][0]
         mandate.save()
 
-    @classmethod
-    def resubmission_requested(cls, mandate, event, **kwargs):
+    @staticmethod
+    def resubmission_requested(sender, mandate, event, merchant=None, **kwargs):
         mandate.status = MANDATE_STATUSES[0][0]
         mandate.save()
 
@@ -424,9 +427,11 @@ class RedirectFlow(models.Model, GCCreateMixin):
         blank=True
     )
 
-    @property
+    @cached_property
     def is_completed(self):
-        return self.customer is not None
+        return self.customer is not None and \
+            self.customer_bank_account is not None and \
+            self.mandate is not None
 
     @classmethod
     def create(cls, description='', merchant=None, *args, **kwargs):
@@ -512,8 +517,8 @@ class Payout(models.Model, GCCacheMixin):
     def __unicode__(self):
         return self.id
 
-    @classmethod
-    def paid(cls, payout, event, merchant, **kwargs):
+    @staticmethod
+    def paid(sender, payout, event, merchant=None, **kwargs):
         payout.status = PAYOUT_STATUSES[1][0]
         payout.save()
 
@@ -628,7 +633,7 @@ class Subscription(models.Model, GCCreateUpdateMixin):
 
     @classmethod
     def create(cls, given, *args, **kwargs):
-        cls.check_fields(
+        cls.validate_fields(
             cls.create_fields,
             given
         )
@@ -649,16 +654,16 @@ class Subscription(models.Model, GCCreateUpdateMixin):
             **kwargs
         )
 
-    @classmethod
-    def created(cls, subscription, event, merchant, **kwargs):
-        subscription.fetch()
+    @staticmethod
+    def created(sender, subscription, event, merchant=None, **kwargs):
+        subscription.fetch(subscription)
 
-    @classmethod
-    def payment_created(cls, subscription, event, merchant, **kwargs):
-        subscription.fetch()
+    @staticmethod
+    def payment_created(sender, subscription, event, merchant=None, **kwargs):
+        subscription.fetch(subscription)
 
-    @classmethod
-    def cancelled(cls, subscription, event, merchant, **kwargs):
+    @staticmethod
+    def cancelled(sender, subscription, event, merchant=None, **kwargs):
         subscription.status = SUBSCRIPTION_STATUSES[4][0]
 
 
@@ -686,6 +691,7 @@ class Payment(models.Model, GCCreateMixin):
             'reference',
         ]
     }
+    client_create_source = 'links.mandate'
 
     id = models.CharField(
         primary_key=True,
@@ -742,54 +748,54 @@ class Payment(models.Model, GCCreateMixin):
     def merchant(self):
         return self.mandate.merchant if self.mandate is not None else None
 
-    @classmethod
-    def created(cls, payment, event, merchant, **kwargs):
-        payment.fetch()
+    @staticmethod
+    def created(sender, payment, event, merchant=None, **kwargs):
+        payment.fetch(payment)
 
-    @classmethod
-    def submitted(cls, payment, event, merchant, **kwargs):
+    @staticmethod
+    def submitted(sender, payment, event, merchant=None, **kwargs):
         payment.status = PAYMENT_STATUSES[1][0]
         payment.save()
 
-    @classmethod
-    def confirmed(cls, payment, event, merchant, **kwargs):
+    @staticmethod
+    def confirmed(sender, payment, event, merchant=None, **kwargs):
         payment.status = PAYMENT_STATUSES[2][0]
         payment.save()
 
-    @classmethod
-    def cancelled(cls, payment, event, merchant, **kwargs):
+    @staticmethod
+    def cancelled(sender, payment, event, merchant=None, **kwargs):
         payment.status = PAYMENT_STATUSES[6][0]
         payment.save()
 
-    @classmethod
-    def failed(cls, payment, event, merchant, **kwargs):
+    @staticmethod
+    def failed(sender, payment, event, merchant=None, **kwargs):
         payment.status = PAYMENT_STATUSES[3][0]
         payment.save()
 
-    @classmethod
-    def charged_back(cls, payment, event, merchant, **kwargs):
+    @staticmethod
+    def charged_back(sender, payment, event, merchant=None, **kwargs):
         payment.status = PAYMENT_STATUSES[4][0]
         payment.save()
 
-    @classmethod
-    def chargeback_cancelled(cls, payment, event, merchant, **kwargs):
-        payment.fetch()
+    @staticmethod
+    def chargeback_cancelled(sender, payment, event, merchant=None, **kwargs):
+        payment.fetch(payment)
 
-    @classmethod
-    def paid_out(cls, payment, event, merchant, **kwargs):
-        payment.fetch()
+    @staticmethod
+    def paid_out(sender, payment, event, merchant=None, **kwargs):
+        payment.fetch(payment)
 
-    @classmethod
-    def late_failure_settled(cls, payment, event, merchant, **kwargs):
-        cls.failed(payment, event, merchant)
+    @staticmethod
+    def late_failure_settled(sender, payment, event, merchant=None, **kwargs):
+        payment.failed(payment, event)
 
-    @classmethod
-    def chargeback_settled(cls, payment, event, merchant, **kwargs):
-        cls.charged_back(payment, event, merchant)
+    @staticmethod
+    def chargeback_settled(sender, payment, event, merchant=None, **kwargs):
+        payment.charged_back(payment, event)
 
-    @classmethod
-    def resubmission_requested(cls, payment, event, merchant, **kwargs):
-        cls.submitted(payment, event, merchant)
+    @staticmethod
+    def resubmission_requested(sender, payment, event, merchant=None, **kwargs):
+        payment.submitted(payment, event)
 
 
 class Refund(models.Model, GCCacheMixin):
@@ -833,14 +839,14 @@ class Refund(models.Model, GCCacheMixin):
     def merchant(self):
         return self.payment.merchant if self.payment is not None else None
 
-    @classmethod
-    def created(cls, refund, event, merchant, **kwargs):
-        refund.fetch()
+    @staticmethod
+    def created(sender, refund, event, merchant=None, **kwargs):
+        refund.fetch(refund)
 
-    @classmethod
-    def paid(cls, refund, event, merchant, **kwargs):
+    @staticmethod
+    def paid(sender, refund, event, merchant=None, **kwargs):
         pass
 
-    @classmethod
-    def settled(cls, refund, event, merchant, **kwargs):
+    @staticmethod
+    def settled(sender, refund, event, merchant=None, **kwargs):
         pass

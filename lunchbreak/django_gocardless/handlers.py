@@ -63,7 +63,7 @@ class EventHandler(object):
         if event.action not in actions:
             raise UnsupportedEventError(
                 'Unsupported action: {action}'.format(
-                   action=event.action
+                    action=event.action
                 )
             )
 

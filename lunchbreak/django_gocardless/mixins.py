@@ -37,37 +37,15 @@ class GCCacheMixin(object):
         '''
 
         access_token = self.merchant.access_token \
-            if self.merchant is not None \
-            else settings.GOCARDLESS['access_token']
+            if self.merchant is not None else None
 
-        return gocardless_pro.Client(
-            access_token=access_token,
-            environment=settings.GOCARDLESS['environment']
+        return self.client_from_settings(
+            access_token=access_token
         )
-
-    @classmethod
-    def api_from_client(cls, client):
-        '''Appropriate GoCardless Service for model.'''
-
-        class_name = cls.__name__
-        return getattr(client, CLIENT_PROPERTIES[class_name])
 
     @cached_property
     def api(self):
         return self.api_from_client(self.client)
-
-    @staticmethod
-    def field_default(field):
-        cls = field.__class__
-
-        default = getattr(field, 'default', None)
-        default = None if default is models.NOT_PROVIDED else default
-
-        if (default is None and
-            (issubclass(cls, models.CharField) or
-             issubclass(cls, models.TextField))):
-            return ''
-        return default
 
     def from_resource(self, resource, client=None):
         '''
@@ -104,6 +82,11 @@ class GCCacheMixin(object):
 
         client = kwargs.pop('client', None)
 
+        params = kwargs.pop('params', {})
+        self.clean_params(params)
+        kwargs['params'] = params
+
+
         try:
             resource = method(
                 *args,
@@ -113,6 +96,29 @@ class GCCacheMixin(object):
             raise DjangoGoCardlessException.from_gocardless_exception(e)
         client = self.client if client is None else client
         self.from_resource(resource, client)
+
+    def json(self):
+        return str(self.id)
+
+    @classmethod
+    def api_from_client(cls, client):
+        '''Appropriate GoCardless Service for model.'''
+
+        class_name = cls.__name__
+        return getattr(client, CLIENT_PROPERTIES[class_name])
+
+    @staticmethod
+    def field_default(field):
+        cls = field.__class__
+
+        default = getattr(field, 'default', None)
+        default = None if default is models.NOT_PROVIDED else default
+
+        if (default is None and
+            (issubclass(cls, models.CharField) or
+             issubclass(cls, models.TextField))):
+            return ''
+        return default
 
     @classmethod
     def fetch(cls, instance=None, where=None, client=None, *args, **kwargs):
@@ -138,6 +144,23 @@ class GCCacheMixin(object):
         instance.save(*args, **kwargs)
 
         return instance
+
+    @staticmethod
+    def client_from_settings(access_token=None, environment=None):
+        """Get GoCardless Client from token and environment.
+
+        Uses access_token and environment by default if nothing was given.
+        """
+        access_token = settings.GOCARDLESS['access_token'] \
+            if access_token is None else access_token
+
+        environment = settings.GOCARDLESS['environment'] \
+            if environment is None else environment
+
+        return gocardless_pro.Client(
+            access_token=access_token,
+            environment=environment
+        )
 
 
 class GCCreateMixin(GCCacheMixin):
@@ -201,7 +224,18 @@ class GCCreateMixin(GCCacheMixin):
                 )
 
     @classmethod
-    def check_fields(cls, fields, given):
+    def clean_params(cls, params):
+        for key, value in params.iteritems():
+            if isinstance(value, dict):
+                cls.clean_params(value)
+            else:
+                if issubclass(value.__class__, GCCacheMixin):
+                    params[key] = value.json()
+                elif not isinstance(value, int) and not isinstance(value, unicode):
+                    params[key] = unicode(value)
+
+    @classmethod
+    def validate_fields(cls, fields, given):
         '''
         Check if the fields given are viable for the fields that are required
         or optional.
@@ -262,21 +296,37 @@ class GCCreateMixin(GCCacheMixin):
         cls.check_optional(optional_fields, given_copy)
 
     @classmethod
-    def create(cls, given, instance=None, check=True, *args, **kwargs):
+    def create(cls, given, instance=None, check=True, client=None, *args, **kwargs):
         '''
         Create a resource on the GoCardless servers.
         '''
 
         if check:
-            cls.check_fields(
+            cls.validate_fields(
                 cls.create_fields,
                 given
             )
 
+        if client is None:
+            if instance is not None:
+                client = instance.client
+            elif hasattr(cls, 'client_create_source'):
+                source = cls.client_create_source
+                split = source.split('.')
+                client_source = given
+                for i in split:
+                    client_source = client_source[i]
+                client = client_source.client
+            else:
+                client = cls.client_from_settings()
+
+        api = cls.api_from_client(client)
+
         instance = cls() if instance is None else instance
         instance.from_api(
-            instance.api.create,
-            params=given
+            api.create,
+            params=given,
+            client=client
         )
         instance.save(*args, **kwargs)
 
@@ -297,7 +347,7 @@ class GCCreateUpdateMixin(GCCreateMixin):
         Update a resource on the GoCardless servers.
         '''
 
-        self.check_fields(
+        self.validate_fields(
             self.create_fields,
             given
         )

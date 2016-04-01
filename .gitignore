@@ -3,6 +3,7 @@
 lunchbreak/static/
 lunchbreak/frontend/static/css
 lunchbreak/frontend/static/CACHE
+lunchbreak/Lunchbreak/settings/local.py
 
 # Certificates
 salt/synced/salt/keys

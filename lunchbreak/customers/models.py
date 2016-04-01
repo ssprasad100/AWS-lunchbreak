@@ -9,6 +9,7 @@ from django.db import models
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
+from django_gocardless.config import CURRENCY_EUR
 from django_gocardless.models import Payment, RedirectFlow
 from lunch.config import (COST_GROUP_ADDITIONS, COST_GROUP_BOTH, INPUT_SI_SET,
                           INPUT_SI_VARIABLE)
@@ -441,7 +442,8 @@ class Order(models.Model, DirtyFieldsMixin):
     payment = models.ForeignKey(
         Payment,
         on_delete=models.SET_NULL,
-        null=True
+        null=True,
+        blank=True
     )
 
     def save(self, *args, **kwargs):
@@ -467,12 +469,7 @@ class Order(models.Model, DirtyFieldsMixin):
 
             if dirty_status is not None:
                 if self.status == ORDER_STATUS_WAITING:
-                    self.user.usertoken_set.all().send_message(
-                        'Je bestelling bij {store} ligt klaar!'.format(
-                            store=self.store.name
-                        ),
-                        sound='default'
-                    )
+                    self.waiting()
 
         super(Order, self).save(*args, **kwargs)
 
@@ -483,6 +480,49 @@ class Order(models.Model, DirtyFieldsMixin):
                         f.original.delete()
                 except Food.DoesNotExist:
                     pass
+
+    def waiting(self):
+        """Called when status is set to waiting.
+
+        ..note:
+            Does not save the instance.
+        """
+        self.user.usertoken_set.all().send_message(
+            'Je bestelling bij {store} ligt klaar!'.format(
+                store=self.store.name
+            ),
+            sound='default'
+        )
+
+        if self.payment_method == PAYMENT_METHOD_GOCARDLESS:
+            try:
+                paymentlink = self.user.paymentlink_set.select_related(
+                    'redirectflow__mandate'
+                ).get(
+                    store=self.store
+                )
+
+                if paymentlink.redirectflow.is_completed:
+                    mandate = paymentlink.redirectflow.mandate
+                    self.payment = Payment.create(
+                        {
+                            'amount': int(self.total * 100),
+                            'currency': CURRENCY_EUR,
+                            'links': {
+                                'mandate': mandate
+                            },
+                            'description': _(
+                                'Lunchbreak bestelling #%(order_id)s bij %(store)s.'
+                            ) % {
+                                'order_id': self.id,
+                                'store': self.store.name
+                            }
+                        }
+                    )
+            except PaymentLink.DoesNotExist:
+                pass
+            # TODO Send the user an email/text stating the failed transaction.
+            self.payment_method = PAYMENT_METHOD_CASH
 
     @staticmethod
     def check_cost(cost_calculated, food, amount, cost_given):
