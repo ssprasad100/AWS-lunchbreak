@@ -36,15 +36,31 @@ router_extended = ExtendedSimpleRouter()
         ]
     )
 )
+(
+    router_extended.register(
+        r'store',
+        views.StoreViewSet,
+        base_name='customers-store'
+    ).register(
+        r'foodcategory',
+        views.StoreFoodCategoryViewSet,
+        base_name='customers-store-foodcategory',
+        parents_query_lookups=[
+            'pk'
+        ]
+    )
+)
 
 urlpatterns = router_simple.urls + router_extended.urls + patterns(
+    '',
     url(
-        r'^food/category/(?P<foodcategory_id>\d+)/?$',
-        views.StoreViewSet.as_view(
+        r'^food/foodcategory/(?P<foodcategory_id>\d+)/?$',
+        views.FoodViewSet.as_view(
             {
-                'get': 'food'
+                'get': 'list'
             }
-        )
+        ),
+        name='customer-food-foodcategory-list'
     ),
 
     url(

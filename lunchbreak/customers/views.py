@@ -30,22 +30,48 @@ from .serializers import (GroupSerializer, InviteSerializer,
 
 
 class FoodViewSet(TargettedViewSet,
-                  mixins.RetrieveModelMixin):
+                  mixins.RetrieveModelMixin,
+                  mixins.ListModelMixin):
 
     authentication_classes = (CustomerAuthentication,)
 
+    queryset = Food.objects.all()
+
     serializer_class_retrieve = SingleFoodSerializer
+    serializer_class_list = MultiFoodSerializer
 
     @property
     def queryset_retrieve(self):
-        return Food.objects.select_related(
+        result = Food.objects.filter(
+            deleted=False
+        ).select_related(
             'foodtype',
             'category',
-        ).filter(
-            deleted=False
         ).prefetch_related(
             'ingredientrelation_set__ingredient',
             'ingredientgroups',
+        )
+
+        return result
+
+    @property
+    def queryset_list(self):
+        if 'foodcategory_id' not in self.kwargs:
+            raise Http404()  # Bug? This is ignored.
+
+        return Food.objects.filter(
+            category_id=self.kwargs['foodcategory_id'],
+            deleted=False
+        ).select_related(
+            'category',
+            'foodtype',
+        ).prefetch_related(
+            'ingredients',  # Food.has_ingredients
+        ).order_by(
+            '-category__priority',
+            'category__name',
+            '-priority',
+            'name'
         )
 
 
@@ -127,7 +153,6 @@ class StoreViewSet(TargettedViewSet,
     serializer_class_retrieve = ShortStoreSerializer
     serializer_class_create = ShortStoreSerializer
     serializer_class_list = ShortStoreSerializer
-    serializer_class_foodcategory = ShortFoodCategorySerializer
     serializer_class_heart = StoreHeartSerializer
     serializer_class_unheart = StoreHeartSerializer
     serializer_class_paymentlink = PaymentLinkSerializer
@@ -218,10 +243,6 @@ class StoreViewSet(TargettedViewSet,
             option='unheart'
         )
 
-    @detail_route(methods=['get'])
-    def foodcategory(self, request, pk=None):
-        return self._list(request)
-
     @detail_route(methods=['post', 'get'])
     def paymentlink(self, request, pk=None):
         try:
@@ -276,18 +297,10 @@ class StoreFoodViewSet(TargettedViewSet,
 
     @property
     def queryset(self):
-        print self.kwargs
-        if 'parent_lookup_pk' in self.kwargs:
-            result = Food.objects.filter(
-                store_id=self.kwargs['parent_lookup_pk'],
-                deleted=False
-            )
-        elif 'foodcategory_id' in self.kwargs:
-            result = Food.objects.filter(
-                category_id=self.kwargs['foodcategory_id'],
-                deleted=False
-            )
-        result = result.select_related(
+        return Food.objects.filter(
+            store_id=self.kwargs['parent_lookup_pk'],
+            deleted=False
+        ).select_related(
             'category',
             'foodtype',
         ).prefetch_related(
@@ -298,8 +311,24 @@ class StoreFoodViewSet(TargettedViewSet,
             '-priority',
             'name'
         )
-        print result
-        return result
+
+
+class StoreFoodCategoryViewSet(TargettedViewSet,
+                               NestedViewSetMixin,
+                               mixins.ListModelMixin):
+
+    serializer_class = ShortFoodCategorySerializer
+    pagination_class = SimplePagination
+
+    @property
+    def queryset(self):
+        # Check if filter for store_id is required
+        return FoodCategory.objects.filter(
+            store_id=self.kwargs['parent_lookup_pk']
+        ).order_by(
+            '-priority',
+            'name'
+        )
 
 
 class ReservationSingleView(generics.RetrieveUpdateAPIView):
