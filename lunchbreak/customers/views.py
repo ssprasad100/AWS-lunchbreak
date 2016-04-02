@@ -9,6 +9,7 @@ from lunch.serializers import (FoodCategorySerializer, MultiFoodSerializer,
                                ShortStoreSerializer, SingleFoodSerializer)
 from lunch.views import (HolidayPeriodListViewBase, OpeningHoursListViewBase,
                          OpeningListViewBase, StoreCategoryListViewBase)
+from Lunchbreak.views import TargettedViewSet
 from rest_framework import filters, generics, mixins, status, viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
@@ -57,58 +58,10 @@ class FoodCategoryRetrieveView(generics.RetrieveAPIView):
     ).all()
 
 
-class TargettedViewSet(object):
-
-    def get_attr_action(self, attribute):
-        action_attribute = '{attribute}_{action}'.format(
-            attribute=attribute,
-            action=self.action
-        )
-        if hasattr(self, action_attribute):
-            return getattr(self, action_attribute)
-        return None
-
-    def get_serializer_class(self):
-        return self.get_attr_action('serializer_class') or \
-            super(TargettedViewSet, self).get_serializer_class()
-
-    def get_queryset(self):
-        return self.get_attr_action('queryset') or \
-            super(TargettedViewSet, self).get_queryset()
-
-    def get_pagination_class(self):
-        return self.get_attr_action('pagination_class') or \
-            super(TargettedViewSet, self).get_pagination_class()
-
-    def get_serializer_context(self):
-        return self.get_attr_action('serializer_context') or \
-            super(TargettedViewSet, self).get_serializer_context()
-
-    def _list(self, request):
-        queryset = self.get_queryset()
-        serializer_class = self.get_serializer_class()
-        serializer = serializer_class(queryset, many=True)
-        return Response(
-            data=serializer.data,
-            status=status.HTTP_200_OK
-        )
-
-
-class CreateListRetrieveViewSet(TargettedViewSet,
-                                mixins.CreateModelMixin,
-                                mixins.ListModelMixin,
-                                mixins.RetrieveModelMixin,
-                                viewsets.GenericViewSet):
-
-    """ViewSet that provides `retrieve`, `create` and `list` actions.
-
-    Allows for a `.retrieve_serializer_class`, `.create_serializer_class`,
-    `.list_serializer_class` to be used.
-    """
-    pass
-
-
-class OrderViewSet(CreateListRetrieveViewSet):
+class OrderViewSet(TargettedViewSet,
+                   mixins.CreateModelMixin,
+                   mixins.ListModelMixin,
+                   mixins.RetrieveModelMixin):
 
     authentication_classes = (CustomerAuthentication,)
 
@@ -163,8 +116,7 @@ class OrderViewSet(CreateListRetrieveViewSet):
 
 class StoreViewSet(TargettedViewSet,
                    mixins.ListModelMixin,
-                   mixins.RetrieveModelMixin,
-                   viewsets.GenericViewSet):
+                   mixins.RetrieveModelMixin):
 
     authentication_classes = (CustomerAuthentication,)
     filter_backends = (filters.SearchFilter,)

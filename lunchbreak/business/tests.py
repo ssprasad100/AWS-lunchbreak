@@ -6,6 +6,7 @@ from datetime import timedelta
 from customers.config import ORDER_STATUS_COMPLETED
 from customers.models import Order, OrderedFood, User, UserToken
 from django.core.urlresolvers import reverse
+from django.http import Http404
 from django.utils import timezone
 from lunch.models import (Food, FoodCategory, FoodType, HolidayPeriod,
                           Ingredient, IngredientGroup, IngredientRelation,
@@ -173,24 +174,24 @@ class BusinessTests(LunchbreakTestCase):
             'pk': food.id
         }
         url = reverse(
-            'business-food-single',
+            'business-food-delete',
             kwargs=url_kwargs
         )
 
         # Trying to delete it while there still is a depending OrderedFood
         # should return 200
-        request = self.factory.delete(url, format=BusinessTests.FORMAT)
+        request = self.factory.delete(url)
         response = self.authenticate_request(
             request,
-            views.FoodSingleView,
+            views.FoodViewSet,
             user=self.owner,
+            view_actions={
+                'delete': 'delete'
+            },
             **url_kwargs
         )
 
-        try:
-            Food.objects.get(id=food.id)
-        except:
-            self.fail('Food got deleted when there still was an incomplete OrderedFood.')
+        self.assertTrue(Food.objects.filter(id=food.id).exists())
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # Because the food is now marked to be deleted
@@ -198,16 +199,20 @@ class BusinessTests(LunchbreakTestCase):
         order.status = ORDER_STATUS_COMPLETED
         order.save()
 
-        request = self.factory.delete(url, format=BusinessTests.FORMAT)
-        response = self.authenticate_request(
+        request = self.factory.delete(url)
+
+        self.assertRaises(
+            Http404,
+            self.authenticate_request,
             request,
-            views.FoodSingleView,
+            views.FoodViewSet,
             user=self.owner,
+            view_actions={
+                'delete': 'delete'
+            },
             **url_kwargs
         )
-
         self.assertRaises(Food.DoesNotExist, Food.objects.get, id=food.id)
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         # If the food is not yet marked as deleted, but has no
         # unfinished orders, a 204 should be returned.
@@ -215,11 +220,14 @@ class BusinessTests(LunchbreakTestCase):
         orderedfood.original = food_duplicate
         orderedfood.save()
 
-        request = self.factory.delete(url, format=BusinessTests.FORMAT)
+        request = self.factory.delete(url)
         response = self.authenticate_request(
             request,
-            views.FoodSingleView,
+            views.FoodViewSet,
             user=self.owner,
+            view_actions={
+                'delete': 'delete'
+            },
             **url_kwargs
         )
 

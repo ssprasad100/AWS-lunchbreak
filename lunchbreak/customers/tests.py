@@ -177,7 +177,7 @@ class CustomersTests(LunchbreakTestCase):
         mock_login.return_value = mock_info
         mock_register.return_value = mock_info
 
-        url = reverse('user-register')
+        url = reverse('customers-user-register')
         content = {
             'phone': CustomersTests.VALID_PHONE
         }
@@ -199,7 +199,7 @@ class CustomersTests(LunchbreakTestCase):
 
     @mock.patch('customers.models.User.register')
     def test_registration_demo(self, mock_register):
-        url = reverse('user-register')
+        url = reverse('customers-user-register')
         content = {
             'phone': DEMO_PHONE
         }
@@ -219,7 +219,7 @@ class CustomersTests(LunchbreakTestCase):
 
     @mock.patch('customers.models.User.register')
     def test_registration_invalid(self, mock_register):
-        url = reverse('user-register')
+        url = reverse('customers-user-register')
         content = {
             'phone': CustomersTests.INVALID_PHONE
         }
@@ -249,7 +249,7 @@ class CustomersTests(LunchbreakTestCase):
         }
         mock_signin.return_value = None
 
-        url = reverse('user-login')
+        url = reverse('customers-user-login')
         content = {
             'phone': CustomersTests.VALID_PHONE,
             'pin': CustomersTests.PIN,
@@ -308,7 +308,7 @@ class CustomersTests(LunchbreakTestCase):
 
     @mock.patch('customers.models.User.login')
     def test_login_demo(self, mock_login):
-        url = reverse('user-login')
+        url = reverse('customers-user-login')
 
         content = {
             'phone': DEMO_PHONE,
@@ -358,8 +358,8 @@ class CustomersTests(LunchbreakTestCase):
         view_actions_unheart = {
             'patch': 'unheart'
         }
-        heart_url = reverse('store-heart', kwargs=reverse_kwargs)
-        unheart_url = reverse('store-unheart', kwargs=reverse_kwargs)
+        heart_url = reverse('customers-store-heart', kwargs=reverse_kwargs)
+        unheart_url = reverse('customers-store-unheart', kwargs=reverse_kwargs)
 
         request = self.factory.patch(heart_url, {})
         response = self.authenticate_request(
@@ -430,7 +430,7 @@ class CustomersTests(LunchbreakTestCase):
                 }
             ]
         }
-        url = reverse('order-list')
+        url = reverse('customers-order-list')
 
         view_actions = {
             'post': 'create'
@@ -463,7 +463,7 @@ class CustomersTests(LunchbreakTestCase):
         view_actions_put = {
             'put': 'token'
         }
-        url = reverse('user-token')
+        url = reverse('customers-user-token')
 
         request = self.factory.patch(url, content)
         response = self.authenticate_request(request, views.UserViewSet, view_actions=view_actions_patch)
@@ -517,7 +517,7 @@ class CustomersTests(LunchbreakTestCase):
         attributes he is not allowed to.
         '''
 
-        url = reverse('user-reservation')
+        url = reverse('customers-user-reservation')
 
         content = {
             'store': self.store.id,
@@ -556,7 +556,7 @@ class CustomersTests(LunchbreakTestCase):
         )
 
         kwargs = {'pk': reservation.id}
-        url = reverse('reservation', kwargs=kwargs)
+        url = reverse('customers-reservation', kwargs=kwargs)
 
         attributed_denied = {
             'seats': self.store.seats_max - 1,

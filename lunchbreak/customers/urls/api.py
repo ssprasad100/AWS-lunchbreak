@@ -4,9 +4,9 @@ from rest_framework.routers import SimpleRouter
 from .. import views
 
 router = SimpleRouter()
-router.register(r'user', views.UserViewSet)
-router.register(r'order', views.OrderViewSet)
-router.register(r'store', views.StoreViewSet)
+router.register(r'user', views.UserViewSet, base_name='customers-user')
+router.register(r'order', views.OrderViewSet, base_name='customers-order')
+router.register(r'store', views.StoreViewSet, base_name='customers-store')
 urlpatterns = router.urls + patterns(
     '',
     url(
@@ -44,12 +44,12 @@ urlpatterns = router.urls + patterns(
     url(
         r'^reservation/?$',
         views.ReservationMultiView.as_view(),
-        name='user-reservation'
+        name='customers-user-reservation'
     ),
     url(
         r'^reservation/(?P<pk>\d+)/?$',
         views.ReservationSingleView.as_view(),
-        name='reservation'
+        name='customers-reservation'
     ),
 
     url(

@@ -30,7 +30,9 @@ from lunch.serializers import (FoodTypeSerializer, QuantitySerializer,
                                ShortFoodCategorySerializer)
 from lunch.views import (HolidayPeriodListViewBase, OpeningHoursListViewBase,
                          OpeningListViewBase, StoreCategoryListViewBase)
-from rest_framework import generics, status, viewsets
+from Lunchbreak.views import TargettedViewSet
+from rest_framework import generics, mixins, status, viewsets
+from rest_framework.decorators import detail_route, list_route
 from rest_framework.exceptions import MethodNotAllowed
 from rest_framework.response import Response
 
@@ -120,40 +122,24 @@ class ResetRequestView(generics.CreateAPIView):
         return authentication.password_reset_request(request)
 
 
-class FoodSingleView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = (StoreOwnerPermission,)
+class FoodViewSet(TargettedViewSet,
+                  mixins.ListModelMixin,
+                  mixins.RetrieveModelMixin,
+                  mixins.UpdateModelMixin):
+
+    serializer_class = ShortFoodSerializer
+    serializer_class_retrieve = SingleFoodSerializer
+
     authentication_classes = (EmployeeAuthentication,)
 
-    def get_queryset(self):
+    @property
+    def queryset(self):
         return Food.objects.filter(
             store=self.request.user.staff.store
         )
 
-    def get_serializer_class(self):
-        if self.request.method == 'GET':
-            return SingleFoodSerializer
-        else:
-            return ShortFoodSerializer
-
-    def delete(self, request, pk, format=None):
-        try:
-            food = self.get_queryset().get(id=pk)
-        except Food.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-        food.delete()
-        try:
-            self.get_queryset().get(id=pk)
-        except Food.DoesNotExist:
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response(status=status.HTTP_200_OK)
-
-
-class FoodListView(generics.ListAPIView):
-    authentication_classes = (EmployeeAuthentication,)
-    serializer_class = ShortFoodSerializer
-
-    def get_queryset(self):
+    @property
+    def queryset_list(self):
         since = datetime_request(self.request, self.kwargs, arg='since')
         if since is not None:
             result = Food.objects.filter(
@@ -167,27 +153,12 @@ class FoodListView(generics.ListAPIView):
 
         return result.order_by('-priority', 'name')
 
-
-class FoodView(FoodListView, generics.CreateAPIView):
-    permission_classes = (StoreOwnerPermission,)
-
-    def post(self, request, datetime=None, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid():
-            serializer.save(store=request.user.staff.store)
-            return Response(data=serializer.data, status=status.HTTP_201_CREATED)
-        return BadRequest(serializer.errors)
-
-
-class FoodPopularView(generics.ListAPIView):
-    authentication_classes = (EmployeeAuthentication,)
-    serializer_class = ShortFoodSerializer
-
-    def get_queryset(self):
+    @property
+    def queryset_popular(self):
         frm = datetime_request(self.request, self.kwargs, arg='frm')
-        to = datetime_request(self.request, self.kwargs, arg='to')
 
         if frm is not None:
+            to = datetime_request(self.request, self.kwargs, arg='to')
             to = to if to is not None else timezone.now()
             return Food.objects.filter(
                 store_id=self.request.user.staff.store_id,
@@ -198,6 +169,27 @@ class FoodPopularView(generics.ListAPIView):
             ).order_by('-orderedfood_count')
         else:
             raise Http404()
+
+    @list_route(methods=['post'], permission_classes=[StoreOwnerPermission])
+    def list(self, request):
+        return super(FoodViewSet, self).list(request)
+
+    @detail_route(methods=['patch'], permission_classes=[StoreOwnerPermission])
+    def update(self, request, pk=None):
+        return super(FoodViewSet, self).update(request, pk)
+
+    @detail_route(methods=['delete'], permission_classes=[StoreOwnerPermission])
+    def delete(self, request, pk=None):
+        food = self.get_object()
+        food.delete()
+
+        if food.pk is not None:
+            return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @list_route(methods=['get'])
+    def popular(self, request):
+        return self._list(request)
 
 
 class ListCreateStoreView(generics.ListCreateAPIView):

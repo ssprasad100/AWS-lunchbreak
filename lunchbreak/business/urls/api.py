@@ -1,11 +1,15 @@
-from business import views
-from business.authentication import EmployeeAuthentication, StaffAuthentication
-from business.models import Employee, EmployeeToken, Staff, StaffToken
-from business.serializers import (EmployeePasswordSerializer,
-                                  StaffPasswordSerializer)
 from django.conf.urls import patterns, url
+from rest_framework.routers import SimpleRouter
 
-urlpatterns = patterns(
+from .. import views
+from ..authentication import EmployeeAuthentication, StaffAuthentication
+from ..models import Employee, EmployeeToken, Staff, StaffToken
+from ..serializers import EmployeePasswordSerializer, StaffPasswordSerializer
+
+router = SimpleRouter()
+router.register(r'food', views.FoodViewSet, base_name='business-food')
+
+urlpatterns = router.urls + patterns(
     '',
     url(
         r'^employee/?$',
@@ -29,19 +33,22 @@ urlpatterns = patterns(
         }
     ),
     url(
-        r'^food/(?P<pk>\d+)/?$',
-        views.FoodSingleView.as_view(),
-        name='business-food-single'
-    ),
-    url(
         r'^food/(?P<since>\d{8}T\d{6}|\d{2}-\d{2}-\d{4}-\d{2}-\d{2}-\d{2})?/?$',
-        views.FoodView.as_view()
+        views.FoodViewSet.as_view(
+            {
+                'get': 'list'
+            }
+        )
     ),
     url(
         r'^food/popular'
         r'/(?P<frm>\d{8}T\d{6}|\d{2}-\d{2}-\d{4}-\d{2}-\d{2}-\d{2})?'
         r'/(?P<to>\d{8}T\d{6}|\d{2}-\d{2}-\d{4}-\d{2}-\d{2}-\d{2})?/?$',
-        views.FoodPopularView.as_view()
+        views.FoodViewSet.as_view(
+            {
+                'get': 'popular'
+            }
+        )
     ),
 
     url(
