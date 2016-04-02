@@ -265,6 +265,8 @@ class StoreFoodViewSet(TargettedViewSet,
                        mixins.ListModelMixin):
 
     serializer_class = MultiFoodSerializer
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
 
     @property
     def pagination_class(self):
