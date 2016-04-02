@@ -4,15 +4,11 @@ from rest_framework.routers import SimpleRouter
 from .. import views
 
 router = SimpleRouter()
-router.register(r'user', views.UserViewSet, base_name='customers-user')
+router.register(r'food', views.FoodViewSet, base_name='customers-food')
 router.register(r'order', views.OrderViewSet, base_name='customers-order')
 router.register(r'store', views.StoreViewSet, base_name='customers-store')
+router.register(r'user', views.UserViewSet, base_name='customers-user')
 urlpatterns = router.urls + patterns(
-    '',
-    url(
-        r'^food/(?P<pk>\d+)/?$',
-        views.FoodRetrieveView.as_view()
-    ),
     url(
         r'^food/category/(?P<foodcategory_id>\d+)/?$',
         views.StoreViewSet.as_view(

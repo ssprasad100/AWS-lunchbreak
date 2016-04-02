@@ -28,14 +28,15 @@ from .serializers import (GroupSerializer, InviteSerializer,
                           UserTokenUpdateSerializer)
 
 
-class FoodRetrieveView(generics.RetrieveAPIView):
-
-    """Retrieve a specific food."""
+class FoodViewSet(TargettedViewSet,
+                  mixins.RetrieveModelMixin):
 
     authentication_classes = (CustomerAuthentication,)
-    serializer_class = SingleFoodSerializer
 
-    def get_queryset(self):
+    serializer_class_retrieve = SingleFoodSerializer
+
+    @property
+    def queryset_retrieve(self):
         return Food.objects.select_related(
             'foodtype',
             'category',
