@@ -33,3 +33,4 @@ uwsgidecorators==1.1.0
 gocardless-pro==0.2.0
 Jinja2==2.8
 Markupsafe==0.23
+drf-extensions==0.2.8

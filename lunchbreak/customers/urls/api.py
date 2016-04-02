@@ -1,14 +1,43 @@
 from django.conf.urls import patterns, url
 from rest_framework.routers import SimpleRouter
+from rest_framework_extensions.routers import ExtendedSimpleRouter
 
 from .. import views
 
-router = SimpleRouter()
-router.register(r'food', views.FoodViewSet, base_name='customers-food')
-router.register(r'order', views.OrderViewSet, base_name='customers-order')
-router.register(r'store', views.StoreViewSet, base_name='customers-store')
-router.register(r'user', views.UserViewSet, base_name='customers-user')
-urlpatterns = router.urls + patterns(
+router_simple = SimpleRouter()
+router_simple.register(
+    r'food',
+    views.FoodViewSet,
+    base_name='customers-food'
+)
+router_simple.register(
+    r'order',
+    views.OrderViewSet,
+    base_name='customers-order'
+)
+router_simple.register(
+    r'user',
+    views.UserViewSet,
+    base_name='customers-user'
+)
+
+router_extended = ExtendedSimpleRouter()
+(
+    router_extended.register(
+        r'store',
+        views.StoreViewSet,
+        base_name='customers-store'
+    ).register(
+        r'food',
+        views.StoreFoodViewSet,
+        base_name='customers-store-food',
+        parents_query_lookups=[
+            'pk'
+        ]
+    )
+)
+
+urlpatterns = router_simple.urls + router_extended.urls + patterns(
     url(
         r'^food/category/(?P<foodcategory_id>\d+)/?$',
         views.StoreViewSet.as_view(

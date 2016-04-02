@@ -14,6 +14,7 @@ from rest_framework import filters, generics, mixins, status, viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from .authentication import CustomerAuthentication
 from .config import DEMO_DIGITS_ID, DEMO_PHONE
@@ -126,7 +127,6 @@ class StoreViewSet(TargettedViewSet,
     serializer_class_retrieve = ShortStoreSerializer
     serializer_class_create = ShortStoreSerializer
     serializer_class_list = ShortStoreSerializer
-    serializer_class_food = MultiFoodSerializer
     serializer_class_foodcategory = ShortFoodCategorySerializer
     serializer_class_heart = StoreHeartSerializer
     serializer_class_unheart = StoreHeartSerializer
@@ -158,36 +158,6 @@ class StoreViewSet(TargettedViewSet,
                     '-order__placed'
                 )
             return result
-
-    @property
-    def pagination_class_food(self):
-        if 'foodcategory_id' in self.kwargs:
-            return None
-        return SimplePagination
-
-    @property
-    def queryset_food(self):
-        if 'pk' in self.kwargs:
-            result = Food.objects.filter(
-                store_id=self.kwargs['pk'],
-                deleted=False
-            )
-        elif 'foodcategory_id' in self.kwargs:
-            result = Food.objects.filter(
-                category_id=self.kwargs['foodcategory_id'],
-                deleted=False
-            )
-        return result.select_related(
-            'category',
-            'foodtype',
-        ).prefetch_related(
-            'ingredients',  # Food.has_ingredients
-        ).order_by(
-            '-category__priority',
-            'category__name',
-            '-priority',
-            'name'
-        )
 
     @property
     def queryset_foodcategory(self):
@@ -249,10 +219,6 @@ class StoreViewSet(TargettedViewSet,
         )
 
     @detail_route(methods=['get'])
-    def food(self, request, pk=None, foodcategory_id=None):
-        return self._list(request)
-
-    @detail_route(methods=['get'])
     def foodcategory(self, request, pk=None):
         return self._list(request)
 
@@ -292,6 +258,46 @@ class StoreViewSet(TargettedViewSet,
                     status=status.HTTP_201_CREATED
                     if paymentlink is None else status.HTTP_200_OK
                 )
+
+
+class StoreFoodViewSet(TargettedViewSet,
+                       NestedViewSetMixin,
+                       mixins.ListModelMixin):
+
+    serializer_class = MultiFoodSerializer
+
+    @property
+    def pagination_class(self):
+        if 'foodcategory_id' in self.kwargs:
+            return None
+        return SimplePagination
+
+    @property
+    def queryset(self):
+        print self.kwargs
+        if 'parent_lookup_pk' in self.kwargs:
+            result = Food.objects.filter(
+                store_id=self.kwargs['parent_lookup_pk'],
+                deleted=False
+            )
+        elif 'foodcategory_id' in self.kwargs:
+            result = Food.objects.filter(
+                category_id=self.kwargs['foodcategory_id'],
+                deleted=False
+            )
+        result = result.select_related(
+            'category',
+            'foodtype',
+        ).prefetch_related(
+            'ingredients',  # Food.has_ingredients
+        ).order_by(
+            '-category__priority',
+            'category__name',
+            '-priority',
+            'name'
+        )
+        print result
+        return result
 
 
 class ReservationSingleView(generics.RetrieveUpdateAPIView):

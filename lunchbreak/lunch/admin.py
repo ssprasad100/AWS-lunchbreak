@@ -135,6 +135,9 @@ class FoodAdmin(admin.ModelAdmin):
         'id',
     )
     inlines = (IngredientsRelationInline,)
+    list_filter = [
+        'store'
+    ]
 
 
 @admin.register(Ingredient)
