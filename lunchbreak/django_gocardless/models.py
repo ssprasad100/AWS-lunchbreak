@@ -691,7 +691,7 @@ class Payment(models.Model, GCCreateMixin):
             'reference',
         ]
     }
-    client_create_source = 'links.mandate'
+    client_source_create = 'mandate'
 
     id = models.CharField(
         primary_key=True,

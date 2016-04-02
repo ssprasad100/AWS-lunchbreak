@@ -1,5 +1,5 @@
 from .models import Mandate, Payment, Payout, Refund, Subscription
-from .signals import *
+from .signals import *  # NOQA
 
 mandate_created.connect(
     Mandate.created,

@@ -183,14 +183,14 @@ class CustomersTests(LunchbreakTestCase):
         }
 
         view = views.UserViewSet
-        view_data = {
+        view_actions = {
             'post': 'register'
         }
 
         # As long as the name is not in the database, it should return 201
         for i in range(0, 2):
             request = self.factory.post(url, content)
-            response = self.as_view(request, view, view_data)
+            response = self.as_view(request, view, view_actions)
             response.render()
             self.assertEqual(response.content, '')
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -205,13 +205,13 @@ class CustomersTests(LunchbreakTestCase):
         }
 
         view = views.UserViewSet
-        view_data = {
+        view_actions = {
             'post': 'register'
         }
 
         # The demo should always return 200
         request = self.factory.post(url, content)
-        response = self.as_view(request, view, view_data)
+        response = self.as_view(request, view, view_actions)
         response.render()
         self.assertEqual(response.content, '')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -225,19 +225,19 @@ class CustomersTests(LunchbreakTestCase):
         }
 
         view = views.UserViewSet
-        view_data = {
+        view_actions = {
             'post': 'register'
         }
 
         request = self.factory.post(url, content)
-        response = self.as_view(request, view, view_data)
+        response = self.as_view(request, view, view_actions)
         self.assertEqualException(response, BadRequest)
         self.assertFalse(mock_register.called)
 
         content = {}
 
         request = self.factory.post(url, content)
-        response = self.as_view(request, view, view_data)
+        response = self.as_view(request, view, view_actions)
         self.assertEqualException(response, BadRequest)
         self.assertFalse(mock_register.called)
 
@@ -261,13 +261,13 @@ class CustomersTests(LunchbreakTestCase):
         }
 
         view = views.UserViewSet
-        view_data = {
+        view_actions = {
             'post': 'login'
         }
 
         # You cannot login without registering first
         request = self.factory.post(url, content)
-        response = self.as_view(request, view, view_data)
+        response = self.as_view(request, view, view_actions)
         self.assertEqualException(response, DoesNotExist)
 
         user = User.objects.create(
@@ -276,14 +276,14 @@ class CustomersTests(LunchbreakTestCase):
 
         # A username is required
         request = self.factory.post(url, content)
-        response = self.as_view(request, view, view_data)
+        response = self.as_view(request, view, view_actions)
         self.assertEqualException(response, BadRequest)
         self.assertFalse(user.name)
         self.assertFalse(user.confirmed_at)
 
         content['name'] = CustomersTests.NAME
         request = self.factory.post(url, content)
-        response = self.as_view(request, view, view_data)
+        response = self.as_view(request, view, view_actions)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         user.refresh_from_db()
         tokens = UserToken.objects.filter(user=user)
@@ -295,7 +295,7 @@ class CustomersTests(LunchbreakTestCase):
 
         content['name'] = CustomersTests.NAME_ALTERNATE
         request = self.factory.post(url, content)
-        response = self.as_view(request, view, view_data)
+        response = self.as_view(request, view, view_actions)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         user.refresh_from_db()
         tokens = UserToken.objects.filter(user=user)
@@ -321,13 +321,13 @@ class CustomersTests(LunchbreakTestCase):
         }
 
         view = views.UserViewSet
-        view_data = {
+        view_actions = {
             'post': 'login'
         }
 
         # Demo account is only allowed when it's in the database
         request = self.factory.post(url, content)
-        response = self.as_view(request, view, view_data)
+        response = self.as_view(request, view, view_actions)
         self.assertEqualException(response, BadRequest)
 
         demoPin = '1337'
@@ -335,12 +335,12 @@ class CustomersTests(LunchbreakTestCase):
 
         # Invalid pin
         request = self.factory.post(url, content)
-        response = self.as_view(request, view, view_data)
+        response = self.as_view(request, view, view_actions)
         self.assertEqualException(response, BadRequest)
 
         content['pin'] = demoPin
         request = self.factory.post(url, content)
-        response = self.as_view(request, view, view_data)
+        response = self.as_view(request, view, view_actions)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(UserToken.objects.filter(user=demo).count(), 1)
 
@@ -349,29 +349,57 @@ class CustomersTests(LunchbreakTestCase):
         demo.delete()
 
     def test_hearting(self):
-        heart_kwargs = {'option': 'heart', 'pk': self.store.id}
-        heart_url = reverse('store-heart', kwargs=heart_kwargs)
-        unheart_kwargs = {'option': 'unheart', 'pk': self.store.id}
-        unheart_url = reverse('store-heart', kwargs=unheart_kwargs)
+        reverse_kwargs = {
+            'pk': self.store.id
+        }
+        view_actions_heart = {
+            'patch': 'heart'
+        }
+        view_actions_unheart = {
+            'patch': 'unheart'
+        }
+        heart_url = reverse('store-heart', kwargs=reverse_kwargs)
+        unheart_url = reverse('store-unheart', kwargs=reverse_kwargs)
 
         request = self.factory.patch(heart_url, {})
-        response = self.authenticate_request(request, views.StoreHeartView, **heart_kwargs)
+        response = self.authenticate_request(
+            request,
+            views.StoreViewSet,
+            view_actions=view_actions_heart,
+            pk=self.store.id
+        )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Heart.objects.filter(user=self.user).count(), 1)
 
         request = self.factory.patch(heart_url, {})
-        response = self.authenticate_request(request, views.StoreHeartView, **heart_kwargs)
+        response = self.authenticate_request(
+            request,
+            views.StoreViewSet,
+            view_actions=view_actions_heart,
+            pk=self.store.id
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(Heart.objects.filter(user=self.user).count(), 1)
 
         request = self.factory.patch(unheart_url, {})
-        response = self.authenticate_request(request, views.StoreHeartView, **unheart_kwargs)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response = self.authenticate_request(
+            request,
+            views.StoreViewSet,
+            view_actions=view_actions_unheart,
+            pk=self.store.id
+        )
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Heart.objects.filter(user=self.user).count(), 0)
 
         request = self.factory.patch(unheart_url, {})
         self.assertRaises(
-            Http404, self.authenticate_request, request, views.StoreHeartView, **unheart_kwargs)
+            Http404,
+            self.authenticate_request,
+            request,
+            views.StoreViewSet,
+            view_actions=view_actions_unheart,
+            pk=self.store.id
+        )
 
     def clone_model(self, model):
         oldPk = model.pk
@@ -404,12 +432,12 @@ class CustomersTests(LunchbreakTestCase):
         }
         url = reverse('order-list')
 
-        view_data = {
+        view_actions = {
             'post': 'create'
         }
 
         request = self.factory.post(url, content)
-        response = self.authenticate_request(request, views.OrderViewSet, view_data=view_data)
+        response = self.authenticate_request(request, views.OrderViewSet, view_actions=view_actions)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         order = Order.objects.get(id=response.data['id'])
         self.assertEqual(order.total, original.cost * 2)
@@ -429,26 +457,26 @@ class CustomersTests(LunchbreakTestCase):
         self.food, original = self.clone_model(self.food)
 
         content = {}
-        view_data_patch = {
+        view_actions_patch = {
             'patch': 'token'
         }
-        view_data_put = {
+        view_actions_put = {
             'put': 'token'
         }
         url = reverse('user-token')
 
         request = self.factory.patch(url, content)
-        response = self.authenticate_request(request, views.UserViewSet, view_data=view_data_patch)
+        response = self.authenticate_request(request, views.UserViewSet, view_actions=view_actions_patch)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         request = self.factory.put(url, content)
-        response = self.authenticate_request(request, views.UserViewSet, view_data=view_data_put)
+        response = self.authenticate_request(request, views.UserViewSet, view_actions=view_actions_put)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         content['registration_id'] = 'blab'
 
         request = self.factory.patch(url, content)
-        response = self.authenticate_request(request, views.UserViewSet, view_data=view_data_patch)
+        response = self.authenticate_request(request, views.UserViewSet, view_actions=view_actions_patch)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.usertoken.refresh_from_db()
         self.assertEqual(self.usertoken.registration_id, content['registration_id'])
@@ -457,7 +485,7 @@ class CustomersTests(LunchbreakTestCase):
         self.usertoken.save()
 
         request = self.factory.put(url, content)
-        response = self.authenticate_request(request, views.UserViewSet, view_data=view_data_put)
+        response = self.authenticate_request(request, views.UserViewSet, view_actions=view_actions_put)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.usertoken.refresh_from_db()
         self.assertEqual(self.usertoken.registration_id, content['registration_id'])
@@ -467,7 +495,7 @@ class CustomersTests(LunchbreakTestCase):
         content['service'] = SERVICE_GCM
 
         request = self.factory.patch(url, content)
-        response = self.authenticate_request(request, views.UserViewSet, view_data=view_data_patch)
+        response = self.authenticate_request(request, views.UserViewSet, view_actions=view_actions_patch)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.usertoken.refresh_from_db()
         self.assertEqual(self.usertoken.registration_id, content['registration_id'])
@@ -477,7 +505,7 @@ class CustomersTests(LunchbreakTestCase):
         self.usertoken.save()
 
         request = self.factory.put(url, content)
-        response = self.authenticate_request(request, views.UserViewSet, view_data=view_data_put)
+        response = self.authenticate_request(request, views.UserViewSet, view_actions=view_actions_put)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.usertoken.refresh_from_db()
         self.assertEqual(self.usertoken.registration_id, content['registration_id'])

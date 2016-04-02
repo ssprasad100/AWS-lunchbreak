@@ -1,7 +1,7 @@
 from gocardless_pro.resources import Event
 
 from .exceptions import UnsupportedEventError, UnsupportedLinksError
-from .signals import *
+from .signals import *  # NOQA
 from .utils import model_from_links
 
 

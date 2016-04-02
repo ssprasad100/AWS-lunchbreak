@@ -1,7 +1,7 @@
 language: python
 python:
   - "2.7"
-install: "pip install -r lunchbreak/dev-requirements.txt --exists-action w"
+install: "pip install -r lunchbreak/requirements-dev.txt --exists-action w"
 script:
   - "fab deploy"
 notifications:

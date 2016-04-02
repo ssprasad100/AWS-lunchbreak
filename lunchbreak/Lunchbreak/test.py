@@ -52,16 +52,17 @@ class LunchbreakTestCase(APITestCase):
         self.assertEqual(response.data['error']['code'], exception.code, error_message)
         self.assertEqual(response.status_code, exception.status_code, error_message)
 
-    def as_view(self, request, view, view_data=None, *args, **kwargs):
-        if isinstance(view_data, dict):
-            result_view = view.as_view(view_data)
+    def as_view(self, request, view, view_actions=None, *args, **kwargs):
+        if isinstance(view_actions, dict):
+            result_view = view.as_view(
+                actions=view_actions
+            )
         else:
             result_view = view.as_view()
         return result_view(request, *args, **kwargs)
 
-
-    def authenticate_request(self, request, view, user=None, view_data=None, *args, **kwargs):
+    def authenticate_request(self, request, view, user=None, view_actions=None, *args, **kwargs):
         if user is None:
             user = self.user
         force_authenticate(request, user=user, token=self.usertoken)
-        return self.as_view(request, view, view_data, *args, **kwargs)
+        return self.as_view(request, view, view_actions, *args, **kwargs)

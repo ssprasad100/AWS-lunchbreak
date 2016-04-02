@@ -3,7 +3,7 @@ import os
 from split_settings.tools import include
 
 try:
-    from .local import *
+    from .local import *  # NOQA
 except ImportError:
     pass
 

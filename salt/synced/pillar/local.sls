@@ -9,4 +9,4 @@ branches:
       business: business_development.pem
       customers: customers_development.pem
     branch: development
-    requirements: dev-requirements.txt
+    requirements: requirements-dev.txt

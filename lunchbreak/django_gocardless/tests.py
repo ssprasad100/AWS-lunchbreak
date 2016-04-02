@@ -199,7 +199,7 @@ class DjangoGoCardlessTestCase(TestCase):
             id=self.CUSTOMER_INFO['id']
         )
 
-        # Deleting the link should delete the link locally too
+        # Deleting the link should not delete the link locally
         del mocked_info['links']
 
         mock_bank.return_value = resources.CustomerBankAccount(
@@ -208,17 +208,7 @@ class DjangoGoCardlessTestCase(TestCase):
         )
 
         models.CustomerBankAccount.fetch(customer_bank_account)
-        self.assertModelEqual(customer_bank_account, mocked_info)
-
-        # Deleting the customer link should recreate it after a fetch
-        mocked_info['links'] = self.CUSTOMER_BANK_ACCOUNT_INFO['links']
-        mock_bank.return_value = resources.CustomerBankAccount(
-            mocked_info,
-            None
-        )
-
-        models.CustomerBankAccount.fetch(customer_bank_account)
-        self.assertModelEqual(customer_bank_account, mocked_info)
+        self.assertModelEqual(customer_bank_account, self.CUSTOMER_BANK_ACCOUNT_INFO)
 
         # Deleting the customer should delete the customer's bank account
         customer.delete()
@@ -258,7 +248,7 @@ class DjangoGoCardlessTestCase(TestCase):
             id=mocked_info['links']['customer_bank_account']
         )
 
-        # Deleting the link should delete the link locally too
+        # Deleting the link should not delete the link locally
         del mocked_info['links']
 
         mock_mandate.return_value = resources.Mandate(
@@ -267,17 +257,7 @@ class DjangoGoCardlessTestCase(TestCase):
         )
 
         models.Mandate.fetch(mandate)
-        self.assertModelEqual(mandate, mocked_info)
-
-        # Deleting the customer bank account link should recreate it after a fetch
-        mocked_info['links'] = self.MANDATE_INFO['links']
-        mock_mandate.return_value = resources.Mandate(
-            mocked_info,
-            None
-        )
-
-        models.Mandate.fetch(mandate)
-        self.assertModelEqual(mandate, mocked_info)
+        self.assertModelEqual(mandate, self.MANDATE_INFO)
 
         # Deleting the custom bank account should delete the mandate
         customer_bank_account.delete()
@@ -521,7 +501,7 @@ class DjangoGoCardlessTestCase(TestCase):
         )
 
         # Deleting the mandate link should give an error
-        del mocked_info['links']
+        del given['links']
 
         mock_subscription.return_value = resources.Subscription(
             mocked_info,
@@ -566,7 +546,7 @@ class DjangoGoCardlessTestCase(TestCase):
         del given['id']
         del given['created_at']
         del given['status']
-        del given['metadata']  # Temporary
+        del given['metadata']
         del given['amount_refunded']
 
         mock_payment.return_value = resources.Payment(

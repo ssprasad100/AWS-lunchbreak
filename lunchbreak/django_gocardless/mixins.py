@@ -74,6 +74,17 @@ class GCCacheMixin(object):
                 value = temp if temp is not None else value
                 setattr(self, field.name, value)
 
+    @classmethod
+    def clean_params(cls, params):
+        for key, value in params.iteritems():
+            if isinstance(value, dict):
+                cls.clean_params(value)
+            else:
+                if issubclass(value.__class__, GCCacheMixin):
+                    params[key] = value.json()
+                elif not isinstance(value, int) and not isinstance(value, unicode):
+                    params[key] = unicode(value)
+
     def from_api(self, method, *args, **kwargs):
         '''
         Shorthand for `self.from_resource(resource)` with `resource` generated
@@ -85,7 +96,6 @@ class GCCacheMixin(object):
         params = kwargs.pop('params', {})
         self.clean_params(params)
         kwargs['params'] = params
-
 
         try:
             resource = method(
@@ -224,17 +234,6 @@ class GCCreateMixin(GCCacheMixin):
                 )
 
     @classmethod
-    def clean_params(cls, params):
-        for key, value in params.iteritems():
-            if isinstance(value, dict):
-                cls.clean_params(value)
-            else:
-                if issubclass(value.__class__, GCCacheMixin):
-                    params[key] = value.json()
-                elif not isinstance(value, int) and not isinstance(value, unicode):
-                    params[key] = unicode(value)
-
-    @classmethod
     def validate_fields(cls, fields, given):
         '''
         Check if the fields given are viable for the fields that are required
@@ -310,13 +309,11 @@ class GCCreateMixin(GCCacheMixin):
         if client is None:
             if instance is not None:
                 client = instance.client
-            elif hasattr(cls, 'client_create_source'):
-                source = cls.client_create_source
-                split = source.split('.')
-                client_source = given
-                for i in split:
-                    client_source = client_source[i]
-                client = client_source.client
+            elif 'links' in given and \
+                    not hasattr(cls, 'client_source_create') and \
+                    cls.client_source_create in given['links']:
+                model = model_from_links(given['links'], cls.client_source_create)
+                client = model.client
             else:
                 client = cls.client_from_settings()
 
