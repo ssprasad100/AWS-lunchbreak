@@ -57,7 +57,7 @@ class FoodViewSet(TargettedViewSet,
     @property
     def queryset_list(self):
         if 'foodcategory_id' not in self.kwargs:
-            raise Http404()  # Bug? This is ignored.
+            raise Http404()
 
         return Food.objects.filter(
             category_id=self.kwargs['foodcategory_id'],

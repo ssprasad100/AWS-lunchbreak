@@ -9,9 +9,7 @@ class TargettedViewSet(viewsets.GenericViewSet):
             attribute=attribute,
             action=self.action
         )
-        if hasattr(self, action_attribute):
-            return getattr(self, action_attribute)
-        return None
+        return getattr(self, action_attribute, None)
 
     def get_serializer_class(self):
         return self.get_attr_action('serializer_class') or \
