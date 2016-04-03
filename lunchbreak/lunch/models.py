@@ -11,10 +11,11 @@ from django.conf import settings
 from django.contrib.auth.hashers import check_password, make_password
 from django.core.exceptions import MultipleObjectsReturned, ValidationError
 from django.core.validators import MinValueValidator
-from django.db import models
+from django.db import DatabaseError, models
 from django.db.models.signals import m2m_changed
 from django.utils import timezone
 from django.utils.functional import cached_property
+from django.utils.translation import ugettext_lazy as _
 from imagekit.models import ImageSpecField
 from lunch.config import (COST_GROUP_ALWAYS, COST_GROUP_CALCULATIONS, DAYS,
                           ICONS, INPUT_AMOUNT, INPUT_TYPES, random_token)
@@ -23,6 +24,7 @@ from lunch.exceptions import (AddressNotFound, IngredientGroupMaxExceeded,
                               InvalidFoodTypeAmount, InvalidIngredientLinking,
                               InvalidStoreLinking)
 from lunch.specs import HDPI, LDPI, MDPI, XHDPI, XXHDPI, XXXHDPI
+from openpyxl import load_workbook
 from polaroid.models import Polaroid
 from private_media.storages import PrivateMediaStorage
 from push_notifications.models import BareDevice, DeviceManager
@@ -554,6 +556,7 @@ class FoodCategory(models.Model):
 
     class Meta:
         verbose_name_plural = 'Food categories'
+        unique_together = ('name', 'store',)
 
     def __unicode__(self):
         return self.name
@@ -737,8 +740,121 @@ class Food(models.Model):
                     food.update_typical()
 
     @classmethod
-    def from_csv(cls, file):
-        print file
+    def from_excel(cls, store, file):
+        workbook = load_workbook(
+            filename=file,
+            read_only=True
+        )
+
+        if 'Food' not in workbook:
+            raise ValidationError(
+                _('The worksheet "Food" could not be found. Please use our template.')
+            )
+
+        worksheet = workbook['Food']
+        mapping = [
+            {
+                'field_name': 'name',
+            },
+            {
+                'field_name': 'description',
+            },
+            {
+                'field_name': 'category',
+                'instance': {
+                    'model': FoodCategory,
+                    'create': True,
+                    'field_name': 'name'
+                }
+            },
+            {
+                'field_name': 'cost',
+            },
+            {
+                'field_name': 'foodtype',
+                'instance': {
+                    'model': FoodType,
+                    'field_name': 'name',
+                    'store': False
+                }
+            },
+            {
+                'field_name': 'preorder_days',
+            },
+            {
+                'field_name': 'priority',
+            },
+        ]
+        mapping_length = len(mapping)
+
+        food_list = []
+        created_relations = []
+        skip = True
+        for row in worksheet.rows:
+            # Skip headers
+            if skip:
+                skip = False
+                continue
+
+            kwargs = {}
+            exclude = []
+
+            for cell in row:
+                if not isinstance(cell.column, int):
+                    continue
+
+                i = cell.column - 1
+                if i >= mapping_length:
+                    continue
+                info = mapping[i]
+                value = cell.value
+                if 'instance' in info:
+                    instance = info['instance']
+                    create = instance.get('create', False)
+                    model = instance['model']
+
+                    exclude.append(info['field_name'])
+                    where = {
+                        instance['field_name']: cell.value
+                    }
+                    if instance.get('store', True):
+                        where['store'] = store
+
+                    if create:
+                        value, created = model.objects.get_or_create(
+                            **where
+                        )
+                        if created:
+                            created_relations.append(value)
+                    else:
+                        value = model.objects.get(
+                            **where
+                        )
+
+                kwargs[info['field_name']] = value
+
+            food = Food(
+                store=store,
+                **kwargs
+            )
+            try:
+                food.clean_fields(exclude=exclude)
+            except ValidationError:
+                for relation in created_relations:
+                    relation.delete()
+                raise ValidationError(
+                    _('Could not import row %(row)d.') % {
+                        'row': cell.row
+                    }
+                )
+
+            food_list.append(food)
+
+        try:
+            cls.objects.bulk_create(food_list)
+        except DatabaseError:
+            for relation in created_relations:
+                relation.delete()
 
 
 class IngredientRelation(models.Model, DirtyFieldsMixin):

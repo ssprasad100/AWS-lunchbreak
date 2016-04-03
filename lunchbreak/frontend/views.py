@@ -767,7 +767,10 @@ class AccountPage(LoginRequiredMixin, Page):
         if form.is_valid():
             if 'inventory_file' in request.FILES:
                 inventory_file = request.FILES['inventory_file']
-                Food.from_csv(inventory_file)
+                Food.from_excel(
+                    request.user.store,
+                    inventory_file
+                )
             form.save()
 
         self.context['account']['form'] = form

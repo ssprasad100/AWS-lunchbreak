@@ -1,6 +1,7 @@
 from business.models import Staff
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
+from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 from phonenumber_field.formfields import PhoneNumberField
 
@@ -70,7 +71,22 @@ class StaffForm(PlaceholderMixin, forms.ModelForm):
     inventory_file = forms.FileField(
         required=False,
         label=_('Upload inventory.'),
+        help_text=_('Upload inventory.'),
     )
+
+    def clean_inventory_file(self):
+        file = self.cleaned_data.get('inventory_file', None)
+        if file is None:
+            return
+
+        if not file.content_type in [
+            'application/vnd.ms-excel',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        ]:
+            print 'error'
+            raise ValidationError(
+                _('You can only upload Excel (".xls", ".xlsx") files, please download our template.')
+            )
 
     class Meta:
         model = Staff

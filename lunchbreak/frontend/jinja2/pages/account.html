@@ -9,7 +9,8 @@
         <form action="" method="POST" enctype="multipart/form-data">
             <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
             {% for field in account.form -%}
-                {% if field.name in account.form.errors %}
+                {% if field.errors %}
+                    {{ field.errors }}
                     <span class="signal"></span>
                 {% endif %}
                 {{ field }}
