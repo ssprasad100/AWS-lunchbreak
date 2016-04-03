@@ -14,6 +14,7 @@ from django.views.generic import TemplateView
 from django.views.generic.base import (ContextMixin, RedirectView,
                                        TemplateResponseMixin)
 from django_gocardless.models import Merchant
+from lunch.models import Food
 
 from .forms import CustomAuthenticationForm, StaffForm, TrialForm
 
@@ -759,10 +760,14 @@ class AccountPage(LoginRequiredMixin, Page):
     def post(self, request, *args, **kwargs):
         form = StaffForm(
             request.POST,
+            request.FILES,
             instance=request.user
         )
 
         if form.is_valid():
+            if 'inventory_file' in request.FILES:
+                inventory_file = request.FILES['inventory_file']
+                Food.from_csv(inventory_file)
             form.save()
 
         self.context['account']['form'] = form

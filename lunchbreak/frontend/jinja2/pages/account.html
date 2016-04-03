@@ -6,7 +6,7 @@
 
 <div class="centered white box">
     <div class="small bundle">
-        <form action="" method="POST">
+        <form action="" method="POST" enctype="multipart/form-data">
             <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
             {% for field in account.form -%}
                 {% if field.name in account.form.errors %}

@@ -664,15 +664,6 @@ class Food(models.Model):
         except Quantity.DoesNotExist:
             return None
 
-    @staticmethod
-    def changed_ingredients(sender, instance, action, reverse, model, pk_set, using, **kwargs):
-        if len(action) > 4 and action[:4] == 'post':
-            if isinstance(instance, Food):
-                instance.update_typical()
-            elif instance.__class__ in [Ingredient, IngredientGroup]:
-                for food in instance.food_set.all():
-                    food.update_typical()
-
     def update_typical(self):
         ingredientgroups = self.ingredientgroups.all()
         ingredientrelations = self.ingredientrelation_set.select_related(
@@ -735,6 +726,19 @@ class Food(models.Model):
 
     def __unicode__(self):
         return self.name
+
+    @staticmethod
+    def changed_ingredients(sender, instance, action, reverse, model, pk_set, using, **kwargs):
+        if len(action) > 4 and action[:4] == 'post':
+            if isinstance(instance, Food):
+                instance.update_typical()
+            elif instance.__class__ in [Ingredient, IngredientGroup]:
+                for food in instance.food_set.all():
+                    food.update_typical()
+
+    @classmethod
+    def from_csv(cls, file):
+        print file
 
 
 class IngredientRelation(models.Model, DirtyFieldsMixin):

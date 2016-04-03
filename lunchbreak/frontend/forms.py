@@ -67,6 +67,11 @@ class TrialForm(forms.Form):
 
 class StaffForm(PlaceholderMixin, forms.ModelForm):
 
+    inventory_file = forms.FileField(
+        required=False,
+        label=_('Upload inventory.'),
+    )
+
     class Meta:
         model = Staff
         fields = ['email', 'first_name', 'last_name']
