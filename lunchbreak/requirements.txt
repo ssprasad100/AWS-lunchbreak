@@ -2,35 +2,47 @@ argh==0.26.1
 bcrypt==1.1.0
 cffi==0.9.0
 Django==1.8.11
+django-appconf==1.0.1
 django-compressor==2.0
 django-dirtyfields==0.8.1
+django-imagekit==3.2.7
 django-phonenumber-field==0.7.2
+-e git://github.com/RacingTadpole/django-private-media.git@7510f2f63ddf0653679b4134a0542cd78317a5c8#egg=django_private_media
+-e git://github.com/AndreasBackx/django-push-notifications.git@27f44dae5af8b0ee2726281f5b654882fd2888a8#egg=django_push_notifications
+-e git://github.com/AndreasBackx/django-sass-processor.git@7863c560851b0b1fe7c43795025f8b56a33762c7#egg=django_sass_processor
 django-split-settings==0.1.2
 django-subdomains==2.0.4
 djangorestframework==3.3.2
 djangorestframework-jsonp==1.0.0
+drf-extensions==0.2.8
 ecdsa==0.13
+et-xmlfile==1.0.1
 Fabric==1.10.2
+gocardless-pro==0.2.0
+jdcal==1.2
+Jinja2==2.8
+libsass==0.10.1
+MarkupSafe==0.23
+mccabe==0.3.1
 MySQL-python==1.2.5
 opbeat==3.0.4
+openpyxl==2.3.4
 paramiko==1.15.2
 pathtools==0.1.2
+pep8==1.7.0
 phonenumbers==7.0.7
+pilkit==1.1.13
+Pillow==2.9.0
+pluggy==0.3.1
+py==1.4.31
 pycparser==2.14
 pycrypto==2.6.1
+pyflakes==1.0.0
 PyYAML==3.11
+rcssmin==1.0.6
 requests==2.7.0
+rjsmin==1.0.12
 six==1.9.0
-watchdog==0.8.3
--e git+git://github.com/AndreasBackx/django-push-notifications.git@27f44dae5af8b0ee2726281f5b654882fd2888a8#egg=django-push-notifications
-django-appconf==1.0.1
-django-imagekit==3.2.7
-pilkit==1.1.13
-pillow==2.9.0
--e git+git://github.com/RacingTadpole/django-private-media.git@7510f2f63ddf0653679b4134a0542cd78317a5c8#egg=django-private-media
 uwsgidecorators==1.1.0
--e git+git://github.com/AndreasBackx/django-sass-processor.git@7863c560851b0b1fe7c43795025f8b56a33762c7#egg=django-sass-processor
-gocardless-pro==0.2.0
-Jinja2==2.8
-Markupsafe==0.23
-drf-extensions==0.2.8
+virtualenv==15.0.0
+watchdog==0.8.3
