@@ -379,10 +379,10 @@ class IngredientGroup(models.Model):
 
     @staticmethod
     def check_ingredients(ingredients, food):
-        '''
+        """
         Check whether the given ingredients can be made into an OrderedFood
         based on the closest food.
-        '''
+        """
 
         ingredientgroups = {}
         for ingredient in ingredients:
@@ -623,10 +623,10 @@ class Food(models.Model):
                 ingredientrelation.save()
 
     def is_orderable(self, pickup, now=None):
-        '''
+        """
         Check whether this food can be ordered for the given day.
         This does not check whether the Store.wait has been exceeded!
-        '''
+        """
         if self.preorder_days == 0:
             return True
         else:

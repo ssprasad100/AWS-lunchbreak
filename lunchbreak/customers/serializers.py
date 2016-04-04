@@ -116,7 +116,7 @@ class OrderedFoodPriceSerializer(serializers.ModelSerializer):
 
 class ShortOrderSerializer(serializers.ModelSerializer):
 
-    '''Used after placing an order for confirmation.'''
+    """Used after placing an order for confirmation."""
 
     orderedfood = OrderedFoodSerializer(
         many=True,
@@ -170,7 +170,7 @@ class ShortOrderSerializer(serializers.ModelSerializer):
 
 class OrderSerializer(serializers.ModelSerializer):
 
-    '''Used for listing a specific or all orders.'''
+    """Used for listing a specific or all orders."""
 
     store = lunch_serializers.StoreSerializer(
         read_only=True

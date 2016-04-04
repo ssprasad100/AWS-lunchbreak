@@ -408,9 +408,9 @@ class CustomersTests(LunchbreakTestCase):
         return (model, model.__class__.objects.get(pk=oldPk),)
 
     def test_order(self):
-        '''
+        """
         Test an order's total and whether marked Food's are deleted on save.
-        '''
+        """
 
         self.food, original = self.clone_model(self.food)
 
@@ -450,9 +450,9 @@ class CustomersTests(LunchbreakTestCase):
         self.assertEqual(OrderedFood.objects.filter(order=order).count(), 0)
 
     def test_token_update(self):
-        '''
+        """
         Test whether a user can change his token's registration_id.
-        '''
+        """
 
         self.food, original = self.clone_model(self.food)
 
@@ -512,10 +512,10 @@ class CustomersTests(LunchbreakTestCase):
         self.assertEqual(self.usertoken.service, content['service'])
 
     def test_reservation_create(self):
-        '''
+        """
         Test whether a user can create a reservation. But cannot set specific
         attributes he is not allowed to.
-        '''
+        """
 
         url = reverse('customers-user-reservation')
 

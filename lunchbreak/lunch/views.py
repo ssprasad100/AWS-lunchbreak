@@ -78,9 +78,9 @@ class OpeningListViewBase(generics.ListAPIView):
 
 class StoreCategoryListViewBase(generics.ListAPIView):
 
-    '''
+    """
     List all of the store categories.
-    '''
+    """
 
     serializer_class = StoreCategorySerializer
     pagination_class = None

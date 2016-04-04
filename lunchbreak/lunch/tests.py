@@ -16,7 +16,7 @@ class LunchTests(LunchbreakTestCase):
     @mock.patch('requests.Response.json')
     @mock.patch('requests.get')
     def test_address(self, mock_get, mock_json):
-        ''' Test for the AddressNotFound exception. '''
+        """ Test for the AddressNotFound exception. """
         try:
             mock_fail = {
                 'results': []
@@ -51,7 +51,7 @@ class LunchTests(LunchbreakTestCase):
     @mock.patch('requests.Response.json')
     @mock.patch('requests.get')
     def test_stores_nearby(self, mock_get, mock_json):
-        ''' Test whether LunchbreakManager.nearby returns the right stores. '''
+        """ Test whether LunchbreakManager.nearby returns the right stores. """
         Store.objects.all().delete()
 
         self.mock_address_response(
@@ -147,7 +147,7 @@ class LunchTests(LunchbreakTestCase):
     @mock.patch('requests.Response.json')
     @mock.patch('requests.get')
     def test_store_modified(self, mock_get, mock_json):
-        '''Test whether updating OpeningHours and HolidayPeriod objects updates the Store.'''
+        """Test whether updating OpeningHours and HolidayPeriod objects updates the Store."""
         self.mock_address_response(mock_get, mock_json)
         store = Store.objects.create(
             name='valid',

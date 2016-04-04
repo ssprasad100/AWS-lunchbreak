@@ -10,15 +10,6 @@ class PolaroidTestCase(TestCase):
     def setUp(self):
         self.image = SimpleUploadedFile('test.jpg', file('test.jpg').read())
 
-    '''
-    def test_retrieve_from_source(self):
-        pol = PolaroidBase.objects.create(
-            original=self.image
-        )
-
-        pol.retrieve_from_source('original', width=100, height=100)
-    '''
-
     def test_retrieve(self):
         pol = PolaroidBase.objects.create(
             original=self.image

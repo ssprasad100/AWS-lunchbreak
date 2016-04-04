@@ -22,7 +22,7 @@ from .utils import model_from_links
 
 class Merchant(models.Model):
 
-    '''
+    """
     GoCardless account accessed through OAuth. Other GoCardless models
     referencing a merchant mean that they belong to this merchant. If no
     merchant is referenced, the GoCardless information in the Django settings
@@ -31,7 +31,7 @@ class Merchant(models.Model):
     This is not represented specifically anywhere in the GoCardless API. This
     is a virtual representation of the OAuth layer used to control other
     GoCardless accounts.
-    '''
+    """
 
     access_token = models.CharField(
         max_length=255,
@@ -124,11 +124,11 @@ class Merchant(models.Model):
 
 class Customer(models.Model, GCCacheMixin):
 
-    '''
+    """
     Customer objects hold the contact details for a customer. A customer can
     have several customer bank accounts, which in turn can have several Direct
     Debit mandates.
-    '''
+    """
 
     id = models.CharField(
         primary_key=True,
@@ -209,10 +209,10 @@ class Customer(models.Model, GCCacheMixin):
 
 class CustomerBankAccount(models.Model, GCCacheMixin):
 
-    '''
+    """
     Customer Bank Accounts hold the bank details of a customer. They always
     belong to a customer, and may be linked to several Direct Debit mandates.
-    '''
+    """
 
     id = models.CharField(
         primary_key=True,
@@ -260,9 +260,9 @@ class CustomerBankAccount(models.Model, GCCacheMixin):
 
 class Mandate(models.Model, GCCacheMixin):
 
-    '''
+    """
     Mandates represent the Direct Debit mandate with a customer.
-    '''
+    """
 
     id = models.CharField(
         primary_key=True,
@@ -360,12 +360,12 @@ class Mandate(models.Model, GCCacheMixin):
 
 class RedirectFlow(models.Model, GCCreateMixin):
 
-    '''
+    """
     Redirect flows enable you to use GoCardless Pro's hosted payment pages to
     set up mandates with your customers. These pages are fully compliant and
     have been translated into Dutch, French, German, Italian, Portuguese,
     Spanish and Swedish.
-    '''
+    """
 
     create_fields = {
         'required': [
@@ -476,11 +476,11 @@ class RedirectFlow(models.Model, GCCreateMixin):
 
 class Payout(models.Model, GCCacheMixin):
 
-    '''
+    """
     Payouts represent transfers from GoCardless to a creditor. Each payout
     contains the funds collected from one or many payments. Payouts are created
     automatically after a payment has been successfully collected.
-    '''
+    """
 
     id = models.CharField(
         primary_key=True,
@@ -525,9 +525,9 @@ class Payout(models.Model, GCCacheMixin):
 
 class Subscription(models.Model, GCCreateUpdateMixin):
 
-    '''
+    """
     Subscriptions create payments according to a schedule.
-    '''
+    """
 
     create_fields = {
         'required': [
@@ -669,10 +669,10 @@ class Subscription(models.Model, GCCreateUpdateMixin):
 
 class Payment(models.Model, GCCreateMixin):
 
-    '''
+    """
     Payment objects represent payments from a customer to a creditor, taken
     against a Direct Debit mandate.
-    '''
+    """
 
     create_fields = {
         'required': [
@@ -800,10 +800,10 @@ class Payment(models.Model, GCCreateMixin):
 
 class Refund(models.Model, GCCacheMixin):
 
-    '''
+    """
     Refund objects represent (partial) refunds of a payment back to the
     customer.
-    '''
+    """
 
     id = models.CharField(
         primary_key=True,

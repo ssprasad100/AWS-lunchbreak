@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.db import models, migrations
+from django.db import migrations, models
 
 
 def foodIngredientsForward(apps, schema_editor):
@@ -14,16 +14,6 @@ def foodIngredientsForward(apps, schema_editor):
             store_id=food.store_id
         )
         food.save()
-
-'''
-Removed ingredientGroups
-
-@cached_property
-def ingredientGroups(self):
-    return self.foodType.ingredientgroup_set.filter(
-        store_id=self.store_id
-    ).order_by('-priority', 'name')
-'''
 
 
 class Migration(migrations.Migration):
