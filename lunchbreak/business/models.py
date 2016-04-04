@@ -1,11 +1,13 @@
 from django.conf import settings
 from django.contrib.auth.hashers import check_password, make_password
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.contrib.auth.models import AbstractBaseUser
 from django.db import models
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from lunch.config import TOKEN_IDENTIFIER_LENGTH
 from lunch.models import BaseToken
+
+from .managers import StaffManager
 
 
 class AbstractPasswordReset(models.Model):
@@ -32,30 +34,6 @@ class AbstractPassword(AbstractPasswordReset):
 
     def check_password(self, password_raw):
         return check_password(password_raw, self.password)
-
-
-class StaffManager(BaseUserManager):
-
-    def create_user(self, email, password=None):
-        if not password:
-            raise ValueError('A password is required for staff.')
-
-        email = self.normalize_email(email)
-        staff = self.model(
-            email=email
-        )
-        staff.set_password(password)
-        staff.save()
-        return staff
-
-    def create_superuser(self, email, password):
-        user = self.create_user(
-            email=email,
-            password=password
-        )
-        user.is_superuser = True
-        user.save()
-        return user
 
 
 class Staff(AbstractBaseUser, AbstractPasswordReset):

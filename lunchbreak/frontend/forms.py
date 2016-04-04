@@ -79,13 +79,15 @@ class StaffForm(PlaceholderMixin, forms.ModelForm):
         if file is None:
             return
 
-        if not file.content_type in [
+        if file.content_type not in [
             'application/vnd.ms-excel',
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         ]:
-            print 'error'
             raise ValidationError(
-                _('You can only upload Excel (".xls", ".xlsx") files, please download our template.')
+                _(
+                    'You can only upload Excel (".xls", ".xlsx") files, please '
+                    'download our template.'
+                )
             )
 
     class Meta:
