@@ -332,8 +332,14 @@ class Membership(models.Model):
 
 
 class Heart(models.Model):
-    user = models.ForeignKey(User)
-    store = models.ForeignKey(Store)
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE
+    )
+    store = models.ForeignKey(
+        Store,
+        on_delete=models.CASCADE
+    )
     added = models.DateTimeField(
         auto_now_add=True
     )
@@ -349,8 +355,14 @@ class Heart(models.Model):
 
 
 class Reservation(models.Model):
-    user = models.ForeignKey(User)
-    store = models.ForeignKey(Store)
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE
+    )
+    store = models.ForeignKey(
+        Store,
+        on_delete=models.CASCADE
+    )
 
     seats = models.PositiveIntegerField(
         default=1,
@@ -402,8 +414,14 @@ class Reservation(models.Model):
 
 
 class Order(models.Model, DirtyFieldsMixin):
-    user = models.ForeignKey(User)
-    store = models.ForeignKey(Store)
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE
+    )
+    store = models.ForeignKey(
+        Store,
+        on_delete=models.CASCADE
+    )
     placed = models.DateTimeField(
         auto_now_add=True,
         verbose_name='Time of placement'
@@ -639,8 +657,14 @@ class OrderedFood(models.Model):
         decimal_places=2,
         max_digits=7
     )
-    order = models.ForeignKey(Order)
-    original = models.ForeignKey(Food)
+    order = models.ForeignKey(
+        Order,
+        on_delete=models.CASCADE
+    )
+    original = models.ForeignKey(
+        Food,
+        on_delete=models.CASCADE
+    )
     is_original = models.BooleanField(
         default=False
     )
@@ -710,7 +734,10 @@ class OrderedFood(models.Model):
 
 
 class UserToken(BaseToken):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE
+    )
 
     @staticmethod
     def response(user, device, service=SERVICE_INACTIVE, registration_id=''):

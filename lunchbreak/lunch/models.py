@@ -192,9 +192,9 @@ class Store(models.Model):
     )
     header = models.ForeignKey(
         StoreHeader,
+        on_delete=models.SET_NULL,
         blank=True,
-        null=True,
-        on_delete=models.SET_NULL
+        null=True
     )
 
     country = models.CharField(
@@ -227,7 +227,9 @@ class Store(models.Model):
         max_digits=10
     )
 
-    categories = models.ManyToManyField(StoreCategory)
+    categories = models.ManyToManyField(
+        StoreCategory
+    )
     wait = models.DurationField(
         default=timedelta(seconds=60)
     )
@@ -336,7 +338,10 @@ class Store(models.Model):
 
 
 class OpeningHours(models.Model):
-    store = models.ForeignKey(Store)
+    store = models.ForeignKey(
+        Store,
+        on_delete=models.CASCADE
+    )
     day = models.PositiveIntegerField(
         choices=DAYS
     )
@@ -365,7 +370,10 @@ class OpeningHours(models.Model):
 
 
 class HolidayPeriod(models.Model):
-    store = models.ForeignKey(Store)
+    store = models.ForeignKey(
+        Store,
+        on_delete=models.CASCADE
+    )
     description = models.CharField(
         max_length=255,
         blank=True
@@ -427,8 +435,14 @@ class IngredientGroup(models.Model):
     name = models.CharField(
         max_length=255
     )
-    foodtype = models.ForeignKey(FoodType)
-    store = models.ForeignKey(Store)
+    foodtype = models.ForeignKey(
+        FoodType,
+        on_delete=models.CASCADE
+    )
+    store = models.ForeignKey(
+        Store,
+        on_delete=models.CASCADE
+    )
 
     maximum = models.PositiveIntegerField(
         default=0,
@@ -519,8 +533,14 @@ class Ingredient(models.Model, DirtyFieldsMixin):
         decimal_places=2
     )
 
-    group = models.ForeignKey(IngredientGroup)
-    store = models.ForeignKey(Store)
+    group = models.ForeignKey(
+        IngredientGroup,
+        on_delete=models.CASCADE
+    )
+    store = models.ForeignKey(
+        Store,
+        on_delete=models.CASCADE
+    )
 
     modified = models.DateTimeField(
         auto_now=True
@@ -552,7 +572,10 @@ class FoodCategory(models.Model):
     priority = models.PositiveIntegerField(
         default=0
     )
-    store = models.ForeignKey(Store)
+    store = models.ForeignKey(
+        Store,
+        on_delete=models.CASCADE
+    )
 
     class Meta:
         verbose_name_plural = 'Food categories'
@@ -563,8 +586,14 @@ class FoodCategory(models.Model):
 
 
 class Quantity(models.Model):
-    foodtype = models.ForeignKey(FoodType)
-    store = models.ForeignKey(Store)
+    foodtype = models.ForeignKey(
+        FoodType,
+        on_delete=models.CASCADE
+    )
+    store = models.ForeignKey(
+        Store,
+        on_delete=models.CASCADE
+    )
 
     min = models.DecimalField(
         decimal_places=3,
@@ -619,7 +648,10 @@ class Food(models.Model):
         decimal_places=2,
         max_digits=7
     )
-    foodtype = models.ForeignKey(FoodType)
+    foodtype = models.ForeignKey(
+        FoodType,
+        on_delete=models.CASCADE
+    )
     preorder_days = models.PositiveIntegerField(
         default=0
     )
@@ -630,7 +662,10 @@ class Food(models.Model):
         default=0
     )
 
-    category = models.ForeignKey(FoodCategory)
+    category = models.ForeignKey(
+        FoodCategory,
+        on_delete=models.CASCADE
+    )
     ingredients = models.ManyToManyField(
         Ingredient,
         through='IngredientRelation',
@@ -640,7 +675,10 @@ class Food(models.Model):
         IngredientGroup,
         blank=True
     )
-    store = models.ForeignKey(Store)
+    store = models.ForeignKey(
+        Store,
+        on_delete=models.CASCADE
+    )
 
     modified = models.DateTimeField(
         auto_now=True
@@ -858,8 +896,14 @@ class Food(models.Model):
 
 
 class IngredientRelation(models.Model, DirtyFieldsMixin):
-    food = models.ForeignKey(Food)
-    ingredient = models.ForeignKey(Ingredient)
+    food = models.ForeignKey(
+        Food,
+        on_delete=models.CASCADE
+    )
+    ingredient = models.ForeignKey(
+        Ingredient,
+        on_delete=models.CASCADE
+    )
     selected = models.BooleanField(
         default=False
     )

@@ -139,7 +139,10 @@ class Staff(AbstractBaseUser, AbstractPasswordReset):
 
 
 class StaffToken(BaseToken):
-    staff = models.ForeignKey(Staff)
+    staff = models.ForeignKey(
+        Staff,
+        on_delete=models.CASCADE
+    )
 
     APNS_CERTIFICATE = settings.BUSINESS_APNS_CERTIFICATE
 
@@ -161,6 +164,9 @@ class Employee(AbstractPassword):
 
 
 class EmployeeToken(BaseToken):
-    employee = models.ForeignKey(Employee)
+    employee = models.ForeignKey(
+        Employee,
+        on_delete=models.CASCADE
+    )
 
     APNS_CERTIFICATE = settings.BUSINESS_APNS_CERTIFICATE
