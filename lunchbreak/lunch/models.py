@@ -337,11 +337,7 @@ class Store(models.Model):
                 raise StoreClosed()
 
 
-class OpeningHours(models.Model):
-    store = models.ForeignKey(
-        Store,
-        on_delete=models.CASCADE
-    )
+class Period(models.Model):
     day = models.PositiveIntegerField(
         choices=DAYS
     )
@@ -350,7 +346,7 @@ class OpeningHours(models.Model):
     closing = models.TimeField()
 
     class Meta:
-        verbose_name_plural = 'Opening hours'
+        abstract = True
 
     def clean(self):
         if self.opening >= self.closing:
@@ -358,8 +354,7 @@ class OpeningHours(models.Model):
 
     def save(self, *args, **kwargs):
         self.full_clean()
-        self.store.save()
-        super(OpeningHours, self).save(*args, **kwargs)
+        super(Period, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return '{day} {opening}-{closing}'.format(
@@ -367,6 +362,20 @@ class OpeningHours(models.Model):
             opening=self.opening,
             closing=self.closing
         )
+
+
+class OpeningHours(Period):
+    store = models.ForeignKey(
+        Store,
+        on_delete=models.CASCADE
+    )
+
+    class Meta:
+        verbose_name_plural = 'Opening hours'
+
+    def save(self, *args, **kwargs):
+        self.store.save()
+        super(OpeningHours, self).save(*args, **kwargs)
 
 
 class HolidayPeriod(models.Model):
