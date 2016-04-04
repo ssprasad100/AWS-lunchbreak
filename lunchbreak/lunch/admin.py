@@ -1,9 +1,9 @@
 from django.contrib import admin
 from imagekit.admin import AdminThumbnail
-from lunch.models import (Food, FoodCategory, FoodType, HolidayPeriod,
-                          Ingredient, IngredientGroup, IngredientRelation,
-                          OpeningHours, Quantity, Store, StoreCategory,
-                          StoreHeader)
+
+from .models import (Food, FoodCategory, FoodType, HolidayPeriod, Ingredient,
+                     IngredientGroup, IngredientRelation, OpeningHours,
+                     Quantity, Store, StoreCategory, StoreHeader)
 
 admin.site.register(StoreCategory)
 

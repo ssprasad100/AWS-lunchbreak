@@ -6,4 +6,4 @@ class DjangoGoCardlessAppConfig(AppConfig):
     verbose_name = 'Django GoCardless'
 
     def ready(self):
-        from django_gocardless import receivers, signals  # NOQA
+        from . import receivers, signals  # NOQA

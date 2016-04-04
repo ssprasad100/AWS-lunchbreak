@@ -1,8 +1,8 @@
-from lunch.models import (BaseToken, Food, FoodCategory, FoodType,
-                          HolidayPeriod, Ingredient, IngredientGroup,
-                          IngredientRelation, OpeningHours, Quantity, Store,
-                          StoreCategory)
 from rest_framework import serializers
+
+from .models import (BaseToken, Food, FoodCategory, FoodType, HolidayPeriod,
+                     Ingredient, IngredientGroup, IngredientRelation,
+                     OpeningHours, Quantity, Store, StoreCategory)
 
 
 class StoreCategorySerializer(serializers.ModelSerializer):

@@ -741,7 +741,7 @@ class UserToken(BaseToken):
 
     @staticmethod
     def response(user, device, service=SERVICE_INACTIVE, registration_id=''):
-        from customers.serializers import UserTokenSerializer
+        from .serializers import UserTokenSerializer
 
         token, created = UserToken.objects.create_token(
             arguments={

@@ -1,10 +1,10 @@
-from business.models import Employee, EmployeeToken, Staff, StaffToken
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import Group
 from lunch.admin import BaseTokenAdmin
 
 from .forms import StaffChangeForm, StaffCreationForm
+from .models import Employee, EmployeeToken, Staff, StaffToken
 
 
 @admin.register(Employee)

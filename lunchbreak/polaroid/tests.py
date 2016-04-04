@@ -1,7 +1,8 @@
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
-from polaroid.models import Polaroid, PolaroidBase
-from polaroid.specs import HD, HQ, LQ, FullHD
+
+from .models import Polaroid, PolaroidBase
+from .specs import HD, HQ, LQ, FullHD
 
 
 class PolaroidTestCase(TestCase):

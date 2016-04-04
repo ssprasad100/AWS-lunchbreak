@@ -1,13 +1,14 @@
 import datetime
 
 from django.utils import timezone
-from lunch.models import HolidayPeriod, OpeningHours, StoreCategory
-from lunch.responses import WrongAPIVersion
-from lunch.serializers import (HolidayPeriodSerializer, OpeningHoursSerializer,
-                               StoreCategorySerializer)
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
+from .models import HolidayPeriod, OpeningHours, StoreCategory
+from .responses import WrongAPIVersion
+from .serializers import (HolidayPeriodSerializer, OpeningHoursSerializer,
+                          StoreCategorySerializer)
 
 
 class OpeningHoursListViewBase(generics.ListAPIView):

@@ -1,7 +1,7 @@
 from django.contrib import admin
-from django_gocardless.models import (Customer, CustomerBankAccount, Mandate,
-                                      Merchant, Payment, Payout, RedirectFlow,
-                                      Subscription)
+
+from .models import (Customer, CustomerBankAccount, Mandate, Merchant, Payment,
+                     Payout, RedirectFlow, Subscription)
 
 
 class EditOnly(admin.ModelAdmin):

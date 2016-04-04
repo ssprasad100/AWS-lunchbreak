@@ -1,9 +1,3 @@
-from business.exceptions import IncorrectPassword, InvalidEmail
-from business.models import Employee, EmployeeToken, Staff, StaffToken
-from business.serializers import (EmployeePasswordRequestSerializer,
-                                  EmployeeTokenSerializer,
-                                  StaffPasswordRequestSerializer,
-                                  StaffTokenSerializer)
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.mail import BadHeaderError, EmailMultiAlternatives
@@ -15,6 +9,12 @@ from lunch.responses import BadRequest, DoesNotExist
 from push_notifications.models import SERVICE_INACTIVE
 from rest_framework import status
 from rest_framework.response import Response
+
+from .exceptions import IncorrectPassword, InvalidEmail
+from .models import Employee, EmployeeToken, Staff, StaffToken
+from .serializers import (EmployeePasswordRequestSerializer,
+                          EmployeeTokenSerializer,
+                          StaffPasswordRequestSerializer, StaffTokenSerializer)
 
 
 class BusinessAuthentication(TokenAuthentication):

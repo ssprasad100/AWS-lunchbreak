@@ -1,7 +1,8 @@
 from django.db import models
 from imagekit.models import ImageSpecField
 from pilkit.processors.resize import ResizeToCover
-from polaroid.specs import HD, HQ, LQ, FullHD
+
+from .specs import HD, HQ, LQ, FullHD
 
 
 class InvalidPolaroidSource(Exception):

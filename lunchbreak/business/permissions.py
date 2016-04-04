@@ -1,5 +1,6 @@
-from business.models import Employee, Staff
 from rest_framework import permissions
+
+from .models import Employee, Staff
 
 
 class StoreOwnerPermission(permissions.BasePermission):

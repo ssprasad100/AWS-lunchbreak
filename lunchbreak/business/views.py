@@ -1,17 +1,3 @@
-from business.authentication import EmployeeAuthentication, StaffAuthentication
-from business.exceptions import (InvalidDatetime, InvalidEmail,
-                                 InvalidPasswordReset)
-from business.models import Employee, Staff
-from business.permissions import StoreOwnerPermission
-from business.serializers import (EmployeeSerializer,
-                                  IngredientGroupSerializer,
-                                  IngredientSerializer, OrderSerializer,
-                                  OrderSpreadSerializer, ReservationSerializer,
-                                  ShortFoodSerializer,
-                                  ShortIngredientGroupSerializer,
-                                  ShortOrderSerializer, SingleFoodSerializer,
-                                  StaffSerializer, StoreSerializer,
-                                  StoreSerializerV3)
 from customers.config import (ORDER_STATUS_COMPLETED, ORDER_STATUS_PLACED,
                               ORDER_STATUS_RECEIVED, ORDER_STATUS_STARTED,
                               ORDER_STATUS_WAITING)
@@ -35,6 +21,17 @@ from rest_framework import generics, mixins, status, viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.exceptions import MethodNotAllowed
 from rest_framework.response import Response
+
+from .authentication import EmployeeAuthentication, StaffAuthentication
+from .exceptions import InvalidDatetime, InvalidEmail, InvalidPasswordReset
+from .models import Employee, Staff
+from .permissions import StoreOwnerPermission
+from .serializers import (EmployeeSerializer, IngredientGroupSerializer,
+                          IngredientSerializer, OrderSerializer,
+                          OrderSpreadSerializer, ReservationSerializer,
+                          ShortFoodSerializer, ShortIngredientGroupSerializer,
+                          ShortOrderSerializer, SingleFoodSerializer,
+                          StaffSerializer, StoreSerializer, StoreSerializerV3)
 
 AVAILABLE_STATUSES = [
     ORDER_STATUS_PLACED,
