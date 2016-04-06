@@ -56,3 +56,33 @@ TOKEN_IDENTIFIER_LENGTH = 64
 def random_token():
     rnd = random.SystemRandom()
     return ''.join(rnd.choice(TOKEN_IDENTIFIER_CHARS) for _ in range(TOKEN_IDENTIFIER_LENGTH))
+
+
+BELGIUM = 0
+NETHERLANDS = 1
+LUXEMBURG = 2
+FRANCE = 3
+GERMANY = 4
+COUNTRIES = (
+    (BELGIUM, 'Belgium'),
+    (NETHERLANDS, 'The Netherlands'),
+    (LUXEMBURG, 'Luxemburg'),
+    (FRANCE, 'France'),
+    (GERMANY, 'Germany'),
+)
+
+LANGUAGES = {
+    BELGIUM: 'nl',
+    NETHERLANDS: 'nl',
+    LUXEMBURG: 'fr',
+    FRANCE: 'fr',
+    GERMANY: 'de'
+}
+
+CCTLDS = {
+    BELGIUM: 'be',
+    NETHERLANDS: 'nl',
+    LUXEMBURG: 'lu',
+    FRANCE: 'fr',
+    GERMANY: 'de'
+}

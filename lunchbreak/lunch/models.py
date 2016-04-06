@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 import copy
 from datetime import datetime, time, timedelta
 
+import googlemaps
 import requests
 from customers.config import ORDER_ENDED
 from customers.exceptions import MinTimeExceeded, PastOrderDenied, StoreClosed
@@ -22,8 +23,9 @@ from polaroid.models import Polaroid
 from private_media.storages import PrivateMediaStorage
 from push_notifications.models import BareDevice, DeviceManager
 
-from .config import (COST_GROUP_ALWAYS, COST_GROUP_CALCULATIONS, ICONS,
-                     INPUT_AMOUNT, INPUT_TYPES, WEEKDAYS, random_token)
+from .config import (CCTLDS, COST_GROUP_ALWAYS, COST_GROUP_CALCULATIONS,
+                     COUNTRIES, ICONS, INPUT_AMOUNT, INPUT_TYPES, LANGUAGES,
+                     WEEKDAYS, random_token)
 from .exceptions import (AddressNotFound, IngredientGroupMaxExceeded,
                          IngredientGroupsMinimumNotMet, InvalidFoodTypeAmount,
                          InvalidIngredientLinking, InvalidStoreLinking)
@@ -222,6 +224,68 @@ class Store(models.Model):
                 if openingperiod.contains(pickup):
                     return
             raise StoreClosed()
+
+
+class Region(models.Model):
+    name = models.CharField(
+        max_length=255
+    )
+    country = models.PositiveSmallIntegerField(
+        choices=COUNTRIES
+    )
+    postcode = models.CharField(
+        max_length=255
+    )
+
+    class Meta:
+        unique_together = ('country', 'postcode',)
+
+    def save(self, *args, **kwargs):
+        if self.pk is None:
+            self.validate_unique()
+            self.clean_fields(
+                exclude='name'
+            )
+
+            google_client = googlemaps.Client(
+                key=settings.GOOGLE_CLOUD_SECRET,
+                connect_timeout=5,
+                read_timeout=5,
+                retry_timeout=1
+            )
+            results = google_client.geocode(
+                address=self.postcode,
+                components={
+                    'country': self.get_country_display()
+                },
+                language=LANGUAGES[self.country],
+                region=CCTLDS[self.country]
+            )
+            if len(results) == 0:
+                raise AddressNotFound(
+                    _('No results found for given postcode and country.')
+                )
+            address_components = results[0].get('address_components', [])
+            found = False
+            for comp in address_components:
+                types = comp.get('types', [])
+                if 'locality' in types:
+                    self.name = comp['long_name']
+                    found = True
+            if not found:
+                raise AddressNotFound(
+                    _('No region found for given postcode and country.')
+                )
+
+        self.full_clean()
+        super(Region, self).save(*args, **kwargs)
+
+    def __unicode__(self):
+        return '{country}, {name} {postcode}'.format(
+            country=self.get_country_display(),
+            name=self.name,
+            postcode=self.postcode
+        )
 
 
 class Period(models.Model):
