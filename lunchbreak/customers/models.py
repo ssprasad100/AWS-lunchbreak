@@ -400,7 +400,7 @@ class Reservation(models.Model):
         if self.seats > self.store.seats_max:
             raise MaxSeatsExceeded()
 
-        Store.is_open(self.store, self.reservation_time)
+        Store.check_open(self.store, self.reservation_time)
 
         super(Reservation, self).clean(*args, **kwargs)
 
@@ -571,7 +571,7 @@ class Order(models.Model, DirtyFieldsMixin):
         if len(orderedfood_list) == 0:
             raise BadRequest('"orderedfood" cannot be empty.')
 
-        Store.is_open(store, pickup)
+        Store.check_open(store, pickup)
 
         if payment_method == PAYMENT_METHOD_GOCARDLESS:
             try:

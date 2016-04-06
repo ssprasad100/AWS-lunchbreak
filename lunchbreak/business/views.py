@@ -14,7 +14,7 @@ from lunch.models import (Food, FoodCategory, FoodType, Ingredient,
 from lunch.responses import BadRequest
 from lunch.serializers import (FoodTypeSerializer, QuantitySerializer,
                                ShortFoodCategorySerializer)
-from lunch.views import (HolidayPeriodListViewBase, OpeningHoursListViewBase,
+from lunch.views import (HolidayPeriodListViewBase, OpeningPeriodListViewBase,
                          OpeningListViewBase, StoreCategoryListViewBase)
 from Lunchbreak.views import TargettedViewSet
 from rest_framework import generics, mixins, status, viewsets
@@ -454,7 +454,7 @@ class GetStoreMixin(object):
         return self.request.user.staff.store_id
 
 
-class OpeningHoursListView(GetStoreMixin, OpeningHoursListViewBase):
+class OpeningPeriodListView(GetStoreMixin, OpeningPeriodListViewBase):
     authentication_classes = (EmployeeAuthentication,)
 
 

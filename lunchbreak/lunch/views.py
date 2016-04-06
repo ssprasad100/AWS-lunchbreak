@@ -5,14 +5,14 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import HolidayPeriod, OpeningHours, StoreCategory
+from .models import HolidayPeriod, OpeningPeriod, StoreCategory
 from .responses import WrongAPIVersion
-from .serializers import (HolidayPeriodSerializer, OpeningHoursSerializer,
+from .serializers import (HolidayPeriodSerializer, OpeningPeriodSerializer,
                           StoreCategorySerializer)
 
 
-class OpeningHoursListViewBase(generics.ListAPIView):
-    serializer_class = OpeningHoursSerializer
+class OpeningPeriodListViewBase(generics.ListAPIView):
+    serializer_class = OpeningPeriodSerializer
     pagination_class = None
 
     def get_store_id(self):
@@ -23,11 +23,11 @@ class OpeningHoursListViewBase(generics.ListAPIView):
 
     @staticmethod
     def _get_queryset(store_id):
-        return OpeningHours.objects.filter(
+        return OpeningPeriod.objects.filter(
             store_id=store_id
         ).order_by(
-            'day',
-            'opening'
+            'opening_day',
+            'opening_time'
         )
 
 
@@ -51,7 +51,7 @@ class HolidayPeriodListViewBase(generics.ListAPIView):
 
 
 class OpeningListViewBase(generics.ListAPIView):
-    serializer_class = OpeningHoursSerializer
+    serializer_class = OpeningPeriodSerializer
     pagination_class = None
 
     def get_store_id(self):
@@ -59,8 +59,8 @@ class OpeningListViewBase(generics.ListAPIView):
 
     def get(self, request, pk=None):
         store_id = self.get_store_id()
-        openinghours = OpeningHoursSerializer(
-            OpeningHoursListViewBase._get_queryset(store_id),
+        OpeningPeriod = OpeningPeriodSerializer(
+            OpeningPeriodListViewBase._get_queryset(store_id),
             many=True
         )
         holidayperiods = HolidayPeriodSerializer(
@@ -69,7 +69,7 @@ class OpeningListViewBase(generics.ListAPIView):
         )
 
         data = {
-            'openinghours': openinghours.data,
+            'OpeningPeriod': OpeningPeriod.data,
             'holidayperiods': holidayperiods.data
         }
 

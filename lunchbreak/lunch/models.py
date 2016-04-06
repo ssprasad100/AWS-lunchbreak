@@ -22,8 +22,8 @@ from polaroid.models import Polaroid
 from private_media.storages import PrivateMediaStorage
 from push_notifications.models import BareDevice, DeviceManager
 
-from .config import (COST_GROUP_ALWAYS, COST_GROUP_CALCULATIONS, DAYS, ICONS,
-                     INPUT_AMOUNT, INPUT_TYPES, random_token)
+from .config import (COST_GROUP_ALWAYS, COST_GROUP_CALCULATIONS, ICONS,
+                     INPUT_AMOUNT, INPUT_TYPES, WEEKDAYS, random_token)
 from .exceptions import (AddressNotFound, IngredientGroupMaxExceeded,
                          IngredientGroupsMinimumNotMet, InvalidFoodTypeAmount,
                          InvalidIngredientLinking, InvalidStoreLinking)
@@ -186,7 +186,7 @@ class Store(models.Model):
         return self.hearts.count()
 
     @staticmethod
-    def is_open(store, pickup, now=None):
+    def check_open(store, pickup, now=None):
         """Check whether the store is open at the specified time."""
 
         now = timezone.now() if now is None else now
@@ -214,60 +214,96 @@ class Store(models.Model):
             if closed:
                 raise StoreClosed()
 
-            # datetime.weekday(): return monday 0 - sunday 6
-            # datetime.strftime('%w'): return sunday 0 - monday 6
-            pickup_day = pickup.strftime('%w')
-            openinghours = OpeningHours.objects.filter(store=store, day=pickup_day)
-            pickup_time = pickup.time()
+            openingperiods = OpeningPeriod.objects.filter(
+                store=store
+            )
 
-            for o in openinghours:
-                if o.opening <= pickup_time <= o.closing:
-                    break
-            else:
-                # If the for loop is not stopped by the break, it means that the time of
-                # pickup is never when the store is open.
-                raise StoreClosed()
+            for openingperiod in openingperiods:
+                if openingperiod.contains(pickup):
+                    return
+            raise StoreClosed()
 
 
 class Period(models.Model):
-    day = models.PositiveIntegerField(
-        choices=DAYS
-    )
-
-    opening = models.TimeField()
-    closing = models.TimeField()
-
-    class Meta:
-        abstract = True
-
-    def clean(self):
-        if self.opening >= self.closing:
-            raise ValidationError('Opening needs to be before closing.')
-
-    def save(self, *args, **kwargs):
-        self.full_clean()
-        super(Period, self).save(*args, **kwargs)
-
-    def __unicode__(self):
-        return '{day} {opening}-{closing}'.format(
-            day=self.get_day_display(),
-            opening=self.opening,
-            closing=self.closing
-        )
-
-
-class OpeningHours(Period):
     store = models.ForeignKey(
         Store,
         on_delete=models.CASCADE
     )
 
+    opening_day = models.PositiveSmallIntegerField(
+        choices=WEEKDAYS
+    )
+    closing_day = models.PositiveSmallIntegerField(
+        choices=WEEKDAYS
+    )
+
+    opening_time = models.TimeField()
+    closing_time = models.TimeField()
+
     class Meta:
-        verbose_name_plural = 'Opening hours'
+        abstract = True
 
     def save(self, *args, **kwargs):
         self.store.save()
-        super(OpeningHours, self).save(*args, **kwargs)
+        super(Period, self).save(*args, **kwargs)
+
+    @classmethod
+    def _is_between_days(cls, given_day, given_time, start_day, start_time,
+                         end_day, end_time):
+        """Returns True if given day and time is between start and end days and times.
+
+        ..note:
+            This assumes the days are 0-6 (weekly).
+        """
+
+        if start_day <= given_day <= end_day:
+            if start_day == end_day:
+                return given_day == start_day and start_time < given_time < end_time
+            else:  # start_day < end_day
+                if given_day == start_day:
+                    return start_time < given_time
+                elif given_day == end_day:
+                    return given_time < end_time
+                return True  # start_day < given_day < end_day
+        elif end_day < start_day:
+            return not cls._is_between_days(
+                given_day=given_day,
+                given_time=given_time,
+                start_day=end_day,
+                start_time=end_time,
+                end_day=start_day,
+                end_time=start_time
+            )
+        return False
+
+    def contains(self, dt):
+        """Return True if dt (datetime) is in the period."""
+
+        # datetime.weekday(): return monday 0 - sunday 6
+        # datetime.strftime('%w'): return sunday 0 - saturday 6
+        given_day = int(dt.strftime('%w'))
+        given_time = dt.time()
+
+        return self._is_between_days(
+            given_day=given_day,
+            given_time=given_time,
+            start_day=self.opening_day,
+            start_time=self.opening_time,
+            end_day=self.closing_day,
+            end_time=self.closing_time
+        )
+
+    def __unicode__(self):
+        return '{opening_day} {opening_time} - {closing_day} {closing_time}'.format(
+            opening_day=self.get_opening_day_display(),
+            opening_time=self.opening_time,
+            closing_day=self.get_closing_day_display(),
+            closing_time=self.closing_time
+        )
+
+
+class OpeningPeriod(Period):
+    pass
 
 
 class HolidayPeriod(models.Model):

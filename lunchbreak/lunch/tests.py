@@ -5,10 +5,11 @@ from customers.exceptions import MinTimeExceeded, PastOrderDenied, StoreClosed
 from django.core.exceptions import ValidationError
 from Lunchbreak.test import LunchbreakTestCase
 
-from .config import INPUT_AMOUNT, INPUT_SI_SET, INPUT_SI_VARIABLE
+from .config import (INPUT_AMOUNT, INPUT_SI_SET, INPUT_SI_VARIABLE, MONDAY,
+                     SUNDAY)
 from .exceptions import AddressNotFound
 from .models import (Food, FoodCategory, FoodType, HolidayPeriod,
-                     IngredientGroup, OpeningHours, Quantity, Store)
+                     IngredientGroup, OpeningPeriod, Quantity, Store)
 
 
 class LunchTests(LunchbreakTestCase):
@@ -144,10 +145,13 @@ class LunchTests(LunchbreakTestCase):
         for needle in needles:
             self.assertIn(needle, haystack)
 
+    def time_from_string(self, time_string):
+        return datetime.strptime(time_string, '%H:%M').time()
+
     @mock.patch('requests.Response.json')
     @mock.patch('requests.get')
     def test_store_modified(self, mock_get, mock_json):
-        """Test whether updating OpeningHours and HolidayPeriod objects updates the Store."""
+        """Test whether updating OpeningPeriod and HolidayPeriod objects updates the Store."""
         self.mock_address_response(mock_get, mock_json)
         store = Store.objects.create(
             name='valid',
@@ -161,10 +165,12 @@ class LunchTests(LunchbreakTestCase):
 
         modified_first = store.modified
 
-        OpeningHours.objects.create(
-            store=store, day=0,
-            opening='00:00',
-            closing='01:00'
+        OpeningPeriod.objects.create(
+            store=store,
+            opening_day=0,
+            closing_day=0,
+            opening_time=self.time_from_string('00:00'),
+            closing_time=self.time_from_string('01:00')
         )
 
         modified_second = store.modified
@@ -184,7 +190,7 @@ class LunchTests(LunchbreakTestCase):
 
     @mock.patch('requests.Response.json')
     @mock.patch('requests.get')
-    def test_store_store_is_open(self, mock_get, mock_json):
+    def test_store_store_check_open(self, mock_get, mock_json):
         self.mock_address_response(mock_get, mock_json)
         store = Store.objects.create(
             name='valid',
@@ -201,7 +207,7 @@ class LunchTests(LunchbreakTestCase):
 
         # PastOrderDenied
         self.assertRaises(
-            PastOrderDenied, Store.is_open, store, today, today + timedelta(hours=1))
+            PastOrderDenied, Store.check_open, store, today, today + timedelta(hours=1))
 
         # MinTimeExceeded
         wait = timedelta(minutes=15)
@@ -212,13 +218,14 @@ class LunchTests(LunchbreakTestCase):
         opening = (today + opening_wait)
         closing = (opening + timedelta(hours=hours_closing))
         day = opening.strftime('%w')
-        OpeningHours.objects.create(
+        OpeningPeriod.objects.create(
             store=store,
-            day=day,
-            opening=opening,
-            closing=closing
+            opening_day=day,
+            closing_day=day,
+            opening_time=opening,
+            closing_time=closing
         )
-        self.assertRaises(MinTimeExceeded, Store.is_open, store,
+        self.assertRaises(MinTimeExceeded, Store.check_open, store,
                           opening + wait - timedelta(minutes=1), opening)
 
         # Before and after opening hours
@@ -227,9 +234,9 @@ class LunchTests(LunchbreakTestCase):
         after = closing + timedelta(hours=1)
         end = after + timedelta(hours=1)
 
-        self.assertRaises(StoreClosed, Store.is_open, store, before, today)
-        self.assertIsNone(Store.is_open(store, between, today))
-        self.assertRaises(StoreClosed, Store.is_open, store, after, today)
+        self.assertRaises(StoreClosed, Store.check_open, store, before, today)
+        self.assertIsNone(Store.check_open(store, between, today))
+        self.assertRaises(StoreClosed, Store.check_open, store, after, today)
 
         hp = HolidayPeriod.objects.create(
             store=store,
@@ -237,27 +244,27 @@ class LunchTests(LunchbreakTestCase):
             end=end,
             closed=True
         )
-        self.assertRaises(StoreClosed, Store.is_open, store, before, today)
+        self.assertRaises(StoreClosed, Store.check_open, store, before, today)
 
-        self.assertRaises(StoreClosed, Store.is_open, store, between, today)
-        self.assertRaises(StoreClosed, Store.is_open, store, after, today)
+        self.assertRaises(StoreClosed, Store.check_open, store, between, today)
+        self.assertRaises(StoreClosed, Store.check_open, store, after, today)
 
         hp.closed = False
         hp.save()
-        self.assertIsNone(Store.is_open(store, before, today))
-        self.assertIsNone(Store.is_open(store, between, today))
-        self.assertIsNone(Store.is_open(store, after, today))
+        self.assertIsNone(Store.check_open(store, before, today))
+        self.assertIsNone(Store.check_open(store, between, today))
+        self.assertIsNone(Store.check_open(store, after, today))
 
         hp.closed = True
         hp.end = between
         hp.save()
-        self.assertRaises(StoreClosed, Store.is_open, store, before, today)
-        self.assertRaises(StoreClosed, Store.is_open, store, between, today)
-        self.assertIsNone(Store.is_open(store, between + timedelta(minutes=1), today))
+        self.assertRaises(StoreClosed, Store.check_open, store, before, today)
+        self.assertRaises(StoreClosed, Store.check_open, store, between, today)
+        self.assertIsNone(Store.check_open(store, between + timedelta(minutes=1), today))
 
     @mock.patch('requests.Response.json')
     @mock.patch('requests.get')
-    def test_openinghours(self, mock_get, mock_json):
+    def test_openingperiod(self, mock_get, mock_json):
         self.mock_address_response(mock_get, mock_json)
         store = Store.objects.create(
             name='valid',
@@ -268,23 +275,96 @@ class LunchTests(LunchbreakTestCase):
             street='Dendermondesteenweg',
             number=10
         )
-        oh = OpeningHours(
+
+        # Weekday 0 - 1
+        sun_mon = OpeningPeriod.objects.create(
             store=store,
-            day=0,
-            opening='00:00',
-            closing='00:00'
+            opening_day=SUNDAY,
+            closing_day=MONDAY,
+            opening_time=self.time_from_string('00:00'),
+            closing_time=self.time_from_string('00:00')
         )
 
-        try:
-            oh.save()
-        except ValidationError:
-            try:
-                oh.closing = '00:01'
-                oh.save()
-            except Exception as e:
-                self.fail(e)
-        else:
-            self.fail()
+        sunday = datetime(
+            year=2016,
+            month=4,
+            day=3
+        )
+
+        between_sun_mon = sunday + timedelta(
+            hours=12
+        )
+        between_mon_tue = between_sun_mon + timedelta(
+            days=1
+        )
+
+        self.assertTrue(sun_mon.contains(between_sun_mon))
+        self.assertFalse(sun_mon.contains(between_mon_tue))
+
+        # Weekday 0 - 1 @ 11:59
+        sun_mon_mid = OpeningPeriod.objects.create(
+            store=store,
+            opening_day=SUNDAY,
+            closing_day=MONDAY,
+            opening_time=self.time_from_string('11:59'),
+            closing_time=self.time_from_string('11:59')
+        )
+
+        sun_12 = sunday + timedelta(
+            hours=12
+        )
+        tue_00 = sunday + timedelta(
+            days=1
+        )
+        tue_12 = tue_00 + timedelta(
+            hours=12
+        )
+
+        self.assertTrue(sun_mon_mid.contains(sun_12))
+        self.assertTrue(sun_mon_mid.contains(tue_00))
+        self.assertFalse(sun_mon_mid.contains(tue_12))
+
+        mon_sun_mid = OpeningPeriod.objects.create(
+            store=store,
+            opening_day=MONDAY,
+            closing_day=SUNDAY,
+            opening_time=self.time_from_string('11:59'),
+            closing_time=self.time_from_string('11:59')
+        )
+
+        self.assertFalse(mon_sun_mid.contains(sun_12))
+        self.assertFalse(mon_sun_mid.contains(tue_00))
+        self.assertTrue(mon_sun_mid.contains(tue_12))
+
+        # Same day, hour test
+        time_12_14 = OpeningPeriod.objects.create(
+            store=store,
+            opening_day=SUNDAY,
+            closing_day=SUNDAY,
+            opening_time=self.time_from_string('12:00'),
+            closing_time=self.time_from_string('14:00')
+        )
+        hour_11 = sunday + timedelta(
+            hours=11
+        )
+        hour_12 = sunday + timedelta(
+            hours=12
+        )
+        hour_13 = sunday + timedelta(
+            hours=13
+        )
+        hour_14 = sunday + timedelta(
+            hours=14
+        )
+        hour_15 = sunday + timedelta(
+            hours=15
+        )
+
+        self.assertFalse(time_12_14.contains(hour_11))
+        self.assertFalse(time_12_14.contains(hour_12))
+        self.assertTrue(time_12_14.contains(hour_13))
+        self.assertFalse(time_12_14.contains(hour_14))
+        self.assertFalse(time_12_14.contains(hour_15))
 
     @mock.patch('requests.Response.json')
     @mock.patch('requests.get')

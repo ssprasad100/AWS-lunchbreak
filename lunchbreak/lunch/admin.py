@@ -2,7 +2,7 @@ from django.contrib import admin
 from imagekit.admin import AdminThumbnail
 
 from .models import (Food, FoodCategory, FoodType, HolidayPeriod, Ingredient,
-                     IngredientGroup, IngredientRelation, OpeningHours,
+                     IngredientGroup, IngredientRelation, OpeningPeriod,
                      Quantity, Store, StoreCategory, StoreHeader)
 
 admin.site.register(StoreCategory)
@@ -61,13 +61,14 @@ class StoreAdmin(admin.ModelAdmin):
     )
 
 
-@admin.register(OpeningHours)
-class OpeningHoursAdmin(admin.ModelAdmin):
+@admin.register(OpeningPeriod)
+class OpeningPeriodAdmin(admin.ModelAdmin):
     list_display = (
         'store',
-        'day',
-        'opening',
-        'closing',
+        'opening_day',
+        'closing_day',
+        'opening_time',
+        'closing_time',
         'id',
     )
     readonly_fields = (

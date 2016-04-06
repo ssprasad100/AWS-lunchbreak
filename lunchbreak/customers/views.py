@@ -7,7 +7,7 @@ from lunch.responses import BadRequest
 from lunch.serializers import (FoodCategorySerializer, MultiFoodSerializer,
                                ShortFoodCategorySerializer,
                                ShortStoreSerializer, SingleFoodSerializer)
-from lunch.views import (HolidayPeriodListViewBase, OpeningHoursListViewBase,
+from lunch.views import (HolidayPeriodListViewBase, OpeningPeriodListViewBase,
                          OpeningListViewBase, StoreCategoryListViewBase)
 from Lunchbreak.views import TargettedViewSet
 from rest_framework import filters, generics, mixins, status, viewsets
@@ -348,7 +348,7 @@ class GetStoreMixin(object):
         return self.kwargs['pk']
 
 
-class OpeningHoursListView(GetStoreMixin, OpeningHoursListViewBase):
+class OpeningPeriodListView(GetStoreMixin, OpeningPeriodListViewBase):
     authentication_classes = (CustomerAuthentication,)
 
 
@@ -356,7 +356,7 @@ class HolidayPeriodListView(GetStoreMixin, HolidayPeriodListViewBase):
     authentication_classes = (CustomerAuthentication,)
 
 
-class StoreHoursView(GetStoreMixin, OpeningListViewBase):
+class StorePeriodsView(GetStoreMixin, OpeningListViewBase):
     authentication_classes = (CustomerAuthentication,)
 
 

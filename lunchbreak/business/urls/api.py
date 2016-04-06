@@ -163,7 +163,7 @@ urlpatterns = router.urls + patterns(
     ),
     url(
         r'^store/hours/?$',
-        views.OpeningHoursListView.as_view()
+        views.OpeningPeriodListView.as_view()
     ),
     url(
         r'^store/holiday/?$',

@@ -102,12 +102,12 @@ urlpatterns = router_simple.urls + router_extended.urls + patterns(
         views.HolidayPeriodListView.as_view()
     ),
     url(
-        r'^store/(?P<pk>\d+)/hours/?$',
-        views.StoreHoursView.as_view()
+        r'^store/(?P<pk>\d+)/periods/?$',
+        views.StorePeriodsView.as_view()
     ),
     url(
-        r'^store/(?P<pk>\d+)/openinghours/?$',
-        views.OpeningHoursListView.as_view()
+        r'^store/(?P<pk>\d+)/openingperiod/?$',
+        views.OpeningPeriodListView.as_view()
     ),
     url(
         r'^store/nearby'

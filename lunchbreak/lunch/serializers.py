@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from .models import (BaseToken, Food, FoodCategory, FoodType, HolidayPeriod,
                      Ingredient, IngredientGroup, IngredientRelation,
-                     OpeningHours, Quantity, Store, StoreCategory)
+                     OpeningPeriod, Quantity, Store, StoreCategory)
 
 
 class StoreCategorySerializer(serializers.ModelSerializer):
@@ -62,15 +62,16 @@ class StoreSerializer(ShortStoreSerializer):
         read_only_fields = ShortStoreSerializer.Meta.read_only_fields
 
 
-class OpeningHoursSerializer(serializers.ModelSerializer):
+class OpeningPeriodSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = OpeningHours
+        model = OpeningPeriod
         fields = (
             'id',
-            'day',
-            'opening',
-            'closing',
+            'opening_day',
+            'closing_day',
+            'opening_time',
+            'closing_time',
         )
         read_only_fields = (
             'id',
@@ -96,7 +97,7 @@ class HoursSerializer(serializers.Serializer):
         many=True,
         read_only=True
     )
-    openinghours = OpeningHoursSerializer(
+    openingperiods = OpeningPeriodSerializer(
         many=True,
         read_only=True
     )
@@ -104,7 +105,7 @@ class HoursSerializer(serializers.Serializer):
     class Meta:
         fields = (
             'holidayperiods',
-            'openinghours',
+            'openingperiods',
         )
         read_only_fields = fields
 
