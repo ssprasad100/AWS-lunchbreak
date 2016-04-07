@@ -14,7 +14,8 @@ from django_gocardless.models import Payment, RedirectFlow
 from lunch.config import (COST_GROUP_ADDITIONS, COST_GROUP_BOTH, INPUT_SI_SET,
                           INPUT_SI_VARIABLE)
 from lunch.exceptions import BadRequest
-from lunch.models import BaseToken, Food, Ingredient, IngredientGroup, Store
+from lunch.models import (AbstractAddress, BaseToken, Food, Ingredient,
+                          IngredientGroup, Store)
 from lunch.responses import DoesNotExist
 from phonenumber_field.modelfields import PhoneNumberField
 from push_notifications.models import SERVICE_INACTIVE
@@ -23,8 +24,9 @@ from rest_framework.response import Response
 
 from .config import (GROUP_BILLING_SEPARATE, GROUP_BILLINGS,
                      INVITE_STATUS_ACCEPTED, INVITE_STATUS_WAITING,
-                     INVITE_STATUSES, ORDER_ENDED, ORDER_STATUS_PLACED,
-                     ORDER_STATUS_WAITING, ORDER_STATUSES, PAYMENT_METHOD_CASH,
+                     INVITE_STATUSES, ORDER_STATUSES_ENDED, ORDER_STATUS_PLACED,
+                     ORDER_STATUS_WAITING, ORDER_STATUSES,
+                     ORDER_STATUSES_ACTIVE, PAYMENT_METHOD_CASH,
                      PAYMENT_METHOD_GOCARDLESS, PAYMENT_METHODS,
                      RESERVATION_STATUS_DENIED, RESERVATION_STATUS_PLACED,
                      RESERVATION_STATUSES)
@@ -159,6 +161,28 @@ class User(models.Model):
             )
         except User.DoesNotExist:
             return DoesNotExist()
+
+
+class Address(AbstractAddress):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE
+    )
+
+    deleted = models.BooleanField(
+        default=False
+    )
+
+    def delete(self, *args, **kwargs):
+        active_orders = self.order_set.filter(
+            status__in=ORDER_STATUSES_ACTIVE
+        ).exists()
+
+        if active_orders:
+            self.deleted = True
+            self.save()
+        else:
+            super(Address, self).delete(*args, **kwargs)
 
 
 class PaymentLink(models.Model):
@@ -463,6 +487,12 @@ class Order(models.Model, DirtyFieldsMixin):
         null=True,
         blank=True
     )
+    address = models.ForeignKey(
+        Address,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
 
     def save(self, *args, **kwargs):
         self.total = 0
@@ -491,13 +521,26 @@ class Order(models.Model, DirtyFieldsMixin):
 
         super(Order, self).save(*args, **kwargs)
 
-        if dirty_status is not None and self.status in ORDER_ENDED:
-            for f in orderedfood:
-                try:
-                    if f.original.deleted:
-                        f.original.delete()
-                except Food.DoesNotExist:
-                    pass
+        if dirty_status is not None and self.status in ORDER_STATUSES_ENDED:
+            self.update_staged_deletion()
+
+    def delete(self, *args, **kwargs):
+        super(Order, self).delete(*args, **kwargs)
+        self.update_staged_deletion()
+
+    def update_staged_deletion(self, orderedfood=None):
+        if orderedfood is None:
+            orderedfood = self.orderedfood_set.all()
+
+        if self.address is not None and self.address.deleted:
+            self.address.delete()
+
+        for f in orderedfood:
+            try:
+                if f.original.deleted:
+                    f.original.delete()
+            except Food.DoesNotExist:
+                pass
 
     def waiting(self):
         """Called when status is set to waiting.

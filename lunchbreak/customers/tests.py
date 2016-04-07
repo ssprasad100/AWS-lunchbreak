@@ -18,11 +18,14 @@ from rest_framework import status
 from rest_framework.test import APIRequestFactory
 
 from . import views
-from .config import *  # NOQA
+from .config import (DEMO_DIGITS_ID, DEMO_PHONE, INVITE_STATUS_ACCEPTED,
+                     INVITE_STATUS_IGNORED, INVITE_STATUS_WAITING,
+                     ORDER_STATUS_COMPLETED, RESERVATION_STATUS_USER,
+                     RESERVATION_STATUSES)
 from .exceptions import (AlreadyMembership, InvalidStatusChange,
                          MaxSeatsExceeded, NoInvitePermissions)
-from .models import (Group, Heart, Invite, Membership, Order, OrderedFood,
-                     Reservation, User, UserToken)
+from .models import (Address, Group, Heart, Invite, Membership, Order,
+                     OrderedFood, Reservation, User, UserToken)
 
 
 class CustomersTests(LunchbreakTestCase):
@@ -435,7 +438,8 @@ class CustomersTests(LunchbreakTestCase):
         }
 
         request = self.factory.post(url, content)
-        response = self.authenticate_request(request, views.OrderViewSet, view_actions=view_actions)
+        response = self.authenticate_request(
+            request, views.OrderViewSet, view_actions=view_actions)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         order = Order.objects.get(id=response.data['id'])
         self.assertEqual(order.total, original.cost * 2)
@@ -464,17 +468,20 @@ class CustomersTests(LunchbreakTestCase):
         url = reverse('customers-user-token')
 
         request = self.factory.patch(url, content)
-        response = self.authenticate_request(request, views.UserViewSet, view_actions=view_actions_patch)
+        response = self.authenticate_request(
+            request, views.UserViewSet, view_actions=view_actions_patch)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         request = self.factory.put(url, content)
-        response = self.authenticate_request(request, views.UserViewSet, view_actions=view_actions_put)
+        response = self.authenticate_request(
+            request, views.UserViewSet, view_actions=view_actions_put)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         content['registration_id'] = 'blab'
 
         request = self.factory.patch(url, content)
-        response = self.authenticate_request(request, views.UserViewSet, view_actions=view_actions_patch)
+        response = self.authenticate_request(
+            request, views.UserViewSet, view_actions=view_actions_patch)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.usertoken.refresh_from_db()
         self.assertEqual(self.usertoken.registration_id, content['registration_id'])
@@ -483,7 +490,8 @@ class CustomersTests(LunchbreakTestCase):
         self.usertoken.save()
 
         request = self.factory.put(url, content)
-        response = self.authenticate_request(request, views.UserViewSet, view_actions=view_actions_put)
+        response = self.authenticate_request(
+            request, views.UserViewSet, view_actions=view_actions_put)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.usertoken.refresh_from_db()
         self.assertEqual(self.usertoken.registration_id, content['registration_id'])
@@ -493,7 +501,8 @@ class CustomersTests(LunchbreakTestCase):
         content['service'] = SERVICE_GCM
 
         request = self.factory.patch(url, content)
-        response = self.authenticate_request(request, views.UserViewSet, view_actions=view_actions_patch)
+        response = self.authenticate_request(
+            request, views.UserViewSet, view_actions=view_actions_patch)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.usertoken.refresh_from_db()
         self.assertEqual(self.usertoken.registration_id, content['registration_id'])
@@ -503,7 +512,8 @@ class CustomersTests(LunchbreakTestCase):
         self.usertoken.save()
 
         request = self.factory.put(url, content)
-        response = self.authenticate_request(request, views.UserViewSet, view_actions=view_actions_put)
+        response = self.authenticate_request(
+            request, views.UserViewSet, view_actions=view_actions_put)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.usertoken.refresh_from_db()
         self.assertEqual(self.usertoken.registration_id, content['registration_id'])
@@ -787,3 +797,61 @@ class CustomersTests(LunchbreakTestCase):
                 )
 
         Group.objects.all().delete()
+
+    @mock.patch('googlemaps.Client.geocode')
+    def test_address_delete(self, mock_geocode):
+        self.mock_geocode_results(
+            mock_geocode,
+            lat=51.0111595,
+            lng=3.9075993
+        )
+
+        address = Address.objects.create(
+            user=self.user,
+            country='België',
+            province='Oost-Vlaanderen',
+            city='Wetteren',
+            postcode='9230',
+            street='Dendermondesteenweg',
+            number=10
+        )
+
+        address, address_clone = self.clone_model(address)
+        address, address_clone2 = self.clone_model(address)
+
+        # Deleting addresses without orders should go smoothly
+        address_clone2.delete()
+        self.assertIsNone(address_clone2.pk)
+
+        order = Order.objects.create(
+            user=self.user,
+            store=self.store,
+            pickup=timezone.now(),
+            address=address
+        )
+        order, order_clone = self.clone_model(order)
+        order_clone.address = address_clone
+        order_clone.save()
+
+        # Deleting addresses with an active order should stage it for deletion
+        address.delete()
+        self.assertIsNotNone(address.pk)
+        self.assertTrue(address.deleted)
+
+        # It should be deleted together with the order then
+        order.delete()
+        self.assertRaises(
+            Address.DoesNotExist,
+            address.refresh_from_db
+        )
+
+        # Or when the status changes of the order
+        address_clone.delete()
+        self.assertIsNotNone(address_clone.pk)
+        self.assertTrue(address_clone.deleted)
+
+        order_clone.delete()
+        self.assertRaises(
+            Address.DoesNotExist,
+            address_clone.refresh_from_db
+        )
