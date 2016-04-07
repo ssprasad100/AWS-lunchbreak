@@ -1,13 +1,13 @@
-from rest_framework import status
 from Lunchbreak.exceptions import LunchbreakException
+from rest_framework import status
 
 ADDRESS_NOT_FOUND = 601
 DOES_NOT_EXIST = 602
 INGR_GROUP_MAX_EXCEEDED = 603
 INGR_GROUP_MIN_NOT_MET = 604
-INVALID_STORE_LINKING = 605
-INVALID_INGREDIENT_LINKING = 607
-INVALID_FOODTYPE_AMOUNT = 608
+INVALID_LINKING = 605
+INVALID_FOODTYPE_AMOUNT = 606
+NO_DELIVERY_TO_ADDRESS = 607
 
 
 class BadRequest(LunchbreakException):
@@ -40,19 +40,19 @@ class IngredientGroupsMinimumNotMet(LunchbreakException):
     information = 'Minimum IngredientGroups not met.'
 
 
-class InvalidStoreLinking(LunchbreakException):
+class LinkingError(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
-    code = INVALID_STORE_LINKING
-    information = 'Invalid store linking.'
-
-
-class InvalidIngredientLinking(LunchbreakException):
-    status_code = status.HTTP_400_BAD_REQUEST
-    code = INVALID_INGREDIENT_LINKING
-    information = 'Invalid ingredient linking.'
+    code = INVALID_LINKING
+    information = 'Invalid model linking.'
 
 
 class InvalidFoodTypeAmount(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
     code = INVALID_FOODTYPE_AMOUNT
     information = 'Invalid food type amount.'
+
+
+class NoDeliveryToAddress(LunchbreakException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    code = NO_DELIVERY_TO_ADDRESS
+    information = 'Store does not deliver to given address.'

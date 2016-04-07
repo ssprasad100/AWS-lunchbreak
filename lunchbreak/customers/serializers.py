@@ -7,7 +7,7 @@ from rest_framework.fields import *  # NOQA
 from rest_framework.relations import *  # NOQA
 
 from .config import RESERVATION_STATUS_PLACED, RESERVATION_STATUS_USER
-from .models import (Group, Invite, Membership, Order, OrderedFood,
+from .models import (Address, Group, Invite, Membership, Order, OrderedFood,
                      PaymentLink, Reservation, User, UserToken)
 
 
@@ -114,6 +114,23 @@ class OrderedFoodPriceSerializer(serializers.ModelSerializer):
         write_only_fields = fields
 
 
+class PrimaryAddressSerializer(PrimaryModelSerializer):
+
+    class Meta:
+        model = Address
+        fields = (
+            'country',
+            'province',
+            'city',
+            'postcode',
+            'street',
+            'number',
+            'latitude',
+            'longitude'
+        )
+        read_only = fields
+
+
 class ShortOrderSerializer(serializers.ModelSerializer):
 
     """Used after placing an order for confirmation."""
@@ -121,6 +138,10 @@ class ShortOrderSerializer(serializers.ModelSerializer):
     orderedfood = OrderedFoodSerializer(
         many=True,
         write_only=True
+    )
+    address = PrimaryAddressSerializer(
+        queryset=Address.objects.all(),
+        required=False
     )
     user = serializers.HiddenField(
         default=serializers.CurrentUserDefault()
@@ -139,6 +160,7 @@ class ShortOrderSerializer(serializers.ModelSerializer):
             'description',
             'user',
             'payment_method',
+            'address',
         )
         read_only_fields = (
             'id',
@@ -158,7 +180,7 @@ class ShortOrderSerializer(serializers.ModelSerializer):
             'user': validated_data['user']
         }
 
-        optional_fields = ['description', 'payment_method']
+        optional_fields = ['description', 'payment_method', 'address']
         for optional_field in optional_fields:
             if optional_field in validated_data:
                 kwargs[optional_field] = validated_data[optional_field]

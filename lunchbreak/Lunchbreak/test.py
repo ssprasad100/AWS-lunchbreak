@@ -44,8 +44,14 @@ class LunchbreakTestCase(APITestCase):
     def assertEqualException(self, response, exception):
         if not hasattr(response, 'data'):
             self.fail('Could not read data: ' + str(response.content))
-        error_message = json.dumps(response.data, indent=4)
-        self.assertEqual(response.data['error']['code'], exception.code, error_message)
+        try:
+            error_message = json.dumps(response.data, indent=4)
+        except:
+            error_message = response.data
+        try:
+            self.assertEqual(response.data['error']['code'], exception.code, error_message)
+        except KeyError:
+            self.fail(error_message)
         self.assertEqual(response.status_code, exception.status_code, error_message)
 
     def as_view(self, request, view, view_actions=None, *args, **kwargs):

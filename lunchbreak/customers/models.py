@@ -13,7 +13,7 @@ from django_gocardless.config import CURRENCY_EUR
 from django_gocardless.models import Payment, RedirectFlow
 from lunch.config import (COST_GROUP_ADDITIONS, COST_GROUP_BOTH, INPUT_SI_SET,
                           INPUT_SI_VARIABLE)
-from lunch.exceptions import BadRequest
+from lunch.exceptions import BadRequest, LinkingError, NoDeliveryToAddress
 from lunch.models import (AbstractAddress, BaseToken, Food, Ingredient,
                           IngredientGroup, Store)
 from lunch.responses import DoesNotExist
@@ -24,12 +24,12 @@ from rest_framework.response import Response
 
 from .config import (GROUP_BILLING_SEPARATE, GROUP_BILLINGS,
                      INVITE_STATUS_ACCEPTED, INVITE_STATUS_WAITING,
-                     INVITE_STATUSES, ORDER_STATUSES_ENDED, ORDER_STATUS_PLACED,
+                     INVITE_STATUSES, ORDER_STATUS_PLACED,
                      ORDER_STATUS_WAITING, ORDER_STATUSES,
-                     ORDER_STATUSES_ACTIVE, PAYMENT_METHOD_CASH,
-                     PAYMENT_METHOD_GOCARDLESS, PAYMENT_METHODS,
-                     RESERVATION_STATUS_DENIED, RESERVATION_STATUS_PLACED,
-                     RESERVATION_STATUSES)
+                     ORDER_STATUSES_ACTIVE, ORDER_STATUSES_ENDED,
+                     PAYMENT_METHOD_CASH, PAYMENT_METHOD_GOCARDLESS,
+                     PAYMENT_METHODS, RESERVATION_STATUS_DENIED,
+                     RESERVATION_STATUS_PLACED, RESERVATION_STATUSES)
 from .digits import Digits
 from .exceptions import (AlreadyMembership, AmountInvalid, CostCheckFailed,
                          DigitsException, InvalidStatusChange,
@@ -610,9 +610,21 @@ class Order(models.Model, DirtyFieldsMixin):
 
     @classmethod
     def create(cls, pickup, orderedfood_list, store, user,
-               payment_method=PAYMENT_METHOD_CASH, description=''):
+               payment_method=PAYMENT_METHOD_CASH, address=None,
+               description=''):
         if len(orderedfood_list) == 0:
             raise BadRequest('"orderedfood" cannot be empty.')
+
+        if address is not None:
+            is_user_address = user.address_set.filter(
+                id=address.id
+            ).exists()
+
+            if not is_user_address:
+                raise LinkingError()
+
+            if not store.delivers_to(address):
+                raise NoDeliveryToAddress()
 
         Store.check_open(store, pickup)
 
@@ -632,7 +644,8 @@ class Order(models.Model, DirtyFieldsMixin):
             store=store,
             pickup=pickup,
             description=description,
-            payment_method=payment_method
+            payment_method=payment_method,
+            address=address
         )
         order.save()
 

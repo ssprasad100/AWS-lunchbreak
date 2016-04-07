@@ -8,7 +8,8 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.utils import timezone
-from lunch.exceptions import BadRequest, DoesNotExist
+from lunch.exceptions import (BadRequest, DoesNotExist, LinkingError,
+                              NoDeliveryToAddress)
 from lunch.models import (Food, FoodCategory, FoodType, HolidayPeriod,
                           Ingredient, IngredientGroup, IngredientRelation,
                           Store)
@@ -437,12 +438,22 @@ class CustomersTests(LunchbreakTestCase):
             'post': 'create'
         }
 
-        request = self.factory.post(url, content)
-        response = self.authenticate_request(
-            request, views.OrderViewSet, view_actions=view_actions)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        order = Order.objects.get(id=response.data['id'])
-        self.assertEqual(order.total, original.cost * 2)
+        def create_order():
+            request = self.factory.post(url, content)
+            response = self.authenticate_request(
+                request,
+                views.OrderViewSet,
+                view_actions=view_actions
+            )
+            if response.status_code == status.HTTP_201_CREATED:
+                order = Order.objects.get(id=response.data['id'])
+                self.assertEqual(order.total, original.cost * 2)
+                return (response, order)
+            return (response, None)
+
+        response, order = create_order()
+        response.render()
+        self.assertIsNotNone(order)
 
         original.delete()
         self.assertTrue(original.deleted)
@@ -450,6 +461,42 @@ class CustomersTests(LunchbreakTestCase):
         order.save()
         self.assertRaises(Food.DoesNotExist, Food.objects.get, id=original.id)
         self.assertEqual(OrderedFood.objects.filter(order=order).count(), 0)
+
+        # Test delivery address exceptions
+        self.food, original = self.clone_model(self.food)
+        content['orderedfood'] = [
+            {
+                'original': original.id,
+                'cost': original.cost,
+                'amount': original.amount
+            },
+            {
+                'original': original.id,
+                'cost': original.cost,
+                'amount': original.amount
+            }
+        ]
+
+        address = Address.objects.create(
+            user=self.user,
+            country='België',
+            province='Oost-Vlaanderen',
+            city='Wetteren',
+            postcode='9230',
+            street='Dendermondesteenweg',
+            number=10
+        )
+        address, address_other = self.clone_model(address)
+        address_other.user = self.user_other
+        address_other.save()
+
+        content['address'] = address.id
+        response, order = create_order()
+        self.assertEqualException(response, NoDeliveryToAddress)
+
+        content['address'] = address_other.id
+        response, order = create_order()
+        self.assertEqualException(response, LinkingError)
 
     def test_token_update(self):
         """
@@ -841,6 +888,10 @@ class CustomersTests(LunchbreakTestCase):
         # It should be deleted together with the order then
         order.delete()
         self.assertRaises(
+            Order.DoesNotExist,
+            order.refresh_from_db
+        )
+        self.assertRaises(
             Address.DoesNotExist,
             address.refresh_from_db
         )
@@ -851,6 +902,10 @@ class CustomersTests(LunchbreakTestCase):
         self.assertTrue(address_clone.deleted)
 
         order_clone.delete()
+        self.assertRaises(
+            Order.DoesNotExist,
+            order_clone.refresh_from_db
+        )
         self.assertRaises(
             Address.DoesNotExist,
             address_clone.refresh_from_db

@@ -27,7 +27,7 @@ from .config import (CCTLDS, COST_GROUP_ALWAYS, COST_GROUP_CALCULATIONS,
                      WEEKDAYS, random_token)
 from .exceptions import (AddressNotFound, IngredientGroupMaxExceeded,
                          IngredientGroupsMinimumNotMet, InvalidFoodTypeAmount,
-                         InvalidIngredientLinking, InvalidStoreLinking)
+                         LinkingError)
 from .managers import FoodManager, StoreManager
 from .specs import HDPI, LDPI, MDPI, XHDPI, XXHDPI, XXXHDPI
 
@@ -228,6 +228,11 @@ class Store(AbstractAddress):
     @cached_property
     def hearts_count(self):
         return self.hearts.count()
+
+    def delivers_to(self, address):
+        return self.regions.filter(
+            postcode=address.postcode
+        ).exists()
 
     @staticmethod
     def check_open(store, pickup, now=None):
@@ -549,7 +554,7 @@ class IngredientGroup(models.Model):
                 if foodtype_group.id == ingredientgroup:
                     break
             else:
-                raise InvalidIngredientLinking()
+                raise LinkingError()
 
         original_ingredients = food.ingredients.all()
 
@@ -597,7 +602,7 @@ class Ingredient(models.Model, DirtyFieldsMixin):
 
     def save(self, *args, **kwargs):
         if self.store != self.group.store:
-            raise InvalidStoreLinking()
+            raise LinkingError()
 
         dirty_fields = self.get_dirty_fields(check_relationship=True)
         if 'group' in dirty_fields:
@@ -800,7 +805,7 @@ class Food(models.Model):
         if not self.foodtype.is_valid_amount(self.amount):
             raise InvalidFoodTypeAmount()
         if self.category.store_id != self.store_id:
-            raise InvalidStoreLinking()
+            raise LinkingError()
 
         super(Food, self).save(*args, **kwargs)
 
@@ -965,7 +970,7 @@ class IngredientRelation(models.Model, DirtyFieldsMixin):
 
     def save(self, *args, **kwargs):
         if self.food.store_id != self.ingredient.store_id:
-            raise InvalidStoreLinking()
+            raise LinkingError()
 
         dirty_fields = self.get_dirty_fields(check_relationship=True)
         if 'ingredient' in dirty_fields:
