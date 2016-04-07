@@ -14,15 +14,12 @@ from .models import (Food, FoodCategory, FoodType, HolidayPeriod,
 
 class LunchTests(LunchbreakTestCase):
 
-    @mock.patch('requests.Response.json')
-    @mock.patch('requests.get')
-    def test_address(self, mock_get, mock_json):
+    @mock.patch('googlemaps.Client.geocode')
+    def test_address(self, mock_geocode):
         """ Test for the AddressNotFound exception. """
         try:
-            mock_fail = {
-                'results': []
-            }
-            self.mock_address_response(mock_get, mock_json, mock_fail)
+            mock_fail = []
+            self.mock_geocode_results(mock_geocode, mock_fail)
             Store.objects.create(
                 name='test',
                 country='nonexisting',
@@ -34,7 +31,7 @@ class LunchTests(LunchbreakTestCase):
             )
         except AddressNotFound:
             try:
-                self.mock_address_response(mock_get, mock_json)
+                self.mock_geocode_results(mock_geocode)
                 Store.objects.create(
                     name='valid',
                     country='Belgie',
@@ -49,15 +46,13 @@ class LunchTests(LunchbreakTestCase):
         else:
             self.fail()
 
-    @mock.patch('requests.Response.json')
-    @mock.patch('requests.get')
-    def test_stores_nearby(self, mock_get, mock_json):
+    @mock.patch('googlemaps.Client.geocode')
+    def test_stores_nearby(self, mock_geocode):
         """ Test whether LunchbreakManager.nearby returns the right stores. """
         Store.objects.all().delete()
 
-        self.mock_address_response(
-            mock_get,
-            mock_json,
+        self.mock_geocode_results(
+            mock_geocode,
             lat=51.0111595,
             lng=3.9075993
         )
@@ -71,9 +66,8 @@ class LunchTests(LunchbreakTestCase):
             number=10
         )
 
-        self.mock_address_response(
-            mock_get,
-            mock_json,
+        self.mock_geocode_results(
+            mock_geocode,
             lat=51.0076504,
             lng=3.8892806
         )
@@ -87,9 +81,8 @@ class LunchTests(LunchbreakTestCase):
             number=47
         )
 
-        self.mock_address_response(
-            mock_get,
-            mock_json,
+        self.mock_geocode_results(
+            mock_geocode,
             lat=51.0089506,
             lng=3.8392584
         )
@@ -103,9 +96,8 @@ class LunchTests(LunchbreakTestCase):
             number=1
         )
 
-        self.mock_address_response(
-            mock_get,
-            mock_json,
+        self.mock_geocode_results(
+            mock_geocode,
             lat=51.0267939,
             lng=3.7968594
         )
@@ -148,11 +140,10 @@ class LunchTests(LunchbreakTestCase):
     def time_from_string(self, time_string):
         return datetime.strptime(time_string, '%H:%M').time()
 
-    @mock.patch('requests.Response.json')
-    @mock.patch('requests.get')
-    def test_store_modified(self, mock_get, mock_json):
+    @mock.patch('googlemaps.Client.geocode')
+    def test_store_modified(self, mock_geocode):
         """Test whether updating OpeningPeriod and HolidayPeriod objects updates the Store."""
-        self.mock_address_response(mock_get, mock_json)
+        self.mock_geocode_results(mock_geocode)
         store = Store.objects.create(
             name='valid',
             country='Belgie',
@@ -188,10 +179,9 @@ class LunchTests(LunchbreakTestCase):
 
         self.assertGreater(store.modified, modified_second)
 
-    @mock.patch('requests.Response.json')
-    @mock.patch('requests.get')
-    def test_store_store_check_open(self, mock_get, mock_json):
-        self.mock_address_response(mock_get, mock_json)
+    @mock.patch('googlemaps.Client.geocode')
+    def test_store_store_check_open(self, mock_geocode):
+        self.mock_geocode_results(mock_geocode)
         store = Store.objects.create(
             name='valid',
             country='Belgie',
@@ -262,10 +252,9 @@ class LunchTests(LunchbreakTestCase):
         self.assertRaises(StoreClosed, Store.check_open, store, between, today)
         self.assertIsNone(Store.check_open(store, between + timedelta(minutes=1), today))
 
-    @mock.patch('requests.Response.json')
-    @mock.patch('requests.get')
-    def test_openingperiod(self, mock_get, mock_json):
-        self.mock_address_response(mock_get, mock_json)
+    @mock.patch('googlemaps.Client.geocode')
+    def test_openingperiod(self, mock_geocode):
+        self.mock_geocode_results(mock_geocode)
         store = Store.objects.create(
             name='valid',
             country='Belgie',
@@ -366,10 +355,9 @@ class LunchTests(LunchbreakTestCase):
         self.assertFalse(time_12_14.contains(hour_14))
         self.assertFalse(time_12_14.contains(hour_15))
 
-    @mock.patch('requests.Response.json')
-    @mock.patch('requests.get')
-    def test_holidayperiod(self, mock_get, mock_json):
-        self.mock_address_response(mock_get, mock_json)
+    @mock.patch('googlemaps.Client.geocode')
+    def test_holidayperiod(self, mock_geocode):
+        self.mock_geocode_results(mock_geocode)
         store = Store.objects.create(
             name='valid',
             country='Belgie',
@@ -401,10 +389,9 @@ class LunchTests(LunchbreakTestCase):
         else:
             self.fail()
 
-    @mock.patch('requests.Response.json')
-    @mock.patch('requests.get')
-    def test_ingredientgroup(self, mock_get, mock_json):
-        self.mock_address_response(mock_get, mock_json)
+    @mock.patch('googlemaps.Client.geocode')
+    def test_ingredientgroup(self, mock_geocode):
+        self.mock_geocode_results(mock_geocode)
         store = Store.objects.create(
             name='valid',
             country='Belgie',
@@ -439,10 +426,9 @@ class LunchTests(LunchbreakTestCase):
         else:
             self.fail()
 
-    @mock.patch('requests.Response.json')
-    @mock.patch('requests.get')
-    def test_quantity(self, mock_get, mock_json):
-        self.mock_address_response(mock_get, mock_json)
+    @mock.patch('googlemaps.Client.geocode')
+    def test_quantity(self, mock_geocode):
+        self.mock_geocode_results(mock_geocode)
         foodtype = FoodType.objects.create(name='type')
 
         store = Store.objects.create(
@@ -471,10 +457,9 @@ class LunchTests(LunchbreakTestCase):
             max=2
         )
 
-    @mock.patch('requests.Response.json')
-    @mock.patch('requests.get')
-    def test_foodtype(self, mock_get, mock_json):
-        self.mock_address_response(mock_get, mock_json)
+    @mock.patch('googlemaps.Client.geocode')
+    def test_foodtype(self, mock_geocode):
+        self.mock_geocode_results(mock_geocode)
         store = Store.objects.create(
             name='valid',
             country='Belgie',
@@ -537,10 +522,9 @@ class LunchTests(LunchbreakTestCase):
                             'Input type is integer, but raises exception.'
                         )
 
-    @mock.patch('requests.Response.json')
-    @mock.patch('requests.get')
-    def test_food_orderable(self, mock_get, mock_json):
-        self.mock_address_response(mock_get, mock_json)
+    @mock.patch('googlemaps.Client.geocode')
+    def test_food_orderable(self, mock_geocode):
+        self.mock_geocode_results(mock_geocode)
         preorder_time = time(hour=12)
 
         store = Store.objects.create(

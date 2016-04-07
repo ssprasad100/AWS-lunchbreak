@@ -41,15 +41,13 @@ class CustomersTests(LunchbreakTestCase):
     DEVICE = 'Test device'
     REGISTRATION_ID = '123456789'
 
-    @mock.patch('requests.Response.json')
-    @mock.patch('requests.get')
-    def setUp(self, mock_get, mock_json):
+    @mock.patch('googlemaps.Client.geocode')
+    def setUp(self, mock_geocode):
         super(CustomersTests, self).setUp()
         self.factory = APIRequestFactory()
 
-        self.mock_address_response(
-            mock_get,
-            mock_json,
+        self.mock_geocode_results(
+            mock_geocode,
             lat=51.0111595,
             lng=3.9075993
         )

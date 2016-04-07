@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from datetime import timedelta
 
+import mock
 from customers.config import ORDER_STATUS_COMPLETED
 from customers.models import Order, OrderedFood, User, UserToken
 from django.core.urlresolvers import reverse
@@ -35,9 +36,16 @@ class BusinessTests(LunchbreakTestCase):
     REGISTRATION_ID = '123456789'
     EMAIL = 'hello@cloock.be'
 
-    def setUp(self):
+    @mock.patch('googlemaps.Client.geocode')
+    def setUp(self, mock_geocode):
         super(BusinessTests, self).setUp()
         self.factory = APIRequestFactory()
+
+        self.mock_geocode_results(
+            mock_geocode,
+            lat=51.0111595,
+            lng=3.9075993
+        )
 
         self.user = User.objects.create(
             phone=BusinessTests.PHONE_USER,

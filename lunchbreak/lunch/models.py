@@ -4,7 +4,6 @@ import copy
 from datetime import datetime, time, timedelta
 
 import googlemaps
-import requests
 from customers.config import ORDER_ENDED
 from customers.exceptions import MinTimeExceeded, PastOrderDenied, StoreClosed
 from dirtyfields import DirtyFieldsMixin
@@ -80,17 +79,7 @@ class StoreHeader(Polaroid):
     )
 
 
-class Store(models.Model):
-    name = models.CharField(
-        max_length=255
-    )
-    header = models.ForeignKey(
-        StoreHeader,
-        on_delete=models.SET_NULL,
-        blank=True,
-        null=True
-    )
-
+class AbstractAddress(models.Model, DirtyFieldsMixin):
     country = models.CharField(
         max_length=255
     )
@@ -102,7 +91,7 @@ class Store(models.Model):
     )
     postcode = models.CharField(
         max_length=20,
-        verbose_name='Postal code'
+        verbose_name=_('Postal code')
     )
     street = models.CharField(
         max_length=255
@@ -110,15 +99,90 @@ class Store(models.Model):
     number = models.CharField(
         max_length=10
     )
+
     latitude = models.DecimalField(
-        blank=True,
         decimal_places=7,
         max_digits=10
     )
     longitude = models.DecimalField(
-        blank=True,
         decimal_places=7,
         max_digits=10
+    )
+
+    class Meta:
+        abstract = True
+
+    def save(self, *args, **kwargs):
+        dirty_fields = self.get_dirty_fields()
+        fields = [
+            'country',
+            'province',
+            'city',
+            'postcode',
+            'street',
+            'number',
+            'latitude',
+            'longitude'
+        ]
+
+        if self.pk is None or dirty_fields:
+            update_location = False
+            if self.pk is not None and dirty_fields:
+                for field in fields:
+                    if field in dirty_fields:
+                        update_location = True
+                        break
+            else:
+                update_location = True
+
+            if update_location:
+                self.clean_fields(
+                    exclude=[
+                        'latitude',
+                        'longitude'
+                    ]
+                )
+
+                google_client = googlemaps.Client(
+                    key=settings.GOOGLE_CLOUD_SECRET,
+                    connect_timeout=5,
+                    read_timeout=5,
+                    retry_timeout=1
+                )
+                address = '{country}, {province}, {street} {number}, {postcode} {city}'.format(
+                    country=self.country,
+                    province=self.province,
+                    street=self.street,
+                    number=self.number,
+                    postcode=self.postcode,
+                    city=self.city,
+                )
+                results = google_client.geocode(
+                    address=address
+                )
+
+                if len(results) == 0:
+                    raise AddressNotFound(
+                        _('No results found for given postcode and country.')
+                    )
+
+                result = results[0]
+                self.latitude = result['geometry']['location']['lat']
+                self.longitude = result['geometry']['location']['lng']
+
+        self.full_clean()
+        super(AbstractAddress, self).save(*args, **kwargs)
+
+
+class Store(AbstractAddress):
+    name = models.CharField(
+        max_length=255
+    )
+    header = models.ForeignKey(
+        StoreHeader,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True
     )
 
     categories = models.ManyToManyField(
@@ -154,32 +218,6 @@ class Store(models.Model):
     )
 
     objects = StoreManager()
-
-    def save(self, *args, **kwargs):
-        address = '{country},+{province},+{street}+{number},+{postcode}+{city}'.format(
-            country=self.country,
-            province=self.province,
-            street=self.street,
-            number=self.number,
-            postcode=self.postcode,
-            city=self.city,
-        )
-        response = requests.get(
-            'https://maps.googleapis.com/maps/api/geocode/json',
-            params={
-                'address': address,
-                'key': settings.GOOGLE_CLOUD_SECRET
-            }
-        )
-        result = response.json()
-
-        if not result['results']:
-            raise AddressNotFound(result)
-
-        self.latitude = result['results'][0]['geometry']['location']['lat']
-        self.longitude = result['results'][0]['geometry']['location']['lng']
-
-        super(Store, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return '{name}, {city}'.format(
@@ -248,7 +286,9 @@ class Region(models.Model):
         if self.pk is None:
             self.validate_unique()
             self.clean_fields(
-                exclude='name'
+                exclude=[
+                    'name'
+                ]
             )
 
             google_client = googlemaps.Client(
@@ -262,8 +302,8 @@ class Region(models.Model):
                 components={
                     'country': self.get_country_display()
                 },
-                language=LANGUAGES[self.country],
-                region=CCTLDS[self.country]
+                region=CCTLDS[self.country],
+                language=LANGUAGES[self.country]
             )
             if len(results) == 0:
                 raise AddressNotFound(
