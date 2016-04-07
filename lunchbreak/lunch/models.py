@@ -141,6 +141,10 @@ class Store(models.Model):
             MinValueValidator(1)
         ]
     )
+    regions = models.ManyToManyField(
+        'Region',
+        help_text=_('Active delivery regions.')
+    )
 
     modified = models.DateTimeField(
         auto_now=True
@@ -367,6 +371,10 @@ class Period(models.Model):
 
 
 class OpeningPeriod(Period):
+    pass
+
+
+class DeliveryPeriod(Period):
     pass
 
 
