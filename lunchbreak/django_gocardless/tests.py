@@ -29,7 +29,7 @@ class DjangoGoCardlessTestCase(TestCase):
     }
     CUSTOMER_BANK_ACCOUNT_INFO = {
         'id': 'BA123',
-        'account_holder_name': 'Jar Jar Binks, Sith Lord',
+        'account_holder_name': 'Jar Jar Binks, Sit',
         'account_number_ending': '12',
         'bank_name': 'Monopoly',
         'country_code': 'US',

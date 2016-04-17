@@ -161,17 +161,17 @@ class BusinessTests(LunchbreakTestCase):
         food.pk = None
         food.save()
 
-        order = Order.objects.create(
-            user=self.user,
-            store=self.store,
-            pickup=timezone.now() + timedelta(days=1)
-        )
-
-        orderedfood = OrderedFood.objects.create(
+        orderedfood = OrderedFood(
             cost=1,
-            order=order,
             original=food,
             is_original=True
+        )
+
+        order = Order.create(
+            user=self.user,
+            store=self.store,
+            pickup=timezone.now() + timedelta(days=1),
+            orderedfood=[orderedfood]
         )
 
         food_duplicate = Food.objects.get(id=self.food.id)

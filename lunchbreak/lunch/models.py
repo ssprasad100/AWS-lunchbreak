@@ -23,8 +23,8 @@ from private_media.storages import PrivateMediaStorage
 from push_notifications.models import BareDevice, DeviceManager
 
 from .config import (CCTLDS, COST_GROUP_ALWAYS, COST_GROUP_CALCULATIONS,
-                     COUNTRIES, ICONS, INPUT_AMOUNT, INPUT_TYPES, LANGUAGES,
-                     WEEKDAYS, random_token)
+                     COUNTRIES, ICONS, INPUT_AMOUNT, INPUT_SI_VARIABLE,
+                     INPUT_TYPES, LANGUAGES, WEEKDAYS, random_token)
 from .exceptions import (AddressNotFound, IngredientGroupMaxExceeded,
                          IngredientGroupsMinimumNotMet, InvalidFoodTypeAmount,
                          LinkingError)
@@ -800,6 +800,15 @@ class Food(models.Model):
             )
 
             return difference_day >= preorder_days
+
+    def is_valid_amount(self, amount):
+        return amount > 0 and (
+            float(amount).is_integer() or
+            self.foodtype.inputtype != INPUT_SI_VARIABLE
+        ) and (
+            self.quantity is None or
+            self.quantity.min <= amount <= self.quantity.max
+        )
 
     def save(self, *args, **kwargs):
         if not self.foodtype.is_valid_amount(self.amount):

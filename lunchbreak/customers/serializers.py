@@ -173,20 +173,8 @@ class ShortOrderSerializer(serializers.ModelSerializer):
         )
 
     def create(self, validated_data):
-        kwargs = {
-            'pickup': validated_data['pickup'],
-            'orderedfood_list': validated_data['orderedfood'],
-            'store': validated_data['store'],
-            'user': validated_data['user']
-        }
-
-        optional_fields = ['description', 'payment_method', 'address']
-        for optional_field in optional_fields:
-            if optional_field in validated_data:
-                kwargs[optional_field] = validated_data[optional_field]
-
         return Order.create(
-            **kwargs
+            **validated_data
         )
 
 

@@ -11,8 +11,7 @@ from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
 from django_gocardless.config import CURRENCY_EUR
 from django_gocardless.models import Payment, RedirectFlow
-from lunch.config import (COST_GROUP_ADDITIONS, COST_GROUP_BOTH, INPUT_SI_SET,
-                          INPUT_SI_VARIABLE)
+from lunch.config import COST_GROUP_ADDITIONS, COST_GROUP_BOTH, INPUT_SI_SET
 from lunch.exceptions import BadRequest, LinkingError, NoDeliveryToAddress
 from lunch.models import (AbstractAddress, BaseToken, Food, Ingredient,
                           IngredientGroup, Store)
@@ -495,10 +494,7 @@ class Order(models.Model, DirtyFieldsMixin):
     )
 
     def save(self, *args, **kwargs):
-        self.total = 0
-        orderedfood = self.orderedfood_set.all()
-        for f in orderedfood:
-            self.total += f.total
+        self.full_clean()
 
         if self.pk is None:
             StaffToken.objects.filter(
@@ -507,6 +503,11 @@ class Order(models.Model, DirtyFieldsMixin):
                 'Er is een nieuwe bestelling binnengekomen!',
                 sound='default'
             )
+
+        self.total = 0
+        orderedfood = self.orderedfood_set.all()
+        for f in orderedfood:
+            self.total += f.total
 
         dirty = self.is_dirty()
         dirty_status = None
@@ -523,6 +524,34 @@ class Order(models.Model, DirtyFieldsMixin):
 
         if dirty_status is not None and self.status in ORDER_STATUSES_ENDED:
             self.update_staged_deletion()
+
+    @classmethod
+    def create(cls, orderedfood, **kwargs):
+        if orderedfood is None or len(orderedfood) == 0:
+            raise BadRequest('An order requires to have ordered food.')
+
+        instance = cls.objects.create(**kwargs)
+
+        try:
+            for f in orderedfood:
+                if isinstance(f, dict):
+                    OrderedFood.objects.create(
+                        order=instance,
+                        **f
+                    )
+                elif isinstance(f, OrderedFood):
+                    f.order = instance
+                    f.save()
+                else:
+                    raise NotImplementedError(
+                        'Order.create requires a dict or list of OrderedFood.'
+                    )
+        except:
+            instance.delete()
+            raise
+
+        instance.save()
+        return instance
 
     def delete(self, *args, **kwargs):
         super(Order, self).delete(*args, **kwargs)
@@ -585,112 +614,30 @@ class Order(models.Model, DirtyFieldsMixin):
             # TODO Send the user an email/text stating the failed transaction.
             self.payment_method = PAYMENT_METHOD_CASH
 
-    @staticmethod
-    def check_cost(cost_calculated, food, amount, cost_given):
-        if math.ceil(
-                (
-                    cost_calculated * amount * (
-                        food.amount
-                        if food.foodtype.inputtype == INPUT_SI_SET
-                        else 1
-                    )
-                ) * 100) / 100.0 != float(cost_given):
-            raise CostCheckFailed()
-
-    @staticmethod
-    def check_amount(food, amount):
-        if amount <= 0 or (
-            not float(amount).is_integer() and
-            food.foodtype.inputtype != INPUT_SI_VARIABLE
-        ) or (
-            food.quantity is not None and
-            not food.quantity.min <= amount <= food.quantity.max
-        ):
-            raise AmountInvalid()
-
-    @classmethod
-    def create(cls, pickup, orderedfood_list, store, user,
-               payment_method=PAYMENT_METHOD_CASH, address=None,
-               description=''):
-        if len(orderedfood_list) == 0:
-            raise BadRequest('"orderedfood" cannot be empty.')
-
-        if address is not None:
-            is_user_address = user.address_set.filter(
-                id=address.id
+    def clean(self):
+        if self.address is not None:
+            is_user_address = self.user.address_set.filter(
+                id=self.address.id
             ).exists()
 
             if not is_user_address:
                 raise LinkingError()
 
-            if not store.delivers_to(address):
+            if not self.store.delivers_to(self.address):
                 raise NoDeliveryToAddress()
 
-        Store.check_open(store, pickup)
+        Store.check_open(self.store, self.pickup)
 
-        if payment_method == PAYMENT_METHOD_GOCARDLESS:
+        if self.payment_method == PAYMENT_METHOD_GOCARDLESS:
             try:
                 paymentlink = PaymentLink.objects.get(
-                    user=user,
-                    store=store
+                    user=self.user,
+                    store=self.store
                 )
                 if not paymentlink.redirectflow.is_completed:
                     raise PaymentLinkNotConfirmed()
             except PaymentLink.DoesNotExist:
                 raise NoPaymentLink()
-
-        order = Order(
-            user=user,
-            store=store,
-            pickup=pickup,
-            description=description,
-            payment_method=payment_method,
-            address=address
-        )
-        order.save()
-
-        try:
-            for f in orderedfood_list:
-                original = f['original']
-                if not original.is_orderable(pickup):
-                    raise MinDaysExceeded()
-                amount = f['amount'] if 'amount' in f else 1
-                cls.check_amount(original, amount)
-                cost = f['cost']
-                comment = f['comment'] if 'comment' in f and original.commentable else ''
-
-                orderedfood = OrderedFood(
-                    amount=amount,
-                    cost=cost,
-                    order=order,
-                    original=original,
-                    comment=comment
-                )
-
-                if 'ingredients' in f:
-                    orderedfood.save()
-                    ingredients = f['ingredients']
-
-                    closest = Food.objects.closest(ingredients, original)
-                    cls.check_amount(closest, amount)
-                    IngredientGroup.check_ingredients(ingredients, closest)
-                    cost_calculated = OrderedFood.calculate_cost(ingredients, closest)
-                    cls.check_cost(cost_calculated, closest, amount, cost)
-
-                    orderedfood.cost = cost_calculated
-                    orderedfood.ingredients = ingredients
-                else:
-                    cls.check_cost(original.cost, original, amount, cost)
-                    orderedfood.cost = original.cost
-                    orderedfood.is_original = True
-
-                orderedfood.save()
-        except:
-            order.delete()
-            raise
-
-        order.save()
-        return order
 
     def __unicode__(self):
         return '{user} {id}'.format(
@@ -744,6 +691,53 @@ class OrderedFood(models.Model):
         return math.ceil(
             (self.cost * self.amount * self.amount_food) * 100
         ) / 100.0
+
+    @staticmethod
+    def check_cost(cost_calculated, food, amount, cost_given):
+        if math.ceil(
+                (
+                    cost_calculated * amount * (
+                        food.amount
+                        if food.foodtype.inputtype == INPUT_SI_SET
+                        else 1
+                    )
+                ) * 100) / 100.0 != float(cost_given):
+            raise CostCheckFailed()
+
+    def clean(self):
+        if not self.original.is_valid_amount(self.amount):
+            raise AmountInvalid()
+
+        if not self.original.is_orderable(self.order.pickup):
+            raise MinDaysExceeded()
+
+        if not self.original.commentable and self.comment:
+            self.comment = ''
+
+    def save(self, ingredients=None, *args, **kwargs):
+        self.full_clean()
+
+        if self.pk is None:
+            self.create(ingredients, *args, **kwargs)
+
+        super(OrderedFood, self).save(*args, **kwargs)
+
+    def create(self, ingredients=None, *args, **kwargs):
+        if ingredients is not None:
+            super(OrderedFood, self).save(*args, **kwargs)
+
+            closest = Food.objects.closest(ingredients, self.original)
+            self.check_amount(closest, self.amount)
+            IngredientGroup.check_ingredients(ingredients, closest)
+            cost_calculated = OrderedFood.calculate_cost(ingredients, closest)
+            self.check_cost(cost_calculated, closest, self.amount, self.cost)
+
+            self.cost = cost_calculated
+            self.ingredients = ingredients
+        else:
+            self.check_cost(self.original.cost, self.original, self.amount, self.cost)
+            self.cost = self.original.cost
+            self.is_original = True
 
     @staticmethod
     def calculate_cost(ordered_ingredients, food):

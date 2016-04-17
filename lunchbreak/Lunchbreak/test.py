@@ -14,7 +14,15 @@ class LunchbreakTestCase(APITestCase):
                     'lat': 1,
                     'lng': 1
                 }
-            }
+            },
+            'address_components': [
+                {
+                    'long_name': 'Wetteren',
+                    'types': [
+                        'locality',
+                    ]
+                }
+            ]
         }
     ]
 
@@ -26,7 +34,7 @@ class LunchbreakTestCase(APITestCase):
 
     @override_settings(
         DEFAULT_URL_SCHEME='http',
-        ROOT_URLCONF='Lunchbreak.urls.tests'
+        ROOT_URLCONF='Lunchbreak.urls.tests',
     )
     def run(self, *args, **kwargs):
         super(LunchbreakTestCase, self).run(*args, **kwargs)
@@ -35,9 +43,9 @@ class LunchbreakTestCase(APITestCase):
         if return_value is None:
             return_value = self.MOCK_ADDRESS
 
-            if lat is not None and lng is not None:
-                return_value[0]['geometry']['location']['lat'] = lat
-                return_value[0]['geometry']['location']['lng'] = lng
+        if lat is not None and lng is not None:
+            return_value[0]['geometry']['location']['lat'] = lat
+            return_value[0]['geometry']['location']['lng'] = lng
 
         mock_geocode.return_value = return_value
 

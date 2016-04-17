@@ -8,11 +8,12 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.utils import timezone
+from lunch.config import BELGIUM
 from lunch.exceptions import (BadRequest, DoesNotExist, LinkingError,
                               NoDeliveryToAddress)
 from lunch.models import (Food, FoodCategory, FoodType, HolidayPeriod,
                           Ingredient, IngredientGroup, IngredientRelation,
-                          Store)
+                          Region, Store)
 from Lunchbreak.test import LunchbreakTestCase
 from push_notifications.models import SERVICE_APNS, SERVICE_GCM
 from rest_framework import status
@@ -870,10 +871,15 @@ class CustomersTests(LunchbreakTestCase):
         address_clone2.delete()
         self.assertIsNone(address_clone2.pk)
 
+        region = Region.objects.create(
+            country=BELGIUM,
+            postcode='9230'
+        )
+        self.store.regions.add(region)
         order = Order.objects.create(
             user=self.user,
             store=self.store,
-            pickup=timezone.now(),
+            pickup=timezone.now() + timedelta(hours=1),
             address=address
         )
         order, order_clone = self.clone_model(order)
