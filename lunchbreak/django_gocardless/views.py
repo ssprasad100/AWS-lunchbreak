@@ -12,7 +12,8 @@ from gocardless_pro.resources import Event
 
 from .exceptions import (BadRequestError, DjangoGoCardlessException,
                          ExchangeAuthorisationError,
-                         RedirectFlowAlreadyCompletedError, RedirectFlowIncompleteError)
+                         RedirectFlowAlreadyCompletedError,
+                         RedirectFlowIncompleteError)
 from .handlers import EventHandler
 from .models import Merchant, RedirectFlow
 
@@ -79,8 +80,11 @@ class WebhookView(CSRFExemptView):
                     status=self.INVALID_TOKEN
                 )
 
+            is_app = kwargs.get('is_app', False)
+            secret = secret = settings.GOCARDLESS['app']['webhook']['secret'] \
+                if is_app else settings.GOCARDLESS['webhook']['secret']
             calculated_signature = hmac.new(
-                settings.GOCARDLESS['webhook']['secret'],
+                secret,
                 msg=request.body,
                 digestmod=hashlib.sha256
             ).hexdigest()

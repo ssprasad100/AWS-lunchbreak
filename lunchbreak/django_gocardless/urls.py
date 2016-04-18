@@ -20,6 +20,14 @@ urlpatterns = patterns(
         views.WebhookView.as_view(),
         name='gocardless-webhook'
     ),
+    url(
+        r'^webhook/app/?$',
+        views.WebhookView.as_view(),
+        name='gocardless-webhook-app',
+        kwargs={
+            'is_app': True
+        }
+    ),
 
     url(
         r'^redirect/?$',
