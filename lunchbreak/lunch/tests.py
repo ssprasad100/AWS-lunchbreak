@@ -141,7 +141,7 @@ class LunchTests(LunchbreakTestCase):
         return datetime.strptime(time_string, '%H:%M').time()
 
     @mock.patch('googlemaps.Client.geocode')
-    def test_store_modified(self, mock_geocode):
+    def test_store_last_modified(self, mock_geocode):
         """Test whether updating OpeningPeriod and HolidayPeriod objects updates the Store."""
         self.mock_geocode_results(mock_geocode)
         store = Store.objects.create(
@@ -154,7 +154,7 @@ class LunchTests(LunchbreakTestCase):
             number=10
         )
 
-        modified_first = store.modified
+        last_modified_first = store.last_modified
 
         OpeningPeriod.objects.create(
             store=store,
@@ -164,9 +164,9 @@ class LunchTests(LunchbreakTestCase):
             closing_time=self.time_from_string('01:00')
         )
 
-        modified_second = store.modified
+        last_modified_second = store.last_modified
 
-        self.assertGreater(modified_second, modified_first)
+        self.assertGreater(last_modified_second, last_modified_first)
 
         now = datetime.now()
         tomorrow = now + timedelta(days=1)
@@ -177,7 +177,7 @@ class LunchTests(LunchbreakTestCase):
             end=tomorrow
         )
 
-        self.assertGreater(store.modified, modified_second)
+        self.assertGreater(store.last_modified, last_modified_second)
 
     @mock.patch('googlemaps.Client.geocode')
     def test_store_store_check_open(self, mock_geocode):

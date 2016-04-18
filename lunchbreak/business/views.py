@@ -141,7 +141,7 @@ class FoodViewSet(TargettedViewSet,
         if since is not None:
             result = Food.objects.filter(
                 store=self.request.user.staff.store,
-                modified__gte=since
+                last_modified__gte=since
             )
         else:
             result = Food.objects.filter(
@@ -235,7 +235,7 @@ class IngredientMultiView(ListCreateStoreView):
         result = Ingredient.objects.filter(store=self.request.user.staff.store)
         since = datetime_request(self.request, self.kwargs, arg='datetime')
         if since is not None:
-            return result.filter(modified__gte=since)
+            return result.filter(last_modified__gte=since)
         return result
 
 
@@ -249,7 +249,7 @@ class IngredientSingleView(generics.RetrieveUpdateDestroyAPIView):
         if since is not None:
             result = Ingredient.objects.filter(
                 store=self.request.user.staff.store,
-                modified__gte=since
+                last_modified__gte=since
             )
         else:
             result = Ingredient.objects.filter(

@@ -210,7 +210,7 @@ class Store(AbstractAddress):
         help_text=_('Active delivery regions.')
     )
 
-    modified = models.DateTimeField(
+    last_modified = models.DateTimeField(
         auto_now=True
     )
     enabled = models.BooleanField(
@@ -596,7 +596,7 @@ class Ingredient(models.Model, DirtyFieldsMixin):
         on_delete=models.CASCADE
     )
 
-    modified = models.DateTimeField(
+    last_modified = models.DateTimeField(
         auto_now=True
     )
 
@@ -660,7 +660,7 @@ class Quantity(models.Model):
         default=10
     )
 
-    modified = models.DateTimeField(
+    last_modified = models.DateTimeField(
         auto_now=True
     )
 
@@ -734,7 +734,7 @@ class Food(models.Model):
         on_delete=models.CASCADE
     )
 
-    modified = models.DateTimeField(
+    last_modified = models.DateTimeField(
         auto_now=True
     )
     deleted = models.BooleanField(

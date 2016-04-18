@@ -6,9 +6,10 @@ from lunch.renderers import JPEGRenderer
 from lunch.responses import BadRequest
 from lunch.serializers import (FoodCategorySerializer, MultiFoodSerializer,
                                ShortFoodCategorySerializer,
-                               ShortStoreSerializer, SingleFoodSerializer)
-from lunch.views import (HolidayPeriodListViewBase, OpeningPeriodListViewBase,
-                         OpeningListViewBase, StoreCategoryListViewBase)
+                               ShortStoreSerializer, SingleFoodSerializer,
+                               StoreSerializer)
+from lunch.views import (HolidayPeriodListViewBase, OpeningListViewBase,
+                         OpeningPeriodListViewBase, StoreCategoryListViewBase)
 from Lunchbreak.views import TargettedViewSet
 from rest_framework import filters, generics, mixins, status, viewsets
 from rest_framework.decorators import detail_route, list_route
@@ -150,7 +151,7 @@ class StoreViewSet(TargettedViewSet,
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name', 'city', 'street',)
 
-    serializer_class_retrieve = ShortStoreSerializer
+    serializer_class_retrieve = StoreSerializer
     serializer_class_create = ShortStoreSerializer
     serializer_class_list = ShortStoreSerializer
     serializer_class_heart = StoreHeartSerializer

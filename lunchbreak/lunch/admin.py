@@ -19,7 +19,7 @@ class QuantityAdmin(admin.ModelAdmin):
     )
     readonly_fields = (
         'id',
-        'modified',
+        'last_modified',
     )
 
 
@@ -132,7 +132,7 @@ class FoodAdmin(admin.ModelAdmin):
         'id',
     )
     readonly_fields = (
-        'modified',
+        'last_modified',
         'id',
     )
     inlines = (IngredientsRelationInline,)

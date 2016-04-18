@@ -36,7 +36,7 @@ class ShortStoreSerializer(serializers.ModelSerializer):
             'longitude',
             'categories',
             'hearts_count',
-            'modified',
+            'last_modified',
         )
         read_only_fields = fields
 
@@ -231,11 +231,11 @@ class ShortQuantitySerializer(serializers.ModelSerializer):
             'id',
             'min',
             'max',
-            'modified',
+            'last_modified',
         )
         read_only_fields = (
             'id',
-            'modified',
+            'last_modified',
         )
 
 
@@ -285,7 +285,7 @@ class SingleFoodSerializer(serializers.ModelSerializer):
             'ingredients',
             'store',
 
-            'modified',
+            'last_modified',
 
             'ingredientgroups',
             'quantity',
@@ -293,7 +293,7 @@ class SingleFoodSerializer(serializers.ModelSerializer):
         read_only_fields = (
             'id',
             'ingredientgroups',
-            'modified',
+            'last_modified',
         )
 
     def to_representation(self, obj):
