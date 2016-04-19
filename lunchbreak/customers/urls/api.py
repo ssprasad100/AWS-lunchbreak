@@ -20,6 +20,11 @@ router_simple.register(
     views.UserViewSet,
     base_name='customers-user'
 )
+router_simple.register(
+    r'store',
+    views.StoreViewSet,
+    base_name='customers-store'
+)
 
 router_extended = ExtendedSimpleRouter()
 (

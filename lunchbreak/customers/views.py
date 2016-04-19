@@ -154,6 +154,7 @@ class StoreViewSet(TargettedViewSet,
     serializer_class_retrieve = StoreSerializer
     serializer_class_create = ShortStoreSerializer
     serializer_class_list = ShortStoreSerializer
+    serializer_class_recent = ShortStoreSerializer
     serializer_class_heart = StoreHeartSerializer
     serializer_class_unheart = StoreHeartSerializer
     serializer_class_paymentlink = PaymentLinkSerializer
@@ -172,18 +173,23 @@ class StoreViewSet(TargettedViewSet,
                 enabled=True
             )
         else:
-            result = Store.objects.prefetch_related(
+            return Store.objects.prefetch_related(
                 'categories',
             ).filter(
                 enabled=True
             ).distinct()
-            if 'recent' in self.kwargs:
-                result = result.filter(
-                    order__user=self.request.user
-                ).order_by(
-                    '-order__placed'
-                )
-            return result
+
+    @property
+    def queryset_recent(self):
+        result = Store.objects.prefetch_related(
+            'categories',
+        ).filter(
+            order__user=self.request.user,
+            enabled=True
+        ).order_by(
+            '-order__placed'
+        ).distinct()
+        return result
 
     @property
     def queryset_foodcategory(self):
@@ -280,6 +286,11 @@ class StoreViewSet(TargettedViewSet,
                     status=status.HTTP_201_CREATED
                     if paymentlink is None else status.HTTP_200_OK
                 )
+
+    @list_route(methods=['get'])
+    def recent(self, request):
+        self.kwargs['recent'] = True
+        return self.list(request)
 
 
 class StoreFoodViewSet(TargettedViewSet,
