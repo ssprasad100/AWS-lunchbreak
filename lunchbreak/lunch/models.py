@@ -361,7 +361,7 @@ class Period(models.Model):
         return self.start_from_datetime(timezone.now())
 
     def start_from_datetime(self, given):
-        weekday = int(given.strftime('%w'))
+        weekday = given.isoweekday()
         start = given - timedelta(days=weekday)
         start += timedelta(days=self.opening_day)
         return start.replace(
@@ -376,7 +376,8 @@ class Period(models.Model):
         start = self.start_from_datetime(given_datetime)
         end = start + self.duration
 
-        return start <= given_datetime <= end
+        return start <= given_datetime <= end \
+            or start <= given_datetime + timedelta(days=7) <= end
 
     def __unicode__(self):
         return '{opening_day} {opening_time} - {duration}'.format(

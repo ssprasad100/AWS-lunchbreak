@@ -206,7 +206,7 @@ class LunchTests(LunchbreakTestCase):
 
         opening = (today + opening_wait)
         closing = (opening + timedelta(hours=hours_closing))
-        day = opening.strftime('%w')
+        day = opening.isoweekday()
         OpeningPeriod.objects.create(
             store=store,
             opening_day=day,

@@ -22,21 +22,21 @@ ICONS = (
     (300, 'Broodje')
 )
 
-SUNDAY = 0
 MONDAY = 1
 TUESDAY = 2
 WEDNESDAY = 3
 THURSDAY = 4
 FRIDAY = 5
 SATURDAY = 6
+SUNDAY = 7
 WEEKDAYS = (
-    (SUNDAY, 'Zondag'),
     (MONDAY, 'Maandag'),
     (TUESDAY, 'Dinsdag'),
     (WEDNESDAY, 'Woensdag'),
     (THURSDAY, 'Donderdag'),
     (FRIDAY, 'Vrijdag'),
-    (SATURDAY, 'Zaterdag')
+    (SATURDAY, 'Zaterdag'),
+    (SUNDAY, 'Zondag')
 )
 
 INPUT_AMOUNT = 0
