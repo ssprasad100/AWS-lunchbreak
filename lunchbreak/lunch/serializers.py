@@ -68,8 +68,8 @@ class OpeningPeriodSerializer(serializers.ModelSerializer):
         model = OpeningPeriod
         fields = (
             'id',
-            'opening_day',
-            'opening_time',
+            'day',
+            'time',
             'duration',
         )
         read_only_fields = (

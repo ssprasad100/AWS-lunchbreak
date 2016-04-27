@@ -343,10 +343,10 @@ class Period(models.Model):
         on_delete=models.CASCADE
     )
 
-    opening_day = models.PositiveSmallIntegerField(
+    day = models.PositiveSmallIntegerField(
         choices=WEEKDAYS
     )
-    opening_time = models.TimeField()
+    time = models.TimeField()
     duration = models.DurationField()
 
     class Meta:
@@ -363,12 +363,12 @@ class Period(models.Model):
     def start_from_datetime(self, given):
         weekday = given.isoweekday()
         start = given - timedelta(days=weekday)
-        start += timedelta(days=self.opening_day)
+        start += timedelta(days=self.day)
         return start.replace(
-            hour=self.opening_time.hour,
-            minute=self.opening_time.minute,
-            second=self.opening_time.second,
-            microsecond=self.opening_time.microsecond,
+            hour=self.time.hour,
+            minute=self.time.minute,
+            second=self.time.second,
+            microsecond=self.time.microsecond,
         )
 
     def contains(self, given_datetime):
@@ -380,9 +380,9 @@ class Period(models.Model):
             or start <= given_datetime + timedelta(days=7) <= end
 
     def __unicode__(self):
-        return '{opening_day} {opening_time} - {duration}'.format(
-            opening_day=self.get_opening_day_display(),
-            opening_time=self.opening_time,
+        return '{day} {time} - {duration}'.format(
+            day=self.get_day_display(),
+            time=self.time,
             duration=self.duration
         )
 

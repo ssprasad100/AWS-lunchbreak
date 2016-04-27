@@ -65,8 +65,8 @@ class StoreAdmin(admin.ModelAdmin):
 class OpeningPeriodAdmin(admin.ModelAdmin):
     list_display = (
         'store',
-        'opening_day',
-        'opening_time',
+        'day',
+        'time',
         'duration',
         'id',
     )

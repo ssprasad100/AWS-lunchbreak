@@ -158,8 +158,8 @@ class LunchTests(LunchbreakTestCase):
 
         OpeningPeriod.objects.create(
             store=store,
-            opening_day=0,
-            opening_time=self.time_from_string('00:00'),
+            day=0,
+            time=self.time_from_string('00:00'),
             duration=timedelta(hours=1)
         )
 
@@ -209,8 +209,8 @@ class LunchTests(LunchbreakTestCase):
         day = opening.isoweekday()
         OpeningPeriod.objects.create(
             store=store,
-            opening_day=day,
-            opening_time=opening,
+            day=day,
+            time=opening,
             duration=timedelta(hours=hours_closing)
         )
         self.assertRaises(MinTimeExceeded, Store.check_open, store,
@@ -266,8 +266,8 @@ class LunchTests(LunchbreakTestCase):
         # Weekday 0 - 1
         sun_mon = OpeningPeriod.objects.create(
             store=store,
-            opening_day=SUNDAY,
-            opening_time=self.time_from_string('00:00'),
+            day=SUNDAY,
+            time=self.time_from_string('00:00'),
             duration=timedelta(days=1)
         )
 
@@ -290,8 +290,8 @@ class LunchTests(LunchbreakTestCase):
         # Weekday 0 - 1 @ 11:59
         sun_mon_mid = OpeningPeriod.objects.create(
             store=store,
-            opening_day=SUNDAY,
-            opening_time=self.time_from_string('11:59'),
+            day=SUNDAY,
+            time=self.time_from_string('11:59'),
             duration=timedelta(days=1)
         )
 
@@ -311,8 +311,8 @@ class LunchTests(LunchbreakTestCase):
 
         mon_sun_mid = OpeningPeriod.objects.create(
             store=store,
-            opening_day=MONDAY,
-            opening_time=self.time_from_string('11:59'),
+            day=MONDAY,
+            time=self.time_from_string('11:59'),
             duration=timedelta(days=6)
         )
 
@@ -323,8 +323,8 @@ class LunchTests(LunchbreakTestCase):
         # Same day, hour test
         time_12_14 = OpeningPeriod.objects.create(
             store=store,
-            opening_day=SUNDAY,
-            opening_time=self.time_from_string('12:00'),
+            day=SUNDAY,
+            time=self.time_from_string('12:00'),
             duration=timedelta(hours=2)
         )
         hour_11 = sunday + timedelta(

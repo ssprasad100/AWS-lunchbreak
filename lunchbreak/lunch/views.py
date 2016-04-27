@@ -26,8 +26,8 @@ class OpeningPeriodListViewBase(generics.ListAPIView):
         return OpeningPeriod.objects.filter(
             store_id=store_id
         ).order_by(
-            'opening_day',
-            'opening_time'
+            'day',
+            'time'
         )
 
 
