@@ -159,9 +159,8 @@ class LunchTests(LunchbreakTestCase):
         OpeningPeriod.objects.create(
             store=store,
             opening_day=0,
-            closing_day=0,
             opening_time=self.time_from_string('00:00'),
-            closing_time=self.time_from_string('01:00')
+            duration=timedelta(hours=1)
         )
 
         last_modified_second = store.last_modified
@@ -211,9 +210,8 @@ class LunchTests(LunchbreakTestCase):
         OpeningPeriod.objects.create(
             store=store,
             opening_day=day,
-            closing_day=day,
             opening_time=opening,
-            closing_time=closing
+            duration=timedelta(hours=hours_closing)
         )
         self.assertRaises(MinTimeExceeded, Store.check_open, store,
                           opening + wait - timedelta(minutes=1), opening)
@@ -269,9 +267,8 @@ class LunchTests(LunchbreakTestCase):
         sun_mon = OpeningPeriod.objects.create(
             store=store,
             opening_day=SUNDAY,
-            closing_day=MONDAY,
             opening_time=self.time_from_string('00:00'),
-            closing_time=self.time_from_string('00:00')
+            duration=timedelta(days=1)
         )
 
         sunday = datetime(
@@ -294,9 +291,8 @@ class LunchTests(LunchbreakTestCase):
         sun_mon_mid = OpeningPeriod.objects.create(
             store=store,
             opening_day=SUNDAY,
-            closing_day=MONDAY,
             opening_time=self.time_from_string('11:59'),
-            closing_time=self.time_from_string('11:59')
+            duration=timedelta(days=1)
         )
 
         sun_12 = sunday + timedelta(
@@ -316,9 +312,8 @@ class LunchTests(LunchbreakTestCase):
         mon_sun_mid = OpeningPeriod.objects.create(
             store=store,
             opening_day=MONDAY,
-            closing_day=SUNDAY,
             opening_time=self.time_from_string('11:59'),
-            closing_time=self.time_from_string('11:59')
+            duration=timedelta(days=6)
         )
 
         self.assertFalse(mon_sun_mid.contains(sun_12))
@@ -329,9 +324,8 @@ class LunchTests(LunchbreakTestCase):
         time_12_14 = OpeningPeriod.objects.create(
             store=store,
             opening_day=SUNDAY,
-            closing_day=SUNDAY,
             opening_time=self.time_from_string('12:00'),
-            closing_time=self.time_from_string('14:00')
+            duration=timedelta(hours=2)
         )
         hour_11 = sunday + timedelta(
             hours=11
@@ -350,9 +344,9 @@ class LunchTests(LunchbreakTestCase):
         )
 
         self.assertFalse(time_12_14.contains(hour_11))
-        self.assertFalse(time_12_14.contains(hour_12))
+        self.assertTrue(time_12_14.contains(hour_12))
         self.assertTrue(time_12_14.contains(hour_13))
-        self.assertFalse(time_12_14.contains(hour_14))
+        self.assertTrue(time_12_14.contains(hour_14))
         self.assertFalse(time_12_14.contains(hour_15))
 
     @mock.patch('googlemaps.Client.geocode')

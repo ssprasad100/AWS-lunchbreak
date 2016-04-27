@@ -66,13 +66,13 @@ class OpeningPeriodAdmin(admin.ModelAdmin):
     list_display = (
         'store',
         'opening_day',
-        'closing_day',
         'opening_time',
-        'closing_time',
+        'duration',
         'id',
     )
     readonly_fields = (
         'id',
+        'start',
     )
 
 

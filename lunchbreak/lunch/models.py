@@ -346,12 +346,8 @@ class Period(models.Model):
     opening_day = models.PositiveSmallIntegerField(
         choices=WEEKDAYS
     )
-    closing_day = models.PositiveSmallIntegerField(
-        choices=WEEKDAYS
-    )
-
     opening_time = models.TimeField()
-    closing_time = models.TimeField()
+    duration = models.DurationField()
 
     class Meta:
         abstract = True
@@ -360,58 +356,33 @@ class Period(models.Model):
         self.store.save()
         super(Period, self).save(*args, **kwargs)
 
-    @classmethod
-    def _is_between_days(cls, given_day, given_time, start_day, start_time,
-                         end_day, end_time):
-        """Returns True if given day and time is between start and end days and times.
+    @property
+    def start(self):
+        return self.start_from_datetime(timezone.now())
 
-        ..note:
-            This assumes the days are 0-6 (weekly).
-        """
-
-        if start_day <= given_day <= end_day:
-            if start_day == end_day:
-                return given_day == start_day and start_time < given_time < end_time
-            else:  # start_day < end_day
-                if given_day == start_day:
-                    return start_time < given_time
-                elif given_day == end_day:
-                    return given_time < end_time
-                return True  # start_day < given_day < end_day
-        elif end_day < start_day:
-            return not cls._is_between_days(
-                given_day=given_day,
-                given_time=given_time,
-                start_day=end_day,
-                start_time=end_time,
-                end_day=start_day,
-                end_time=start_time
-            )
-        return False
-
-    def contains(self, dt):
-        """Return True if dt (datetime) is in the period."""
-
-        # datetime.weekday(): return monday 0 - sunday 6
-        # datetime.strftime('%w'): return sunday 0 - saturday 6
-        given_day = int(dt.strftime('%w'))
-        given_time = dt.time()
-
-        return self._is_between_days(
-            given_day=given_day,
-            given_time=given_time,
-            start_day=self.opening_day,
-            start_time=self.opening_time,
-            end_day=self.closing_day,
-            end_time=self.closing_time
+    def start_from_datetime(self, given):
+        weekday = int(given.strftime('%w'))
+        start = given - timedelta(days=weekday)
+        start += timedelta(days=self.opening_day)
+        return start.replace(
+            hour=self.opening_time.hour,
+            minute=self.opening_time.minute,
+            second=self.opening_time.second,
+            microsecond=self.opening_time.microsecond,
         )
 
+    def contains(self, given_datetime):
+        """Return True if given_datetime (datetime) is in the period."""
+        start = self.start_from_datetime(given_datetime)
+        end = start + self.duration
+
+        return start <= given_datetime <= end
+
     def __unicode__(self):
-        return '{opening_day} {opening_time} - {closing_day} {closing_time}'.format(
+        return '{opening_day} {opening_time} - {duration}'.format(
             opening_day=self.get_opening_day_display(),
             opening_time=self.opening_time,
-            closing_day=self.get_closing_day_display(),
-            closing_time=self.closing_time
+            duration=self.duration
         )
 
 

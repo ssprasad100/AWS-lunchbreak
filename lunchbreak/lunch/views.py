@@ -55,7 +55,9 @@ class OpeningListViewBase(generics.ListAPIView):
     pagination_class = None
 
     def get_store_id(self):
-        raise NotImplementedError('get_store_id() needs to return the id of the store.')
+        raise NotImplementedError(
+            'get_store_id() needs to return the id of the store.'
+        )
 
     def get(self, request, pk=None):
         store_id = self.get_store_id()
@@ -69,7 +71,7 @@ class OpeningListViewBase(generics.ListAPIView):
         )
 
         data = {
-            'OpeningPeriod': OpeningPeriod.data,
+            'openingperiods': OpeningPeriod.data,
             'holidayperiods': holidayperiods.data
         }
 
