@@ -190,6 +190,7 @@ class Customer(models.Model, GCCacheMixin):
 
     merchant = models.ForeignKey(
         Merchant,
+        on_delete=models.CASCADE,
         null=True,
         blank=True,
         help_text='Merchant if not a direct customer.'
@@ -241,6 +242,7 @@ class CustomerBankAccount(models.Model, GCCacheMixin):
 
     customer = models.ForeignKey(
         Customer,
+        on_delete=models.CASCADE,
         null=True,
         blank=True
     )
@@ -509,6 +511,7 @@ class Payout(models.Model, GCCacheMixin):
 
     merchant = models.ForeignKey(
         Merchant,
+        on_delete=models.CASCADE,
         null=True
     )
 
@@ -612,7 +615,8 @@ class Subscription(models.Model, GCCreateUpdateMixin):
     )
 
     mandate = models.ForeignKey(
-        Mandate
+        Mandate,
+        on_delete=models.CASCADE,
     )
 
     def __str__(self):
@@ -728,14 +732,17 @@ class Payment(models.Model, GCCreateMixin):
 
     mandate = models.ForeignKey(
         Mandate,
+        on_delete=models.CASCADE,
         null=True
     )
     payout = models.ForeignKey(
         Payout,
+        on_delete=models.CASCADE,
         null=True
     )
     subscription = models.ForeignKey(
         Subscription,
+        on_delete=models.CASCADE,
         null=True
     )
 
@@ -827,6 +834,7 @@ class Refund(models.Model, GCCacheMixin):
 
     payment = models.ForeignKey(
         Payment,
+        on_delete=models.CASCADE,
         null=True
     )
 

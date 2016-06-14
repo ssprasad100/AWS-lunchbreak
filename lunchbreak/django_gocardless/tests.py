@@ -259,7 +259,7 @@ class DjangoGoCardlessTestCase(TestCase):
         models.Mandate.fetch(mandate)
         self.assertModelEqual(mandate, self.MANDATE_INFO)
 
-        # Deleting the custom bank account should delete the mandate
+        # Deleting the customer bank account should delete the mandate
         customer_bank_account.delete()
 
         self.assertRaises(

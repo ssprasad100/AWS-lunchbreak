@@ -13,13 +13,13 @@ cffi==1.6.0               # via bcrypt
 django-appconf==1.0.2     # via django-compressor, django-imagekit
 django-compressor==2.0
 django-dirtyfields==0.8.1
-django-imagekit==3.2.7
+django-imagekit==3.3
 django-phonenumber-field==0.7.2
 django-queryinspect==0.1.0
 django-sass-processor==0.3.5
 django-split-settings==0.1.2
 django-subdomains==2.1.0
-Django==1.8.13            # via django-dirtyfields, django-queryinspect, django-split-settings, django-subdomains
+Django==1.9.7             # via django-dirtyfields, django-queryinspect, django-split-settings, django-subdomains
 djangorestframework-jsonp==1.0.0
 djangorestframework==3.3.2
 drf-extensions==0.2.8

@@ -474,6 +474,7 @@ class Order(models.Model, DirtyFieldsMixin):
     )
     reservation = models.OneToOneField(
         Reservation,
+        on_delete=models.SET_NULL,
         null=True,
         blank=True
     )
