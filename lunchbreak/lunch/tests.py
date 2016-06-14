@@ -178,8 +178,15 @@ class LunchTests(LunchbreakTestCase):
 
         self.assertGreater(store.last_modified, last_modified_second)
 
+    @mock.patch('django.utils.timezone.now')
     @mock.patch('googlemaps.Client.geocode')
-    def test_store_store_check_open(self, mock_geocode):
+    def test_store_store_check_open(self, mock_geocode, mock_now):
+        today = datetime.now()
+        today = today.replace(hour=0, minute=0, second=0, microsecond=0)
+
+        # Mock also used for Store.last_modified
+        mock_now.return_value = today + timedelta(hours=1)
+
         self.mock_geocode_results(mock_geocode)
         store = Store.objects.create(
             name='valid',
@@ -191,12 +198,8 @@ class LunchTests(LunchbreakTestCase):
             number=10
         )
 
-        today = datetime.now()
-        today = today.replace(hour=0, minute=0, second=0, microsecond=0)
-
         # PastOrderDenied
-        self.assertRaises(
-            PastOrderDenied, Store.check_open, store, today, today + timedelta(hours=1))
+        self.assertRaises(PastOrderDenied, store.is_open, today)
 
         # MinTimeExceeded
         wait = timedelta(minutes=15)
@@ -213,8 +216,12 @@ class LunchTests(LunchbreakTestCase):
             time=opening,
             duration=timedelta(hours=hours_closing)
         )
-        self.assertRaises(MinTimeExceeded, Store.check_open, store,
-                          opening + wait - timedelta(minutes=1), opening)
+        mock_now.return_value = opening
+        self.assertRaises(
+            MinTimeExceeded,
+            store.is_open,
+            opening + wait - timedelta(minutes=1)
+        )
 
         # Before and after opening hours
         before = opening - timedelta(minutes=1)
@@ -222,9 +229,10 @@ class LunchTests(LunchbreakTestCase):
         after = closing + timedelta(hours=1)
         end = after + timedelta(hours=1)
 
-        self.assertRaises(StoreClosed, Store.check_open, store, before, today)
-        self.assertIsNone(Store.check_open(store, between, today))
-        self.assertRaises(StoreClosed, Store.check_open, store, after, today)
+        mock_now.return_value = today
+        self.assertRaises(StoreClosed, store.is_open, before)
+        self.assertIsNone(store.is_open(between))
+        self.assertRaises(StoreClosed, store.is_open, after)
 
         hp = HolidayPeriod.objects.create(
             store=store,
@@ -232,23 +240,23 @@ class LunchTests(LunchbreakTestCase):
             end=end,
             closed=True
         )
-        self.assertRaises(StoreClosed, Store.check_open, store, before, today)
+        self.assertRaises(StoreClosed, store.is_open, before)
 
-        self.assertRaises(StoreClosed, Store.check_open, store, between, today)
-        self.assertRaises(StoreClosed, Store.check_open, store, after, today)
+        self.assertRaises(StoreClosed, store.is_open, between)
+        self.assertRaises(StoreClosed, store.is_open, after)
 
         hp.closed = False
         hp.save()
-        self.assertIsNone(Store.check_open(store, before, today))
-        self.assertIsNone(Store.check_open(store, between, today))
-        self.assertIsNone(Store.check_open(store, after, today))
+        self.assertIsNone(store.is_open(before))
+        self.assertIsNone(store.is_open(between))
+        self.assertIsNone(store.is_open(after))
 
         hp.closed = True
         hp.end = between
         hp.save()
-        self.assertRaises(StoreClosed, Store.check_open, store, before, today)
-        self.assertRaises(StoreClosed, Store.check_open, store, between, today)
-        self.assertIsNone(Store.check_open(store, between + timedelta(minutes=1), today))
+        self.assertRaises(StoreClosed, store.is_open, before)
+        self.assertRaises(StoreClosed, store.is_open, between)
+        self.assertIsNone(store.is_open(between + timedelta(minutes=1)))
 
     @mock.patch('googlemaps.Client.geocode')
     def test_openingperiod(self, mock_geocode):

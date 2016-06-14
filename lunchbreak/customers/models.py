@@ -423,7 +423,7 @@ class Reservation(models.Model):
         if self.seats > self.store.seats_max:
             raise MaxSeatsExceeded()
 
-        Store.check_open(self.store, self.reservation_time)
+        self.store.is_open(self.reservation_time)
 
         super(Reservation, self).clean(*args, **kwargs)
 
@@ -626,7 +626,7 @@ class Order(models.Model, DirtyFieldsMixin):
             if not self.store.delivers_to(self.address):
                 raise NoDeliveryToAddress()
 
-        Store.check_open(self.store, self.pickup)
+        self.store.is_open(self.pickup)
 
         if self.payment_method == PAYMENT_METHOD_GOCARDLESS:
             try:

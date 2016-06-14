@@ -234,20 +234,19 @@ class Store(AbstractAddress):
             postcode=address.postcode
         ).exists()
 
-    @staticmethod
-    def check_open(store, pickup, now=None):
+    def is_open(self, pickup):
         """Check whether the store is open at the specified time."""
 
-        now = timezone.now() if now is None else now
+        now = timezone.now()
 
         if pickup < now:
             raise PastOrderDenied()
 
-        if pickup - now < store.wait:
+        if pickup - now < self.wait:
             raise MinTimeExceeded()
 
         holidayperiods = HolidayPeriod.objects.filter(
-            store=store,
+            store=self,
             start__lte=pickup,
             end__gte=pickup
         )
@@ -264,7 +263,7 @@ class Store(AbstractAddress):
                 raise StoreClosed()
 
             openingperiods = OpeningPeriod.objects.filter(
-                store=store
+                store=self
             )
 
             for openingperiod in openingperiods:
