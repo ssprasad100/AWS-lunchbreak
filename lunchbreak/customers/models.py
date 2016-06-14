@@ -68,7 +68,10 @@ class User(models.Model):
     paymentlinks = models.ManyToManyField(
         Store,
         through='PaymentLink',
-        through_fields=('user', 'store',),
+        through_fields=(
+            'user',
+            'store',
+        ),
         blank=True
     )
 

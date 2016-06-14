@@ -1,0 +1,25 @@
+Django==1.8.13
+-e git://github.com/AndreasBackx/django-push-notifications.git@27f44dae5af8b0ee2726281f5b654882fd2888a8#egg=django_push_notifications
+-e git://github.com/RacingTadpole/django-private-media.git@7510f2f63ddf0653679b4134a0542cd78317a5c8#egg=django_private_media
+django-sass-processor==0.3.5
+bcrypt==1.1.0
+django-compressor==2.0
+django-dirtyfields==0.8.1
+django-imagekit==3.2.7
+django-phonenumber-field==0.7.2
+django-split-settings==0.1.2
+django-subdomains==2.0.4
+djangorestframework-jsonp==1.0.0
+djangorestframework==3.3.2
+drf-extensions==0.2.8
+requests==2.9.1
+gocardless-pro==0.2.0
+uwsgidecorators==1.1.0
+googlemaps==2.4.3
+Jinja2==2.8
+MySQL-python==1.2.5
+opbeat==3.0.4
+openpyxl==2.3.4
+Pillow==2.9.0
+
+
