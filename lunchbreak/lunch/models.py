@@ -143,9 +143,9 @@ class AbstractAddress(models.Model, DirtyFieldsMixin):
 
                 google_client = googlemaps.Client(
                     key=settings.GOOGLE_CLOUD_SECRET,
-                    # connect_timeout=5,
-                    # read_timeout=5,
-                    # retry_timeout=1
+                    connect_timeout=5,
+                    read_timeout=5,
+                    retry_timeout=1
                 )
                 address = '{country}, {province}, {street} {number}, {postcode} {city}'.format(
                     country=self.country,
@@ -295,9 +295,9 @@ class Region(models.Model):
 
             google_client = googlemaps.Client(
                 key=settings.GOOGLE_CLOUD_SECRET,
-                # connect_timeout=5,
-                # read_timeout=5,
-                # retry_timeout=1
+                connect_timeout=5,
+                read_timeout=5,
+                retry_timeout=1
             )
             results = google_client.geocode(
                 address=self.postcode,
