@@ -8,7 +8,12 @@ from .specs import HD, HQ, LQ, FullHD
 class PolaroidTestCase(TestCase):
 
     def setUp(self):
-        self.image = SimpleUploadedFile('test.jpg', file('test.jpg').read())
+        test_image_name = 'test.jpg'
+        with open(test_image_name, 'rb') as test_image:
+            self.image = SimpleUploadedFile(
+                test_image_name,
+                test_image.read()
+            )
 
     def test_retrieve(self):
         pol = PolaroidBase.objects.create(
@@ -27,7 +32,7 @@ class PolaroidTestCase(TestCase):
             'full_hd': full_hd
         }
 
-        self.assertEquals(
+        self.assertEqual(
             Polaroid.retrieve(
                 original=pol.original,
                 versions=versions,
@@ -36,7 +41,7 @@ class PolaroidTestCase(TestCase):
             ), (lq, 'lq',)
         )
 
-        self.assertEquals(
+        self.assertEqual(
             Polaroid.retrieve(
                 original=pol.original,
                 versions=versions,
@@ -45,7 +50,7 @@ class PolaroidTestCase(TestCase):
             ), (hq, 'hq',)
         )
 
-        self.assertEquals(
+        self.assertEqual(
             Polaroid.retrieve(
                 original=pol.original,
                 versions=versions,
@@ -54,7 +59,7 @@ class PolaroidTestCase(TestCase):
             ), (hd, 'hd',)
         )
 
-        self.assertEquals(
+        self.assertEqual(
             Polaroid.retrieve(
                 original=pol.original,
                 versions=versions,

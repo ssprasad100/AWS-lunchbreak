@@ -12,7 +12,7 @@
             </div>
             <div id="language-box" class="language-popover">
                 <div class="content">
-                    {% for code, language in languages.iteritems() -%}
+                    {% for code, language in languages.items() -%}
                         <span title="{{ language.name }}">
                             <a class="language" lang="{{ code }}" href="{# {{ url(language.url) }} #}">
                                 <img src="{{ static(language.image) }}" {{ snippets.srcset(language.image, 2) }} alt="{{ language.name }}"/>

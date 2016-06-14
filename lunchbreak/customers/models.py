@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 import math
 
 from business.models import StaffToken
@@ -75,7 +73,7 @@ class User(models.Model):
         blank=True
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return '{name} {phone}'.format(
             name=self.name,
             phone=self.phone
@@ -294,7 +292,7 @@ class Invite(models.Model, DirtyFieldsMixin):
         if self.status != INVITE_STATUS_ACCEPTED:
             super(Invite, self).delete(*args, **kwargs)
 
-    def __unicode__(self):
+    def __str__(self):
         return '{user} -> {group}, {status}'.format(
             user=self.user,
             group=self.group,
@@ -332,7 +330,7 @@ class Group(models.Model):
 
         return group
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
@@ -350,7 +348,7 @@ class Membership(models.Model):
         default=False
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return '{group}: {user}'.format(
             group=self.group,
             user=self.user
@@ -373,7 +371,7 @@ class Heart(models.Model):
     class Meta:
         unique_together = ('user', 'store',)
 
-    def __unicode__(self):
+    def __str__(self):
         return '{user}, {store}'.format(
             user=self.user,
             store=self.store
@@ -642,7 +640,7 @@ class Order(models.Model, DirtyFieldsMixin):
             except PaymentLink.DoesNotExist:
                 raise NoPaymentLink()
 
-    def __unicode__(self):
+    def __str__(self):
         return '{user} {id}'.format(
             user=self.user,
             id=self.id
@@ -782,8 +780,8 @@ class OrderedFood(models.Model):
 
         return cost
 
-    def __unicode__(self):
-        return unicode(self.original)
+    def __str__(self):
+        return str(self.original)
 
 
 class UserToken(BaseToken):

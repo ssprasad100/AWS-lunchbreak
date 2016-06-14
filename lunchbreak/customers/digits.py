@@ -31,9 +31,10 @@ class Digits:
     def header_auth(self):
         return 'Basic {base}'.format(
             base=base64.b64encode(
-                urllib.quote(Digits.CONSUMER_KEY) +
-                ':' +
-                urllib.quote(Digits.CONSUMER_SECRET)
+                '{key}:{secret}'.format(
+                    key=urllib.parse.quote(Digits.CONSUMER_KEY),
+                    secret=urllib.parse.quote(Digits.CONSUMER_SECRET)
+                )
             )
         )
 

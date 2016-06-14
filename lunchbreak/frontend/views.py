@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 import collections
 import copy
 
@@ -50,7 +48,7 @@ class PageView(TemplateView, TemplateResponseMixin, ContextMixin):
 
     @classmethod
     def update(cls, default, new):
-        for key, value in new.iteritems():
+        for key, value in new.items():
             if isinstance(value, collections.Mapping):
                 default[key] = cls.update(
                     default.get(

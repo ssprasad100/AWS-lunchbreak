@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 import urllib
 
 import requests
@@ -50,7 +48,7 @@ class Merchant(models.Model):
         auto_now_add=True
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return self.organisation_id if self.organisation_id else _('In progress')
 
     @classmethod
@@ -78,7 +76,7 @@ class Merchant(models.Model):
         url = '{baseurl}/oauth/authorize?{params}'.format(
             baseurl=settings.GOCARDLESS['app']['oauth_baseurl'][
                 settings.GOCARDLESS['environment']],
-            params=urllib.urlencode(params)
+            params=urllib.parse.urlencode(params)
         )
 
         return (merchant, url)
@@ -197,7 +195,7 @@ class Customer(models.Model, GCCacheMixin):
         help_text='Merchant if not a direct customer.'
     )
 
-    def __unicode__(self):
+    def __str__(self):
         if not self.company_name:
             if not self.family_name and not self.first_name:
                 return self.family_name + ' ' + self.first_name
@@ -247,7 +245,7 @@ class CustomerBankAccount(models.Model, GCCacheMixin):
         blank=True
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return '{name} ({id})'.format(
             name=self.account_holder_name,
             id=self.id
@@ -297,7 +295,7 @@ class Mandate(models.Model, GCCacheMixin):
         blank=True
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return self.id
 
     @cached_property
@@ -470,7 +468,7 @@ class RedirectFlow(models.Model, GCCreateMixin):
         self.from_resource(resource)
         self.save(*args, **kwargs)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.id
 
 
@@ -514,7 +512,7 @@ class Payout(models.Model, GCCacheMixin):
         null=True
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return self.id
 
     @staticmethod
@@ -617,7 +615,7 @@ class Subscription(models.Model, GCCreateUpdateMixin):
         Mandate
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name if self.name else self.id
 
     @cached_property
@@ -741,7 +739,7 @@ class Payment(models.Model, GCCreateMixin):
         null=True
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return self.id
 
     @cached_property
@@ -832,7 +830,7 @@ class Refund(models.Model, GCCacheMixin):
         null=True
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return self.id
 
     @cached_property

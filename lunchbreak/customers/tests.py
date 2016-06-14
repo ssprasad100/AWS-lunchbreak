@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 from datetime import timedelta
 
 import mock
@@ -195,7 +192,7 @@ class CustomersTests(LunchbreakTestCase):
             request = self.factory.post(url, content)
             response = self.as_view(request, view, view_actions)
             response.render()
-            self.assertEqual(response.content, '')
+            self.assertEqual(len(response.content), 0)
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         User.objects.filter(phone=CustomersTests.VALID_PHONE).delete()
@@ -216,7 +213,7 @@ class CustomersTests(LunchbreakTestCase):
         request = self.factory.post(url, content)
         response = self.as_view(request, view, view_actions)
         response.render()
-        self.assertEqual(response.content, '')
+        self.assertEqual(len(response.content), 0)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertFalse(mock_register.called)
 
@@ -623,7 +620,7 @@ class CustomersTests(LunchbreakTestCase):
             'user': self.user_other.id
         }
 
-        for attribute, value in attributed_denied.iteritems():
+        for attribute, value in attributed_denied.items():
             value_original = getattr(reservation, attribute)
             content = {
                 attribute: value
@@ -831,7 +828,7 @@ class CustomersTests(LunchbreakTestCase):
                 status=status
             )
 
-        for status_from, status_to in status_tree.iteritems():
+        for status_from, status_to in status_tree.items():
             for status_valid in status_to['valid']:
                 invite = invite_reset(status_from)
                 invite.status = status_valid

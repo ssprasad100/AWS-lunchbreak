@@ -18,7 +18,7 @@ class Polaroid(models.Model):
     def retrieve(original, versions, width, height, source=None):
         attr = source
         best = None
-        for key, version in versions.iteritems():
+        for key, version in versions.items():
             if version.width >= width and version.height >= height:
                 if best is None or best.width > version.width:
                     best = version
@@ -30,7 +30,7 @@ class Polaroid(models.Model):
         original = None
         versions = {}
 
-        for key, value in self.__class__.__dict__.iteritems():
+        for key, value in self.__class__.__dict__.items():
             if hasattr(value, 'field'):
                 field = value.field
                 if isinstance(field, ImageSpecField) and field.source == source:

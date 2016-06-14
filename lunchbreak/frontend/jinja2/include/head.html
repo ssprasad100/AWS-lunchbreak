@@ -17,7 +17,7 @@
 <meta name="apple-itunes-app" content="app-id=949238693">
 <meta name="twitter:creator" content="@LunchbreakApp">
 
-{% for code, language in languages.iteritems() -%}
+{% for code, language in languages.items() -%}
     {% if code != current_language -%}
         <link rel="alternate" hreflang="{{ code }}" href="{{ language.url }}" />
     {%- endif %}

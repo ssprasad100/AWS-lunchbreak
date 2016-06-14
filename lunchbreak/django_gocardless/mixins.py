@@ -76,14 +76,14 @@ class GCCacheMixin(object):
 
     @classmethod
     def clean_params(cls, params):
-        for key, value in params.iteritems():
+        for key, value in params.items():
             if isinstance(value, dict):
                 cls.clean_params(value)
             else:
                 if issubclass(value.__class__, GCCacheMixin):
                     params[key] = value.json()
-                elif not isinstance(value, int) and not isinstance(value, unicode):
-                    params[key] = unicode(value)
+                elif not isinstance(value, int) and not isinstance(value, str):
+                    params[key] = str(value)
 
     def from_api(self, method, *args, **kwargs):
         """
@@ -191,7 +191,7 @@ class GCCreateMixin(GCCacheMixin):
             elif isinstance(required_field, dict):
                 raise_error = False
 
-                for field, field_list in required_field.iteritems():
+                for field, field_list in required_field.items():
                     if field not in given:
                         raise_error = True
                         break
@@ -213,7 +213,7 @@ class GCCreateMixin(GCCacheMixin):
 
     @classmethod
     def check_optional(cls, optional_fields, given):
-        for given_field, given_value in given.iteritems():
+        for given_field, given_value in given.items():
             for optional_field in optional_fields:
                 if isinstance(optional_field, six.string_types)\
                         and optional_field == given_field:

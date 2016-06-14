@@ -16,7 +16,7 @@ django-imagekit==3.2.7
 django-phonenumber-field==0.7.2
 django-sass-processor==0.3.5
 django-split-settings==0.1.2
-django-subdomains==2.0.4
+django-subdomains==2.1.0
 Django==1.8.13            # via django-dirtyfields, django-split-settings, django-subdomains
 djangorestframework-jsonp==1.0.0
 djangorestframework==3.3.2
@@ -28,12 +28,12 @@ jdcal==1.2                # via openpyxl
 Jinja2==2.8
 libsass==0.11.1           # via django-sass-processor
 MarkupSafe==0.23          # via jinja2
-MySQL-python==1.2.5
+mysqlclient==1.3.7
 opbeat==3.0.4
 openpyxl==2.3.4
 phonenumbers==7.4.2       # via django-phonenumber-field
 pilkit==1.1.13            # via django-imagekit
-Pillow==2.9.0
+Pillow==3.2.0
 pycparser==2.14           # via cffi
 rcssmin==1.0.6            # via django-compressor
 requests==2.9.1

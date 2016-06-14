@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.core.urlresolvers import reverse
 from django.utils import translation

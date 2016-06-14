@@ -35,7 +35,7 @@ class LunchbreakException(APIException):
         if detail is None:
             super(LunchbreakException, self).__init__()
             self.detail = None
-        elif not isinstance(detail, basestring):
+        elif not isinstance(detail, str):
             super(LunchbreakException, self).__init__()
             self.detail = detail
         else:

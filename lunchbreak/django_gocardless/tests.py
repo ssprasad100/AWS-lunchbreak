@@ -143,8 +143,8 @@ class DjangoGoCardlessTestCase(TestCase):
             self.assertEqual(value, expected_value)
 
     def test_event_actions_connected(self):
-        for client_property, actions in EventHandler.ACTIONS.iteritems():
-            for method_name, signal in actions.iteritems():
+        for client_property, actions in EventHandler.ACTIONS.items():
+            for method_name, signal in actions.items():
                 self.assertEqual(1, len(signal.receivers))
 
     @mock.patch('gocardless_pro.services.CustomersService.get')
@@ -318,7 +318,7 @@ class DjangoGoCardlessTestCase(TestCase):
         mock_create.side_effect = side_effect
         mock_complete.side_effect = side_effect
 
-        for field, identifier in links.iteritems():
+        for field, identifier in links.items():
             if 'links' in mocked_info:
                 del mocked_info['links']
 
@@ -381,7 +381,7 @@ class DjangoGoCardlessTestCase(TestCase):
             None
         )
 
-        for field, identifier in links.iteritems():
+        for field, identifier in links.items():
             if 'links' in mocked_info:
                 del mocked_info['links']
 

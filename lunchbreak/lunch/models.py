@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 import copy
 from datetime import datetime, time, timedelta
 
@@ -44,7 +42,7 @@ class StoreCategory(models.Model):
     class Meta:
         verbose_name_plural = 'Store categories'
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
@@ -145,9 +143,9 @@ class AbstractAddress(models.Model, DirtyFieldsMixin):
 
                 google_client = googlemaps.Client(
                     key=settings.GOOGLE_CLOUD_SECRET,
-                    connect_timeout=5,
-                    read_timeout=5,
-                    retry_timeout=1
+                    # connect_timeout=5,
+                    # read_timeout=5,
+                    # retry_timeout=1
                 )
                 address = '{country}, {province}, {street} {number}, {postcode} {city}'.format(
                     country=self.country,
@@ -219,7 +217,7 @@ class Store(AbstractAddress):
 
     objects = StoreManager()
 
-    def __unicode__(self):
+    def __str__(self):
         return '{name}, {city}'.format(
             name=self.name,
             city=self.city
@@ -297,9 +295,9 @@ class Region(models.Model):
 
             google_client = googlemaps.Client(
                 key=settings.GOOGLE_CLOUD_SECRET,
-                connect_timeout=5,
-                read_timeout=5,
-                retry_timeout=1
+                # connect_timeout=5,
+                # read_timeout=5,
+                # retry_timeout=1
             )
             results = google_client.geocode(
                 address=self.postcode,
@@ -328,7 +326,7 @@ class Region(models.Model):
         self.full_clean()
         super(Region, self).save(*args, **kwargs)
 
-    def __unicode__(self):
+    def __str__(self):
         return '{country}, {name} {postcode}'.format(
             country=self.get_country_display(),
             name=self.name,
@@ -378,7 +376,7 @@ class Period(models.Model):
         return start <= given_datetime <= end \
             or start <= given_datetime + timedelta(days=7) <= end
 
-    def __unicode__(self):
+    def __str__(self):
         return '{day} {time} - {duration}'.format(
             day=self.get_day_display(),
             time=self.time,
@@ -420,7 +418,7 @@ class HolidayPeriod(models.Model):
         self.store.save()
         super(HolidayPeriod, self).save(*args, **kwargs)
 
-    def __unicode__(self):
+    def __str__(self):
         return '{start}-{end} {state}'.format(
             start=self.start,
             end=self.end,
@@ -452,7 +450,7 @@ class FoodType(models.Model):
             (quantity is None or quantity.min <= amount <= quantity.max)
         )
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
@@ -544,7 +542,7 @@ class IngredientGroup(models.Model):
     def ingredients(self):
         return self.ingredient_set.all()
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
@@ -582,7 +580,7 @@ class Ingredient(models.Model, DirtyFieldsMixin):
 
         super(Ingredient, self).save(*args, **kwargs)
 
-    def __unicode__(self):
+    def __str__(self):
         return '#{id} {name} ({group})'.format(
             id=self.id,
             name=self.name,
@@ -606,7 +604,7 @@ class FoodCategory(models.Model):
         verbose_name_plural = 'Food categories'
         unique_together = ('name', 'store',)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
@@ -650,7 +648,7 @@ class Quantity(models.Model):
         self.full_clean()
         super(Quantity, self).save(*args, **kwargs)
 
-    def __unicode__(self):
+    def __str__(self):
         return '{min}-{max}'.format(
             min=self.min,
             max=self.max
@@ -799,7 +797,7 @@ class Food(models.Model):
             self.deleted = True
             self.save()
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     @staticmethod
@@ -958,8 +956,8 @@ class IngredientRelation(models.Model, DirtyFieldsMixin):
 
         super(IngredientRelation, self).save(*args, **kwargs)
 
-    def __unicode__(self):
-        return unicode(self.ingredient)
+    def __str__(self):
+        return str(self.ingredient)
 
 
 class BaseTokenManager(DeviceManager):
@@ -1015,7 +1013,7 @@ class BaseToken(BareDevice, DirtyFieldsMixin):
     def check_identifier(self, identifier_raw):
         return check_password(identifier_raw, self.identifier)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.device
 
 

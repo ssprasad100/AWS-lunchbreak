@@ -109,7 +109,7 @@ class Staff(AbstractBaseUser, AbstractPasswordReset):
     class Meta:
         verbose_name_plural = 'Staff'
 
-    def __unicode__(self):
+    def __str__(self):
         return '{store}: {name}'.format(
             store=self.store,
             name=self.name
@@ -137,7 +137,7 @@ class Employee(AbstractPassword):
         default=False
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
