@@ -139,7 +139,7 @@ class ShortOrderSerializer(serializers.ModelSerializer):
         many=True,
         write_only=True
     )
-    address = PrimaryAddressSerializer(
+    delivery_address = PrimaryAddressSerializer(
         queryset=Address.objects.all(),
         required=False
     )
@@ -152,7 +152,7 @@ class ShortOrderSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'store',
-            'pickup',
+            'receipt',
             'total',
             'total_confirmed',
             'orderedfood',
@@ -160,7 +160,7 @@ class ShortOrderSerializer(serializers.ModelSerializer):
             'description',
             'user',
             'payment_method',
-            'address',
+            'delivery_address',
         )
         read_only_fields = (
             'id',
@@ -197,7 +197,7 @@ class OrderSerializer(serializers.ModelSerializer):
             'id',
             'store',
             'placed',
-            'pickup',
+            'receipt',
             'status',
             'total',
             'total_confirmed',
@@ -209,7 +209,7 @@ class OrderSerializer(serializers.ModelSerializer):
             'id',
             'store',
             'placed',
-            'pickup',
+            'receipt',
             'status',
             'total',
             'total_confirmed',

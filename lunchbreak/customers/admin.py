@@ -52,7 +52,7 @@ class ReservationAdmin(admin.ModelAdmin):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('user', 'store', 'placed', 'pickup', 'status', 'payment',)
+    list_display = ('user', 'store', 'placed', 'receipt', 'status', 'payment',)
     readonly_fields = ('placed',)
 
 

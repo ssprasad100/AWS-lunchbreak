@@ -450,8 +450,9 @@ class Order(models.Model, DirtyFieldsMixin):
         auto_now_add=True,
         verbose_name='Time of placement'
     )
-    pickup = models.DateTimeField(
-        verbose_name='Time of pickup'
+    receipt = models.DateTimeField(
+        null=True,
+        verbose_name='Time of receipt'
     )
     status = models.PositiveIntegerField(
         choices=ORDER_STATUSES,
@@ -478,17 +479,17 @@ class Order(models.Model, DirtyFieldsMixin):
         null=True,
         blank=True
     )
-    payment_method = models.IntegerField(
-        choices=PAYMENT_METHODS,
-        default=PAYMENT_METHOD_CASH
-    )
     payment = models.ForeignKey(
         Payment,
         on_delete=models.SET_NULL,
         null=True,
         blank=True
     )
-    address = models.ForeignKey(
+    payment_method = models.IntegerField(
+        choices=PAYMENT_METHODS,
+        default=PAYMENT_METHOD_CASH
+    )
+    delivery_address = models.ForeignKey(
         Address,
         on_delete=models.SET_NULL,
         null=True,
@@ -563,8 +564,8 @@ class Order(models.Model, DirtyFieldsMixin):
         if orderedfood is None:
             orderedfood = self.orderedfood_set.all()
 
-        if self.address is not None and self.address.deleted:
-            self.address.delete()
+        if self.delivery_address is not None and self.delivery_address.deleted:
+            self.delivery_address.delete()
 
         for f in orderedfood:
             try:
@@ -617,18 +618,18 @@ class Order(models.Model, DirtyFieldsMixin):
             self.payment_method = PAYMENT_METHOD_CASH
 
     def clean(self):
-        if self.address is not None:
+        if self.delivery_address is not None:
             is_user_address = self.user.address_set.filter(
-                id=self.address.id
+                id=self.delivery_address.id
             ).exists()
 
             if not is_user_address:
                 raise LinkingError()
 
-            if not self.store.delivers_to(self.address):
+            if not self.store.delivers_to(self.delivery_address):
                 raise NoDeliveryToAddress()
 
-        self.store.is_open(self.pickup)
+        self.store.is_open(self.receipt)
 
         if self.payment_method == PAYMENT_METHOD_GOCARDLESS:
             try:
@@ -710,7 +711,7 @@ class OrderedFood(models.Model):
         if not self.original.is_valid_amount(self.amount):
             raise AmountInvalid()
 
-        if not self.original.is_orderable(self.order.pickup):
+        if not self.original.is_orderable(self.order.receipt):
             raise MinDaysExceeded()
 
         if not self.original.commentable and self.comment:

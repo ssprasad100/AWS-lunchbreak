@@ -114,7 +114,7 @@ class OrderViewSet(TargettedViewSet,
         ).filter(
             user=self.request.user
         ).order_by(
-            '-pickup'
+            '-receipt'
         )
 
     @list_route(methods=['post'])

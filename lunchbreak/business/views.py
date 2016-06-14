@@ -159,8 +159,8 @@ class FoodViewSet(TargettedViewSet,
             to = to if to is not None else timezone.now()
             return Food.objects.filter(
                 store_id=self.request.user.staff.store_id,
-                orderedfood__order__pickup__gt=frm,
-                orderedfood__order__pickup__lt=to
+                orderedfood__order__receipt__gt=frm,
+                orderedfood__order__receipt__lt=to
             ).annotate(
                 orderedfood_count=Count('orderedfood')
             ).order_by('-orderedfood_count')
@@ -300,10 +300,10 @@ class OrderListView(generics.ListAPIView):
             )
 
             if 'option' in self.kwargs \
-                    and self.kwargs['option'] == 'pickup':
+                    and self.kwargs['option'] == 'receipt':
                 if since is not None:
-                    filters['pickup__gt'] = since
-                return Order.objects.filter(**filters).order_by('pickup')
+                    filters['receipt__gt'] = since
+                return Order.objects.filter(**filters).order_by('receipt')
             else:
                 if since is not None:
                     filters['placed__gt'] = since
@@ -347,12 +347,12 @@ class OrderSpreadView(viewsets.ReadOnlyModelViewSet):
                 COUNT(customers_order.id) as amount,
                 SUM(customers_order.total) as sm,
                 AVG(customers_order.total) as average,
-                {unit}(customers_order.pickup) as unit
+                {unit}(customers_order.receipt) as unit
             FROM
                 customers_order
             WHERE
-                customers_order.pickup > %s
-                AND customers_order.pickup < %s
+                customers_order.receipt > %s
+                AND customers_order.receipt < %s
                 AND customers_order.store_id = %s
                 AND customers_order.status = %s
             GROUP BY

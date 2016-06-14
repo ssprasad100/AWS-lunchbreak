@@ -232,21 +232,21 @@ class Store(AbstractAddress):
             postcode=address.postcode
         ).exists()
 
-    def is_open(self, pickup):
+    def is_open(self, dt):
         """Check whether the store is open at the specified time."""
 
         now = timezone.now()
 
-        if pickup < now:
+        if dt < now:
             raise PastOrderDenied()
 
-        if pickup - now < self.wait:
+        if dt - now < self.wait:
             raise MinTimeExceeded()
 
         holidayperiods = HolidayPeriod.objects.filter(
             store=self,
-            start__lte=pickup,
-            end__gte=pickup
+            start__lte=dt,
+            end__gte=dt
         )
 
         closed = False
@@ -265,7 +265,7 @@ class Store(AbstractAddress):
             )
 
             for openingperiod in openingperiods:
-                if openingperiod.contains(pickup):
+                if openingperiod.contains(dt):
                     return
             raise StoreClosed()
 
@@ -744,7 +744,7 @@ class Food(models.Model):
                 ingredientrelation.typical = False
                 ingredientrelation.save()
 
-    def is_orderable(self, pickup, now=None):
+    def is_orderable(self, dt, now=None):
         """
         Check whether this food can be ordered for the given day.
         This does not check whether the Store.wait has been exceeded!
@@ -759,12 +759,12 @@ class Food(models.Model):
                 1 if now.time() > self.store.preorder_time else 0
             )
 
-            # Calculate the amount of days between pickup and now
-            difference_day = (pickup - now).days
+            # Calculate the amount of days between dt and now
+            difference_day = (dt - now).days
             difference_day += (
                 1
-                if pickup.time() < now.time() and
-                (now + (pickup - now)).day != now.day
+                if dt.time() < now.time() and
+                (now + (dt - now)).day != now.day
                 else 0
             )
 

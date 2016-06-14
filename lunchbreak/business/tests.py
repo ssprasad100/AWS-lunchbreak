@@ -167,7 +167,7 @@ class BusinessTests(LunchbreakTestCase):
         order = Order.create(
             user=self.user,
             store=self.store,
-            pickup=timezone.now() + timedelta(days=1),
+            receipt=timezone.now() + timedelta(days=1),
             orderedfood=[orderedfood]
         )
 

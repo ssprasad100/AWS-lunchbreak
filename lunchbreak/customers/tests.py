@@ -415,7 +415,7 @@ class CustomersTests(LunchbreakTestCase):
         self.food, original = self.clone_model(self.food)
 
         content = {
-            'pickup': (timezone.now() + timedelta(days=1)).strftime(settings.DATETIME_FORMAT),
+            'receipt': (timezone.now() + timedelta(days=1)).strftime(settings.DATETIME_FORMAT),
             'store': self.store.id,
             'orderedfood': [
                 {
@@ -488,11 +488,11 @@ class CustomersTests(LunchbreakTestCase):
         address_other.user = self.user_other
         address_other.save()
 
-        content['address'] = address.id
+        content['delivery_address'] = address.id
         response, order = create_order()
         self.assertEqualException(response, NoDeliveryToAddress)
 
-        content['address'] = address_other.id
+        content['delivery_address'] = address_other.id
         response, order = create_order()
         self.assertEqualException(response, LinkingError)
 
@@ -876,11 +876,11 @@ class CustomersTests(LunchbreakTestCase):
         order = Order.objects.create(
             user=self.user,
             store=self.store,
-            pickup=timezone.now() + timedelta(hours=1),
-            address=address
+            receipt=timezone.now() + timedelta(hours=1),
+            delivery_address=address
         )
         order, order_clone = self.clone_model(order)
-        order_clone.address = address_clone
+        order_clone.delivery_address = address_clone
         order_clone.save()
 
         # Deleting addresses with an active order should stage it for deletion
