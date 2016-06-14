@@ -29,13 +29,11 @@ class Digits:
 
     @property
     def header_auth(self):
-        return 'Basic {base}'.format(
-            base=base64.b64encode(
-                '{key}:{secret}'.format(
-                    key=urllib.parse.quote(Digits.CONSUMER_KEY),
-                    secret=urllib.parse.quote(Digits.CONSUMER_SECRET)
-                )
-            )
+        return b'Basic ' + base64.b64encode(
+            '{key}:{secret}'.format(
+                key=urllib.parse.quote(Digits.CONSUMER_KEY),
+                secret=urllib.parse.quote(Digits.CONSUMER_SECRET)
+            ).encode('ascii')
         )
 
     @property

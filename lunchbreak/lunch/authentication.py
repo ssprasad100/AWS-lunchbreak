@@ -3,6 +3,7 @@ from rest_framework.exceptions import AuthenticationFailed
 
 
 class TokenAuthentication(authentication.BaseAuthentication):
+
     def authenticate(self, request):
         identifier = request.META.get('HTTP_X_IDENTIFIER')
         model_id = request.META.get('HTTP_X_' + self.MODEL_NAME.upper())

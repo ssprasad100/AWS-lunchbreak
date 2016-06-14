@@ -28,7 +28,6 @@ INSTALLED_APPS = (
 
     'push_notifications',
     'rest_framework',
-    'opbeat.contrib.django',
     'private_media',
     'compressor',
     'sass_processor',
@@ -46,7 +45,6 @@ INSTALLED_APPS = (
 
 MIDDLEWARE_CLASSES = (
     'subdomains.middleware.SubdomainURLRoutingMiddleware',
-    'opbeat.contrib.django.middleware.OpbeatAPMMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -60,8 +58,8 @@ MIDDLEWARE_CLASSES = (
 HOST = 'lunchbreak.eu'
 ROOT_URLCONF = 'Lunchbreak.urls.api'
 SUBDOMAIN_URLCONFS = {
-    None: 'Lunchbreak.urls.frontend',
-    'www': 'Lunchbreak.urls.frontend',
+    None: 'Lunchbreak.urls.api',
+    'www': 'Lunchbreak.urls.api',
     'api': 'Lunchbreak.urls.api',
 }
 SITE_ID = 1
@@ -201,20 +199,12 @@ OPBEAT = {
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,
-    'root': {
-        'level': 'WARNING',
-        'handlers': ['opbeat'],
-    },
     'formatters': {
         'verbose': {
             'format': '%(levelname)s %(asctime)s %(module)s %(message)s'
         },
     },
     'handlers': {
-        'opbeat': {
-            'level': 'ERROR',
-            'class': 'opbeat.contrib.django.handlers.OpbeatHandler',
-        },
         'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
@@ -223,16 +213,6 @@ LOGGING = {
     'loggers': {
         'django.db.backends': {
             'level': 'ERROR',
-            'handlers': ['console'],
-            'propagate': False,
-        },
-        'opbeat': {
-            'level': 'WARN',
-            'handlers': ['console'],
-            'propagate': False,
-        },
-        'opbeat.errors': {
-            'level': 'DEBUG',
             'handlers': ['console'],
             'propagate': False,
         },
