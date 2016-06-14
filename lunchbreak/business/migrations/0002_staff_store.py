@@ -7,13 +7,14 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('business', '0017_staff_merchant'),
+        ('business', '0001_initial'),
+        ('lunch', '0001_initial'),
     ]
 
     operations = [
-        migrations.AlterField(
+        migrations.AddField(
             model_name='staff',
             name='store',
-            field=models.OneToOneField(null=True, to='lunch.Store'),
+            field=models.OneToOneField(null=True, blank=True, to='lunch.Store'),
         ),
     ]
