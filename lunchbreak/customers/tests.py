@@ -496,6 +496,12 @@ class CustomersTests(LunchbreakTestCase):
         response, order = create_order()
         self.assertEqualException(response, LinkingError)
 
+        # Orders meant to be picked up cannot have receipt be None
+        del content['receipt']
+        del content['delivery_address']
+        response, order = create_order()
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_token_update(self):
         """
         Test whether a user can change his token's registration_id.

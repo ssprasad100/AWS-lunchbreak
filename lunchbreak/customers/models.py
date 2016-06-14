@@ -18,6 +18,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 from push_notifications.models import SERVICE_INACTIVE
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.serializers import ValidationError
 
 from .config import (GROUP_BILLING_SEPARATE, GROUP_BILLINGS,
                      INVITE_STATUS_ACCEPTED, INVITE_STATUS_WAITING,
@@ -628,6 +629,10 @@ class Order(models.Model, DirtyFieldsMixin):
 
             if not self.store.delivers_to(self.delivery_address):
                 raise NoDeliveryToAddress()
+        elif self.receipt is None:
+            raise ValidationError(
+                _('Receipt cannot be None for pickup.')
+            )
 
         self.store.is_open(self.receipt)
 
