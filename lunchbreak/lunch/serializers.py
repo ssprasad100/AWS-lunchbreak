@@ -19,7 +19,7 @@ class StoreCategorySerializer(serializers.ModelSerializer):
         )
 
 
-class ShortStoreSerializer(serializers.ModelSerializer):
+class StoreSerializer(serializers.ModelSerializer):
     categories = StoreCategorySerializer(
         many=True,
         read_only=True
@@ -38,18 +38,23 @@ class ShortStoreSerializer(serializers.ModelSerializer):
             'hearts_count',
             'last_modified',
         )
-        read_only_fields = fields
+        read_only_fields = (
+            'id',
+            'latitude',
+            'longitude',
+            'hearts_count',
+            'last_modified',
+        )
 
 
-class StoreSerializer(ShortStoreSerializer):
+class StoreDetailSerializer(StoreSerializer):
     categories = StoreCategorySerializer(
         many=True,
         read_only=True
     )
 
-    class Meta:
-        model = ShortStoreSerializer.Meta.model
-        fields = ShortStoreSerializer.Meta.fields + (
+    class Meta(StoreSerializer.Meta):
+        fields = StoreSerializer.Meta.fields + (
             'country',
             'province',
             'city',
@@ -59,7 +64,6 @@ class StoreSerializer(ShortStoreSerializer):
             'wait',
             'preorder_time',
         )
-        read_only_fields = ShortStoreSerializer.Meta.read_only_fields
 
 
 class OpeningPeriodSerializer(serializers.ModelSerializer):
@@ -88,28 +92,12 @@ class HolidayPeriodSerializer(serializers.ModelSerializer):
             'end',
             'closed',
         )
-
-
-# Only here for RAML (atm)
-class HoursSerializer(serializers.Serializer):
-    holidayperiods = HolidayPeriodSerializer(
-        many=True,
-        read_only=True
-    )
-    openingperiods = OpeningPeriodSerializer(
-        many=True,
-        read_only=True
-    )
-
-    class Meta:
-        fields = (
-            'holidayperiods',
-            'openingperiods',
+        read_only_fields = (
+            'id',
         )
-        read_only_fields = fields
 
 
-class NestedIngredientSerializer(serializers.ModelSerializer):
+class IngredientSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Ingredient
@@ -124,18 +112,18 @@ class NestedIngredientSerializer(serializers.ModelSerializer):
         )
 
 
-class IngredientRelationSerializer(serializers.HyperlinkedModelSerializer):
-    ingredient = NestedIngredientSerializer()
+class IngredientDetailSerializer(IngredientSerializer):
 
-    class Meta:
-        model = IngredientRelation
-        fields = (
-            'selected',
-            'ingredient',
+    class Meta(IngredientSerializer.Meta):
+        fields = IngredientSerializer.Meta.fields + (
+            'last_modified',
+        )
+        read_only_fields = IngredientSerializer.Meta.read_only_fields + (
+            'last_modified',
         )
 
 
-class ShortIngredientRelationSerializer(serializers.HyperlinkedModelSerializer):
+class IngredientRelationSerializer(serializers.HyperlinkedModelSerializer):
     id = serializers.ReadOnlyField(
         source='ingredient.id'
     )
@@ -151,7 +139,18 @@ class ShortIngredientRelationSerializer(serializers.HyperlinkedModelSerializer):
         )
 
 
-class ShortIngredientGroupSerializer(serializers.ModelSerializer):
+class IngredientRelationDetailSerializer(serializers.HyperlinkedModelSerializer):
+    ingredient = IngredientSerializer()
+
+    class Meta:
+        model = IngredientRelation
+        fields = (
+            'selected',
+            'ingredient',
+        )
+
+
+class IngredientGroupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = IngredientGroup
@@ -169,20 +168,18 @@ class ShortIngredientGroupSerializer(serializers.ModelSerializer):
         )
 
 
-class IngredientGroupSerializer(ShortIngredientGroupSerializer):
-    ingredients = NestedIngredientSerializer(
+class IngredientGroupDetailSerializer(IngredientGroupSerializer):
+    ingredients = IngredientSerializer(
         many=True
     )
 
-    class Meta:
-        model = ShortIngredientGroupSerializer.Meta.model
-        fields = ShortIngredientGroupSerializer.Meta.fields + (
+    class Meta(IngredientGroupSerializer.Meta):
+        fields = IngredientGroupSerializer.Meta.fields + (
             'ingredients',
         )
-        read_only_fields = ShortIngredientGroupSerializer.Meta.read_only_fields
 
 
-class ShortFoodCategorySerializer(serializers.ModelSerializer):
+class FoodCategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = FoodCategory
@@ -196,14 +193,12 @@ class ShortFoodCategorySerializer(serializers.ModelSerializer):
         )
 
 
-class FoodCategorySerializer(ShortFoodCategorySerializer):
+class FoodCategoryDetailSerializer(FoodCategorySerializer):
 
-    class Meta:
-        model = FoodCategory
-        fields = ShortFoodCategorySerializer.Meta.fields + (
+    class Meta(FoodCategorySerializer.Meta):
+        fields = FoodCategorySerializer.Meta.fields + (
             'store',
         )
-        read_only_fields = ShortFoodCategorySerializer.Meta.read_only_fields
 
 
 class FoodTypeSerializer(serializers.ModelSerializer):
@@ -222,7 +217,7 @@ class FoodTypeSerializer(serializers.ModelSerializer):
         )
 
 
-class ShortQuantitySerializer(serializers.ModelSerializer):
+class QuantitySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Quantity
@@ -238,32 +233,26 @@ class ShortQuantitySerializer(serializers.ModelSerializer):
         )
 
 
-class QuantitySerializer(ShortQuantitySerializer):
+class QuantityDetailSerializer(QuantitySerializer):
 
     class Meta:
-        model = ShortQuantitySerializer.Meta.model
-        fields = ShortQuantitySerializer.Meta.fields + (
+        model = QuantitySerializer.Meta.model
+        fields = QuantitySerializer.Meta.fields + (
             'foodtype',
         )
-        read_only_fields = ShortQuantitySerializer.Meta.read_only_fields
+        read_only_fields = QuantitySerializer.Meta.read_only_fields
 
 
-class SingleFoodSerializer(serializers.ModelSerializer):
-    ingredientgroups = ShortIngredientGroupSerializer(
-        many=True,
-        read_only=True
-    )
-    category = ShortFoodCategorySerializer(
-        many=False
-    )
+class BaseFoodSerializer(serializers.ModelSerializer):
+    """This serializer is not meant to be returned!"""
+
     foodtype = FoodTypeSerializer(
         many=False
     )
-    ingredients = IngredientRelationSerializer(
-        source='ingredientrelation_set',
-        many=True
+    category = FoodCategorySerializer(
+        many=False
     )
-    quantity = ShortQuantitySerializer(
+    quantity = QuantitySerializer(
         many=False
     )
 
@@ -272,31 +261,58 @@ class SingleFoodSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'name',
-            'description',
             'amount',
             'cost',
-            'foodtype',
-            'preorder_days',
-            'commentable',
-            'priority',
-
             'category',
-            'ingredients',
-            'store',
-
-            'last_modified',
-
-            'ingredientgroups',
+            'foodtype',
+            'priority',
+            'has_ingredients',
             'quantity',
+            'preorder_days',
         )
         read_only_fields = (
             'id',
+            'has_ingredients',
+        )
+
+
+class FoodSerializer(BaseFoodSerializer):
+
+    class Meta(BaseFoodSerializer.Meta):
+        fields = BaseFoodSerializer.Meta.fields + (
+            'has_ingredients',
+        )
+        read_only_fields = BaseFoodSerializer.Meta.read_only_fields + (
+            'has_ingredients',
+        )
+
+
+class FoodDetailSerializer(BaseFoodSerializer):
+    ingredientgroups = IngredientGroupSerializer(
+        many=True,
+        read_only=True
+    )
+    ingredients = IngredientRelationDetailSerializer(
+        source='ingredientrelation_set',
+        many=True
+    )
+
+    class Meta(BaseFoodSerializer.Meta):
+        fields = BaseFoodSerializer.Meta.fields + (
+            'description',
+            'commentable',
+            'ingredients',
+            'store',
+            'last_modified',
+            'ingredientgroups',
+        )
+        read_only_fields = BaseFoodSerializer.Meta.read_only_fields + (
             'ingredientgroups',
             'last_modified',
         )
 
     def to_representation(self, obj):
-        result = super(SingleFoodSerializer, self).to_representation(obj)
+        result = super().to_representation(obj)
 
         ingredientrelations_added = []
         ingredientgroups = obj.ingredientgroups.all().prefetch_related(
@@ -309,51 +325,24 @@ class SingleFoodSerializer(serializers.ModelSerializer):
             for ingredient in ingredients:
                 if ingredient not in obj_ingredients:
                     ingredientrelations_added.append(
-                        IngredientRelation(ingredient=ingredient)
+                        IngredientRelation(
+                            ingredient=ingredient
+                        )
                     )
 
-        serializer = IngredientRelationSerializer(
+        serializer = IngredientRelationDetailSerializer(
             many=True
         )
-        relation_representation = serializer.to_representation(ingredientrelations_added)
+        relation_representation = serializer.to_representation(
+            ingredientrelations_added
+        )
 
         result['ingredients'] += relation_representation
 
         return result
 
 
-class MultiFoodSerializer(serializers.ModelSerializer):
-    foodtype = FoodTypeSerializer(
-        many=False
-    )
-    category = ShortFoodCategorySerializer(
-        many=False
-    )
-    quantity = ShortQuantitySerializer(
-        many=False
-    )
-
-    class Meta:
-        model = Food
-        fields = (
-            'id',
-            'name',
-            'amount',
-            'cost',
-            'category',
-            'foodtype',
-            'priority',
-            'has_ingredients',
-            'quantity',
-            'preorder_days',
-        )
-        read_only_fields = (
-            'id',
-            'has_ingredients',
-        )
-
-
-class MultiTokenSerializer(serializers.ModelSerializer):
+class TokenSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = BaseToken
@@ -366,20 +355,18 @@ class MultiTokenSerializer(serializers.ModelSerializer):
         )
         read_only_fields = (
             'id',
-            'identifier',
             'device',
             'service',
             'active',
         )
 
 
-class TokenSerializer(MultiTokenSerializer):
+class TokenDetailSerializer(TokenSerializer):
 
-    class Meta:
-        model = MultiTokenSerializer.Meta.model
-        fields = MultiTokenSerializer.Meta.fields + (
+    class Meta(TokenSerializer.Meta):
+        fields = TokenSerializer.Meta.fields + (
             'identifier',
         )
-        read_only_fields = MultiTokenSerializer.Meta.read_only_fields + (
+        read_only_fields = TokenSerializer.Meta.read_only_fields + (
             'identifier',
         )

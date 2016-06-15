@@ -53,46 +53,46 @@ urlpatterns = router.urls + patterns(
 
     url(
         r'^foodcategory/?$',
-        views.FoodCategoryMultiView.as_view()
+        views.FoodCategoryView.as_view()
     ),
     url(
         r'^foodcategory/(?P<pk>\d+)/?$',
-        views.FoodCategorySingleView.as_view()
+        views.FoodCategoryDetailView.as_view()
     ),
 
     url(
         r'^foodtype/?$',
-        views.FoodTypeListView.as_view()
+        views.FoodTypeView.as_view()
     ),
 
     url(
         r'^ingredient'
-        r'/(?P<datetime>\d{8}T\d{6}|\d{2}-\d{2}-\d{4}-\d{2}-\d{2}-\d{2})?/?$',
-        views.IngredientMultiView.as_view()
+        r'/(?P<since>\d{8}T\d{6}|\d{2}-\d{2}-\d{4}-\d{2}-\d{2}-\d{2})?/?$',
+        views.IngredientView.as_view()
     ),
     url(
         r'^ingredient/(?P<pk>\d+)/?$',
-        views.IngredientSingleView.as_view()
+        views.IngredientDetailView.as_view()
     ),
 
     url(
         r'^ingredientgroup/?$',
-        views.IngredientGroupMultiView.as_view()
+        views.IngredientGroupView.as_view()
     ),
     url(
         r'^ingredientgroup/(?P<pk>\d+)/?$',
-        views.IngredientGroupSingleView.as_view()
+        views.IngredientGroupDetailView.as_view()
     ),
 
     url(
         r'^order'
         r'/(?P<option>receipt|placed)?'
         r'/?(?P<datetime>\d{8}T\d{6}|\d{2}-\d{2}-\d{4}-\d{2}-\d{2}-\d{2})?/?$',
-        views.OrderListView.as_view()
+        views.OrderView.as_view()
     ),
     url(
         r'^order/(?P<pk>\d+)/?$',
-        views.OrderUpdateView.as_view()
+        views.OrderDetailView.as_view()
     ),
     url(
         r'^order/spread'
@@ -103,42 +103,42 @@ urlpatterns = router.urls + patterns(
 
     url(
         r'^quantity/?$',
-        views.QuantityMultiView.as_view()
+        views.QuantityView.as_view()
     ),
     url(
         r'^quantity/(?P<pk>\d+)/?$',
-        views.QuantitySingleView.as_view()
+        views.QuantityDetailView.as_view()
     ),
 
     url(
         r'^reservation/?$',
-        views.ReservationMultiView.as_view()
+        views.ReservationView.as_view()
     ),
     url(
         r'^reservation/(?P<pk>\d+)/?$',
-        views.ReservationSingleView.as_view()
+        views.ReservationDetailView.as_view()
     ),
 
     url(
         r'^staff/?$',
-        views.StaffMultiView.as_view()
+        views.StaffView.as_view()
     ),
     url(
         r'^staff/(?P<pk>\d+)/?$',
-        views.StaffSingleView.as_view()
+        views.StaffDetailView.as_view()
     ),
     url(
         r'^staff/nearby'
         r'/(?P<latitude>-?\d+.?\d*)'
         r'/(?P<longitude>-?\d+.?\d*)/?$',
-        views.StaffMultiView.as_view()
+        views.StaffView.as_view()
     ),
     url(
         r'^staff/nearby'
         r'/(?P<latitude>-?\d+.?\d*)'
         r'/(?P<longitude>-?\d+.?\d*)'
         r'/(?P<proximity>\d+.?\d*)/?$',
-        views.StaffMultiView.as_view()
+        views.StaffView.as_view()
     ),
     url(
         r'^staff/reset/?$',
@@ -159,15 +159,15 @@ urlpatterns = router.urls + patterns(
 
     url(
         r'^store/?$',
-        views.StoreSingleView.as_view()
+        views.StoreDetailView.as_view()
     ),
     url(
         r'^store/hours/?$',
-        views.OpeningPeriodListView.as_view()
+        views.OpeningPeriodView.as_view()
     ),
     url(
         r'^store/holiday/?$',
-        views.HolidayPeriodListView.as_view()
+        views.HolidayPeriodView.as_view()
     ),
     url(
         r'^store/open/?$',
@@ -176,6 +176,6 @@ urlpatterns = router.urls + patterns(
 
     url(
         r'^storecategory/?$',
-        views.StoreCategoryListView.as_view()
+        views.StoreCategoryView.as_view()
     ),
 )

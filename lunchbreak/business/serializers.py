@@ -2,7 +2,7 @@ from customers.config import RESERVATION_STATUS_EMPLOYEE
 from customers.models import Order, OrderedFood, Reservation, User
 from lunch import serializers as lunch_serializers
 from lunch.config import TOKEN_IDENTIFIER_LENGTH
-from lunch.models import (BaseToken, Food, Ingredient, IngredientGroup,
+from lunch.models import (Food, Ingredient, IngredientGroup,
                           IngredientRelation, Store)
 from rest_framework import serializers
 
@@ -10,7 +10,7 @@ from .models import (AbstractPassword, Employee, EmployeeToken, Staff,
                      StaffToken)
 
 
-class StoreSerializer(serializers.ModelSerializer):
+class StoreDetailSerializer(serializers.ModelSerializer):
     categories = serializers.PrimaryKeyRelatedField(
         many=True,
         read_only=True
@@ -44,19 +44,6 @@ class StoreSerializer(serializers.ModelSerializer):
             'hearts_count',
             'categories',
         )
-
-
-class StoreSerializerV3(StoreSerializer):
-
-    class Meta:
-        model = Store
-        fields = StoreSerializer.Meta.fields
-        read_only_fields = StoreSerializer.Meta.read_only_fields
-
-    def save(self):
-        if 'wait' in self.validated_data:
-            self.validated_data['wait'] *= 60
-        super(StoreSerializer, self).save()
 
 
 class EmployeePasswordRequestSerializer(serializers.ModelSerializer):
@@ -114,15 +101,14 @@ class StaffPasswordSerializer(PasswordSerializer):
         write_only_fields = PasswordSerializer.Meta.write_only_fields
 
 
-class BusinessTokenSerializer(lunch_serializers.TokenSerializer):
+class BusinessTokenSerializer(lunch_serializers.TokenDetailSerializer):
     password = serializers.CharField(
         max_length=255,
         write_only=True
     )
 
-    class Meta:
-        model = BaseToken
-        fields = lunch_serializers.TokenSerializer.Meta.fields + (
+    class Meta(lunch_serializers.TokenDetailSerializer):
+        fields = lunch_serializers.TokenDetailSerializer.Meta.fields + (
             'password',
         )
         write_only_fields = (
@@ -136,7 +122,7 @@ class BusinessTokenSerializer(lunch_serializers.TokenSerializer):
 
 
 class StaffSerializer(serializers.ModelSerializer):
-    store = StoreSerializer()
+    store = StoreDetailSerializer()
 
     class Meta:
         model = Staff
@@ -297,7 +283,7 @@ class OrderSerializer(ShortOrderSerializer):
         )
 
 
-class ShortIngredientGroupSerializer(serializers.ModelSerializer):
+class IngredientGroupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = IngredientGroup
@@ -330,8 +316,8 @@ class IngredientRelationSerializer(serializers.ModelSerializer):
         write_only_fields = fields
 
 
-class ShortFoodSerializer(serializers.ModelSerializer):
-    ingredients = lunch_serializers.ShortIngredientRelationSerializer(
+class FoodSerializer(serializers.ModelSerializer):
+    ingredients = lunch_serializers.IngredientRelationSerializer(
         source='ingredientrelation_set',
         many=True,
         required=False,
@@ -382,9 +368,9 @@ class ShortFoodSerializer(serializers.ModelSerializer):
         relations = validated_data.pop('ingredientrelation_set', None)
 
         if not update:
-            food = super(ShortFoodSerializer, self).create(validated_data)
+            food = super().create(validated_data)
         else:
-            food = super(ShortFoodSerializer, self).update(food, validated_data)
+            food = super().update(food, validated_data)
 
         if relations is not None:
             if update:
@@ -419,7 +405,7 @@ class IngredientSerializer(serializers.ModelSerializer):
         )
 
 
-class IngredientGroupSerializer(serializers.ModelSerializer):
+class IngredientGroupDetailSerializer(serializers.ModelSerializer):
     ingredients = serializers.PrimaryKeyRelatedField(
         many=True,
         read_only=True
@@ -443,14 +429,14 @@ class IngredientGroupSerializer(serializers.ModelSerializer):
         )
 
 
-class SingleFoodSerializer(lunch_serializers.SingleFoodSerializer):
+class FoodDetailSerializer(lunch_serializers.FoodDetailSerializer):
 
     class Meta:
-        model = lunch_serializers.SingleFoodSerializer.Meta.model
-        fields = lunch_serializers.SingleFoodSerializer.Meta.fields + (
+        model = lunch_serializers.FoodDetailSerializer.Meta.model
+        fields = lunch_serializers.FoodDetailSerializer.Meta.fields + (
             'deleted',
         )
-        read_only_fields = lunch_serializers.SingleFoodSerializer.Meta.read_only_fields
+        read_only_fields = lunch_serializers.FoodDetailSerializer.Meta.read_only_fields
 
 
 class ReservationSerializer(serializers.ModelSerializer):

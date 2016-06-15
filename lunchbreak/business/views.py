@@ -12,10 +12,10 @@ from django.utils import timezone
 from lunch.models import (Food, FoodCategory, FoodType, Ingredient,
                           IngredientGroup, Quantity, Store)
 from lunch.responses import BadRequest
-from lunch.serializers import (FoodTypeSerializer, QuantitySerializer,
-                               ShortFoodCategorySerializer)
-from lunch.views import (HolidayPeriodListViewBase, OpeningPeriodListViewBase,
-                         OpeningListViewBase, StoreCategoryListViewBase)
+from lunch.serializers import (FoodCategorySerializer, FoodTypeSerializer,
+                               QuantityDetailSerializer)
+from lunch.views import (HolidayPeriodListViewBase, OpeningListViewBase,
+                         OpeningPeriodListViewBase, StoreCategoryListViewBase)
 from Lunchbreak.views import TargettedViewSet
 from rest_framework import generics, mixins, status, viewsets
 from rest_framework.decorators import detail_route, list_route
@@ -26,12 +26,12 @@ from .authentication import EmployeeAuthentication, StaffAuthentication
 from .exceptions import InvalidDatetime, InvalidEmail, InvalidPasswordReset
 from .models import Employee, Staff
 from .permissions import StoreOwnerPermission
-from .serializers import (EmployeeSerializer, IngredientGroupSerializer,
-                          IngredientSerializer, OrderSerializer,
-                          OrderSpreadSerializer, ReservationSerializer,
-                          ShortFoodSerializer, ShortIngredientGroupSerializer,
-                          ShortOrderSerializer, SingleFoodSerializer,
-                          StaffSerializer, StoreSerializer, StoreSerializerV3)
+from .serializers import (EmployeeSerializer, FoodDetailSerializer,
+                          FoodSerializer, IngredientGroupDetailSerializer,
+                          IngredientGroupSerializer, IngredientSerializer,
+                          OrderSerializer, OrderSpreadSerializer,
+                          ReservationSerializer, ShortOrderSerializer,
+                          StaffSerializer, StoreDetailSerializer)
 
 AVAILABLE_STATUSES = [
     ORDER_STATUS_PLACED,
@@ -76,8 +76,7 @@ class EmployeeView(generics.ListAPIView):
 
 class PasswordResetView(generics.CreateAPIView):
 
-    def post(self, request, model, token_model, serializer_class,
-             employee=False, *args, **kwargs):
+    def post(self, request, model, token_model, serializer_class, employee=False):
         serializer = serializer_class(data=request.data)
         if serializer.is_valid():
             email = request.data['email']
@@ -124,8 +123,8 @@ class FoodViewSet(TargettedViewSet,
                   mixins.RetrieveModelMixin,
                   mixins.UpdateModelMixin):
 
-    serializer_class = ShortFoodSerializer
-    serializer_class_retrieve = SingleFoodSerializer
+    serializer_class = FoodSerializer
+    serializer_class_retrieve = FoodDetailSerializer
 
     authentication_classes = (EmployeeAuthentication,)
 
@@ -198,9 +197,9 @@ class ListCreateStoreView(generics.ListCreateAPIView):
         serializer.save(store=store)
 
 
-class FoodCategoryMultiView(ListCreateStoreView):
+class FoodCategoryView(ListCreateStoreView):
     authentication_classes = (EmployeeAuthentication,)
-    serializer_class = ShortFoodCategorySerializer
+    serializer_class = FoodCategorySerializer
     permission_classes = (StoreOwnerPermission,)
     pagination_class = None
 
@@ -208,9 +207,9 @@ class FoodCategoryMultiView(ListCreateStoreView):
         return FoodCategory.objects.filter(store=self.request.user.staff.store)
 
 
-class FoodCategorySingleView(generics.RetrieveUpdateDestroyAPIView):
+class FoodCategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
     authentication_classes = (EmployeeAuthentication,)
-    serializer_class = ShortFoodCategorySerializer
+    serializer_class = FoodCategorySerializer
     permission_classes = (StoreOwnerPermission,)
 
     def get_queryset(self):
@@ -219,27 +218,27 @@ class FoodCategorySingleView(generics.RetrieveUpdateDestroyAPIView):
         )
 
 
-class FoodTypeListView(generics.ListAPIView):
+class FoodTypeView(generics.ListAPIView):
     authentication_classes = (EmployeeAuthentication,)
     serializer_class = FoodTypeSerializer
     pagination_class = None
     queryset = FoodType.objects.all()
 
 
-class IngredientMultiView(ListCreateStoreView):
+class IngredientView(ListCreateStoreView):
     authentication_classes = (EmployeeAuthentication,)
     serializer_class = IngredientSerializer
     permission_classes = (StoreOwnerPermission,)
 
     def get_queryset(self):
         result = Ingredient.objects.filter(store=self.request.user.staff.store)
-        since = datetime_request(self.request, self.kwargs, arg='datetime')
+        since = datetime_request(self.request, self.kwargs, arg='since')
         if since is not None:
             return result.filter(last_modified__gte=since)
         return result
 
 
-class IngredientSingleView(generics.RetrieveUpdateDestroyAPIView):
+class IngredientDetailView(generics.RetrieveUpdateDestroyAPIView):
     authentication_classes = (EmployeeAuthentication,)
     serializer_class = IngredientSerializer
     permission_classes = (StoreOwnerPermission,)
@@ -258,9 +257,9 @@ class IngredientSingleView(generics.RetrieveUpdateDestroyAPIView):
         return result.order_by('-priority', 'name')
 
 
-class IngredientGroupMultiView(ListCreateStoreView):
+class IngredientGroupView(ListCreateStoreView):
     authentication_classes = (EmployeeAuthentication,)
-    serializer_class = ShortIngredientGroupSerializer
+    serializer_class = IngredientGroupSerializer
     permission_classes = (StoreOwnerPermission,)
     pagination_class = None
 
@@ -270,9 +269,9 @@ class IngredientGroupMultiView(ListCreateStoreView):
         )
 
 
-class IngredientGroupSingleView(generics.RetrieveUpdateDestroyAPIView):
+class IngredientGroupDetailView(generics.RetrieveUpdateDestroyAPIView):
     authentication_classes = (EmployeeAuthentication,)
-    serializer_class = IngredientGroupSerializer
+    serializer_class = IngredientGroupDetailSerializer
     permission_classes = (StoreOwnerPermission,)
 
     def get_queryset(self):
@@ -281,7 +280,7 @@ class IngredientGroupSingleView(generics.RetrieveUpdateDestroyAPIView):
         )
 
 
-class OrderListView(generics.ListAPIView):
+class OrderView(generics.ListAPIView):
     authentication_classes = (EmployeeAuthentication,)
     serializer_class = ShortOrderSerializer
 
@@ -311,14 +310,14 @@ class OrderListView(generics.ListAPIView):
         return Order.objects.filter(**filters)
 
 
-class OrderUpdateView(generics.RetrieveUpdateAPIView):
+class OrderDetailView(generics.RetrieveUpdateAPIView):
     authentication_classes = (EmployeeAuthentication,)
     serializer_class = OrderSerializer
     pagination_class = None
 
     def get_queryset(self):
         return Order.objects.filter(
-            store=self.request.user.staff.store,
+            store_id=self.request.user.staff.store_id,
             status__in=AVAILABLE_STATUSES
         )
 
@@ -364,42 +363,50 @@ class OrderSpreadView(viewsets.ReadOnlyModelViewSet):
         ), [frm, to, store_id, ORDER_STATUS_COMPLETED])
 
 
-class QuantityMultiView(ListCreateStoreView):
+class QuantityView(ListCreateStoreView):
     authentication_classes = (EmployeeAuthentication,)
-    serializer_class = QuantitySerializer
+    serializer_class = QuantityDetailSerializer
     permission_classes = (StoreOwnerPermission,)
     pagination_class = None
 
     def get_queryset(self):
-        return Quantity.objects.filter(store=self.request.user.staff.store)
+        return Quantity.objects.filter(
+            store_id=self.request.user.staff.store_id
+        )
 
 
-class QuantitySingleView(generics.RetrieveUpdateDestroyAPIView):
+class QuantityDetailView(generics.RetrieveUpdateDestroyAPIView):
     authentication_classes = (EmployeeAuthentication,)
-    serializer_class = QuantitySerializer
+    serializer_class = QuantityDetailSerializer
     permission_classes = (StoreOwnerPermission,)
 
     def get_queryset(self):
-        return Quantity.objects.filter(store=self.request.user.staff.store)
+        return Quantity.objects.filter(
+            store_id=self.request.user.staff.store_id
+        )
 
 
-class ReservationMultiView(generics.ListAPIView):
+class ReservationView(generics.ListAPIView):
     authentication_classes = (EmployeeAuthentication,)
     serializer_class = ReservationSerializer
 
     def get_queryset(self):
-        return Reservation.objects.filter(store_id=self.request.user.staff.store_id)
+        return Reservation.objects.filter(
+            store_id=self.request.user.staff.store_id
+        )
 
 
-class ReservationSingleView(generics.UpdateAPIView):
+class ReservationDetailView(generics.UpdateAPIView):
     authentication_classes = (EmployeeAuthentication,)
     serializer_class = ReservationSerializer
 
     def get_queryset(self):
-        return Reservation.objects.filter(store_id=self.request.user.staff.store_id)
+        return Reservation.objects.filter(
+            store_id=self.request.user.staff.store_id
+        )
 
 
-class StaffMultiView(generics.ListAPIView):
+class StaffView(generics.ListAPIView):
     serializer_class = StaffSerializer
 
     def get_queryset(self):
@@ -420,7 +427,7 @@ class StaffMultiView(generics.ListAPIView):
         return StaffAuthentication.login(request)
 
 
-class StaffSingleView(generics.RetrieveAPIView):
+class StaffDetailView(generics.RetrieveAPIView):
     authentication_classes = (StaffAuthentication,)
     serializer_class = StaffSerializer
     queryset = Staff.objects.all()
@@ -429,15 +436,10 @@ class StaffSingleView(generics.RetrieveAPIView):
         return Staff.objects.filter(id=self.request.user.id)
 
 
-class StoreSingleView(generics.RetrieveUpdateAPIView):
+class StoreDetailView(generics.RetrieveUpdateAPIView):
     authentication_classes = (EmployeeAuthentication,)
     permission_classes = (StoreOwnerPermission,)
-
-    def get_serializer_class(self):
-        if self.request.version >= 4:
-            return StoreSerializer
-        else:
-            return StoreSerializerV3
+    serializer_class = StoreDetailSerializer
 
     def get_object(self):
         return get_object_or_404(self.get_queryset())
@@ -454,11 +456,11 @@ class GetStoreMixin(object):
         return self.request.user.staff.store_id
 
 
-class OpeningPeriodListView(GetStoreMixin, OpeningPeriodListViewBase):
+class OpeningPeriodView(GetStoreMixin, OpeningPeriodListViewBase):
     authentication_classes = (EmployeeAuthentication,)
 
 
-class HolidayPeriodListView(GetStoreMixin, HolidayPeriodListViewBase):
+class HolidayPeriodView(GetStoreMixin, HolidayPeriodListViewBase):
     authentication_classes = (EmployeeAuthentication,)
 
 
@@ -466,5 +468,5 @@ class StoreOpenView(GetStoreMixin, OpeningListViewBase):
     authentication_classes = (EmployeeAuthentication,)
 
 
-class StoreCategoryListView(GetStoreMixin, StoreCategoryListViewBase):
+class StoreCategoryView(GetStoreMixin, StoreCategoryListViewBase):
     authentication_classes = (EmployeeAuthentication,)

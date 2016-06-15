@@ -4,9 +4,9 @@ from lunch.models import Food, FoodCategory, IngredientGroup, Store
 from lunch.pagination import SimplePagination
 from lunch.renderers import JPEGRenderer
 from lunch.responses import BadRequest
-from lunch.serializers import (FoodCategorySerializer, MultiFoodSerializer,
-                               ShortFoodCategorySerializer,
-                               ShortStoreSerializer, SingleFoodSerializer,
+from lunch.serializers import (FoodCategoryDetailSerializer,
+                               FoodCategorySerializer, FoodDetailSerializer,
+                               FoodSerializer, StoreDetailSerializer,
                                StoreSerializer)
 from lunch.views import (HolidayPeriodListViewBase, OpeningListViewBase,
                          OpeningPeriodListViewBase, StoreCategoryListViewBase)
@@ -38,8 +38,8 @@ class FoodViewSet(TargettedViewSet,
 
     queryset = Food.objects.all()
 
-    serializer_class_retrieve = SingleFoodSerializer
-    serializer_class_list = MultiFoodSerializer
+    serializer_class_retrieve = FoodDetailSerializer
+    serializer_class_list = FoodSerializer
 
     @property
     def queryset_retrieve(self):
@@ -81,7 +81,7 @@ class FoodCategoryRetrieveView(generics.RetrieveAPIView):
     """List all food categories."""
 
     authentication_classes = (CustomerAuthentication,)
-    serializer_class = FoodCategorySerializer
+    serializer_class = FoodCategoryDetailSerializer
     queryset = FoodCategory.objects.select_related(
         'store',
     ).all()
@@ -151,10 +151,10 @@ class StoreViewSet(TargettedViewSet,
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name', 'city', 'street',)
 
-    serializer_class_retrieve = StoreSerializer
-    serializer_class_create = ShortStoreSerializer
-    serializer_class_list = ShortStoreSerializer
-    serializer_class_recent = ShortStoreSerializer
+    serializer_class_retrieve = StoreDetailSerializer
+    serializer_class_create = StoreSerializer
+    serializer_class_list = StoreSerializer
+    serializer_class_recent = StoreSerializer
     serializer_class_heart = StoreHeartSerializer
     serializer_class_unheart = StoreHeartSerializer
     serializer_class_paymentlink = PaymentLinkSerializer
@@ -297,7 +297,7 @@ class StoreFoodViewSet(TargettedViewSet,
                        NestedViewSetMixin,
                        mixins.ListModelMixin):
 
-    serializer_class = MultiFoodSerializer
+    serializer_class = FoodSerializer
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
 
@@ -329,7 +329,7 @@ class StoreFoodCategoryViewSet(TargettedViewSet,
                                NestedViewSetMixin,
                                mixins.ListModelMixin):
 
-    serializer_class = ShortFoodCategorySerializer
+    serializer_class = FoodCategorySerializer
     pagination_class = SimplePagination
 
     @property
