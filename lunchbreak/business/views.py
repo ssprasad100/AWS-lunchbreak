@@ -29,8 +29,8 @@ from .permissions import StoreOwnerPermission
 from .serializers import (EmployeeSerializer, FoodDetailSerializer,
                           FoodSerializer, IngredientGroupDetailSerializer,
                           IngredientGroupSerializer, IngredientSerializer,
-                          OrderSerializer, OrderSpreadSerializer,
-                          ReservationSerializer, ShortOrderSerializer,
+                          OrderDetailSerializer, OrderSpreadSerializer,
+                          ReservationSerializer, OrderSerializer,
                           StaffSerializer, StoreDetailSerializer)
 
 AVAILABLE_STATUSES = [
@@ -282,7 +282,7 @@ class IngredientGroupDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 class OrderView(generics.ListAPIView):
     authentication_classes = (EmployeeAuthentication,)
-    serializer_class = ShortOrderSerializer
+    serializer_class = OrderSerializer
 
     def get_queryset(self):
         filters = {
@@ -312,7 +312,7 @@ class OrderView(generics.ListAPIView):
 
 class OrderDetailView(generics.RetrieveUpdateAPIView):
     authentication_classes = (EmployeeAuthentication,)
-    serializer_class = OrderSerializer
+    serializer_class = OrderDetailSerializer
     pagination_class = None
 
     def get_queryset(self):

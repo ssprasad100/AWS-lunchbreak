@@ -255,7 +255,7 @@ class UserLoginSerializer(serializers.ModelSerializer):
         write_only_fields = fields
 
 
-class UserMembershipSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
@@ -266,7 +266,7 @@ class UserMembershipSerializer(serializers.ModelSerializer):
 
 
 class MembershipSerializer(serializers.ModelSerializer):
-    user = UserMembershipSerializer()
+    user = UserSerializer()
 
     class Meta:
         model = Membership
@@ -330,7 +330,7 @@ class InviteSerializer(serializers.ModelSerializer):
     group = GroupInviteSerializer(
         queryset=Group.objects.all()
     )
-    invited_by = UserMembershipSerializer(
+    invited_by = UserSerializer(
         read_only=True,
         default=CreateOnlyDefault(serializers.CurrentUserDefault())
     )
@@ -359,19 +359,7 @@ class InviteUpdateSerializer(InviteSerializer):
         )
 
 
-class MultiUserTokenSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = UserToken
-        fields = (
-            'id',
-            'device',
-            'active',
-        )
-        read_only_fields = fields
-
-
-class UserSerializer(serializers.ModelSerializer):
+class UserDetailSerializer(serializers.ModelSerializer):
     pin = serializers.CharField(
         required=False,
         write_only=True
@@ -401,26 +389,31 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class UserTokenSerializer(lunch_serializers.TokenSerializer):
-    user = UserSerializer()
 
-    class Meta:
+    class Meta(lunch_serializers.TokenSerializer.Meta):
         model = UserToken
-        fields = lunch_serializers.TokenSerializer.Meta.fields + (
+
+
+class UserTokenDetailSerializer(UserTokenSerializer):
+    user = UserDetailSerializer()
+
+    class Meta(UserTokenSerializer.Meta):
+        fields = UserTokenSerializer.Meta.fields + (
             'user',
         )
-        read_only_fields = lunch_serializers.TokenSerializer.Meta.read_only_fields + (
+        read_only_fields = UserTokenSerializer.Meta.read_only_fields + (
             'user',
         )
 
 
-class UserTokenUpdateSerializer(UserTokenSerializer):
-    user = UserSerializer(
+class UserTokenUpdateSerializer(UserTokenDetailSerializer):
+    user = UserDetailSerializer(
         read_only=True
     )
 
     class Meta:
-        model = UserTokenSerializer.Meta.model
-        fields = UserTokenSerializer.Meta.fields
+        model = UserTokenDetailSerializer.Meta.model
+        fields = UserTokenDetailSerializer.Meta.fields
         read_only_fields = (
             'id',
             'identifier',

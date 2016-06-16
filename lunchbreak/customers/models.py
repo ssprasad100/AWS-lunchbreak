@@ -799,7 +799,7 @@ class UserToken(BaseToken):
 
     @staticmethod
     def response(user, device, service=SERVICE_INACTIVE, registration_id=''):
-        from .serializers import UserTokenSerializer
+        from .serializers import UserTokenDetailSerializer
 
         token, created = UserToken.objects.create_token(
             arguments={
@@ -812,7 +812,7 @@ class UserToken(BaseToken):
             },
             clone=True
         )
-        serializer = UserTokenSerializer(token)
+        serializer = UserTokenDetailSerializer(token)
         return Response(
             serializer.data,
             status=(status.HTTP_201_CREATED if created else status.HTTP_200_OK)

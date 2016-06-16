@@ -21,11 +21,11 @@ from .config import DEMO_DIGITS_ID, DEMO_PHONE
 from .models import (Heart, Order, OrderedFood, PaymentLink, Reservation, User,
                      UserToken)
 from .serializers import (GroupSerializer, InviteSerializer,
-                          InviteUpdateSerializer, MultiUserTokenSerializer,
-                          OrderDetailSerializer, OrderedFoodPriceSerializer,
-                          OrderSerializer, PaymentLinkSerializer,
-                          ReservationSerializer, StoreHeartSerializer,
-                          UserLoginSerializer, UserRegisterSerializer,
+                          InviteUpdateSerializer, OrderDetailSerializer,
+                          OrderedFoodPriceSerializer, OrderSerializer,
+                          PaymentLinkSerializer, ReservationSerializer,
+                          StoreHeartSerializer, UserLoginSerializer,
+                          UserRegisterSerializer, UserTokenSerializer,
                           UserTokenUpdateSerializer)
 
 
@@ -446,7 +446,7 @@ class UserViewSet(viewsets.GenericViewSet):
     @list_route(methods=['get', 'put', 'patch'], authentication_classes=[CustomerAuthentication])
     def token(self, request):
         if request.method == 'GET':
-            serializer = MultiUserTokenSerializer(
+            serializer = UserTokenSerializer(
                 UserToken.objects.select_related(
                     'user',
                 ).filter(
