@@ -11,15 +11,15 @@ from .models import (Address, Group, Invite, Membership, Order, OrderedFood,
                      PaymentLink, Reservation, User, UserToken)
 
 
-class StoreHeartSerializer(lunch_serializers.StoreSerializer):
+class StoreHeartSerializer(lunch_serializers.StoreDetailSerializer):
     hearted = serializers.BooleanField()
 
     class Meta:
         model = Store
-        fields = lunch_serializers.StoreSerializer.Meta.fields + (
+        fields = lunch_serializers.StoreDetailSerializer.Meta.fields + (
             'hearted',
         )
-        read_only_fields = lunch_serializers.StoreSerializer.Meta.fields + (
+        read_only_fields = lunch_serializers.StoreDetailSerializer.Meta.fields + (
             'hearted',
         )
 
@@ -131,7 +131,7 @@ class PrimaryAddressSerializer(PrimaryModelSerializer):
         read_only = fields
 
 
-class ShortOrderSerializer(serializers.ModelSerializer):
+class OrderSerializer(serializers.ModelSerializer):
 
     """Used after placing an order for confirmation."""
 
@@ -178,7 +178,7 @@ class ShortOrderSerializer(serializers.ModelSerializer):
         )
 
 
-class OrderSerializer(serializers.ModelSerializer):
+class OrderDetailSerializer(OrderSerializer):
 
     """Used for listing a specific or all orders."""
 
@@ -191,32 +191,20 @@ class OrderSerializer(serializers.ModelSerializer):
         source='orderedfood_set'
     )
 
-    class Meta:
-        model = Order
-        fields = (
-            'id',
+    class Meta(OrderSerializer.Meta):
+        fields = OrderSerializer.Meta.fields + (
+            'placed',
+            'description',
+        )
+        read_only_fields = OrderSerializer.Meta.read_only_fields + (
             'store',
             'placed',
             'receipt',
-            'status',
-            'total',
-            'total_confirmed',
             'orderedfood',
             'description',
             'payment_method',
         )
-        read_only_fields = (
-            'id',
-            'store',
-            'placed',
-            'receipt',
-            'status',
-            'total',
-            'total_confirmed',
-            'orderedfood',
-            'description',
-            'payment_method',
-        )
+        write_only_fields = ()
 
 
 class UserRegisterSerializer(serializers.ModelSerializer):
@@ -265,35 +253,6 @@ class UserLoginSerializer(serializers.ModelSerializer):
             'token',
         )
         write_only_fields = fields
-
-
-class UserSerializer(serializers.ModelSerializer):
-    pin = serializers.CharField(
-        required=False,
-        write_only=True
-    )
-    device = serializers.CharField(
-        required=False,
-        write_only=True
-    )
-
-    class Meta:
-        model = User
-        fields = (
-            'id',
-            'name',
-            'phone',
-            'pin',
-            'device',
-        )
-        read_only_fields = (
-            'id',
-        )
-        write_only_fields = (
-            'phone',
-            'pin',
-            'device',
-        )
 
 
 class UserMembershipSerializer(serializers.ModelSerializer):
@@ -410,6 +369,35 @@ class MultiUserTokenSerializer(serializers.ModelSerializer):
             'active',
         )
         read_only_fields = fields
+
+
+class UserSerializer(serializers.ModelSerializer):
+    pin = serializers.CharField(
+        required=False,
+        write_only=True
+    )
+    device = serializers.CharField(
+        required=False,
+        write_only=True
+    )
+
+    class Meta:
+        model = User
+        fields = (
+            'id',
+            'name',
+            'phone',
+            'pin',
+            'device',
+        )
+        read_only_fields = (
+            'id',
+        )
+        write_only_fields = (
+            'phone',
+            'pin',
+            'device',
+        )
 
 
 class UserTokenSerializer(lunch_serializers.TokenSerializer):

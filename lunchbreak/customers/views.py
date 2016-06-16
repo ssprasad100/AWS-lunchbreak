@@ -6,8 +6,7 @@ from lunch.renderers import JPEGRenderer
 from lunch.responses import BadRequest
 from lunch.serializers import (FoodCategoryDetailSerializer,
                                FoodCategorySerializer, FoodDetailSerializer,
-                               FoodSerializer, StoreDetailSerializer,
-                               StoreSerializer)
+                               FoodSerializer, StoreSerializer)
 from lunch.views import (HolidayPeriodListViewBase, OpeningListViewBase,
                          OpeningPeriodListViewBase, StoreCategoryListViewBase)
 from Lunchbreak.views import TargettedViewSet
@@ -23,9 +22,9 @@ from .models import (Heart, Order, OrderedFood, PaymentLink, Reservation, User,
                      UserToken)
 from .serializers import (GroupSerializer, InviteSerializer,
                           InviteUpdateSerializer, MultiUserTokenSerializer,
-                          OrderedFoodPriceSerializer, OrderSerializer,
-                          PaymentLinkSerializer, ReservationSerializer,
-                          ShortOrderSerializer, StoreHeartSerializer,
+                          OrderDetailSerializer, OrderedFoodPriceSerializer,
+                          OrderSerializer, PaymentLinkSerializer,
+                          ReservationSerializer, StoreHeartSerializer,
                           UserLoginSerializer, UserRegisterSerializer,
                           UserTokenUpdateSerializer)
 
@@ -94,9 +93,9 @@ class OrderViewSet(TargettedViewSet,
 
     authentication_classes = (CustomerAuthentication,)
 
-    serializer_class_retrieve = OrderSerializer
-    serializer_class_create = ShortOrderSerializer
-    serializer_class_list = ShortOrderSerializer
+    serializer_class_retrieve = OrderDetailSerializer
+    serializer_class_create = OrderSerializer
+    serializer_class_list = OrderSerializer
 
     queryset = Order.objects.all()
     queryset_retrieve = Order.objects.select_related(
@@ -151,7 +150,7 @@ class StoreViewSet(TargettedViewSet,
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name', 'city', 'street',)
 
-    serializer_class_retrieve = StoreDetailSerializer
+    serializer_class_retrieve = StoreHeartSerializer
     serializer_class_create = StoreSerializer
     serializer_class_list = StoreSerializer
     serializer_class_recent = StoreSerializer
@@ -160,6 +159,12 @@ class StoreViewSet(TargettedViewSet,
     serializer_class_paymentlink = PaymentLinkSerializer
 
     queryset = Store.objects.all()
+
+    @property
+    def object_retrieve(self):
+        store = super(TargettedViewSet, self).get_object()
+        store.hearted = self.request.user in store.hearts.all()
+        return store
 
     @property
     def queryset_list(self):

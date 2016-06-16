@@ -11,21 +11,25 @@ class TargettedViewSet(viewsets.GenericViewSet):
         )
         return getattr(self, action_attribute, None)
 
+    def get_object(self):
+        return self.get_attr_action('object') or \
+            super().get_object()
+
     def get_serializer_class(self):
         return self.get_attr_action('serializer_class') or \
-            super(TargettedViewSet, self).get_serializer_class()
+            super().get_serializer_class()
 
     def get_queryset(self):
         return self.get_attr_action('queryset') or \
-            super(TargettedViewSet, self).get_queryset()
+            super().get_queryset()
 
     def get_pagination_class(self):
         return self.get_attr_action('pagination_class') or \
-            super(TargettedViewSet, self).get_pagination_class()
+            super().get_pagination_class()
 
     def get_serializer_context(self):
         return self.get_attr_action('serializer_context') or \
-            super(TargettedViewSet, self).get_serializer_context()
+            super().get_serializer_context()
 
     def _list(self, request):
         queryset = self.get_queryset()
