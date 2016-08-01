@@ -1,4 +1,10 @@
+import copy
+
+from django.core.exceptions import MultipleObjectsReturned
 from django.db import models
+from push_notifications.models import DeviceManager
+
+from .config import random_token
 
 
 class StoreManager(models.Manager):
@@ -111,3 +117,28 @@ class FoodManager(models.Manager):
             ingredients_in,
             original.id
         ])[0]
+
+
+class BaseTokenManager(DeviceManager):
+
+    def create_token(self, arguments, defaults, clone=False):
+        identifier_raw = random_token()
+        defaults['identifier'] = identifier_raw
+
+        try:
+            token, created = self.update_or_create(
+                defaults=defaults,
+                **arguments
+            )
+        except MultipleObjectsReturned:
+            self.filter(**arguments).delete()
+            token, created = self.update_or_create(
+                defaults=defaults,
+                **arguments
+            )
+
+        if clone:
+            token_copy = copy.copy(token)
+            token_copy.identifier = identifier_raw
+            return (token_copy, created,)
+        return (token, created,)

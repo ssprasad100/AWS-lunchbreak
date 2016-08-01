@@ -400,9 +400,11 @@ class UserTokenDetailSerializer(UserTokenSerializer):
     class Meta(UserTokenSerializer.Meta):
         fields = UserTokenSerializer.Meta.fields + (
             'user',
+            'identifier'
         )
         read_only_fields = UserTokenSerializer.Meta.read_only_fields + (
             'user',
+            'identifier'
         )
 
 

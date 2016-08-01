@@ -1,4 +1,3 @@
-import copy
 from datetime import datetime, time, timedelta
 
 import googlemaps
@@ -7,7 +6,7 @@ from customers.exceptions import MinTimeExceeded, PastOrderDenied, StoreClosed
 from dirtyfields import DirtyFieldsMixin
 from django.conf import settings
 from django.contrib.auth.hashers import check_password, make_password
-from django.core.exceptions import MultipleObjectsReturned, ValidationError
+from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import DatabaseError, models
 from django.db.models.signals import m2m_changed
@@ -18,7 +17,7 @@ from imagekit.models import ImageSpecField
 from openpyxl import load_workbook
 from polaroid.models import Polaroid
 from private_media.storages import PrivateMediaStorage
-from push_notifications.models import BareDevice, DeviceManager
+from push_notifications.models import BareDevice
 
 from .config import (CCTLDS, COST_GROUP_ALWAYS, COST_GROUP_CALCULATIONS,
                      COUNTRIES, ICONS, INPUT_AMOUNT, INPUT_SI_VARIABLE,
@@ -26,7 +25,7 @@ from .config import (CCTLDS, COST_GROUP_ALWAYS, COST_GROUP_CALCULATIONS,
 from .exceptions import (AddressNotFound, IngredientGroupMaxExceeded,
                          IngredientGroupsMinimumNotMet, InvalidFoodTypeAmount,
                          LinkingError)
-from .managers import FoodManager, StoreManager
+from .managers import BaseTokenManager, FoodManager, StoreManager
 from .specs import HDPI, LDPI, MDPI, XHDPI, XXHDPI, XXXHDPI
 
 
@@ -958,31 +957,6 @@ class IngredientRelation(models.Model, DirtyFieldsMixin):
 
     def __str__(self):
         return str(self.ingredient)
-
-
-class BaseTokenManager(DeviceManager):
-
-    def create_token(self, arguments, defaults, clone=False):
-        identifier_raw = random_token()
-        defaults['identifier'] = identifier_raw
-
-        try:
-            token, created = self.update_or_create(
-                defaults=defaults,
-                **arguments
-            )
-        except MultipleObjectsReturned:
-            self.filter(**arguments).delete()
-            token, created = self.update_or_create(
-                defaults=defaults,
-                **arguments
-            )
-
-        if clone:
-            token_copy = copy.copy(token)
-            token_copy.identifier = identifier_raw
-            return (token_copy, created,)
-        return (token, created,)
 
 
 class BaseToken(BareDevice, DirtyFieldsMixin):
