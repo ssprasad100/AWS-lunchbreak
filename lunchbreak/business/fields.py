@@ -11,6 +11,4 @@ class CurrentUserAttributeDefault(CurrentUserDefault):
         value = super().__call__()
         for attribute in self.attributes:
             value = getattr(value, attribute, None)
-        print(value)
-        print(self.attributes)
         return value

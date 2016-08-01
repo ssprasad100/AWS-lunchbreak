@@ -9,7 +9,7 @@ from ..serializers import EmployeePasswordSerializer, StaffPasswordSerializer
 router = SimpleRouter()
 router.register(r'food', views.FoodViewSet, base_name='business-food')
 
-urlpatterns = router.urls + patterns(
+urlpatterns = patterns(
     '',
     url(
         r'^employee/?$',
@@ -178,4 +178,4 @@ urlpatterns = router.urls + patterns(
         r'^storecategory/?$',
         views.StoreCategoryView.as_view()
     ),
-)
+) + router.urls

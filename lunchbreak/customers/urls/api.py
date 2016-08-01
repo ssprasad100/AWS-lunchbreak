@@ -56,7 +56,7 @@ router_extended = ExtendedSimpleRouter()
     )
 )
 
-urlpatterns = router_simple.urls + router_extended.urls + patterns(
+urlpatterns = patterns(
     '',
     url(
         r'^food/foodcategory/(?P<foodcategory_id>\d+)/?$',
@@ -150,4 +150,4 @@ urlpatterns = router_simple.urls + router_extended.urls + patterns(
         r'^storecategory/?$',
         views.StoreCategoryListView.as_view()
     ),
-)
+) + router_simple.urls + router_extended.urls
