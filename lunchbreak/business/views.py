@@ -29,8 +29,8 @@ from .permissions import StoreOwnerPermission
 from .serializers import (EmployeeSerializer, FoodDetailSerializer,
                           FoodSerializer, IngredientGroupDetailSerializer,
                           IngredientGroupSerializer, IngredientSerializer,
-                          OrderDetailSerializer, OrderSpreadSerializer,
-                          ReservationSerializer, OrderSerializer,
+                          OrderDetailSerializer, OrderSerializer,
+                          OrderSpreadSerializer, ReservationSerializer,
                           StaffSerializer, StoreDetailSerializer)
 
 AVAILABLE_STATUSES = [
@@ -121,12 +121,14 @@ class ResetRequestView(generics.CreateAPIView):
 class FoodViewSet(TargettedViewSet,
                   mixins.ListModelMixin,
                   mixins.RetrieveModelMixin,
+                  mixins.CreateModelMixin,
                   mixins.UpdateModelMixin):
 
     serializer_class = FoodSerializer
     serializer_class_retrieve = FoodDetailSerializer
 
     authentication_classes = (EmployeeAuthentication,)
+    permission_classes = [StoreOwnerPermission]
 
     @property
     def queryset(self):
@@ -165,14 +167,6 @@ class FoodViewSet(TargettedViewSet,
             ).order_by('-orderedfood_count')
         else:
             raise Http404()
-
-    @list_route(methods=['post'], permission_classes=[StoreOwnerPermission])
-    def list(self, request):
-        return super(FoodViewSet, self).list(request)
-
-    @detail_route(methods=['patch'], permission_classes=[StoreOwnerPermission])
-    def update(self, request, pk=None):
-        return super(FoodViewSet, self).update(request, pk)
 
     @detail_route(methods=['delete'], permission_classes=[StoreOwnerPermission])
     def delete(self, request, pk=None):

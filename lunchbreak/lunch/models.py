@@ -779,10 +779,18 @@ class Food(models.Model):
         )
 
     def save(self, *args, **kwargs):
+        self.full_clean()
+
         if not self.foodtype.is_valid_amount(self.amount):
             raise InvalidFoodTypeAmount()
-        if self.category.store_id != self.store_id:
-            raise LinkingError()
+        if self.store_id != self.category.store_id:
+            raise LinkingError(
+                'The food and its category need to belong to the same store. '
+                '{food_store} != {category_store}'.format(
+                    food_store=self.store_id,
+                    category_store=self.category.store_id
+                )
+            )
 
         super(Food, self).save(*args, **kwargs)
 

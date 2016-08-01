@@ -111,7 +111,7 @@ urlpatterns = router_simple.urls + router_extended.urls + patterns(
         views.StorePeriodsView.as_view()
     ),
     url(
-        r'^store/(?P<pk>\d+)/openingperiod/?$',
+        r'^store/(?P<pk>\d+)/openingperiods/?$',
         views.OpeningPeriodListView.as_view()
     ),
     url(

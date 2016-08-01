@@ -21,7 +21,7 @@ django-split-settings==0.1.2
 django-subdomains==2.1.0
 Django==1.9.7             # via django-dirtyfields, django-queryinspect, django-split-settings, django-subdomains
 djangorestframework-jsonp==1.0.0
-djangorestframework==3.3.2
+djangorestframework==3.4.1
 drf-extensions==0.2.8
 et-xmlfile==1.0.1         # via openpyxl
 flake8==2.5.0

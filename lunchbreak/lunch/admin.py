@@ -147,6 +147,7 @@ class IngredientAdmin(admin.ModelAdmin):
         'name',
         'group',
         'store',
+        'id',
     )
 
 

@@ -2,25 +2,34 @@ import os
 
 from split_settings.tools import include
 
-try:
-    from .local import *  # NOQA
-except ImportError:
-    pass
-
 TRAVIS_BRANCH = os.environ.get('TRAVIS_BRANCH')
 
+
 if TRAVIS_BRANCH is None:
-    include(
+    includes = [
         'base.py',
         'branches/%s.py' % os.environ.get('DJANGO_SETTINGS_BRANCH'),
         'final.py',
-        scope=globals()
-    )
+    ]
 else:
-    include(
+    includes = [
         'base.py',
-        'branches/%s.py' % TRAVIS_BRANCH,
+        'branches/%s.py' % os.environ.get('DJANGO_SETTINGS_BRANCH'),
         'travis.py',
         'final.py',
-        scope=globals()
+    ]
+
+
+# Lazy hack to check whether local.py exists
+try:
+    from .local import *  # NOQA
+    includes.append(
+        'local.py'
     )
+except ImportError:
+    pass
+
+include(
+    *includes,
+    scope=globals()
+)

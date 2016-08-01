@@ -7,6 +7,7 @@ from lunch.models import (Food, Ingredient, IngredientGroup,
                           IngredientRelation, Store)
 from rest_framework import serializers
 
+from .fields import CurrentUserAttributeDefault
 from .models import (AbstractPassword, Employee, EmployeeToken, Staff,
                      StaffToken)
 
@@ -104,7 +105,7 @@ class BusinessTokenSerializer(lunch_serializers.TokenDetailSerializer):
         write_only=True
     )
 
-    class Meta(lunch_serializers.TokenDetailSerializer):
+    class Meta(lunch_serializers.TokenDetailSerializer.Meta):
         fields = lunch_serializers.TokenDetailSerializer.Meta.fields + (
             'password',
         )
@@ -317,6 +318,13 @@ class FoodSerializer(serializers.ModelSerializer):
     orderedfood_count = serializers.IntegerField(
         read_only=True
     )
+    store = serializers.ModelField(
+        model_field=Food()._meta.get_field('store'),
+        read_only=True,
+        default=serializers.CreateOnlyDefault(
+            CurrentUserAttributeDefault('staff.store')
+        )
+    )
 
     class Meta:
         model = Food
@@ -331,6 +339,7 @@ class FoodSerializer(serializers.ModelSerializer):
             'commentable',
             'priority',
 
+            'store',
             'category',
             'ingredients',
             'ingredientgroups',
@@ -343,6 +352,7 @@ class FoodSerializer(serializers.ModelSerializer):
             'id',
             'ingredients',
             'orderedfood_count',
+            'store',
         )
         write_only_fields = (
             'ingredientrelations',
