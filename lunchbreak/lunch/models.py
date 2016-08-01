@@ -357,6 +357,9 @@ class Period(models.Model):
         return self.start_from_datetime(timezone.now())
 
     def start_from_datetime(self, given):
+        if self.day is None or self.time is None:
+            return None
+
         weekday = given.isoweekday()
         start = given - timedelta(days=weekday)
         start += timedelta(days=self.day)

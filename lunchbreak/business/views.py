@@ -336,7 +336,7 @@ class OrderSpreadView(viewsets.ReadOnlyModelViewSet):
 
         return Order.objects.raw('''
             SELECT
-                customers_order.*,
+                customers_order.id,
                 COUNT(customers_order.id) as amount,
                 SUM(customers_order.total) as sm,
                 AVG(customers_order.total) as average,
@@ -349,6 +349,7 @@ class OrderSpreadView(viewsets.ReadOnlyModelViewSet):
                 AND customers_order.store_id = %s
                 AND customers_order.status = %s
             GROUP BY
+                customers_order.id,
                 unit
             ORDER BY
                 unit;
