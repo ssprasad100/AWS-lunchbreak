@@ -178,7 +178,7 @@ class FoodViewSet(TargettedViewSet,
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @list_route(methods=['get'])
-    def popular(self, request):
+    def popular(self, request, **kwargs):
         return self._list(request)
 
 
