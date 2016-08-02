@@ -1,8 +1,8 @@
+import arrow
 from customers.config import (ORDER_STATUS_COMPLETED, ORDER_STATUS_PLACED,
                               ORDER_STATUS_RECEIVED, ORDER_STATUS_STARTED,
                               ORDER_STATUS_WAITING)
 from customers.models import Order, Reservation
-from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.db.models import Count
@@ -41,24 +41,16 @@ AVAILABLE_STATUSES = [
 ]
 
 
-def datetime_request(request, kwargs, arg, method_check=False):
+def datetime_request(request, arg, method_check=False):
     if (method_check or request.method == 'GET') and \
-        arg in kwargs and \
-            kwargs[arg] is not None:
-        datetime_string = kwargs[arg]
+            arg in request.GET and request.GET[arg] is not None:
+        datetime_string = request.GET[arg]
         try:
-            return timezone.datetime.strptime(
-                datetime_string,
-                settings.DATETIME_FORMAT_URL
-            )
+            return arrow.get(
+                datetime_string
+            ).datetime
         except ValueError:
-            try:
-                return timezone.datetime.strptime(
-                    datetime_string,
-                    '%d-%m-%Y-%H-%M-%S'
-                )
-            except ValueError:
-                raise InvalidDatetime()
+            raise InvalidDatetime()
     return None
 
 
@@ -138,7 +130,7 @@ class FoodViewSet(TargettedViewSet,
 
     @property
     def queryset_list(self):
-        since = datetime_request(self.request, self.kwargs, arg='since')
+        since = datetime_request(self.request, arg='since')
         if since is not None:
             result = Food.objects.filter(
                 store=self.request.user.staff.store,
@@ -153,10 +145,10 @@ class FoodViewSet(TargettedViewSet,
 
     @property
     def queryset_popular(self):
-        frm = datetime_request(self.request, self.kwargs, arg='frm')
+        frm = datetime_request(self.request, arg='from')
 
         if frm is not None:
-            to = datetime_request(self.request, self.kwargs, arg='to')
+            to = datetime_request(self.request, arg='to')
             to = to if to is not None else timezone.now()
             return Food.objects.filter(
                 store_id=self.request.user.staff.store_id,
@@ -178,8 +170,9 @@ class FoodViewSet(TargettedViewSet,
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @list_route(methods=['get'])
-    def popular(self, request, **kwargs):
-        return self._list(request)
+    def popular(self, request):
+        result = self._list(request)
+        return result
 
 
 class ListCreateStoreView(generics.ListCreateAPIView):
@@ -225,8 +218,10 @@ class IngredientView(ListCreateStoreView):
     permission_classes = (StoreOwnerPermission,)
 
     def get_queryset(self):
-        result = Ingredient.objects.filter(store=self.request.user.staff.store)
-        since = datetime_request(self.request, self.kwargs, arg='since')
+        result = Ingredient.objects.filter(
+            store=self.request.user.staff.store
+        )
+        since = datetime_request(self.request, arg='since')
         if since is not None:
             return result.filter(last_modified__gte=since)
         return result
@@ -238,7 +233,7 @@ class IngredientDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (StoreOwnerPermission,)
 
     def get_queryset(self):
-        since = datetime_request(self.request, self.kwargs, arg='datetime')
+        since = datetime_request(self.request, arg='datetime')
         if since is not None:
             result = Ingredient.objects.filter(
                 store=self.request.user.staff.store,
@@ -287,13 +282,12 @@ class OrderView(generics.ListAPIView):
         if self.request.method == 'GET':
             since = datetime_request(
                 self.request,
-                self.kwargs,
-                arg='datetime',
+                arg='since',
                 method_check=True
             )
 
-            if 'option' in self.kwargs \
-                    and self.kwargs['option'] == 'receipt':
+            if 'order_by' in self.request.GET \
+                    and self.request.GET['order_by'] == 'receipt':
                 if since is not None:
                     filters['receipt__gt'] = since
                 return Order.objects.filter(**filters).order_by('receipt')
@@ -319,18 +313,33 @@ class OrderDetailView(generics.RetrieveUpdateAPIView):
 class OrderSpreadView(viewsets.ReadOnlyModelViewSet):
     authentication_classes = (EmployeeAuthentication,)
     serializer_class = OrderSpreadSerializer
+    units = [
+        'hour',
+        'week',
+        'weekday',
+        'day',
+        'month',
+        'quarter',
+        'year'
+    ]
 
-    def list(self, request, unit, frm, to=None):
+    def list(self, request):
         serializer = self.serializer_class(self.get_queryset(), many=True)
         return Response(serializer.data)
 
     def get_queryset(self):
-        unit = self.kwargs['unit']
+        unit = self.request.query_params.get('unit')
+        if unit not in self.units:
+            raise Http404()
 
         store_id = self.request.user.staff.store_id
 
-        frm = datetime_request(self.request, self.kwargs, arg='frm')
-        to = datetime_request(self.request, self.kwargs, arg='to')
+        frm = datetime_request(self.request, arg='from')
+
+        if frm is None:
+            raise Http404()
+
+        to = datetime_request(self.request, arg='to')
         if to is None:
             to = timezone.now()
 

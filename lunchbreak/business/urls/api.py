@@ -32,24 +32,6 @@ urlpatterns = patterns(
             'authentication': EmployeeAuthentication
         }
     ),
-    url(
-        r'^food/(?P<since>\d{8}T\d{6}|\d{2}-\d{2}-\d{4}-\d{2}-\d{2}-\d{2})?/?$',
-        views.FoodViewSet.as_view(
-            {
-                'get': 'list'
-            }
-        )
-    ),
-    url(
-        r'^food/popular'
-        r'/(?P<frm>\d{8}T\d{6}|\d{2}-\d{2}-\d{4}-\d{2}-\d{2}-\d{2})?'
-        r'/(?P<to>\d{8}T\d{6}|\d{2}-\d{2}-\d{4}-\d{2}-\d{2}-\d{2})?/?$',
-        views.FoodViewSet.as_view(
-            {
-                'get': 'popular'
-            }
-        )
-    ),
 
     url(
         r'^foodcategory/?$',
@@ -66,8 +48,7 @@ urlpatterns = patterns(
     ),
 
     url(
-        r'^ingredient'
-        r'/(?P<since>\d{8}T\d{6}|\d{2}-\d{2}-\d{4}-\d{2}-\d{2}-\d{2})?/?$',
+        r'^ingredient/?$',
         views.IngredientView.as_view()
     ),
     url(
@@ -85,9 +66,7 @@ urlpatterns = patterns(
     ),
 
     url(
-        r'^order'
-        r'/(?P<option>receipt|placed)?'
-        r'/?(?P<datetime>\d{8}T\d{6}|\d{2}-\d{2}-\d{4}-\d{2}-\d{2}-\d{2})?/?$',
+        r'^order/?$',
         views.OrderView.as_view()
     ),
     url(
@@ -95,10 +74,12 @@ urlpatterns = patterns(
         views.OrderDetailView.as_view()
     ),
     url(
-        r'^order/spread'
-        r'/(?P<unit>hour|week|weekday|day|month|quarter|year|price)'
-        r'/(?P<frm>\d{8}T\d{6})/(?P<to>\d{8}T\d{6})?/?$',
-        views.OrderSpreadView.as_view({'get': 'list'})
+        r'^order/spread/?$',
+        views.OrderSpreadView.as_view(
+            {
+                'get': 'list'
+            }
+        )
     ),
 
     url(
@@ -162,15 +143,15 @@ urlpatterns = patterns(
         views.StoreDetailView.as_view()
     ),
     url(
-        r'^store/hours/?$',
+        r'^store/openingperiods/?$',
         views.OpeningPeriodView.as_view()
     ),
     url(
-        r'^store/holiday/?$',
+        r'^store/holidayperiods/?$',
         views.HolidayPeriodView.as_view()
     ),
     url(
-        r'^store/open/?$',
+        r'^store/periods/?$',
         views.StoreOpenView.as_view()
     ),
 

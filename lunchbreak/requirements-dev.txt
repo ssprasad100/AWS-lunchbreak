@@ -8,6 +8,7 @@
 -e git+git://github.com/RacingTadpole/django-private-media.git@7510f2f63ddf0653679b4134a0542cd78317a5c8#egg=django_private_media
 -e git+git://github.com/AndreasBackx/django-push-notifications.git@27f44dae5af8b0ee2726281f5b654882fd2888a8#egg=django_push_notifications
 -e git+git://github.com/AndreasBackx/google-maps-services-python.git@master#egg=googlemaps
+arrow==0.8.0
 bcrypt==1.1.0
 cffi==1.6.0               # via bcrypt
 django-appconf==1.0.2     # via django-compressor, django-imagekit
@@ -24,29 +25,30 @@ djangorestframework-jsonp==1.0.0
 djangorestframework==3.4.1
 drf-extensions==0.2.8
 et-xmlfile==1.0.1         # via openpyxl
-flake8==2.5.0
+flake8==3.0.3
 gocardless-pro==0.2.0
 jdcal==1.2                # via openpyxl
 Jinja2==2.8
 libsass==0.11.1           # via django-sass-processor
 MarkupSafe==0.23          # via jinja2
-mccabe==0.3.1             # via flake8
+mccabe==0.5.2             # via flake8
 mock==1.3.0
 mysqlclient==1.3.7
 openpyxl==2.3.4
 pbr==1.10.0               # via mock
-pep8==1.7.0               # via flake8
 phonenumbers==7.4.2       # via django-phonenumber-field
 pilkit==1.1.13            # via django-imagekit
 Pillow==3.2.0
 pluggy==0.3.1             # via tox
 py==1.4.31                # via tox
+pycodestyle==2.0.0        # via flake8
 pycparser==2.14           # via cffi
 pyflakes==1.0.0           # via flake8
+python-dateutil==2.5.3    # via arrow
 rcssmin==1.0.6            # via django-compressor
 requests==2.9.1
 rjsmin==1.0.12            # via django-compressor
-six==1.10.0               # via bcrypt, django-imagekit, libsass, mock
+six==1.10.0               # via bcrypt, django-imagekit, libsass, mock, python-dateutil
 tox==2.1.1
 uwsgidecorators==1.1.0
 virtualenv==15.0.2        # via tox

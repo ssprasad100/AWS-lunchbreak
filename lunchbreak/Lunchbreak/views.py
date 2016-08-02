@@ -9,27 +9,25 @@ class TargettedViewSet(viewsets.GenericViewSet):
             attribute=attribute,
             action=self.action
         )
-        return getattr(self, action_attribute, None)
+        try:
+            return getattr(self, action_attribute)
+        except AttributeError:
+            return getattr(super(), 'get_' + attribute)()
 
     def get_object(self):
-        return self.get_attr_action('object') or \
-            super().get_object()
+        return self.get_attr_action('object')
 
     def get_serializer_class(self):
-        return self.get_attr_action('serializer_class') or \
-            super().get_serializer_class()
+        return self.get_attr_action('serializer_class')
 
     def get_queryset(self):
-        return self.get_attr_action('queryset') or \
-            super().get_queryset()
+        return self.get_attr_action('queryset')
 
     def get_pagination_class(self):
-        return self.get_attr_action('pagination_class') or \
-            super().get_pagination_class()
+        return self.get_attr_action('pagination_class')
 
     def get_serializer_context(self):
-        return self.get_attr_action('serializer_context') or \
-            super().get_serializer_context()
+        return self.get_attr_action('serializer_context')
 
     def _list(self, request):
         queryset = self.get_queryset()

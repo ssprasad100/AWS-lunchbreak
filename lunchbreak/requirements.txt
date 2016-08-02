@@ -8,6 +8,7 @@
 -e git+git://github.com/RacingTadpole/django-private-media.git@7510f2f63ddf0653679b4134a0542cd78317a5c8#egg=django_private_media
 -e git+git://github.com/AndreasBackx/django-push-notifications.git@27f44dae5af8b0ee2726281f5b654882fd2888a8#egg=django_push_notifications
 -e git+git://github.com/AndreasBackx/google-maps-services-python.git@master#egg=googlemaps
+arrow==0.8.0
 bcrypt==1.1.0
 cffi==1.6.0               # via bcrypt
 django-appconf==1.0.2     # via django-compressor, django-imagekit
@@ -34,8 +35,9 @@ phonenumbers==7.4.2       # via django-phonenumber-field
 pilkit==1.1.13            # via django-imagekit
 Pillow==3.2.0
 pycparser==2.14           # via cffi
+python-dateutil==2.5.3    # via arrow
 rcssmin==1.0.6            # via django-compressor
 requests==2.9.1
 rjsmin==1.0.12            # via django-compressor
-six==1.10.0               # via bcrypt, django-imagekit, libsass
+six==1.10.0               # via bcrypt, django-imagekit, libsass, python-dateutil
 uwsgidecorators==1.1.0

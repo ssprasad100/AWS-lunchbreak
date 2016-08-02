@@ -1,7 +1,6 @@
 from datetime import timedelta
 
 import mock
-from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.utils import timezone
@@ -407,15 +406,17 @@ class CustomersTests(LunchbreakTestCase):
         model.save()
         return (model, model.__class__.objects.get(pk=oldPk),)
 
-    def test_order(self):
+    @mock.patch('googlemaps.Client.geocode')
+    def test_order(self, mock_geocode):
         """
         Test an order's total and whether marked Food's are deleted on save.
         """
 
+        self.mock_geocode_results(mock_geocode)
         self.food, original = self.clone_model(self.food)
 
         content = {
-            'receipt': (timezone.now() + timedelta(days=1)).strftime(settings.DATETIME_FORMAT),
+            'receipt': (timezone.now() + timedelta(days=1)).isoformat(),
             'store': self.store.id,
             'orderedfood': [
                 {
@@ -457,8 +458,17 @@ class CustomersTests(LunchbreakTestCase):
         self.assertTrue(original.deleted)
         order.status = ORDER_STATUS_COMPLETED
         order.save()
-        self.assertRaises(Food.DoesNotExist, Food.objects.get, id=original.id)
-        self.assertEqual(OrderedFood.objects.filter(order=order).count(), 0)
+        self.assertRaises(
+            Food.DoesNotExist,
+            Food.objects.get,
+            id=original.id
+        )
+        self.assertEqual(
+            OrderedFood.objects.filter(
+                order=order
+            ).count(),
+            0
+        )
 
         # Test delivery address exceptions
         self.food, original = self.clone_model(self.food)
@@ -583,7 +593,7 @@ class CustomersTests(LunchbreakTestCase):
             # No need to check reservation_time, see Store.is_open test
             'reservation_time': (
                 timezone.now() + timedelta(days=1)
-            ).strftime(settings.DATETIME_FORMAT),
+            ).isoformat(),
             'seats': 0
         }
 
@@ -621,7 +631,7 @@ class CustomersTests(LunchbreakTestCase):
             'seats': self.store.seats_max - 1,
             'reservation_time': (
                 timezone.now() + timedelta(days=2)
-            ).strftime(settings.DATETIME_FORMAT),
+            ).isoformat(),
             'store': self.store_other.id,
             'user': self.user_other.id
         }

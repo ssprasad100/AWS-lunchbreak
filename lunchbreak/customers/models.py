@@ -629,12 +629,12 @@ class Order(models.Model, DirtyFieldsMixin):
 
             if not self.store.delivers_to(self.delivery_address):
                 raise NoDeliveryToAddress()
-        elif self.receipt is None:
-            raise ValidationError(
-                _('Receipt cannot be None for pickup.')
-            )
-
-        self.store.is_open(self.receipt)
+        else:
+            if self.receipt is None:
+                raise ValidationError(
+                    _('Receipt cannot be None for pickup.')
+                )
+            self.store.is_open(self.receipt)
 
         if self.payment_method == PAYMENT_METHOD_GOCARDLESS:
             try:

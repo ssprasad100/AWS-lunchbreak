@@ -77,37 +77,24 @@ LANGUAGES = [
     ('nl-be', _('Belgium Dutch')),
     ('en', _('Europe')),
 ]
-TIME_ZONE = 'Europe/Brussels'
+TIME_ZONE = 'UTC'
 USE_I18N = True  # Translate localisation
 USE_L10N = True  # Format localisation
 USE_TZ = True
 
-DATE_FORMAT = '%Y-%m-%d'
-DATE_FORMAT_URL = '%Y%m%d'
-DATE_INPUT_FORMATS = (
-    DATE_FORMAT,
-    DATE_FORMAT_URL,
-)
+DATE_FORMAT = 'iso-8601'
+DATE_INPUT_FORMATS = [
+    DATE_FORMAT
+]
+TIME_FORMAT = 'iso-8601'
+TIME_INPUT_FORMATS = [
+    TIME_FORMAT
+]
+DATETIME_FORMAT = 'iso-8601'
 
-TIME_FORMAT = '%H:%M:%S'
-TIME_FORMAT_URL = '%H%M%S'
-TIME_INPUT_FORMATS = (
-    TIME_FORMAT,
-    TIME_FORMAT_URL,
-)
-
-DATETIME_FORMAT = '{date} {time}'.format(
-    date=DATE_FORMAT,
-    time=TIME_FORMAT
-)
-DATETIME_FORMAT_URL = '{date}T{time}'.format(
-    date=DATE_FORMAT_URL,
-    time=TIME_FORMAT_URL
-)
-DATETIME_INPUT_FORMATS = (
+DATETIME_INPUT_FORMATS = [
     DATETIME_FORMAT,
-    DATETIME_FORMAT_URL,
-)
+]
 
 STATIC_RELATIVE = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, STATIC_RELATIVE)

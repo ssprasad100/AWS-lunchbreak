@@ -3,8 +3,6 @@ from lunch import serializers as lunch_serializers
 from lunch.models import Store
 from Lunchbreak.serializers import PrimaryModelSerializer
 from rest_framework import serializers
-from rest_framework.fields import *  # NOQA
-from rest_framework.relations import *  # NOQA
 
 from .config import RESERVATION_STATUS_PLACED, RESERVATION_STATUS_USER
 from .models import (Address, Group, Invite, Membership, Order, OrderedFood,
@@ -28,7 +26,7 @@ class ReservationSerializer(serializers.ModelSerializer):
     user = serializers.ModelField(
         model_field=Reservation()._meta.get_field('user'),
         read_only=True,
-        default=CreateOnlyDefault(serializers.CurrentUserDefault())
+        default=serializers.CreateOnlyDefault(serializers.CurrentUserDefault())
     )
     status = serializers.ChoiceField(
         choices=RESERVATION_STATUS_USER,
@@ -284,7 +282,7 @@ class GroupSerializer(serializers.ModelSerializer):
         read_only=True
     )
     user = serializers.HiddenField(
-        default=CreateOnlyDefault(serializers.CurrentUserDefault())
+        default=serializers.CreateOnlyDefault(serializers.CurrentUserDefault())
     )
 
     class Meta:
@@ -332,7 +330,7 @@ class InviteSerializer(serializers.ModelSerializer):
     )
     invited_by = UserSerializer(
         read_only=True,
-        default=CreateOnlyDefault(serializers.CurrentUserDefault())
+        default=serializers.CreateOnlyDefault(serializers.CurrentUserDefault())
     )
 
     class Meta:

@@ -21,7 +21,7 @@ from push_notifications.models import BareDevice
 
 from .config import (CCTLDS, COST_GROUP_ALWAYS, COST_GROUP_CALCULATIONS,
                      COUNTRIES, ICONS, INPUT_AMOUNT, INPUT_SI_VARIABLE,
-                     INPUT_TYPES, LANGUAGES, WEEKDAYS, random_token)
+                     INPUT_TYPES, LANGUAGES, WEEKDAYS)
 from .exceptions import (AddressNotFound, IngredientGroupMaxExceeded,
                          IngredientGroupsMinimumNotMet, InvalidFoodTypeAmount,
                          LinkingError)
@@ -110,6 +110,7 @@ class AbstractAddress(models.Model, DirtyFieldsMixin):
         abstract = True
 
     def save(self, *args, **kwargs):
+
         dirty_fields = self.get_dirty_fields()
         fields = [
             'country',
@@ -164,8 +165,8 @@ class AbstractAddress(models.Model, DirtyFieldsMixin):
                     )
 
                 result = results[0]
-                self.latitude = result['geometry']['location']['lat']
-                self.longitude = result['geometry']['location']['lng']
+                self.latitude = str(result['geometry']['location']['lat'])
+                self.longitude = str(result['geometry']['location']['lng'])
 
         self.full_clean()
         super(AbstractAddress, self).save(*args, **kwargs)
@@ -257,7 +258,9 @@ class Store(AbstractAddress):
         else:
             # Open stores are
             if closed:
-                raise StoreClosed()
+                raise StoreClosed(
+                    'Store is exclusively closed by a holiday period.'
+                )
 
             openingperiods = OpeningPeriod.objects.filter(
                 store=self
@@ -266,7 +269,9 @@ class Store(AbstractAddress):
             for openingperiod in openingperiods:
                 if openingperiod.contains(dt):
                     return
-            raise StoreClosed()
+            raise StoreClosed(
+                'Store has no opening period for this time.'
+            )
 
 
 class Region(models.Model):
