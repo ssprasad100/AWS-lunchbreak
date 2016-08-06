@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div id="store-banner" class="block banner">
+    <div class="container">
+        <div class="bottom">
+            <h1>Pastrie</h1>
+            <ul>
+                <li>
+                    Sint-Pietersnieuwstraat 241
+                </li>
+                <li class="openingperiods">
+                    8:00 - 15:00
+                </li>
+                <li class="deliveryperiods">
+                    8:00 - 15:30
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="tab-container">
+    <div class="container">
+        <ul>
+            <li class="selected">Hamburgers</li>
+            <li>Broodjes</li>
+            <li>Specials</li>
+            <li>Soepen</li>
+            <li>Voorgerechten</li>
+            <li>Desserts</li>
+            <li>Dranken</li>
+            <li>Snacks</li>
+        </ul>
+    </div>
+</div>
+
+<div id="inventory" class="block">
+    <div class="container">
+        <div id="menu">
+            <input type="text" placeholder="Zoeken op naam"/>
+            <div class="menu-group">
+                <h3>Hamburgers</h3>
+                <div class="menu-item">
+                    <h4>Cheeseburger</h4>
+                    <p>Wit broodje, paardenvlees, cheddar, tomaten, sla, augurk en geheime saus.Wit broodje, paardenvlees, cheddar, tomaten, sla, augurk en geheime saus.Wit broodje, paardenvlees, cheddar, tomaten, sla, augurk en geheime saus.Wit broodje, paardenvlees, cheddar, tomaten, sla, augurk en geheime saus.Wit broodje, paardenvlees, cheddar, tomaten, sla, augurk en geheime saus.</p>
+
+                    <div class="menu-add">
+                        <a class="button transparent" href="" alt="Toevoegen">&euro; 118,50</a>
+                    </div>
+                </div>
+                <div class="menu-item">
+                    <h4>Cheeseburger</h4>
+                    <p>Wit broodje, paardenvlees, cheddar, tomaten, sla, augurk en geheime saus.</p>
+
+                    <div class="menu-add">
+                        <a class="button transparent" href="" alt="Toevoegen">&euro; 8,50</a>
+                    </div>
+                </div>
+                <div class="menu-item">
+                    <h4>Cheeseburger</h4>
+                    <p>Wit broodje, paardenvlees, cheddar, tomaten, sla, augurk en geheime saus.</p>
+
+                    <div class="menu-add">
+                        <a class="button transparent" href="" alt="Toevoegen">&euro; 8,50</a>
+                    </div>
+                </div>
+                <div class="menu-item">
+                    <h4>Cheeseburger</h4>
+                    <p>Wit broodje, paardenvlees, cheddar, tomaten, sla, augurk en geheime saus.</p>
+
+                    <div class="menu-add">
+                        <a class="button transparent" href="" alt="Toevoegen">&euro; 8,50</a>
+                    </div>
+                </div>
+                <div class="menu-item">
+                    <h4>Cheeseburger</h4>
+                    <p>Wit broodje, paardenvlees, cheddar, tomaten, sla, augurk en geheime saus.</p>
+
+                    <div class="menu-add">
+                        <a class="button transparent" href="" alt="Toevoegen">&euro; 8,50</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="order">
+            <form method="post" action="">
+                <input type="submit" value="Afrekenen"/>
+                <ul id="order-items">
+                    <li class="order-item">
+                        <div class="order-item-amount">
+                            1
+                        </div>
+                        <div class="order-item-text">
+                            <div class="order-item-name">Cheeseburger</div>
+                            <div class="order-item-description">Met mozarella, zonder cheddar.</div>
+                        </div>
+                        <div class="order-item-cost">
+                            &euro; 8,50
+                        </div>
+                    </li>
+                    <li class="order-item">
+                        <div class="order-item-amount">
+                            1
+                        </div>
+                        <div class="order-item-text">
+                            <div class="order-item-name">Cheeseburger</div>
+                            <div class="order-item-description">Met mozarella, zonder cheddar.</div>
+                        </div>
+                        <div class="order-item-cost">
+                            &euro; 8,50
+                        </div>
+                    </li>
+                    <li class="order-item">
+                        <div class="order-item-amount">
+                            1
+                        </div>
+                        <div class="order-item-text">
+                            <div class="order-item-name">Cheeseburger</div>
+                            <div class="order-item-description">Met mozarella, zonder cheddarMet mozarella, zonder cheddarMet mozarella, zonder cheddar.Met mozarella, zonder cheddarMet mozarella, zonder cheddarMet mozarella, zonder cheddar.Met mozarella, zonder cheddarMet mozarella, zonder cheddarMet mozarella, zonder cheddar.</div>
+                        </div>
+                        <div class="order-item-cost">
+                            &euro;8000,50
+                        </div>
+                    </li>
+
+                    <li class="order-total">
+                        <div class="order-total-amount">
+                            3
+                        </div>
+                        <div class="order-total-text">
+                            Subtotaal
+                        </div>
+                        <div class="order-total-cost">
+                            &euro; 25,50
+                        </div>
+                    </li>
+                </ul>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}

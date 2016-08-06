@@ -1,0 +1,12 @@
+.block {
+    width: 100%;
+    background: $grey-white;
+
+    &.white {
+        background: white;
+    }
+
+    &:nth-last-of-type(1) {
+        padding-bottom: 192px;
+    }
+}

@@ -1,0 +1,14 @@
+.container {
+    height: 100%;
+    width: $page-width;
+    padding: 16px;
+    left: 50%;
+    margin-left: -($page-width / 2);
+    position: relative;
+    box-sizing: border-box;
+
+    .bottom {
+        position: absolute;
+        bottom: 0;
+    }
+}

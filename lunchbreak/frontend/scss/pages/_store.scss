@@ -1,0 +1,176 @@
+#store-banner {
+    height: 300px;
+    background-image: url('banner-store.png');
+    padding-bottom: 16px;
+
+    h1 {
+        margin-bottom: 16px;
+    }
+
+    li {
+        display: inline;
+        margin-right: 16px;
+        padding-left: 24px;
+
+        &.openingperiods, &.deliveryperiods {
+            background-repeat: no-repeat;
+            background-size: 16px;
+            background-position: 0 center;
+        }
+
+        &.openingperiods {
+            background-image: url('icons/clock.png');
+        }
+
+        &.deliveryperiods {
+            background-image: url('icons/truck.png');
+        }
+
+        &:last-child {
+            margin-right: 0;
+        }
+    }
+}
+
+#inventory {
+    display: table;
+    padding: 0 16px;
+
+    .container {
+        padding: 0;
+
+        > div {
+            padding: 16px 0;
+        }
+
+        #menu {
+            display: table-cell;
+            width: 66%;
+
+            .menu-group {
+                font-size: 0;
+                margin-top: 24px;
+
+                .menu-item {
+                    background: white;
+                    border-radius: 2px;
+                    padding: 16px;
+                    display: inline-block;
+                    width: 365px;
+                    height: 140px;
+                    position: relative;
+                    margin: 0 16px 16px 0;
+                    overflow: hidden;
+                    box-sizing: border-box;
+
+                    h4 {
+                        margin-bottom: 6px;
+                    }
+
+                    p {
+                        color: $grey-dark;
+                        font-size: $size-small;
+                        line-height: 1.5em;
+                        position: absolute;
+
+                        $lines-to-show: 4;
+
+                        // Start
+                        display: block; /* Fallback for non-webkit */
+                        display: -webkit-box;
+                        max-width: 365px - 32px - 80px - 16px;
+                        height: $size-small * 1.5 * $lines-to-show; /* Fallback for non-webkit */
+                        -webkit-line-clamp: $lines-to-show;
+                        -webkit-box-orient: vertical;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                    }
+
+                    .menu-add {
+                        position: absolute;
+                        bottom: 16px;
+                        right: 16px;
+                    }
+                }
+            }
+        }
+
+        #order {
+            display: table-cell;
+            height: 100%;
+            background: white;
+            padding: 16px;
+
+            input[type='submit'] {
+                width: 100%;
+            }
+
+            #order-items {
+                margin-top: 16px;
+
+                .order-item, .order-total {
+                    height: 64px;
+                    display: table;
+                    width: 100%;
+
+                    > div {
+                        display: table-cell;
+                        height: 64px;
+                    }
+
+                    .order-item-amount, .order-item-cost {
+                        width: 48px;
+                        text-align: center;
+                        vertical-align: middle;
+                    }
+
+                    .order-item-amount {
+                        color: $red;
+                        font-size: $size-small;
+                        font-weight: $weight-medium;
+                    }
+
+                    .order-item-text {
+                        vertical-align: middle;
+                        padding: 0 16px;
+
+                        .order-item-name {
+                            font-weight: $weight-medium;
+                            font-size: $size-small;
+                        }
+
+                        .order-item-description {
+                            margin-top: 4px;
+                            color: $grey-dark;
+                            font-size: $size-xsmall;
+                        }
+                    }
+
+                    .order-item-cost {
+                        font-size: $size-xsmall;
+                        color: $grey-dark;
+                        text-align: right;
+                        padding-right: 16px;
+                    }
+
+                    .order-total-amount {
+                        @extend .order-item-amount;
+
+                        color: $grey-dark;
+                    }
+
+                    .order-total-text {
+                        @extend .order-item-text;
+
+                        font-weight: $weight-medium;
+                        font-size: $size-small;
+                    }
+
+                    .order-total-cost {
+                        @extend .order-item-cost;
+                    }
+                }
+            }
+        }
+    }
+}

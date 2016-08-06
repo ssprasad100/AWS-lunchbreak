@@ -8,9 +8,15 @@ DEBUG = True
 
 PRIVATE_MEDIA_ROOT = os.path.normpath(os.path.join(BASE_DIR, 'media-private'))
 
+INSTALLED_APPS = [
+    'livereload',
+] + INSTALLED_APPS
+
+
 MIDDLEWARE_CLASSES += (
     'lunch.middleware.PrintExceptionMiddleware',
     'qinspect.middleware.QueryInspectMiddleware',
+    'livereload.middleware.LiveReloadScript',
 )
 
 APNS_HOST = 'gateway.sandbox.push.apple.com'

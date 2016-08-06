@@ -1,0 +1,36 @@
+#footer {
+    background: $grey-light;
+    padding: 16px 0;
+
+    .container {
+        display: table;
+        table-layout: fixed;
+
+        .footer-center {
+            display: table-cell;
+            width: 33%;
+            height: 100%;
+            text-align: center;
+
+            .button {
+                display: block;
+                margin: 0 32px;
+            }
+        }
+
+        .footer-item {
+            display: table-cell;
+            width: auto;
+
+            li {
+                font-size: $size-small;
+                font-weight: $weight-light;
+                line-height: 1.5em;
+
+                img {
+                    width: 135px;
+                }
+            }
+        }
+    }
+}

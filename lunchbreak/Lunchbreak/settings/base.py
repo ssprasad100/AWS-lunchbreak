@@ -17,7 +17,7 @@ SECRET_KEY = 'e2a86@j!uc5@z^yu=%n9)6^%w+-(pk8a6@^i!vnvxe^-w%!q8('
 DEBUG = False
 SSL = True
 
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -41,7 +41,7 @@ INSTALLED_APPS = (
     'customers',
     'lunch',
     'frontend',
-)
+]
 
 MIDDLEWARE_CLASSES = (
     'subdomains.middleware.SubdomainURLRoutingMiddleware',
@@ -58,8 +58,8 @@ MIDDLEWARE_CLASSES = (
 HOST = 'lunchbreak.eu'
 ROOT_URLCONF = 'Lunchbreak.urls.api'
 SUBDOMAIN_URLCONFS = {
-    None: 'Lunchbreak.urls.api',
-    'www': 'Lunchbreak.urls.api',
+    None: 'Lunchbreak.urls.frontend',
+    'www': 'Lunchbreak.urls.frontend',
     'api': 'Lunchbreak.urls.api',
 }
 SITE_ID = 1
@@ -100,12 +100,13 @@ STATIC_RELATIVE = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, STATIC_RELATIVE)
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'frontend/static'),
+    os.path.join(BASE_DIR, 'frontend/img'),
+    os.path.join(BASE_DIR, 'frontend/js'),
     os.path.join(BASE_DIR, 'frontend/scss')
 ]
 
-COMPRESS_ROOT = os.path.join(BASE_DIR, 'frontend/static')
-SASS_PROCESSOR_ROOT = os.path.join(BASE_DIR, 'frontend/static/css')
+#COMPRESS_ROOT = os.path.join(BASE_DIR, 'frontend/static')
+#SASS_PROCESSOR_ROOT = os.path.join(BASE_DIR, 'frontend/static/css')
 COMPRESS_ENABLED = True
 STATICFILES_FINDERS = [
     'django.contrib.staticfiles.finders.FileSystemFinder',
@@ -113,6 +114,9 @@ STATICFILES_FINDERS = [
     'compressor.finders.CompressorFinder',
     'sass_processor.finders.CssFinder',
 ]
+SASS_PROCESSOR_INCLUDE_DIRS = (
+    os.path.join(BASE_DIR, 'frontend/scss')
+)
 
 TEMPLATES = [
     {
@@ -176,13 +180,6 @@ REST_FRAMEWORK = {
     'DEFAULT_VERSIONING_CLASS': 'lunch.versioning.HeaderVersioning'
 }
 
-OPBEAT = {
-    'ORGANIZATION_ID': os.environ.get('OPBEAT_ORGANIZATION_ID'),
-    'APP_ID': os.environ.get('OPBEAT_APP_ID'),
-    'SECRET_TOKEN': os.environ.get('OPBEAT_SECRET_TOKEN'),
-    'DEBUG': False
-}
-
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,
@@ -212,6 +209,8 @@ LOGGING = {
         },
     },
 }
+
+GOOGLE_WEB_CREDENTIALS = 'AIzaSyBb7Bd6r-jTG10gEXH3Tmrasd-qJ4oFHlo'
 
 EMAIL_HOST = 'smtp.sendgrid.net'
 EMAIL_HOST_USER = os.environ.get('SENDGRID_USER')

@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_WEB_CREDENTIALS }}&libraries=places&language=nl-BE"></script>
+<script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha256-cCueBR6CsyA4/9szpPfrX3s49M9vUU5BgtiJj06wt/s=" crossorigin="anonymous"></script>
+<script src="{{ static('index.js') }}"></script>
+{% endblock head %}
+
+{% block content %}
+<div id="search-banner" class="block banner">
+    <div class="container center">
+        <div>
+            <h1>Je dagelijkse bestelling</h1>
+            <h3>Dagelijkse bezoekjes aan je favoriete zaak zonder wachten</h3>
+
+            <form method="get" action="" class="search-box">
+                <div class="search-box-input">
+                    <input id="store-search" type="text" placeholder="Vul je adres in" autocomplete="none"/>
+                    <input type="submit" value="Zoeken" class="button"/>
+                </div>
+                <ul class="search-box-autocomplete">
+                </ul>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="block">
+    <div id="tutorial" class="container">
+        <h1>Hoe werkt het?</h1>
+
+        <ul>
+            <li>
+                <img src="{{ static('store.png') }}" alt="Winkel"/>
+                <h2>Kies je favoriete winkel</h2>
+                <p>Dagdagelijkse zaken zoals bakkers of hippe broodjeszaken met specialiteiten.</p>
+            </li>
+            <li>
+                <img src="{{ static('checklist.png') }}" alt="Checklist"/>
+                <h2>Selecteer je favoriete gerechten</h2>
+                <p>Stel je eigen broodje samen of zondig met die extra slagroom op een lekkere wafel!</p>
+            </li>
+            <li>
+                <img src="{{ static('bike.png') }}" alt="Fiets"/>
+                <h2>Haal af of laat leveren</h2>
+                <p>Op weg naar je werk of school? Pas je routine niet aan en ga even langs.</p>
+            </li>
+        </ul>
+    </div>
+</div>
+{% endblock content %}

@@ -1,0 +1,22 @@
+<title>{{ title | default('Lunchbreak - Je dagelijkse bestelling') }}</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="description" content="{{ description }}">
+<meta name="author" content="Cloock">
+<meta charset="UTF-8">
+
+<meta property="og:title" content="{{ title }}">
+<meta property="og:description" content="{{ description }}">
+{% if social_image is defined and social_image -%}
+<meta property="og:image" content="{{ social_image }}">
+{%- endif %}
+<meta property="og:type" content="website">
+
+<meta name="twitter:card" content="app">
+<meta name="twitter:site" content="@LunchbreakApp">
+<meta name="twitter:creator" content="@LunchbreakApp">
+
+<meta name="apple-itunes-app" content="app-id=949238693">
+
+<link type="text/css" rel="stylesheet" href="{% sass_src 'main.scss' %}">
+<link rel="shortcut icon" href="{{ static('favicon.ico') }}">

@@ -1,0 +1,39 @@
+#header {
+    $header-height: 40px;
+
+    height: $header-height;
+    position: absolute;
+    font-size: $size-small;
+    color: white;
+    font-weight: $weight-light;
+    line-height: $header-height;
+
+
+    #header-left {
+        float: left;
+        height: $header-height;
+        font-size: $size-large;
+
+        #header-logo {
+            width: $header-height;
+            margin-right: 16px;
+            float: left;
+        }
+    }
+
+    #header-right {
+        float: right;
+
+        ul {
+            li {
+                display: inline-block;
+                margin-right: 32px;
+                font-weight: $weight-normal;
+
+                &:last-of-type {
+                    margin-right: 0;
+                }
+            }
+        }
+    }
+}

@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.core.urlresolvers import reverse
 from django.utils import translation
@@ -22,7 +23,8 @@ def environment(**kwargs):
         {
             'static': staticfiles_storage.url,
             'url': reverse,
-            'lang_code': translation.get_language()
+            'lang_code': translation.get_language(),
+            'GOOGLE_WEB_CREDENTIALS': settings.GOOGLE_WEB_CREDENTIALS
         }
     )
     return env

@@ -1,0 +1,45 @@
+input {
+    &[type='text'], &[type='submit'] {
+        height: 40px;
+        box-sizing: border-box;
+        border: none;
+        border-radius: 2px;
+        margin: 0;
+        font-size: 14px;
+        font-weight: $weight-normal;
+        display: inline-block;
+    }
+
+    &[type='text'] {
+        background: white;
+        padding: 0 16px;
+        color: $grey-black;
+        width: 350px;
+    }
+
+    &[type='submit'] {
+        padding: 12px 20px;
+        background: $red;
+        cursor: pointer;
+        color: white;
+        text-align: center;
+
+        &:visited {
+            color: white;
+        }
+
+        &.transparent {
+            background: transparent;
+            border: 1px solid $red;
+            color: $red;
+        }
+    }
+
+    &:active, &:focus {
+        outline: none;
+    }
+}
+
+.button {
+    @extend input[type='submit'];
+}
