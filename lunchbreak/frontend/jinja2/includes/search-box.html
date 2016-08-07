@@ -1,0 +1,10 @@
+<form method="get" action="{{ url('frontend-search') }}" class="search-box">
+    {{ csrf_field(csrf_token) }}
+
+    <div class="search-box-input">
+        <input id="store-search" type="text" placeholder="Vul je adres in" autocomplete="none" name="{{ search_form.location.html_name }}"/>
+        <input type="submit" value="Zoeken" class="button"/>
+    </div>
+    <ul class="search-box-autocomplete">
+    </ul>
+</form>

@@ -9,4 +9,9 @@ urlpatterns = patterns(
         views.IndexView.as_view(),
         name='frontend-index'
     ),
+    url(
+        r'^search/?$',
+        views.SearchView.as_view(),
+        name='frontend-search'
+    ),
 )

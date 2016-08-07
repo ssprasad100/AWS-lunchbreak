@@ -8,9 +8,14 @@
     {% endblock head %}
 </head>
 <body>
+    {% block content %}
+
+    {% endblock %}
     <header id="header" class="container">
         <div id="header-left">
+            <a href="{{ url('frontend-index') }}" alt="Homepagina">
             <img src="{{ static('logo-header.png') }}" id="header-logo" alt="Lunchbreak"/>Lunchbreak
+            </a>
         </div>
         <div id="header-right">
             <ul>
@@ -19,9 +24,6 @@
             </ul>
         </div>
     </header>
-    {% block content %}
-
-    {% endblock %}
     <footer id="footer" class="block">
         <div class="container">
             <ul class="footer-item">

@@ -1,7 +1,12 @@
 .banner {
+    height: 500px;
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center;
     color: white;
     box-sizing: border-box;
+
+    &.small {
+        height: 300px;
+    }
 }

@@ -15,10 +15,16 @@
         var fieldAutocomplete = fieldContainer.nextAll();
         var form = fieldContainer.parent();
         var service = new google.maps.places.AutocompleteService();
+        var geocoder = new google.maps.Geocoder;
 
         var timeoutId, previousValue;
 
         var init = function() {
+            getCurrentLocation();
+            registerEvents();
+        };
+
+        var registerEvents = function() {
             var autocompleteSelector = '.search-box-autocomplete li';
 
             $(document).on('click', autocompleteSelector, function(event) {
@@ -34,7 +40,7 @@
                 field.val(previousValue);
             });
 
-            field.on('keydown', function(event) {
+            field.on('keyup', function(event) {
                 switch(event.which) {
                     case KEY_ARROW_UP:
                         move(-1);
@@ -54,7 +60,12 @@
 
                 var value = field.val();
 
-                if(!value || value == previousValue)
+                if(!value) {
+                    fieldAutocomplete.hide();
+                    return;
+                }
+
+                if(value == previousValue)
                     return;
 
                 previousValue = value;
@@ -69,6 +80,32 @@
                     );
                 }, TIMEOUT);
             });
+        };
+
+        var getCurrentLocation = function() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    geocoder.geocode(
+                        {
+                            'location': {
+                                lat: position.coords.latitude,
+                                lng: position.coords.longitude
+                            }
+                        }, function(results, status) {
+                            if(status === 'OK' && results[0]) {
+                                if(!field.val())
+                                    field.val(results[0].formatted_address);
+                            }
+                        }
+                    );
+
+                }, function(error) {
+                    // Error
+                }, {
+                    timeout: 10000,
+                    maximumAge: 30 * 60 * 1000
+                });
+            }
         };
 
         var getSelectedItem = function() {

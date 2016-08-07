@@ -7,20 +7,13 @@
 {% endblock head %}
 
 {% block content %}
-<div id="search-banner" class="block banner">
+<div id="index-banner" class="block banner">
     <div class="container center">
         <div>
             <h1>Je dagelijkse bestelling</h1>
             <h3>Dagelijkse bezoekjes aan je favoriete zaak zonder wachten</h3>
 
-            <form method="get" action="" class="search-box">
-                <div class="search-box-input">
-                    <input id="store-search" type="text" placeholder="Vul je adres in" autocomplete="none"/>
-                    <input type="submit" value="Zoeken" class="button"/>
-                </div>
-                <ul class="search-box-autocomplete">
-                </ul>
-            </form>
+            {% include 'includes/search-box.html' %}
         </div>
     </div>
 </div>

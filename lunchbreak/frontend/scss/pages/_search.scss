@@ -1,0 +1,85 @@
+#search-banner {
+    background-image: url('banner-search.png');
+}
+
+#search-results {
+    font-size: 0;
+
+    .search-result {
+        font-size: $size-small;
+        width: 50%;
+        display: inline-block;
+
+        .search-result-container {
+            display: block;
+            margin: 16px;
+            background-image: url('banner-store-original.jpg');
+            background-position: center;
+            background-size: cover;
+            height: 400px;
+            position: relative;
+            border-radius: 2px;
+
+            .search-result-content {
+                $content-padding-vertical: 20px;
+                $content-padding-horizontal: 16px;
+
+                height: 90px;
+                background: rgba(0, 0, 0, 0.5);
+                position: absolute;
+                bottom: 0;
+                width: 100%;
+                color: white;
+                font-size: $size-medium;
+                display: table;
+                padding: $content-padding-vertical $content-padding-horizontal $content-padding-vertical 0;
+                box-sizing: border-box;
+
+                > div {
+                    display: table-cell;
+                    height: 100%;
+                }
+
+                .search-result-hearts {
+                    background-image: url('icons/heart.png');
+                    background-size: 24px;
+                    background-repeat: no-repeat;
+                    background-position: center 0;
+                    width: 64px;
+                    text-align: center;
+                    vertical-align: bottom;
+                }
+
+                .search-result-text {
+                    .search-result-name {
+                        font-size: $size-large;
+                        height: 50%;
+                    }
+
+                    .search-result-category {
+                        bottom: $content-padding-vertical;
+                        position: absolute;
+                    }
+                }
+
+                .search-result-info {
+                    text-align: right;
+
+                    .search-result-distance {}
+
+                    .search-result-options {
+                        position: absolute;
+                        right: $content-padding-horizontal;
+                        bottom: $content-padding-vertical;
+
+                        img {
+                            max-height: 24px;
+                            max-width: 24px;
+                            opacity: .5;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
