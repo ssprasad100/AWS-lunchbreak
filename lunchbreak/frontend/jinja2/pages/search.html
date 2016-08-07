@@ -12,130 +12,42 @@
 </div>
 <div id="search-results" class="block">
     <div class="container">
-        <div class="search-result">
-            <a class="search-result-container" href="" alt="Bestel bij winkel">
-                <div class="search-result-content">
-                    <div class="search-result-hearts">
-                        21
-                    </div>
-                    <div class="search-result-text">
-                        <div class="search-result-name">
-                            Sudo Sandwich
+        {% if stores %}
+            {% if search_form.address.errors %}
+                <h1>Populaire winkels</h1>
+            {% endif %}
+            {% for store in stores %}
+                <div class="search-result">
+                    <a class="search-result-container" href="" alt="Bestel bij {{ store.name }}">
+                        <div class="search-result-content">
+                            <div class="search-result-hearts">
+                                {{ store.hearts_count }}
+                            </div>
+                            <div class="search-result-text">
+                                <div class="search-result-name">
+                                    {{ store.name }}
+                                </div>
+                                <div class="search-result-category">
+                                    {{ store.category.name }}
+                                </div>
+                            </div>
+                            <div class="search-result-info">
+                                {% if store.distance %}
+                                    <div class="search-result-distance">
+                                        {{ store.distance }}
+                                    </div>
+                                {% endif %}
+                                <div class="search-result-options">
+                                    {% if store.does_delivery %}
+                                        <img src="{{ static('icons/truck.png') }}" alt="Levering mogelijk"/>
+                                    {% endif %}
+                                </div>
+                            </div>
                         </div>
-                        <div class="search-result-category">
-                            Bakkerij
-                        </div>
-                    </div>
-                    <div class="search-result-info">
-                        <div class="search-result-distance">
-                            1,2 km
-                        </div>
-                        <div class="search-result-options">
-                            <img src="{{ static('icons/truck.png') }}" alt="Levering mogelijk"/>
-                        </div>
-                    </div>
+                    </a>
                 </div>
-            </a>
-        </div>
-        <div class="search-result">
-            <a class="search-result-container" href="" alt="Bestel bij winkel">
-                <div class="search-result-content">
-                    <div class="search-result-hearts">
-                        21
-                    </div>
-                    <div class="search-result-text">
-                        <div class="search-result-name">
-                            Sudo Sandwich
-                        </div>
-                        <div class="search-result-category">
-                            Bakkerij
-                        </div>
-                    </div>
-                    <div class="search-result-info">
-                        <div class="search-result-distance">
-                            1,2 km
-                        </div>
-                        <div class="search-result-options">
-                            <img src="{{ static('icons/truck.png') }}" alt="Levering mogelijk"/>
-                        </div>
-                    </div>
-                </div>
-            </a>
-        </div>
-        <div class="search-result">
-            <a class="search-result-container" href="" alt="Bestel bij winkel">
-                <div class="search-result-content">
-                    <div class="search-result-hearts">
-                        21
-                    </div>
-                    <div class="search-result-text">
-                        <div class="search-result-name">
-                            Sudo Sandwich
-                        </div>
-                        <div class="search-result-category">
-                            Bakkerij
-                        </div>
-                    </div>
-                    <div class="search-result-info">
-                        <div class="search-result-distance">
-                            1,2 km
-                        </div>
-                        <div class="search-result-options">
-                            <img src="{{ static('icons/truck.png') }}" alt="Levering mogelijk"/>
-                        </div>
-                    </div>
-                </div>
-            </a>
-        </div>
-        <div class="search-result">
-            <a class="search-result-container" href="" alt="Bestel bij winkel">
-                <div class="search-result-content">
-                    <div class="search-result-hearts">
-                        21
-                    </div>
-                    <div class="search-result-text">
-                        <div class="search-result-name">
-                            Sudo Sandwich
-                        </div>
-                        <div class="search-result-category">
-                            Bakkerij
-                        </div>
-                    </div>
-                    <div class="search-result-info">
-                        <div class="search-result-distance">
-                            1,2 km
-                        </div>
-                        <div class="search-result-options">
-                            <img src="{{ static('icons/truck.png') }}" alt="Levering mogelijk"/>
-                        </div>
-                    </div>
-                </div>
-            </a>
-        </div>
-        <div class="search-result">
-            <a class="search-result-container" href="" alt="Bestel bij winkel">
-                <div class="search-result-content">
-                    <div class="search-result-hearts">
-                        21
-                    </div>
-                    <div class="search-result-text">
-                        <div class="search-result-name">
-                            Sudo Sandwich
-                        </div>
-                        <div class="search-result-category">
-                            Bakkerij
-                        </div>
-                    </div>
-                    <div class="search-result-info">
-                        <div class="search-result-distance">
-                            1,2 km
-                        </div>
-                        <div class="search-result-options">
-                            <img src="{{ static('icons/truck.png') }}" alt="Levering mogelijk"/>
-                        </div>
-                    </div>
-                </div>
-            </a>
+            {% endfor %}
+        {% endif %}
         </div>
     </div>
 </div>

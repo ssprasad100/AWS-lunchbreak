@@ -5,6 +5,16 @@
 #search-results {
     font-size: 0;
 
+    .container {
+        padding-top: 32px;
+        padding-left: 0;
+        padding-right: 0;
+
+        h1 {
+            padding-left: 16px;
+        }
+    }
+
     .search-result {
         font-size: $size-small;
         width: 50%;

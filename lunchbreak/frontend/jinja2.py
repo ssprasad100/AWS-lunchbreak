@@ -36,4 +36,10 @@ def environment(**kwargs):
             'csrf_field': csrf_field
         }
     )
+    if settings.DEBUG:
+        env.globals.update(
+            {
+                'dir': dir
+            }
+        )
     return env

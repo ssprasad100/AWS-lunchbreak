@@ -3,9 +3,10 @@ from imagekit.admin import AdminThumbnail
 
 from .models import (Food, FoodCategory, FoodType, HolidayPeriod, Ingredient,
                      IngredientGroup, IngredientRelation, OpeningPeriod,
-                     Quantity, Store, StoreCategory, StoreHeader)
+                     Quantity, Region, Store, StoreCategory, StoreHeader)
 
 admin.site.register(StoreCategory)
+admin.site.register(Region)
 
 
 @admin.register(Quantity)

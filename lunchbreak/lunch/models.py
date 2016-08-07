@@ -109,8 +109,30 @@ class AbstractAddress(models.Model, DirtyFieldsMixin):
     class Meta:
         abstract = True
 
-    def save(self, *args, **kwargs):
+    @staticmethod
+    def geocode(address):
+        google_client = googlemaps.Client(
+            key=settings.GOOGLE_CLOUD_SECRET,
+            connect_timeout=5,
+            read_timeout=5,
+            retry_timeout=1
+        )
+        results = google_client.geocode(
+            address=address
+        )
 
+        if len(results) == 0:
+            raise AddressNotFound(
+                _('No results found for given address.')
+            )
+
+        result = results[0]
+        latitude = str(result['geometry']['location']['lat'])
+        longitude = str(result['geometry']['location']['lng'])
+
+        return latitude, longitude
+
+    def save(self, *args, **kwargs):
         dirty_fields = self.get_dirty_fields()
         fields = [
             'country',
@@ -141,12 +163,6 @@ class AbstractAddress(models.Model, DirtyFieldsMixin):
                     ]
                 )
 
-                google_client = googlemaps.Client(
-                    key=settings.GOOGLE_CLOUD_SECRET,
-                    connect_timeout=5,
-                    read_timeout=5,
-                    retry_timeout=1
-                )
                 address = '{country}, {province}, {street} {number}, {postcode} {city}'.format(
                     country=self.country,
                     province=self.province,
@@ -155,18 +171,8 @@ class AbstractAddress(models.Model, DirtyFieldsMixin):
                     postcode=self.postcode,
                     city=self.city,
                 )
-                results = google_client.geocode(
-                    address=address
-                )
 
-                if len(results) == 0:
-                    raise AddressNotFound(
-                        _('No results found for given postcode and country.')
-                    )
-
-                result = results[0]
-                self.latitude = str(result['geometry']['location']['lat'])
-                self.longitude = str(result['geometry']['location']['lng'])
+                self.latitude, self.longitude = self.geocode(address=address)
 
         self.full_clean()
         super(AbstractAddress, self).save(*args, **kwargs)
@@ -222,6 +228,14 @@ class Store(AbstractAddress):
             name=self.name,
             city=self.city
         )
+
+    @cached_property
+    def category(self):
+        return self.categories.all()[0]
+
+    @cached_property
+    def does_delivery(self):
+        return self.regions.all().exists()
 
     @cached_property
     def hearts_count(self):
