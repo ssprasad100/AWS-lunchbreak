@@ -8,7 +8,7 @@ from Lunchbreak.test import LunchbreakTestCase
 from .config import (INPUT_AMOUNT, INPUT_SI_SET, INPUT_SI_VARIABLE, MONDAY,
                      SUNDAY)
 from .exceptions import AddressNotFound
-from .models import (Food, FoodCategory, FoodType, HolidayPeriod,
+from .models import (Food, Menu, FoodType, HolidayPeriod,
                      IngredientGroup, OpeningPeriod, Quantity, Store)
 
 
@@ -545,8 +545,8 @@ class LunchTests(LunchbreakTestCase):
             name='Test foodtype'
         )
 
-        foodcategory = FoodCategory.objects.create(
-            name='Test foodcategory',
+        menu = Menu.objects.create(
+            name='Test menu',
             store=store
         )
 
@@ -554,7 +554,7 @@ class LunchTests(LunchbreakTestCase):
             name='Test food',
             cost=1,
             foodtype=foodtype,
-            category=foodcategory,
+            menu=menu,
             store=store,
             preorder_days=0
         )

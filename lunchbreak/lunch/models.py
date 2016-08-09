@@ -609,7 +609,7 @@ class Ingredient(models.Model, DirtyFieldsMixin):
         )
 
 
-class FoodCategory(models.Model):
+class Menu(models.Model):
     name = models.CharField(
         max_length=255
     )
@@ -618,7 +618,8 @@ class FoodCategory(models.Model):
     )
     store = models.ForeignKey(
         Store,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name='menus'
     )
 
     class Meta:
@@ -706,9 +707,10 @@ class Food(models.Model):
         default=0
     )
 
-    category = models.ForeignKey(
-        FoodCategory,
-        on_delete=models.CASCADE
+    menu = models.ForeignKey(
+        Menu,
+        on_delete=models.CASCADE,
+        related_name='food'
     )
     ingredients = models.ManyToManyField(
         Ingredient,
@@ -805,12 +807,12 @@ class Food(models.Model):
 
         if not self.foodtype.is_valid_amount(self.amount):
             raise InvalidFoodTypeAmount()
-        if self.store_id != self.category.store_id:
+        if self.store_id != self.menu.store_id:
             raise LinkingError(
-                'The food and its category need to belong to the same store. '
-                '{food_store} != {category_store}'.format(
+                'The food and its menu need to belong to the same store. '
+                '{food_store} != {menu_store}'.format(
                     food_store=self.store_id,
-                    category_store=self.category.store_id
+                    menu_store=self.menu.store_id
                 )
             )
 
@@ -859,9 +861,9 @@ class Food(models.Model):
                 'field_name': 'description',
             },
             {
-                'field_name': 'category',
+                'field_name': 'menu',
                 'instance': {
-                    'model': FoodCategory,
+                    'model': Menu,
                     'create': True,
                     'field_name': 'name'
                 }

@@ -34,12 +34,12 @@ urlpatterns = patterns(
     ),
 
     url(
-        r'^foodcategory/?$',
-        views.FoodCategoryView.as_view()
+        r'^menu/?$',
+        views.MenuView.as_view()
     ),
     url(
-        r'^foodcategory/(?P<pk>\d+)/?$',
-        views.FoodCategoryDetailView.as_view()
+        r'^menu/(?P<pk>\d+)/?$',
+        views.MenuDetailView.as_view()
     ),
 
     url(

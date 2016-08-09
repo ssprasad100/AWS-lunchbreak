@@ -6,7 +6,7 @@ from customers.models import Order, OrderedFood, User, UserToken
 from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.utils import timezone
-from lunch.models import (Food, FoodCategory, FoodType, HolidayPeriod,
+from lunch.models import (Food, Menu, FoodType, HolidayPeriod,
                           Ingredient, IngredientGroup, IngredientRelation,
                           Store)
 from Lunchbreak.test import LunchbreakTestCase
@@ -82,8 +82,8 @@ class BusinessTests(LunchbreakTestCase):
             name='FoodType test'
         )
 
-        self.foodcategory = FoodCategory.objects.create(
-            name='FoodCategory test',
+        self.menu = Menu.objects.create(
+            name='Menu test',
             store=self.store
         )
 
@@ -97,7 +97,7 @@ class BusinessTests(LunchbreakTestCase):
             name='Food test',
             cost=1.00,
             foodtype=self.foodtype,
-            category=self.foodcategory,
+            menu=self.menu,
             store=self.store
         )
 

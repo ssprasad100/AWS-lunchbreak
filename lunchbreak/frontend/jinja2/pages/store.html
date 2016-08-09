@@ -4,10 +4,10 @@
 <div id="store-banner" class="block banner small">
     <div class="container">
         <div class="bottom">
-            <h1>Pastrie</h1>
+            <h1>{{ store.name }}</h1>
             <ul>
                 <li>
-                    Sint-Pietersnieuwstraat 241
+                    {{ store.street }} {{ store.number }}
                 </li>
                 <li class="openingperiods">
                     8:00 - 15:00
@@ -19,68 +19,51 @@
         </div>
     </div>
 </div>
+
+{% set menus = store.menus.all().prefetch_related(
+    'food'
+).order_by(
+    '-priority',
+    'name'
+) %}
+
 <div class="tab-container">
     <div class="container">
         <ul>
-            <li class="selected">Hamburgers</li>
-            <li>Broodjes</li>
-            <li>Specials</li>
-            <li>Soepen</li>
-            <li>Voorgerechten</li>
-            <li>Desserts</li>
-            <li>Dranken</li>
-            <li>Snacks</li>
+            {% for menu in menus %}
+                {% if menu.food.all() %}
+                    {% if loop.first %}
+                        <li class="selected">{{ menu.name }}</li>
+                    {% else %}
+                        <li>{{ menu.name }}</li>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
         </ul>
     </div>
 </div>
 
 <div id="inventory" class="block">
     <div class="container">
-        <div id="menu">
-            <input type="text" placeholder="Zoeken op naam"/>
-            <div class="menu-group">
-                <h3>Hamburgers</h3>
-                <div class="menu-item">
-                    <h4>Cheeseburger</h4>
-                    <p>Wit broodje, paardenvlees, cheddar, tomaten, sla, augurk en geheime saus.Wit broodje, paardenvlees, cheddar, tomaten, sla, augurk en geheime saus.Wit broodje, paardenvlees, cheddar, tomaten, sla, augurk en geheime saus.Wit broodje, paardenvlees, cheddar, tomaten, sla, augurk en geheime saus.Wit broodje, paardenvlees, cheddar, tomaten, sla, augurk en geheime saus.</p>
+        <div id="menus">
+            <input id="menu-search" type="text" placeholder="Zoeken op naam"/>
+            {% for menu in menus %}
+                {% if menu.food.all() %}
+                <div class="menu">
+                    <h3>{{ menu.name }}</h3>
+                    {% for food in menu.food.all() %}
+                        <div class="menu-item">
+                            <h4>{{ food.name }}</h4>
+                            <p>{{ food.description }}</p>
 
-                    <div class="menu-add">
-                        <a class="button transparent" href="" alt="Toevoegen">&euro; 118,50</a>
-                    </div>
+                            <div class="menu-add">
+                                <a class="button transparent" href="" alt="Toevoegen">&euro; {{ food.cost | replace('.', ',') }}</a>
+                            </div>
+                        </div>
+                    {% endfor %}
                 </div>
-                <div class="menu-item">
-                    <h4>Cheeseburger</h4>
-                    <p>Wit broodje, paardenvlees, cheddar, tomaten, sla, augurk en geheime saus.</p>
-
-                    <div class="menu-add">
-                        <a class="button transparent" href="" alt="Toevoegen">&euro; 8,50</a>
-                    </div>
-                </div>
-                <div class="menu-item">
-                    <h4>Cheeseburger</h4>
-                    <p>Wit broodje, paardenvlees, cheddar, tomaten, sla, augurk en geheime saus.</p>
-
-                    <div class="menu-add">
-                        <a class="button transparent" href="" alt="Toevoegen">&euro; 8,50</a>
-                    </div>
-                </div>
-                <div class="menu-item">
-                    <h4>Cheeseburger</h4>
-                    <p>Wit broodje, paardenvlees, cheddar, tomaten, sla, augurk en geheime saus.</p>
-
-                    <div class="menu-add">
-                        <a class="button transparent" href="" alt="Toevoegen">&euro; 8,50</a>
-                    </div>
-                </div>
-                <div class="menu-item">
-                    <h4>Cheeseburger</h4>
-                    <p>Wit broodje, paardenvlees, cheddar, tomaten, sla, augurk en geheime saus.</p>
-
-                    <div class="menu-add">
-                        <a class="button transparent" href="" alt="Toevoegen">&euro; 8,50</a>
-                    </div>
-                </div>
-            </div>
+                {% endif %}
+            {% endfor %}
         </div>
         <div id="order">
             <form method="post" action="">

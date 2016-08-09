@@ -43,3 +43,20 @@ class SearchView(SearchForm.ViewMixin, TemplateView):
             )
         context['stores'] = stores
         return context
+
+
+class StoreView(TemplateView):
+    template_name = 'pages/store.html'
+
+    def get_context_data(self, pk, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['store'] = Store.objects.select_related(
+            'header',
+        ).prefetch_related(
+            'categories',
+            'regions',
+            'menus__food',
+        ).get(
+            pk=pk
+        )
+        return context

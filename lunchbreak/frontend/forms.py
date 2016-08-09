@@ -18,9 +18,8 @@ class SearchForm(forms.Form):
             context = super().get_context_data(**kwargs)
             form = SearchForm(self.request.GET)
             if form.is_valid():
-                address = form.data['address']
                 form.latitude, form.longitude = AbstractAddress.geocode(
-                    address=address
+                    address=form.data['address']
                 )
             context['search_form'] = form
             return context

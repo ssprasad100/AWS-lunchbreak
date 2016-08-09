@@ -1,12 +1,12 @@
 from django.http import Http404
 from django.shortcuts import get_object_or_404
-from lunch.models import Food, FoodCategory, IngredientGroup, Store
+from lunch.models import Food, IngredientGroup, Menu, Store
 from lunch.pagination import SimplePagination
 from lunch.renderers import JPEGRenderer
 from lunch.responses import BadRequest
-from lunch.serializers import (FoodCategoryDetailSerializer,
-                               FoodCategorySerializer, FoodDetailSerializer,
-                               FoodSerializer, StoreSerializer)
+from lunch.serializers import (FoodDetailSerializer, FoodSerializer,
+                               MenuDetailSerializer, MenuSerializer,
+                               StoreSerializer)
 from lunch.views import (HolidayPeriodListViewBase, OpeningListViewBase,
                          OpeningPeriodListViewBase, StoreCategoryListViewBase)
 from Lunchbreak.views import TargettedViewSet
@@ -46,7 +46,7 @@ class FoodViewSet(TargettedViewSet,
             deleted=False
         ).select_related(
             'foodtype',
-            'category',
+            'menu',
         ).prefetch_related(
             'ingredientrelation_set__ingredient',
             'ingredientgroups',
@@ -56,32 +56,32 @@ class FoodViewSet(TargettedViewSet,
 
     @property
     def queryset_list(self):
-        if 'foodcategory_id' not in self.kwargs:
+        if 'menu_id' not in self.kwargs:
             raise Http404()
 
         return Food.objects.filter(
-            category_id=self.kwargs['foodcategory_id'],
+            menu_id=self.kwargs['menu_id'],
             deleted=False
         ).select_related(
-            'category',
+            'menu',
             'foodtype',
         ).prefetch_related(
             'ingredients',  # Food.has_ingredients
         ).order_by(
-            '-category__priority',
-            'category__name',
+            '-menu__priority',
+            'menu__name',
             '-priority',
             'name'
         )
 
 
-class FoodCategoryRetrieveView(generics.RetrieveAPIView):
+class MenuRetrieveView(generics.RetrieveAPIView):
 
     """List all food categories."""
 
     authentication_classes = (CustomerAuthentication,)
-    serializer_class = FoodCategoryDetailSerializer
-    queryset = FoodCategory.objects.select_related(
+    serializer_class = MenuDetailSerializer
+    queryset = Menu.objects.select_related(
         'store',
     ).all()
 
@@ -197,9 +197,9 @@ class StoreViewSet(TargettedViewSet,
         return result
 
     @property
-    def queryset_foodcategory(self):
+    def queryset_menu(self):
         # Check if filter for store_id is required
-        return FoodCategory.objects.filter(
+        return Menu.objects.filter(
             store_id=self.kwargs['pk']
         ).order_by(
             '-priority',
@@ -308,7 +308,7 @@ class StoreFoodViewSet(TargettedViewSet,
 
     @property
     def pagination_class(self):
-        if 'foodcategory_id' in self.kwargs:
+        if 'menu_id' in self.kwargs:
             return None
         return SimplePagination
 
@@ -318,29 +318,29 @@ class StoreFoodViewSet(TargettedViewSet,
             store_id=self.kwargs['parent_lookup_pk'],
             deleted=False
         ).select_related(
-            'category',
+            'menu',
             'foodtype',
         ).prefetch_related(
             'ingredients',  # Food.has_ingredients
         ).order_by(
-            '-category__priority',
-            'category__name',
+            '-menu__priority',
+            'menu__name',
             '-priority',
             'name'
         )
 
 
-class StoreFoodCategoryViewSet(TargettedViewSet,
-                               NestedViewSetMixin,
-                               mixins.ListModelMixin):
+class StoreMenuViewSet(TargettedViewSet,
+                       NestedViewSetMixin,
+                       mixins.ListModelMixin):
 
-    serializer_class = FoodCategorySerializer
+    serializer_class = MenuSerializer
     pagination_class = SimplePagination
 
     @property
     def queryset(self):
         # Check if filter for store_id is required
-        return FoodCategory.objects.filter(
+        return Menu.objects.filter(
             store_id=self.kwargs['parent_lookup_pk']
         ).order_by(
             '-priority',

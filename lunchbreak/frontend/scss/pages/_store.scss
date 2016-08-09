@@ -42,11 +42,11 @@
             padding: 16px 0;
         }
 
-        #menu {
+        #menus {
             display: table-cell;
             width: 66%;
 
-            .menu-group {
+            .menu {
                 font-size: 0;
                 margin-top: 24px;
 
@@ -61,6 +61,10 @@
                     margin: 0 16px 16px 0;
                     overflow: hidden;
                     box-sizing: border-box;
+
+                    &.hidden {
+                        display: none;
+                    }
 
                     h4 {
                         margin-bottom: 6px;

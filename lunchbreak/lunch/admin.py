@@ -1,7 +1,7 @@
 from django.contrib import admin
 from imagekit.admin import AdminThumbnail
 
-from .models import (Food, FoodCategory, FoodType, HolidayPeriod, Ingredient,
+from .models import (Food, Menu, FoodType, HolidayPeriod, Ingredient,
                      IngredientGroup, IngredientRelation, OpeningPeriod,
                      Quantity, Region, Store, StoreCategory, StoreHeader)
 
@@ -92,8 +92,8 @@ class HolidayPeriodAdmin(admin.ModelAdmin):
     )
 
 
-@admin.register(FoodCategory)
-class FoodCategoryAdmin(admin.ModelAdmin):
+@admin.register(Menu)
+class MenuAdmin(admin.ModelAdmin):
     list_display = (
         'name',
         'priority',
@@ -128,7 +128,7 @@ class FoodAdmin(admin.ModelAdmin):
     list_display = (
         'name',
         'cost',
-        'category',
+        'menu',
         'store',
         'id',
     )

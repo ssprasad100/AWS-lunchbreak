@@ -9,10 +9,10 @@ from django.db.models import Count
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
-from lunch.models import (Food, FoodCategory, FoodType, Ingredient,
+from lunch.models import (Food, Menu, FoodType, Ingredient,
                           IngredientGroup, Quantity, Store)
 from lunch.responses import BadRequest
-from lunch.serializers import (FoodCategorySerializer, FoodTypeSerializer,
+from lunch.serializers import (MenuSerializer, FoodTypeSerializer,
                                QuantityDetailSerializer)
 from lunch.views import (HolidayPeriodListViewBase, OpeningListViewBase,
                          OpeningPeriodListViewBase, StoreCategoryListViewBase)
@@ -184,23 +184,23 @@ class ListCreateStoreView(generics.ListCreateAPIView):
         serializer.save(store=store)
 
 
-class FoodCategoryView(ListCreateStoreView):
+class MenuView(ListCreateStoreView):
     authentication_classes = (EmployeeAuthentication,)
-    serializer_class = FoodCategorySerializer
+    serializer_class = MenuSerializer
     permission_classes = (StoreOwnerPermission,)
     pagination_class = None
 
     def get_queryset(self):
-        return FoodCategory.objects.filter(store=self.request.user.staff.store)
+        return Menu.objects.filter(store=self.request.user.staff.store)
 
 
-class FoodCategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
+class MenuDetailView(generics.RetrieveUpdateDestroyAPIView):
     authentication_classes = (EmployeeAuthentication,)
-    serializer_class = FoodCategorySerializer
+    serializer_class = MenuSerializer
     permission_classes = (StoreOwnerPermission,)
 
     def get_queryset(self):
-        return FoodCategory.objects.filter(
+        return Menu.objects.filter(
             store=self.request.user.staff.store
         )
 

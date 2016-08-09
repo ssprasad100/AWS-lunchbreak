@@ -340,7 +340,7 @@ class FoodSerializer(serializers.ModelSerializer):
             'priority',
 
             'store',
-            'category',
+            'menu',
             'ingredients',
             'ingredientgroups',
 

@@ -7,7 +7,7 @@ from django.utils import timezone
 from lunch.config import BELGIUM
 from lunch.exceptions import (BadRequest, DoesNotExist, LinkingError,
                               NoDeliveryToAddress)
-from lunch.models import (Food, FoodCategory, FoodType, HolidayPeriod,
+from lunch.models import (Food, Menu, FoodType, HolidayPeriod,
                           Ingredient, IngredientGroup, IngredientRelation,
                           Region, Store)
 from Lunchbreak.test import LunchbreakTestCase
@@ -95,8 +95,8 @@ class CustomersTests(LunchbreakTestCase):
             name='FoodType test'
         )
 
-        self.foodcategory = FoodCategory.objects.create(
-            name='FoodCategory test',
+        self.menu = Menu.objects.create(
+            name='Menu test',
             store=self.store
         )
 
@@ -110,7 +110,7 @@ class CustomersTests(LunchbreakTestCase):
             name='Food test',
             cost=1.00,
             foodtype=self.foodtype,
-            category=self.foodcategory,
+            menu=self.menu,
             store=self.store
         )
 

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import (BaseToken, Food, FoodCategory, FoodType, HolidayPeriod,
+from .models import (BaseToken, Food, Menu, FoodType, HolidayPeriod,
                      Ingredient, IngredientGroup, IngredientRelation,
                      OpeningPeriod, Quantity, Store, StoreCategory)
 
@@ -179,10 +179,10 @@ class IngredientGroupDetailSerializer(IngredientGroupSerializer):
         )
 
 
-class FoodCategorySerializer(serializers.ModelSerializer):
+class MenuSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = FoodCategory
+        model = Menu
         fields = (
             'id',
             'name',
@@ -193,10 +193,10 @@ class FoodCategorySerializer(serializers.ModelSerializer):
         )
 
 
-class FoodCategoryDetailSerializer(FoodCategorySerializer):
+class MenuDetailSerializer(MenuSerializer):
 
-    class Meta(FoodCategorySerializer.Meta):
-        fields = FoodCategorySerializer.Meta.fields + (
+    class Meta(MenuSerializer.Meta):
+        fields = MenuSerializer.Meta.fields + (
             'store',
         )
 
@@ -249,7 +249,7 @@ class BaseFoodSerializer(serializers.ModelSerializer):
     foodtype = FoodTypeSerializer(
         many=False
     )
-    category = FoodCategorySerializer(
+    menu = MenuSerializer(
         many=False
     )
     quantity = QuantitySerializer(
@@ -263,7 +263,7 @@ class BaseFoodSerializer(serializers.ModelSerializer):
             'name',
             'amount',
             'cost',
-            'category',
+            'menu',
             'foodtype',
             'priority',
             'has_ingredients',
