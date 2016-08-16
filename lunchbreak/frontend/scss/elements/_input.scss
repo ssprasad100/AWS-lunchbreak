@@ -1,4 +1,4 @@
-input {
+input:not(.mdl-textfield__input) {
     &[type='text'], &[type='submit'] {
         height: 40px;
         box-sizing: border-box;
@@ -8,6 +8,7 @@ input {
         font-size: 14px;
         font-weight: $weight-normal;
         display: inline-block;
+        vertical-align: top;
     }
 
     &[type='text'] {

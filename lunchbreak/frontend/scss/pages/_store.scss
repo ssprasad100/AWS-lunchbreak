@@ -50,49 +50,130 @@
                 font-size: 0;
                 margin-top: 24px;
 
-                .menu-item {
+                .food {
+                    $item-width: 365px;
+                    $item-padding: 16px;
+
                     background: white;
                     border-radius: 2px;
-                    padding: 16px;
+                    padding: $item-padding;
                     display: inline-block;
-                    width: 365px;
+                    width: $item-width;
                     height: 140px;
                     position: relative;
                     margin: 0 16px 16px 0;
                     overflow: hidden;
                     box-sizing: border-box;
 
+                    .food-top {
+                        .food-text {
+                            h4 {
+                                margin-bottom: 6px;
+                            }
+
+                            p {
+                                color: $grey-dark;
+                                font-size: $size-small;
+                                line-height: 1.5em;
+
+                                //position: absolute;
+                                float: left;
+
+                                $lines-to-show: 4;
+
+                                // Start
+                                display: block; /* Fallback for non-webkit */
+                                display: -webkit-box;
+                                max-width: 365px - 32px - 80px - 16px;
+                                height: $size-small * 1.5 * $lines-to-show; /* Fallback for non-webkit */
+                                -webkit-line-clamp: $lines-to-show;
+                                -webkit-box-orient: vertical;
+                                overflow: hidden;
+                                text-overflow: ellipsis;
+                            }
+                        }
+
+                        .food-add {
+                            position: absolute;
+                            bottom: 16px;
+                            right: 16px;
+                        }
+
+                        &:after {
+                            content: '';
+                            display: block;
+                            clear: both;
+                        }
+                    }
+
+                    &.expanded {
+                        height: auto;
+                        width: $item-width * 2 + $item-padding;
+
+                        .flexcolumn-container {
+                            -webkit-column-count: 2;
+                            -webkit-column-gap: 10px;
+                            -webkit-column-fill: auto;
+                            -moz-column-count: 2;
+                            -moz-column-gap: 10px;
+                            -moz-column-fill: auto;
+                            column-count: 2;
+                            column-gap: 15px;
+                            column-fill: auto;
+
+                            .flexcolumn {
+                                display: inline-block;
+                                margin: 0 2px 15px;
+                                -webkit-column-break-inside: avoid;
+                                -moz-column-break-inside: avoid;
+                                column-break-inside: avoid;
+                            }
+                        }
+
+                        .food-top {
+                            margin-bottom: 16px;
+
+                            .food-add {
+                                display: none;
+                            }
+
+                            .food-form {
+                                float: right;
+                                direction: ltr;
+                                border-spacing: 8px 0;
+
+                                .food-amount, .food-confirm {
+                                    margin-right: 8px;
+                                }
+
+                                .food-amount {
+                                    text-align: left;
+                                    margin-top: -5px;
+                                    padding-left: 0;
+                                    width: auto;
+                                }
+                            }
+                        }
+
+                        .ingredientgroups {
+                            -webkit-user-select: none; /* Chrome all / Safari all */
+                            -moz-user-select: none; /* Firefox all */
+                            -ms-user-select: none; /* IE 10+ */
+                            user-select: none; /* Likely future */
+                            cursor: normal;
+
+                            .ingredientgroup {
+                                .ingredients {
+                                    .ingredient {
+                                        margin: 4px 0;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     &.hidden {
                         display: none;
-                    }
-
-                    h4 {
-                        margin-bottom: 6px;
-                    }
-
-                    p {
-                        color: $grey-dark;
-                        font-size: $size-small;
-                        line-height: 1.5em;
-                        position: absolute;
-
-                        $lines-to-show: 4;
-
-                        // Start
-                        display: block; /* Fallback for non-webkit */
-                        display: -webkit-box;
-                        max-width: 365px - 32px - 80px - 16px;
-                        height: $size-small * 1.5 * $lines-to-show; /* Fallback for non-webkit */
-                        -webkit-line-clamp: $lines-to-show;
-                        -webkit-box-orient: vertical;
-                        overflow: hidden;
-                        text-overflow: ellipsis;
-                    }
-
-                    .menu-add {
-                        position: absolute;
-                        bottom: 16px;
-                        right: 16px;
                     }
                 }
             }

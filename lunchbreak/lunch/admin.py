@@ -1,8 +1,9 @@
+from django import forms
 from django.contrib import admin
 from imagekit.admin import AdminThumbnail
 
-from .models import (Food, Menu, FoodType, HolidayPeriod, Ingredient,
-                     IngredientGroup, IngredientRelation, OpeningPeriod,
+from .models import (Food, FoodType, HolidayPeriod, Ingredient,
+                     IngredientGroup, IngredientRelation, Menu, OpeningPeriod,
                      Quantity, Region, Store, StoreCategory, StoreHeader)
 
 admin.site.register(StoreCategory)
@@ -120,11 +121,28 @@ class FoodTypeAdmin(admin.ModelAdmin):
 
 class IngredientsRelationInline(admin.TabularInline):
     model = IngredientRelation
-    extra = 3
+    extra = 1
+    fields = ['ingredient']
+
+class FoodForm(forms.ModelForm):
+
+    class Meta:
+        model = Food
+        exclude = []
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['ingredientgroups'].queryset = IngredientGroup.objects.filter(
+            store_id=self.instance.store_id
+        )
+
+    def get_queryset(self, request):
+        print(self)
 
 
 @admin.register(Food)
 class FoodAdmin(admin.ModelAdmin):
+    form = FoodForm
     list_display = (
         'name',
         'cost',

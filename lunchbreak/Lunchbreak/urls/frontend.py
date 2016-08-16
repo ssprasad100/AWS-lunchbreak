@@ -9,6 +9,10 @@ urlpatterns = patterns(
         include('django_gocardless.urls')
     ),
     url(
+        r'^api/',
+        include('Lunchbreak.urls.api')
+    ),
+    url(
         r'^',
         include('frontend.urls')
     ),

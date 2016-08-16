@@ -33,8 +33,6 @@ class FoodViewSet(TargettedViewSet,
                   mixins.RetrieveModelMixin,
                   mixins.ListModelMixin):
 
-    authentication_classes = (CustomerAuthentication,)
-
     queryset = Food.objects.all()
 
     serializer_class_retrieve = FoodDetailSerializer

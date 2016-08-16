@@ -1,3 +1,5 @@
+$font: 'Helvetica Neue';
+
 $red: #FF3030;
 $grey-black: #4C4C4C;
 $grey-dark: #929292;
@@ -23,3 +25,14 @@ $size-medium: 20px;
 $size-normal: 16px;
 $size-small: 14px;
 $size-xsmall: 12px;
+
+// MDL variables
+$preferred_font: $font;
+$performance_font: $font;
+$red-rgb: '255, 48, 48';
+$color-primary: $red-rgb;
+$color-primary-dark: $red-rgb;
+$color-accent: $red-rgb;
+$input-text-error-color: $red;
+$image_path: '/static/images';
+$input-text-font-size: $size-small;

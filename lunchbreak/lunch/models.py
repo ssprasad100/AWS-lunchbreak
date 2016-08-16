@@ -9,6 +9,7 @@ from django.contrib.auth.hashers import check_password, make_password
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import DatabaseError, models
+from django.db.models import Q
 from django.db.models.signals import m2m_changed
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -759,6 +760,7 @@ class Food(models.Model):
 
         for ingredientrelation in ingredientrelations:
             ingredient = ingredientrelation.ingredient
+            # Musn't the ingredient be selected before it can be typical?
             if ingredient.group not in ingredientgroups:
                 if not ingredientrelation.typical:
                     ingredientrelation.typical = True
@@ -802,9 +804,7 @@ class Food(models.Model):
             self.quantity.min <= amount <= self.quantity.max
         )
 
-    def save(self, *args, **kwargs):
-        self.full_clean()
-
+    def clean(self):
         if not self.foodtype.is_valid_amount(self.amount):
             raise InvalidFoodTypeAmount()
         if self.store_id != self.menu.store_id:
@@ -815,6 +815,10 @@ class Food(models.Model):
                     menu_store=self.menu.store_id
                 )
             )
+
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
 
         super(Food, self).save(*args, **kwargs)
 
@@ -832,13 +836,34 @@ class Food(models.Model):
         return self.name
 
     @staticmethod
-    def changed_ingredients(sender, instance, action, reverse, model, pk_set, using, **kwargs):
+    def changed_ingredients(sender, instance, action, reverse, model, pk_set, **kwargs):
         if len(action) > 4 and action[:4] == 'post':
             if isinstance(instance, Food):
                 instance.update_typical()
             elif instance.__class__ in [Ingredient, IngredientGroup]:
                 for food in instance.food_set.all():
                     food.update_typical()
+
+    @classmethod
+    def clean_ingredientgroups(cls, action, instance, pk_set, **kwargs):
+        if len(action) > 4 and action[:4] == 'post':
+            print(instance)
+            print(action)
+            print(pk_set)
+            print(kwargs)
+            groups = instance.ingredientgroups.filter(
+                ~Q(store_id=instance.store_id)
+            )
+            print(groups)
+            if groups.exists():
+                raise LinkingError(
+                    'The food and its ingredientgroups need to belong to the same store.'
+                )
+
+        # if instance.store_id != instance.food.store_id:
+        #     raise LinkingError(
+        #         'Food.ingredientgroups must belong to the same store as the linked food.'
+        #     )
 
     @classmethod
     def from_excel(cls, store, file):
@@ -1023,5 +1048,15 @@ class BaseToken(BareDevice, DirtyFieldsMixin):
         return self.device
 
 
-m2m_changed.connect(Food.changed_ingredients, sender=Food.ingredientgroups.through)
-m2m_changed.connect(Food.changed_ingredients, sender=Food.ingredients.through)
+m2m_changed.connect(
+    Food.changed_ingredients,
+    sender=Food.ingredientgroups.through
+)
+m2m_changed.connect(
+    Food.changed_ingredients,
+    sender=Food.ingredients.through
+)
+m2m_changed.connect(
+    Food.clean_ingredientgroups,
+    sender=Food.ingredientgroups.through
+)

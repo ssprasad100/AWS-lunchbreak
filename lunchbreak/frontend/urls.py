@@ -15,7 +15,7 @@ urlpatterns = patterns(
         name='frontend-search'
     ),
     url(
-        r'^store/(?P<pk>\d+)/?$',
+        r'^store/(?P<pk>\d+)/$',
         views.StoreView.as_view(),
         name='frontend-store'
     ),

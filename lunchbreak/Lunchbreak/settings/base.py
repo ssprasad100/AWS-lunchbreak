@@ -102,11 +102,10 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'frontend/img'),
     os.path.join(BASE_DIR, 'frontend/js'),
-    os.path.join(BASE_DIR, 'frontend/scss')
+    os.path.join(BASE_DIR, 'frontend/scss'),
+    os.path.join(BASE_DIR, 'frontend/mdl/src')
 ]
 
-#COMPRESS_ROOT = os.path.join(BASE_DIR, 'frontend/static')
-#SASS_PROCESSOR_ROOT = os.path.join(BASE_DIR, 'frontend/static/css')
 COMPRESS_ENABLED = True
 STATICFILES_FINDERS = [
     'django.contrib.staticfiles.finders.FileSystemFinder',
@@ -115,6 +114,7 @@ STATICFILES_FINDERS = [
     'sass_processor.finders.CssFinder',
 ]
 SASS_PROCESSOR_INCLUDE_DIRS = (
+    os.path.join(BASE_DIR, 'frontend/mdl/src'),
     os.path.join(BASE_DIR, 'frontend/scss')
 )
 

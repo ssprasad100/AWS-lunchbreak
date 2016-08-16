@@ -1,5 +1,39 @@
 {% extends 'base.html' %}
 
+
+{% block head %}
+{% raw %}
+<script id="templateFoodForm" type="text/x-jsrender">
+    <div class="food-form">
+        <div class="food-amount mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+            <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\,[0-9]+)?">
+            <label class="mdl-textfield__label">{{:label}}</label>
+            <span class="mdl-textfield__error">Ongeldige hoeveelheid</span>
+        </div>
+        <div class="food-confirm button">{{:food.cost}}</div>
+        <div class="food-cancel button transparent">Annuleren</div>
+    </div>
+</script>
+<script id="templateIngredientGroups" type="text/x-jsrender">
+    <div class="ingredientgroups flexcolumn-container">
+        {{for food.ingredientgroups}}
+        <div class="ingredientgroup flexcolumn">
+            <h4>{{:name}}</h4>
+            <div class="ingredients">
+                {{for ingredients}}
+                <label class="ingredient mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" data-id="{{:id}}">
+                  <input type="checkbox" class="mdl-checkbox__input" {{if selected}}checked{{/if}}>
+                  <span class="mdl-checkbox__label">{{:name}}</span>
+                </label>
+                {{/for}}
+            </div>
+        </div>
+        {{/for}}
+    </div>
+</script>
+{% endraw %}
+{% endblock head %}
+
 {% block content %}
 <div id="store-banner" class="block banner small">
     <div class="container">
@@ -21,7 +55,8 @@
 </div>
 
 {% set menus = store.menus.all().prefetch_related(
-    'food'
+    'food__ingredients',
+    'food__ingredientgroups',
 ).order_by(
     '-priority',
     'name'
@@ -52,12 +87,16 @@
                 <div class="menu">
                     <h3>{{ menu.name }}</h3>
                     {% for food in menu.food.all() %}
-                        <div class="menu-item">
-                            <h4>{{ food.name }}</h4>
-                            <p>{{ food.description }}</p>
+                        <div class="food" data-id="{{ food.id }}" data-has-ingredients="{{ food.has_ingredients }}">
+                            <div class="food-top">
+                                <div class="food-text">
+                                    <h4>{{ food.name }}</h4>
+                                    <p>{{ food.description }}</p>
+                                </div>
 
-                            <div class="menu-add">
-                                <a class="button transparent" href="" alt="Toevoegen">&euro; {{ food.cost | replace('.', ',') }}</a>
+                                <div class="food-add">
+                                    <span class="button transparent" href="" alt="Toevoegen">&euro; {{ food.cost | replace('.', ',') }}</span>
+                                </div>
                             </div>
                         </div>
                     {% endfor %}

@@ -1,8 +1,8 @@
 from rest_framework import serializers
 
-from .models import (BaseToken, Food, Menu, FoodType, HolidayPeriod,
-                     Ingredient, IngredientGroup, IngredientRelation,
-                     OpeningPeriod, Quantity, Store, StoreCategory)
+from .models import (BaseToken, Food, FoodType, HolidayPeriod, Ingredient,
+                     IngredientGroup, IngredientRelation, Menu, OpeningPeriod,
+                     Quantity, Store, StoreCategory)
 
 
 class StoreCategorySerializer(serializers.ModelSerializer):
@@ -314,30 +314,46 @@ class FoodDetailSerializer(BaseFoodSerializer):
     def to_representation(self, obj):
         result = super().to_representation(obj)
 
+        # Add ingredientgroup ingredients to Food.ingredients representation
         ingredientrelations_added = []
         ingredientgroups = obj.ingredientgroups.all().prefetch_related(
             'ingredient_set'
         )
-        obj_ingredients = obj.ingredients.all()
+        ingredients = obj.ingredients.all().select_related(
+            'group'
+        )
 
         for ingredientgroup in ingredientgroups:
-            ingredients = ingredientgroup.ingredient_set.all()
-            for ingredient in ingredients:
-                if ingredient not in obj_ingredients:
+            group_ingredients = ingredientgroup.ingredient_set.all()
+            for ingredient in group_ingredients:
+                if ingredient not in ingredients:
                     ingredientrelations_added.append(
                         IngredientRelation(
                             ingredient=ingredient
                         )
                     )
 
-        serializer = IngredientRelationDetailSerializer(
+        result['ingredients'] += IngredientRelationDetailSerializer(
             many=True
-        )
-        relation_representation = serializer.to_representation(
+        ).to_representation(
             ingredientrelations_added
         )
 
-        result['ingredients'] += relation_representation
+        # Add the ingredientgroups of the ingredients that are not in
+        # Food.ingredientgroups to the representation.
+        ingredientgroups_added = []
+        for ingredient in ingredients:
+            if ingredient.group not in ingredientgroups \
+                    and ingredient.group not in ingredientgroups_added:
+                ingredientgroups_added.append(
+                    ingredient.group
+                )
+
+        result['ingredientgroups'] += IngredientGroupSerializer(
+            many=True
+        ).to_representation(
+            ingredientgroups_added
+        )
 
         return result
 
