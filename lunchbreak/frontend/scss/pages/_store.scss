@@ -216,10 +216,13 @@
                 width: 100%;
             }
 
-            #order-items {
+            #orderedfoods {
                 margin-top: 16px;
 
-                .order-item, .order-total {
+                .orderedfood, .order-total {
+                    $item-padding: 16px;
+                    $cost-amount-width: 48px;
+
                     height: 64px;
                     display: table;
                     width: 100%;
@@ -229,56 +232,55 @@
                         height: 64px;
                     }
 
-                    .order-item-amount, .order-item-cost {
-                        width: 48px;
+                    .orderedfood-amount, .orderedfood-cost {
+                        width: $cost-amount-width;
                         text-align: center;
                         vertical-align: middle;
                     }
 
-                    .order-item-amount {
+                    .orderedfood-amount {
                         color: $red;
                         font-size: $size-small;
                         font-weight: $weight-medium;
                     }
 
-                    .order-item-text {
+                    .orderedfood-text {
                         vertical-align: middle;
-                        padding: 0 16px;
+                        padding: 0 $item-padding;
 
-                        .order-item-name {
+                        .orderedfood-name {
                             font-weight: $weight-medium;
                             font-size: $size-small;
                         }
 
-                        .order-item-description {
+                        .orderedfood-description {
                             margin-top: 4px;
                             color: $grey-dark;
                             font-size: $size-xsmall;
                         }
                     }
 
-                    .order-item-cost {
+                    .orderedfood-cost {
                         font-size: $size-xsmall;
                         color: $grey-dark;
                         text-align: right;
-                        padding-right: 16px;
+                        padding-right: $item-padding;
                     }
 
-                    .order-total-amount {
-                        @extend .order-item-amount;
-
-                        color: $grey-dark;
+                    .ordered-food-data {
+                        display: none;
                     }
 
                     .order-total-text {
-                        @extend .order-item-text;
+                        @extend .orderedfood-text;
 
+                        padding-left: $cost-amount-width + $item-padding;
                         font-weight: $weight-medium;
                         font-size: $size-small;
                     }
 
                     .order-total-cost {
-                        @extend .order-item-cost;
+                        @extend .orderedfood-cost;
                     }
                 }
             }

@@ -34,6 +34,38 @@
         {{/for}}
     </div>
 </script>
+<script id="templateOrderedFood" type="text/x-jsrender">
+    <li class="orderedfood">
+        <div class="orderedfood-amount">
+            {{:getAmountDisplay()}}
+        </div>
+        <div class="orderedfood-text">
+            <div class="orderedfood-name">{{:name}}</div>
+            <div class="orderedfood-description">{{:description}}</div>
+        </div>
+        <div class="orderedfood-cost">
+            {{:getCostDisplay()}}
+        </div>
+        <div class="ordered-food-data">
+            <input type="hidden" name="orderedfood[{{:id}}][original]" value="1"/>
+
+            {{for ingredients}}
+            <input type="hidden" name="orderedfood[{{:id}}][ingredients][]" value=""/>
+            {{/for}}
+        </div>
+    </li>
+</script>
+
+<script id="templateOrderTotal" type="text/x-jsrender">
+    <li class="order-total">
+        <div class="order-total-text">
+            Subtotaal
+        </div>
+        <div class="order-total-cost">
+            {{:getTotalDisplay()}}
+        </div>
+    </li>
+</script>
 {% endraw %}
 {% endblock head %}
 
@@ -110,48 +142,45 @@
         <div id="order">
             <form method="post" action="">
                 <input type="submit" value="Afrekenen"/>
-                <ul id="order-items">
-                    <li class="order-item">
-                        <div class="order-item-amount">
+                <ul id="orderedfoods">
+                    <li class="orderedfood">
+                        <div class="orderedfood-amount">
                             1
                         </div>
-                        <div class="order-item-text">
-                            <div class="order-item-name">Cheeseburger</div>
-                            <div class="order-item-description">Met mozarella, zonder cheddar.</div>
+                        <div class="orderedfood-text">
+                            <div class="orderedfood-name">Cheeseburger</div>
+                            <div class="orderedfood-description">Met mozarella, zonder cheddar.</div>
                         </div>
-                        <div class="order-item-cost">
+                        <div class="orderedfood-cost">
                             &euro; 8,50
                         </div>
                     </li>
-                    <li class="order-item">
-                        <div class="order-item-amount">
-                            1
+                    <li class="orderedfood">
+                        <div class="orderedfood-amount">
+                            800 g
                         </div>
-                        <div class="order-item-text">
-                            <div class="order-item-name">Cheeseburger</div>
-                            <div class="order-item-description">Met mozarella, zonder cheddar.</div>
+                        <div class="orderedfood-text">
+                            <div class="orderedfood-name">Cheeseburger</div>
+                            <div class="orderedfood-description">Met mozarella, zonder cheddar.</div>
                         </div>
-                        <div class="order-item-cost">
+                        <div class="orderedfood-cost">
                             &euro; 8,50
                         </div>
                     </li>
-                    <li class="order-item">
-                        <div class="order-item-amount">
+                    <li class="orderedfood">
+                        <div class="orderedfood-amount">
                             1
                         </div>
-                        <div class="order-item-text">
-                            <div class="order-item-name">Cheeseburger</div>
-                            <div class="order-item-description">Met mozarella, zonder cheddarMet mozarella, zonder cheddarMet mozarella, zonder cheddar.Met mozarella, zonder cheddarMet mozarella, zonder cheddarMet mozarella, zonder cheddar.Met mozarella, zonder cheddarMet mozarella, zonder cheddarMet mozarella, zonder cheddar.</div>
+                        <div class="orderedfood-text">
+                            <div class="orderedfood-name">Cheeseburger</div>
+                            <div class="orderedfood-description">Met mozarella, zonder cheddarMet mozarella, zonder cheddarMet mozarella, zonder cheddar.Met mozarella, zonder cheddarMet mozarella, zonder cheddarMet mozarella, zonder cheddar.Met mozarella, zonder cheddarMet mozarella, zonder cheddarMet mozarella, zonder cheddar.</div>
                         </div>
-                        <div class="order-item-cost">
+                        <div class="orderedfood-cost">
                             &euro;8000,50
                         </div>
                     </li>
 
                     <li class="order-total">
-                        <div class="order-total-amount">
-                            3
-                        </div>
                         <div class="order-total-text">
                             Subtotaal
                         </div>
@@ -163,5 +192,10 @@
             </form>
         </div>
     </div>
+</div>
+
+<div id="snackbar" class="mdl-js-snackbar mdl-snackbar">
+    <div class="mdl-snackbar__text"></div>
+    <button class="mdl-snackbar__action" type="button"></button>
 </div>
 {% endblock content %}
