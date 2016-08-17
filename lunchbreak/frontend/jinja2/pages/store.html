@@ -10,7 +10,7 @@
             <label class="mdl-textfield__label">{{:label}}</label>
             <span class="mdl-textfield__error">Ongeldige hoeveelheid</span>
         </div>
-        <div class="food-confirm button">{{:food.cost}}</div>
+        <div class="food-confirm button">{{:food.getCostDisplay()}}</div>
         <div class="food-cancel button transparent">Annuleren</div>
     </div>
 </script>
@@ -21,10 +21,15 @@
             <h4>{{:name}}</h4>
             <div class="ingredients">
                 {{for ingredients}}
-                <label class="ingredient mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" data-id="{{:id}}">
+
+                <label class="ingredient mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect {{if #index > 5}}hidden{{/if}}" data-id="{{:id}}">
                   <input type="checkbox" class="mdl-checkbox__input" {{if selected}}checked{{/if}}>
                   <span class="mdl-checkbox__label">{{:name}}</span>
                 </label>
+
+                {{if #index == 5}}
+                <span class="ingredientgroup-more">Toon alle ingrediënten&hellip;</span>
+                {{/if}}
                 {{/for}}
             </div>
         </div>

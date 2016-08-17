@@ -167,6 +167,19 @@
                                     .ingredient {
                                         margin: 4px 0;
                                     }
+
+                                    .ingredientgroup-more {
+                                        margin: 8px 0 16px 0;
+                                        display: inline-block;
+                                        color: $red;
+                                        text-decoration: underline;
+                                        font-size: $checkbox-label-font-size;
+                                        cursor: pointer;
+                                    }
+
+                                    .hidden {
+                                        display: none;
+                                    }
                                 }
                             }
                         }

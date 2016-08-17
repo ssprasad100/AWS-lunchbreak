@@ -117,6 +117,11 @@
             this.addButton.on('click', function() {
                 self.onAdd();
             });
+            this.element.on('click', '.ingredientgroup-more', IngredientGroup.onExpandIngredients);
+        };
+
+        this.getCostDisplay = function() {
+            return '&euro; ' + this.cost.toFixed(2).replace('.', ',');
         };
 
         this.onVisible = function() {
@@ -190,7 +195,6 @@
             for(var i in this.ingredients) {
                 var ingredient = this.ingredients[i];
                 var ingredientgroup = this.getIngredientGroup(ingredient.group);
-                console.log(ingredientgroup);
                 if(ingredientgroup.ingredients === undefined)
                     ingredientgroup.ingredients = [ingredient];
                 else
@@ -248,6 +252,14 @@
         };
 
         this.init();
+    };
+
+    IngredientGroup.onExpandIngredients = function(event) {
+        var element = $(this);
+        element.addClass('hidden');
+        element.parent().find('.ingredient.hidden').each(function(index) {
+            $(this).removeClass('hidden');
+        });
     };
 
     var Ingredient = function(food, json) {
