@@ -223,8 +223,8 @@ class QuantitySerializer(serializers.ModelSerializer):
         model = Quantity
         fields = (
             'id',
-            'min',
-            'max',
+            'minimum',
+            'maximum',
             'last_modified',
         )
         read_only_fields = (

@@ -469,7 +469,7 @@ class FoodType(models.Model):
         return (
             amount > 0 and
             (self.inputtype != INPUT_AMOUNT or float(amount).is_integer()) and
-            (quantity is None or quantity.min <= amount <= quantity.max)
+            (quantity is None or quantity.minimum <= amount <= quantity.maximum)
         )
 
     def __str__(self):
@@ -641,12 +641,12 @@ class Quantity(models.Model):
         on_delete=models.CASCADE
     )
 
-    min = models.DecimalField(
+    minimum = models.DecimalField(
         decimal_places=3,
         max_digits=7,
         default=1
     )
-    max = models.DecimalField(
+    maximum = models.DecimalField(
         decimal_places=3,
         max_digits=7,
         default=10
@@ -661,10 +661,10 @@ class Quantity(models.Model):
         verbose_name_plural = 'Quantities'
 
     def clean(self):
-        if self.min > self.max:
+        if self.minimum > self.maximum:
             raise ValidationError('Amount maximum need to be greater or equal to its minimum.')
-        if not self.foodtype.is_valid_amount(self.min) or \
-                not self.foodtype.is_valid_amount(self.max):
+        if not self.foodtype.is_valid_amount(self.minimum) or \
+                not self.foodtype.is_valid_amount(self.maximum):
             raise InvalidFoodTypeAmount()
 
     def save(self, *args, **kwargs):
@@ -672,9 +672,9 @@ class Quantity(models.Model):
         super(Quantity, self).save(*args, **kwargs)
 
     def __str__(self):
-        return '{min}-{max}'.format(
-            min=self.min,
-            max=self.max
+        return '{minimum}-{maximum}'.format(
+            minimum=self.minimum,
+            maximum=self.maximum
         )
 
 
@@ -801,7 +801,7 @@ class Food(models.Model):
             self.foodtype.inputtype != INPUT_SI_VARIABLE
         ) and (
             self.quantity is None or
-            self.quantity.min <= amount <= self.quantity.max
+            self.quantity.minimum <= amount <= self.quantity.maximum
         )
 
     def clean(self):

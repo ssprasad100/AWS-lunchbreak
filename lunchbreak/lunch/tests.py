@@ -448,15 +448,15 @@ class LunchTests(LunchbreakTestCase):
             Quantity.objects.create,
             foodtype=foodtype,
             store=store,
-            min=2,
-            max=1
+            minimum=2,
+            maximum=1
         )
 
         Quantity.objects.create(
             foodtype=foodtype,
             store=store,
-            min=1,
-            max=2
+            minimum=1,
+            maximum=2
         )
 
     @mock.patch('googlemaps.Client.geocode')
@@ -477,8 +477,8 @@ class LunchTests(LunchbreakTestCase):
         quantity = Quantity.objects.create(
             foodtype=foodtype,
             store=store,
-            min=1,
-            max=10
+            minimum=1,
+            maximum=10
         )
 
         inputtypes = [
@@ -503,8 +503,8 @@ class LunchTests(LunchbreakTestCase):
             self.assertEqual(foodtype.is_valid_amount(1), it['integer'])
             self.assertEqual(foodtype.is_valid_amount(1.5), it['float'])
 
-            quantity.min = 1.5
-            quantity.max = 9.5
+            quantity.minimum = 1.5
+            quantity.maximum = 9.5
 
             try:
                 quantity.save()
@@ -514,8 +514,8 @@ class LunchTests(LunchbreakTestCase):
                         'Input type is float, but raises exception.'
                     )
                 elif it['integer']:
-                    quantity.min = 1
-                    quantity.max = 9
+                    quantity.minimum = 1
+                    quantity.maximum = 9
 
                     try:
                         quantity.save()

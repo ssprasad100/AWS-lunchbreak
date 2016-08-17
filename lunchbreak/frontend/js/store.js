@@ -2,6 +2,25 @@
     'use strict';
 
     /**
+     * Object returned on validation.
+     * @typedef {Validation}
+     * @type {object}
+     * @property {bool} valid Whether the validation was successful or not.
+     * @property {?string} errorMessage Message to be displayed an error occurred.
+     */
+    var Validation = function(message, valid) {
+        this.errorMessage = message || null;
+        if (message && valid === undefined) {
+            // Valid defaults to false when there is a message set.
+            // It can be overriden by providing valid in the constructor.
+            this.valid = false;
+        } else {
+            // If no parameters are given, it defaults to true
+            this.valid = true;
+        }
+    };
+
+    /**
      * Map json keys and values to instance properties.
      * @param  {Object.<string, Object.<string, object>>} mapping Mapping settings.
      * @param  {object} instance Instance where to set the properties on.
@@ -36,52 +55,49 @@
     /**
      * Inventory representation that holds all menus.
      */
-    var Inventory = function() {
-        this.element = $('#menus');
-        this.menus = [];
+    var Inventory = function() {};
 
-        this.init = function() {
-            var self = this;
-            this.element.find('.menu').each(function(key, value) {
-                self.menus.push(new Menu(self, $(value)));
-            });
+    Inventory.init = function() {
+        Inventory.element = $('#menus');
+        Inventory.menus = [];
 
-            holmes({
-                input: '#menu-search',
-                find: '.food:not(.expanded)',
-                class: {
-                    visible: false,
-                        hidden: 'hidden',
-                },
-                dynamic: true,
-                instant: true,
-                onHidden: function(element) {
-                    self.getFood($(element)).onHidden();
-                },
-                onVisible: function(element) {
-                    self.getFood($(element)).onVisible();
-                }
-            });
-        };
+        Inventory.element.find('.menu').each(function(key, value) {
+            Inventory.menus.push(new Menu($(value)));
+        });
 
-        /**
-         * Get the Food instance from a Food element.
-         * @param  {jQuery} element jQuery element of a Food.
-         * @return {?Food} Food instance or null.
-         */
-        this.getFood = function(element) {
-            for (var i = 0; i < this.menus.length; i++) {
-                var menu = this.menus[i];
-                for (var j = 0; j < menu.items.length; j++) {
-                    var item = menu.items[j];
-                    if (item.element[0] == element[0])
-                        return item;
-                }
+        holmes({
+            input: '#menu-search',
+            find: '.food:not(.expanded)',
+            class: {
+                visible: false,
+                    hidden: 'hidden',
+            },
+            dynamic: true,
+            instant: true,
+            onHidden: function(element) {
+                Inventory.getFood($(element)).onHidden();
+            },
+            onVisible: function(element) {
+                Inventory.getFood($(element)).onVisible();
             }
-            return null;
-        };
+        });
+    };
 
-        this.init();
+    /**
+     * Get the Food instance from a Food element.
+     * @param  {jQuery} element jQuery element of a Food.
+     * @return {?Food} Food instance or null.
+     */
+    Inventory.getFood = function(element) {
+        for (var i = 0; i < Inventory.menus.length; i++) {
+            var menu = Inventory.menus[i];
+            for (var j = 0; j < menu.items.length; j++) {
+                var item = menu.items[j];
+                if (item.element[0] == element[0])
+                    return item;
+            }
+        }
+        return null;
     };
 
     /**
@@ -95,13 +111,23 @@
         $('#snackbar')[0].MaterialSnackbar.showSnackbar(data);
     };
 
+    var Order = function() {};
+    Order.orderedfood = [];
+
+    Order.addOrderedFood = function(orderedfood) {
+        Order.orderedfood.push(orderedfood);
+
+    };
+
+    var OrderedFood = function(food) {
+        this.food = food;
+    };
+
     /**
      * A menu in the inventory, holds a list of foods.
-     * @param {Inventory} inventory Parent inventory.
      * @param {jQuery} element jQuery element.
      */
-    var Menu = function(inventory, element) {
-        this.inventory = inventory;
+    var Menu = function(element) {
         this.element = element;
         this.items = [];
         this.hiddenItems = 0;
@@ -113,7 +139,7 @@
             });
         };
 
-        this.update = function() {
+        this.updateVisibility = function() {
             if (this.hiddenItems >= this.items.length)  {
                 this.hide();
             } else {
@@ -146,77 +172,12 @@
         this.id = this.element.data('id');
         this.hasIngredients = this.element.data('has-ingredients') === 'True';
 
-        this.init = function() {
-            var self = this;
-            this.addButton.on('click', function() {
-                self.onAdd();
-            });
-            this.element.on('click', '.food-cancel', function() {
-                self.toggle();
-            });
-            this.element.on('click', '.ingredientgroup-more', IngredientGroup.onExpandIngredients);
-        };
-
         /**
          * Get a representation of the cost.
          * @return {string} Example: "&euro; 3,50".
          */
         this.getCostDisplay = function() {
             return '&euro; ' + this.cost.toFixed(2).replace('.', ',');
-        };
-
-        /**
-         * Holmes onChange callback for showing items.
-         */
-        this.onVisible = function() {
-            this.menu.hiddenItems--;
-            this.menu.update();
-        };
-
-        /**
-         * Holmes onChange callback for hiding items.
-         */
-        this.onHidden = function() {
-            this.menu.hiddenItems++;
-            this.menu.update();
-        };
-
-        /**
-         * Render the Food with a JsRender template into Food.element.
-         */
-        this.render = function() {
-            var foodFormTemplate = $.templates('#templateFoodForm');
-            this.element.find('.food-top .food-text').append(
-                foodFormTemplate.render({
-                    label: 'Gewicht (kg)',
-                    food: this
-                })
-            );
-
-            var ingredientGroupsTemplate = $.templates('#templateIngredientGroups');
-            this.element.append(
-                ingredientGroupsTemplate.render({
-                    food: this
-                })
-            );
-
-            componentHandler.upgradeAllRegistered();
-
-            var self = this;
-            this.element.find('.ingredientgroups .ingredientgroup').each(function(index) {
-                var ingredientgroup = self.ingredientgroups[index];
-                ingredientgroup.attachElement($(this));
-            });
-        };
-
-        /**
-         * Toggle the expanding of the Food element.
-         */
-        this.toggle = function() {
-            if (this.element.hasClass('expanded'))
-                this.element.removeClass('expanded');
-            else
-                this.element.addClass('expanded');
         };
 
         /**
@@ -233,12 +194,81 @@
             return null;
         };
 
+        this.init = function() {
+            var self = this;
+            this.addButton.on('click', function() {
+                self.onAdd();
+            });
+            this.element.on('click', '.food-cancel', function() {
+                self.toggle();
+            });
+            this.element.on(
+                'click',
+                '.ingredientgroup-more',
+                IngredientGroup.onExpandIngredients
+            );
+            this.element.on(
+                'click',
+                '.food-confirm',
+                function() {
+                    self.onConfirm();
+                }
+            );
+        };
+
+        /**
+         * Add selected Food and ingredients to order.
+         * Call reset after doing so.
+         */
+        this.addToOrder = function() {
+            var clone = jQuery.extend(true, {}, this);
+            var orderedfood = new OrderedFood(clone);
+            this.reset();
+            Order.addOrderedFood(orderedfood);
+        };
+
+        /**
+         * Reset the food back to its original content.
+         */
+        this.reset = function() {
+            this.updated = false;
+        };
+
+        /**
+         * Toggle the expanding of the Food element.
+         */
+        this.toggle = function() {
+            if (this.element.hasClass('expanded'))
+                this.element.removeClass('expanded');
+            else
+                this.element.addClass('expanded');
+        };
+
+        /**
+         * Retrieve detailed info of the object from the Lunchbreak API.
+         * Afterwards call `update` and `render` the Food.
+         */
+        this.fetch = function() {
+            var self = this;
+            $.getJSON(
+                '/api/customers/food/' + this.id + '/',
+                function(json) {
+                    self.update(json);
+                    self.render();
+                }
+            );
+        };
+
         /**
          * Update the properties with the JSON data. Also add Food.ingredients
          *  to the associated Food.ingredientgroups.
          * @param  {Object.<string, object>} json JSON data.
+         * @param {bool} force Force an update.
          */
-        this.update = function(json) {
+        this.update = function(json, force) {
+            if (this.updated && !force)
+                return;
+
             mapJson({
                     'has_ingredients': {
                         key: 'hasIngredients'
@@ -254,6 +284,12 @@
                     },
                     'ingredientgroups': {
                         class: IngredientGroup
+                    },
+                    'quantity': {
+                        class: Quantity
+                    },
+                    'foodtype': {
+                        class: FoodType
                     }
                 },
                 this,
@@ -276,21 +312,83 @@
         };
 
         /**
-         * Retrieve detailed info of the object from the Lunchbreak API.
-         * Afterwards call `update` and `render` the Food.
+         * Render the Food with a JsRender template into Food.element.
          */
-        this.fetch = function() {
-            if (this.updated)
-                return;
+        this.render = function() {
+            var foodFormTemplate = $.templates('#templateFoodForm');
+            this.element.find('.food-top .food-text').append(
+                foodFormTemplate.render({
+                    label: this.foodtype.getLabelDisplay(),
+                    food: this
+                })
+            );
+
+            var ingredientGroupsTemplate = $.templates('#templateIngredientGroups');
+            this.element.append(
+                ingredientGroupsTemplate.render({
+                    food: this
+                })
+            );
+
+            componentHandler.upgradeAllRegistered();
 
             var self = this;
-            $.getJSON(
-                '/api/customers/food/' + this.id + '/',
-                function(json) {
-                    self.update(json);
-                    self.render();
+            this.element.find('.ingredientgroups .ingredientgroup').each(function(index) {
+                var ingredientgroup = self.ingredientgroups[index];
+                ingredientgroup.attachElement($(this));
+            });
+            this.inputField = this.element.find('.food-amount input').first();
+            this.inputError = this.element.find('.food-amount .mdl-textfield__error').first();
+        };
+
+        /**
+         * Validate whether the selected amount is adhering to the rules.
+         * @return {Validation}
+         */
+        this.validate = function() {
+            var value = new Number(this.inputField.val());
+            if (value === NaN)
+                return new Validation(
+                    'Gelieve een geldig nummer in te geven.'
+                );
+
+            if (this.foodtype.inputtype !== FoodType.InputType.SIVariable) {
+                if (value % 1 != 0) {
+                    // The value is a decimal
+                    return new Validation(
+                        'Moet een geheel getal zijn.'
+                    );
                 }
-            );
+            }
+
+            if(this.quantity !== null) {
+                if (value < this.quantity.minimum) {
+                    return new Validation(
+                        'Minimum ' + this.quantity.getMinimumDisplay() + '.'
+                    );
+                } else if (value > this.quantity.maximum) {
+                    return new Validation(
+                        'Maximum ' + this.quantity.getMaximumDisplay() + '.'
+                    );
+                }
+            }
+            return new Validation();
+        };
+
+        /**
+         * Holmes onChange callback for showing items.
+         */
+        this.onVisible = function() {
+            this.menu.hiddenItems--;
+            this.menu.updateVisibility();
+        };
+
+        /**
+         * Holmes onChange callback for hiding items.
+         */
+        this.onHidden = function() {
+            this.menu.hiddenItems++;
+            this.menu.updateVisibility();
         };
 
         /**
@@ -305,8 +403,151 @@
             }
         };
 
+        /**
+         * Callback when confirming to add it to the order.
+         */
+        this.onConfirm = function() {
+            var validation = this.validate();
+            if (validation.valid) {
+                Inventory.showSnackbar('Alles oké!');
+            } else {
+                this.inputError.text(validation.errorMessage);
+                this.inputError.parent().addClass('is-focused');
+                this.inputError.parent().addClass('is-invalid');
+            }
+        };
+
         this.init();
     };
+
+    /**
+     * FoodType of a food.
+     * @param {Food} food Parent food.
+     * @param {Object.<string, object>} json JSON data.
+     */
+    var FoodType = function(food, json) {
+        this.food = food;
+
+        this.getLabelDisplay = function() {
+            switch (this.inputtype) {
+                case FoodType.InputType.Amount:
+                    return 'Hoeveelheid';
+                    break;
+                case FoodType.InputType.SIVariable:
+                    return 'Gewicht (kg)';
+                    break;
+                case FoodType.InputType.SIAmount:
+                    var inputtype = this.inputtype === FoodType.InputType.Amount ? this.inputtype : FoodType.InputType.SIVariable;
+                    return 'Aantal (elk ' + Quantity.getAmountDisplay(inputtype, this.food.amount) + ')';
+                    break;
+            }
+        };
+
+        this.init = function() {
+            this.update(json);
+        };
+
+        /**
+         * Update the properties with the JSON data.
+         * @param  {Object.<string, object>} json JSON data.
+         * @param {bool} force Force an update.
+         */
+        this.update = function(json, force) {
+            if (this.updated && !force)
+                return;
+
+            mapJson({},
+                this,
+                json
+            );
+
+            this.updated = true;
+        };
+
+        this.init();
+    };
+
+    /**
+     * FoodType InputType 'enum'.
+     * @type {object}
+     */
+    FoodType.InputType = {
+        Amount: 0,
+        SIVariable: 1,
+        SIAmount: 2
+    };
+
+    /**
+     * Quantity of a food.
+     * @param {Food} food Parent food.
+     * @param {Object.<string, object>} json JSON data.
+     */
+    var Quantity = function(food, json) {
+        this.food = food;
+
+        this.getMinimumDisplay = function() {
+            return Quantity.getAmountDisplay(
+                this.food.foodtype.inputtype,
+                this.minimum
+            );
+        };
+
+        this.getMaximumDisplay = function() {
+            return Quantity.getAmountDisplay(
+                this.food.foodtype.inputtype,
+                this.maximum
+            );
+        };
+
+        this.init = function() {
+            this.update(json);
+        };
+
+        /**
+         * Update the properties with the JSON data.
+         * @param  {Object.<string, object>} json JSON data.
+         * @param {bool} force Force an update.
+         */
+        this.update = function(json, force) {
+            if (this.updated && !force)
+                return;
+
+            mapJson({},
+                this,
+                json
+            );
+
+            this.updated = true;
+        };
+
+        this.init();
+    };
+
+    /**
+     * Get a representation for a value based on an inputtype.
+     * @param  {FoodType.InputType} inputtype Input type of the value.
+     * @param  {number} value Amount/weight value.
+     * @return {string} Representation of the given value and input type.
+     */
+    Quantity.getAmountDisplay = function(inputtype, value) {
+        if (inputtype === FoodType.InputType.SIVariable) {
+            return Quantity.getWeightDisplay(value);
+        } else {
+            return Math.round(value);
+        }
+    };
+
+    /**
+     * A weight representation of a value in kg or g.
+     * @param  {number} value Weight in kg.
+     * @return {string} SI unit representation.
+     */
+    Quantity.getWeightDisplay = function(value) {
+        if (value < 1)
+            return (value * 1000) + ' g';
+        else
+            return value + ' kg';
+    }
 
     /**
      * IngredientGroup of a food.
@@ -324,9 +565,10 @@
         /**
          * Update the properties with the JSON data.
          * @param  {Object.<string, object>} json JSON data.
+         * @param {bool} force Force an update.
          */
-        this.update = function(json) {
-            if (this.updated)
+        this.update = function(json, force) {
+            if (this.updated && !force)
                 return;
 
             mapJson({},
@@ -356,16 +598,8 @@
         };
 
         /**
-         * Object returned on validation.
-         * @typedef {Validation}
-         * @type {object}
-         * @property {bool} valid Whether the validation was successful or not.
-         * @property {?string} errorMessage Message to be displayed an error occurred.
-         */
-
-        /**
          * Validate whether the selected ingredients are adhering to the rules.
-         * @return {validation}
+         * @return {Validation}
          */
         this.validate = function() {
             var validation = {
@@ -373,19 +607,21 @@
                 errorMessage: null
             };
             if (this.minimum === 0 && this.maximum === 0)
-                return validation;
+                return Validation();
 
             var selectedIngredients = this.getSelectedIngredients();
 
             var selectedAmount = selectedIngredients.length;
             if (selectedAmount < this.minimum) {
-                validation['valid'] = false;
-                validation['errorMessage'] = 'Gelieve er minimum ' + this.minimum + ' te selecteren.';
+                return new Validation(
+                    'Gelieve er minimum ' + this.minimum + ' te selecteren.'
+                );
             } else if (selectedAmount > this.maximum) {
-                validation['valid'] = false;
-                validation['errorMessage'] = 'Gelieve er maximum ' + this.maximum + ' te selecteren.';
+                return new Validation(
+                    'Gelieve er maximum ' + this.maximum + ' te selecteren.'
+                );
             }
-            return validation;
+            return new Validation();
         };
 
         /**
@@ -433,9 +669,10 @@
          * Update the properties with the JSON data. Also merge the
          * IngredientRelation and Ingredient into 1 Ingredient.
          * @param  {Object.<string, object>} json JSON data.
+         * @param {bool} force Force an update.
          */
-        this.update = function(json) {
-            if (this.updated)
+        this.update = function(json, force) {
+            if (this.updated && !force)
                 return;
 
             var ingredient = json.ingredient;
@@ -520,7 +757,7 @@
     };
 
     $(document).ready(function() {
-        new Inventory();
+        Inventory.init();
     });
 
 })();

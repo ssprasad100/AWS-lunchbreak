@@ -15,8 +15,8 @@ class QuantityAdmin(admin.ModelAdmin):
     list_display = (
         'foodtype',
         'store',
-        'min',
-        'max',
+        'minimum',
+        'maximum',
         'id',
     )
     readonly_fields = (
@@ -123,6 +123,7 @@ class IngredientsRelationInline(admin.TabularInline):
     model = IngredientRelation
     extra = 1
     fields = ['ingredient', 'selected']
+
 
 class FoodForm(forms.ModelForm):
 
