@@ -99,11 +99,19 @@
                             right: 16px;
                         }
 
+                        .food-form {
+                            display: none;
+                        }
+
                         &:after {
                             content: '';
                             display: block;
                             clear: both;
                         }
+                    }
+
+                    .ingredientgroups {
+                        display: none;
                     }
 
                     &.expanded {
@@ -141,6 +149,7 @@
                                 float: right;
                                 direction: ltr;
                                 border-spacing: 8px 0;
+                                display: block;
 
                                 .food-amount, .food-confirm {
                                     margin-right: 8px;
@@ -161,24 +170,29 @@
                             -ms-user-select: none; /* IE 10+ */
                             user-select: none; /* Likely future */
                             cursor: normal;
+                            display: block;
 
                             .ingredientgroup {
                                 .ingredients {
                                     .ingredient {
                                         margin: 4px 0;
+
+                                        &.hidden {
+                                            display: none;
+
+                                            + .ingredientgroup-more {
+                                                display: inline-block;
+                                            }
+                                        }
                                     }
 
                                     .ingredientgroup-more {
+                                        display: none;
                                         margin: 8px 0 16px 0;
-                                        display: inline-block;
                                         color: $red;
                                         text-decoration: underline;
                                         font-size: $checkbox-label-font-size;
                                         cursor: pointer;
-                                    }
-
-                                    .hidden {
-                                        display: none;
                                     }
                                 }
                             }

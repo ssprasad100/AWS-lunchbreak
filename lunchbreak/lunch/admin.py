@@ -122,7 +122,7 @@ class FoodTypeAdmin(admin.ModelAdmin):
 class IngredientsRelationInline(admin.TabularInline):
     model = IngredientRelation
     extra = 1
-    fields = ['ingredient']
+    fields = ['ingredient', 'selected']
 
 class FoodForm(forms.ModelForm):
 
@@ -157,6 +157,9 @@ class FoodAdmin(admin.ModelAdmin):
     inlines = (IngredientsRelationInline,)
     list_filter = [
         'store'
+    ]
+    search_fields = [
+        'name'
     ]
 
 

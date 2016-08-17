@@ -104,7 +104,6 @@
     var Food = function(menu, element) {
         this.menu = menu;
         this.element = element;
-        this.expanded = false;
         this.addButton = element.find('.food-add');
         this.updated = false;
 
@@ -116,6 +115,9 @@
             var self = this;
             this.addButton.on('click', function() {
                 self.onAdd();
+            });
+            this.element.on('click', '.food-cancel', function() {
+                self.toggle();
             });
             this.element.on('click', '.ingredientgroup-more', IngredientGroup.onExpandIngredients);
         };
@@ -153,11 +155,10 @@
         };
 
         this.toggle = function() {
-            if(this.expanded)
+            if(this.element.hasClass('expanded'))
                 this.element.removeClass('expanded');
-            else {
+            else
                 this.element.addClass('expanded');
-            }
         };
 
         this.getIngredientGroup = function(id) {
@@ -256,7 +257,6 @@
 
     IngredientGroup.onExpandIngredients = function(event) {
         var element = $(this);
-        element.addClass('hidden');
         element.parent().find('.ingredient.hidden').each(function(index) {
             $(this).removeClass('hidden');
         });

@@ -603,10 +603,10 @@ class Ingredient(models.Model, DirtyFieldsMixin):
         super(Ingredient, self).save(*args, **kwargs)
 
     def __str__(self):
-        return '#{id} {name} ({group})'.format(
-            id=self.id,
+        return '{name} ({group}) #{id}'.format(
             name=self.name,
-            group=self.group
+            group=self.group,
+            id=self.id
         )
 
 
@@ -815,7 +815,6 @@ class Food(models.Model):
                     menu_store=self.menu.store_id
                 )
             )
-
 
     def save(self, *args, **kwargs):
         self.full_clean()
