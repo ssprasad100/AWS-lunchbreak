@@ -597,7 +597,6 @@
                     this.originalErrorMessage = this.inputError.text();
 
                 if (this.inputError.text() !== message) {
-                    console.log('chagne')
                     this.inputError.text(message);
                 }
                 this.inputError.parent().addClass('is-focused');

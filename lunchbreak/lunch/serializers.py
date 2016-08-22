@@ -317,7 +317,7 @@ class FoodDetailSerializer(BaseFoodSerializer):
             ingredients__isnull=False
         ).prefetch_related(
             'ingredients'
-        )
+        ).distinct()
         ingredients = obj.ingredients.all().select_related(
             'group'
         )
@@ -347,7 +347,6 @@ class FoodDetailSerializer(BaseFoodSerializer):
                 ingredientgroups_added.append(
                     ingredient.group
                 )
-
 
         result['ingredientgroups'] = IngredientGroupSerializer(
             many=True

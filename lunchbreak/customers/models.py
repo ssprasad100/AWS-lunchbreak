@@ -766,7 +766,7 @@ class OrderedFood(models.Model):
         cost = food.cost
 
         for ingredient in ordered_ingredients:
-            if ingredient.selected and ingredient not in food_ingredients:
+            if ingredient not in food_ingredients:
                 if ingredient.group.calculation in [COST_GROUP_BOTH, COST_GROUP_ADDITIONS]:
                     cost += ingredient.cost
                 elif ingredient.group not in foodGroups:
