@@ -1,74 +1,5 @@
 {% extends 'base.html' %}
 
-
-{% block head %}
-{% raw %}
-<script id="templateFoodForm" type="text/x-jsrender">
-    <div class="food-form">
-        <div class="food-amount mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-            <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*((\,|\.)[0-9]+)?">
-            <label class="mdl-textfield__label">{{:label}}</label>
-            <span class="mdl-textfield__error">Ongeldige hoeveelheid</span>
-        </div>
-        <div class="food-confirm button">{{:food.getCostDisplay()}}</div>
-        <div class="food-cancel button transparent">Annuleren</div>
-    </div>
-</script>
-<script id="templateIngredientGroups" type="text/x-jsrender">
-    <div class="ingredientgroups flexcolumn-container">
-        {{for food.ingredientgroups}}
-        <div class="ingredientgroup flexcolumn">
-            <h4>{{:name}}</h4>
-            <div class="ingredients">
-                {{for ingredients}}
-
-                <label class="ingredient mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect {{if #index >= 5 && !selected}}hidden{{/if}}" data-id="{{:id}}">
-                  <input type="checkbox" class="mdl-checkbox__input" {{if selected}}checked{{/if}}>
-                  <span class="mdl-checkbox__label">{{:name}}</span>
-                </label>
-                {{/for}}
-
-                <span class="ingredientgroup-more">Toon alle ingrediënten&hellip;</span>
-            </div>
-        </div>
-        {{/for}}
-    </div>
-</script>
-<script id="templateOrderedFood" type="text/x-jsrender">
-    <li class="orderedfood">
-        <div class="orderedfood-amount">
-            {{:getAmountDisplay()}}
-        </div>
-        <div class="orderedfood-text">
-            <div class="orderedfood-name">{{:name}}</div>
-            <div class="orderedfood-description">{{:description}}</div>
-        </div>
-        <div class="orderedfood-cost">
-            {{:getCostDisplay()}}
-        </div>
-        <div class="ordered-food-data">
-            <input type="hidden" name="orderedfood[{{:id}}][original]" value="1"/>
-
-            {{for ingredients}}
-            <input type="hidden" name="orderedfood[{{:id}}][ingredients][]" value=""/>
-            {{/for}}
-        </div>
-    </li>
-</script>
-
-<script id="templateOrderTotal" type="text/x-jsrender">
-    <li class="order-total">
-        <div class="order-total-text">
-            Subtotaal
-        </div>
-        <div class="order-total-cost">
-            {{:getTotalDisplay()}}
-        </div>
-    </li>
-</script>
-{% endraw %}
-{% endblock head %}
-
 {% block content %}
 <div id="store-banner" class="block banner small">
     <div class="container">
@@ -142,44 +73,8 @@
         <div id="order">
             <form method="post" action="">
                 <input type="submit" value="Afrekenen"/>
-                <ul id="orderedfoods">
-                    <li class="orderedfood">
-                        <div class="orderedfood-amount">
-                            1
-                        </div>
-                        <div class="orderedfood-text">
-                            <div class="orderedfood-name">Cheeseburger</div>
-                            <div class="orderedfood-description">Met mozarella, zonder cheddar.</div>
-                        </div>
-                        <div class="orderedfood-cost">
-                            &euro; 8,50
-                        </div>
-                    </li>
-                    <li class="orderedfood">
-                        <div class="orderedfood-amount">
-                            800 g
-                        </div>
-                        <div class="orderedfood-text">
-                            <div class="orderedfood-name">Cheeseburger</div>
-                            <div class="orderedfood-description">Met mozarella, zonder cheddar.</div>
-                        </div>
-                        <div class="orderedfood-cost">
-                            &euro; 8,50
-                        </div>
-                    </li>
-                    <li class="orderedfood">
-                        <div class="orderedfood-amount">
-                            1
-                        </div>
-                        <div class="orderedfood-text">
-                            <div class="orderedfood-name">Cheeseburger</div>
-                            <div class="orderedfood-description">Met mozarella, zonder cheddarMet mozarella, zonder cheddarMet mozarella, zonder cheddar.Met mozarella, zonder cheddarMet mozarella, zonder cheddarMet mozarella, zonder cheddar.Met mozarella, zonder cheddarMet mozarella, zonder cheddarMet mozarella, zonder cheddar.</div>
-                        </div>
-                        <div class="orderedfood-cost">
-                            &euro;8000,50
-                        </div>
-                    </li>
-
+                <ul id="orderedfoods" class="empty">
+                    <li class="orderedfood-empty">Voeg artikelen aan je winkelmandje toe.</li>
                     <li class="order-total">
                         <div class="order-total-text">
                             Subtotaal

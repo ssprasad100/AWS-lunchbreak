@@ -114,7 +114,7 @@ class OrderViewSet(TargettedViewSet,
             '-receipt'
         )
 
-    @list_route(methods=['post'])
+    @list_route(methods=['post'], authentication_classes=())
     def price(self, request):
         """Return the price of the food."""
         serializer = OrderedFoodPriceSerializer(
@@ -136,6 +136,13 @@ class OrderViewSet(TargettedViewSet,
                 else:
                     price_info['cost'] = original.cost
                     price_info['food'] = original.id
+
+                # TODO make it into 1 filter/query
+                price_info['food'] = FoodSerializer().to_representation(
+                    instance=Food.objects.get(
+                        id=price_info['food']
+                    )
+                )
                 result.append(price_info)
             return Response(data=result, status=status.HTTP_200_OK)
 

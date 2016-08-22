@@ -288,10 +288,6 @@ class FoodSerializer(BaseFoodSerializer):
 
 
 class FoodDetailSerializer(BaseFoodSerializer):
-    ingredientgroups = IngredientGroupSerializer(
-        many=True,
-        read_only=True
-    )
     ingredients = IngredientRelationDetailSerializer(
         source='ingredientrelation_set',
         many=True
@@ -304,10 +300,10 @@ class FoodDetailSerializer(BaseFoodSerializer):
             'ingredients',
             'store',
             'last_modified',
-            'ingredientgroups',
+            # 'ingredientgroups', see to_representation
         )
         read_only_fields = BaseFoodSerializer.Meta.read_only_fields + (
-            'ingredientgroups',
+            # 'ingredientgroups', see to_representation
             'last_modified',
         )
 
@@ -316,15 +312,18 @@ class FoodDetailSerializer(BaseFoodSerializer):
 
         # Add ingredientgroup ingredients to Food.ingredients representation
         ingredientrelations_added = []
-        ingredientgroups = obj.ingredientgroups.all().prefetch_related(
-            'ingredient_set'
+        ingredientgroups = obj.ingredientgroups.filter(
+            # Do not include empty groups
+            ingredients__isnull=False
+        ).prefetch_related(
+            'ingredients'
         )
         ingredients = obj.ingredients.all().select_related(
             'group'
         )
 
         for ingredientgroup in ingredientgroups:
-            group_ingredients = ingredientgroup.ingredient_set.all()
+            group_ingredients = ingredientgroup.ingredients.all()
             for ingredient in group_ingredients:
                 if ingredient not in ingredients:
                     ingredientrelations_added.append(
@@ -349,10 +348,11 @@ class FoodDetailSerializer(BaseFoodSerializer):
                     ingredient.group
                 )
 
-        result['ingredientgroups'] += IngredientGroupSerializer(
+
+        result['ingredientgroups'] = IngredientGroupSerializer(
             many=True
         ).to_representation(
-            ingredientgroups_added
+            ingredientgroups_added + list(ingredientgroups)
         )
 
         return result

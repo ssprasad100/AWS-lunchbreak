@@ -1,0 +1,23 @@
+<div class="ingredientgroups flexcolumn-container">
+    {% for ingredientgroup in food.ingredientgroups %}
+    <div class="ingredientgroup flexcolumn">
+        <h4>{{ ingredientgroup.name }}</h4>
+        <div class="ingredients">
+            {% for ingredient in ingredientgroup.ingredients %}
+                {% if loop.index >= 5 and not ingredient.selected %}
+                    {% set hidden_class = 'hidden' %}
+                {% else %}
+                    {% set hidden_class = '' %}
+                {% endif %}
+
+            <label class="ingredient mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect {{ hidden_class }}" data-id="{{ ingredient.id }}">
+              <input type="checkbox" class="mdl-checkbox__input" {% if ingredient.selected %}checked{% endif %}>
+              <span class="mdl-checkbox__label">{{ ingredient.name }}</span>
+            </label>
+            {% endfor %}
+
+            <span class="ingredientgroup-more">Toon alle ingrediënten&hellip;</span>
+        </div>
+    </div>
+    {% endfor %}
+</div>

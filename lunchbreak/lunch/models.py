@@ -560,10 +560,6 @@ class IngredientGroup(models.Model):
                 if amount < group.minimum:
                     raise IngredientGroupsMinimumNotMet()
 
-    @cached_property
-    def ingredients(self):
-        return self.ingredient_set.all()
-
     def __str__(self):
         return self.name
 
@@ -580,7 +576,8 @@ class Ingredient(models.Model, DirtyFieldsMixin):
 
     group = models.ForeignKey(
         IngredientGroup,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name='ingredients'
     )
     store = models.ForeignKey(
         Store,

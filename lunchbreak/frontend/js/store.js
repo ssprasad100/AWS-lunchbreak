@@ -53,10 +53,22 @@
     };
 
     /**
+     * Get a formatted money string of the value given.
+     * @param  {number} value Money value.
+     * @return {string} Foramtted money string.
+     */
+    var getMoneyDisplay = function(value) {
+        return ('&euro; ' + Math.ceil10(value, -2).toFixed(2)).replace('.', ',');
+    };
+
+    /**
      * Inventory representation that holds all menus.
      */
     var Inventory = function() {};
 
+    /**
+     * Load the menus and start initializing those together with holmes.js.
+     */
     Inventory.init = function() {
         Inventory.element = $('#menus');
         Inventory.menus = [];
@@ -111,16 +123,171 @@
         $('#snackbar')[0].MaterialSnackbar.showSnackbar(data);
     };
 
+    /**
+     * Representation of what is currently ordered in the order list.
+     */
     var Order = function() {};
     Order.orderedfood = [];
 
-    Order.addOrderedFood = function(orderedfood) {
-        Order.orderedfood.push(orderedfood);
-
+    Order.init = function() {
+        Order.element = $('#orderedfoods');
     };
 
-    var OrderedFood = function(food) {
+    /**
+     * Add an orderedfood to the Order, render and update its price.
+     * @param {OrderedFood} orderedfood Orderedfood.
+     */
+    Order.addOrderedFood = function(orderedfood) {
+        Order.orderedfood.push(orderedfood);
+        this.renderOrderedFood(orderedfood);
+        orderedfood.fetch();
+    };
+
+    /**
+     * Render an orderedfood into the order list.
+     * @param  {OrderedFood} orderedfood Orderedfood that needs to be rendered.
+     */
+    Order.renderOrderedFood = function(orderedfood) {
+        if (this.element.hasClass('empty'))
+            this.element.removeClass('empty');
+
+        var index = this.orderedfood.indexOf(orderedfood);
+
+        Order.element.prepend(
+            nunjucks.render(
+                'orderedfood.html', {
+                    'orderedfood': orderedfood,
+                    'index': index
+                }
+            )
+        );
+
+        var element = Order.element.find('.orderedfood').first();
+        orderedfood.attachElement(element);
+    };
+
+    /**
+     * Calculate and update the total cost of the order list.
+     */
+    Order.updateTotal = function() {
+        var costElement = Order.element.find('.order-total .order-total-cost').first();
+        var total = 0;
+
+        for (var i in Order.orderedfood) {
+            var orderedfood = Order.orderedfood[i];
+            total += orderedfood.getTotal();
+        }
+
+        costElement.html(getMoneyDisplay(total));
+    };
+
+    /**
+     * Callback for when one of the orderedfood's cost updates.
+     */
+    Order.onCostUpdate = function() {
+        Order.updateTotal();
+    };
+
+    /**
+     * OrderedFood belonging to Order.
+     * @param {Food} food Parent food.
+     * @param {number} amount Amount of food selected.
+     */
+    var OrderedFood = function(food, amount) {
         this.food = food;
+        this.amount = amount;
+
+        /**
+         * Get a formatted amount for use in the order list.
+         * @return {string} Formatted amount.
+         */
+        this.getAmountDisplay = function() {
+            return Quantity.getAmountDisplay(this.food.foodtype.inputtype, this.amount);
+        };
+
+        /**
+         * Calculate the total cost of the orderedfood based on the inputtype,
+         * cost and amount of food. All rounded to 2 decimals.
+         * @return {number} Total cost.
+         */
+        this.getTotal = function() {
+            var amount_food = this.food.foodtype.inputtype === FoodType.InputType.SIAmount ? this.food.amount : 1;
+            return Math.ceil10(this.cost * this.amount * amount_food, -2);
+        };
+
+        /**
+         * Get the total cost displayed in an appropriate money format.
+         * @return {string} Total cost formatted.
+         */
+        this.getTotalDisplay = function() {
+            if (this.cost === undefined)
+                return '...';
+            return getMoneyDisplay(this.getTotal());
+        };
+
+        /**
+         * Update the properties with the JSON data.
+         * @param  {Object.<string, object>} json JSON data.
+         * @param {bool} force Force an update.
+         * (Interface, doesn't do anything here)
+         */
+        this.update = function(json, force) {
+            this.cost = json[0]['cost'];
+            this.updateCost();
+        };
+
+        /**
+         * Update the cost displayed in the order list. Will also update the
+         * total cost of the order list.
+         */
+        this.updateCost = function() {
+            var costElement = this.element.find('.orderedfood-cost').first();
+            costElement.html(this.getTotalDisplay());
+
+            Order.onCostUpdate();
+        };
+
+        /**
+         * Update the price of the orderedfood by fetching it from the
+         * Lunchbreak API and update the object.
+         */
+        this.fetch = function() {
+            var self = this;
+            var ingredientIds = [];
+
+            for (var i in this.food.ingredients) {
+                var ingredient = this.food.ingredients[i];
+                if (ingredient.selected)
+                    ingredientIds.push(ingredient.id);
+            }
+
+            var data = [{
+                original: this.food.id,
+                ingredients: ingredientIds
+            }];
+
+            $.ajax({
+                type: 'POST',
+                data: JSON.stringify(data),
+                url: '/api/customers/order/price/',
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                success: function(json) {
+                    self.update(json);
+                },
+                failure: function(data) {
+                    Inventory.showSnackbar('Een fout trad op, gelieve opnieuw te proberen.');
+                }
+            });
+        };
+
+        /**
+         * Attach an element to the orderedfood.
+         * @param  {jQuery} element jQuery element.
+         */
+        this.attachElement = function(element) {
+            this.element = element;
+        };
     };
 
     /**
@@ -132,6 +299,9 @@
         this.items = [];
         this.hiddenItems = 0;
 
+        /**
+         * Initialize the food in the menu.
+         */
         this.init = function() {
             var self = this;
             this.element.find('.food').each(function(key, value) {
@@ -140,19 +310,10 @@
         };
 
         this.updateVisibility = function() {
-            if (this.hiddenItems >= this.items.length)  {
-                this.hide();
-            } else {
-                this.show();
-            }
-        };
-
-        this.hide = function() {
-            this.element.hide();
-        };
-
-        this.show = function() {
-            this.element.show();
+            if (this.hiddenItems >= this.items.length)
+                this.element.hide();
+            else
+                this.element.show();
         };
 
         this.init();
@@ -168,6 +329,8 @@
         this.element = element;
         this.addButton = element.find('.food-add');
         this.updated = false;
+        this.rendered = false;
+        this.json = null;
 
         this.id = this.element.data('id');
         this.hasIngredients = this.element.data('has-ingredients') === 'True';
@@ -177,7 +340,7 @@
          * @return {string} Example: "&euro; 3,50".
          */
         this.getCostDisplay = function() {
-            return '&euro; ' + this.cost.toFixed(2).replace('.', ',');
+            return getMoneyDisplay(this.cost);
         };
 
         /**
@@ -194,6 +357,9 @@
             return null;
         };
 
+        /**
+         * Initialize all element events.
+         */
         this.init = function() {
             var self = this;
             this.addButton.on('click', function() {
@@ -222,7 +388,8 @@
          */
         this.addToOrder = function() {
             var clone = jQuery.extend(true, {}, this);
-            var orderedfood = new OrderedFood(clone);
+            var amount = this.inputField.val();
+            var orderedfood = new OrderedFood(clone, amount);
             this.reset();
             Order.addOrderedFood(orderedfood);
         };
@@ -231,16 +398,19 @@
          * Reset the food back to its original content.
          */
         this.reset = function() {
-            this.updated = false;
+            if (this.json)
+                this.update(this.json, true);
+            this.inputField.parent()[0].MaterialTextfield.change('');
         };
 
         /**
          * Toggle the expanding of the Food element.
          */
         this.toggle = function() {
-            if (this.element.hasClass('expanded'))
+            if (this.element.hasClass('expanded'))  {
                 this.element.removeClass('expanded');
-            else
+                this.reset();
+            } else
                 this.element.addClass('expanded');
         };
 
@@ -268,6 +438,8 @@
         this.update = function(json, force) {
             if (this.updated && !force)
                 return;
+
+            this.json = json;
 
             mapJson({
                     'has_ingredients': {
@@ -312,33 +484,47 @@
         };
 
         /**
-         * Render the Food with a JsRender template into Food.element.
+         * Render the Food with a template into Food.element.
          */
         this.render = function() {
-            var foodFormTemplate = $.templates('#templateFoodForm');
+            if (this.rendered)
+                return;
+
             this.element.find('.food-top .food-text').append(
-                foodFormTemplate.render({
-                    label: this.foodtype.getLabelDisplay(),
-                    food: this
-                })
+                nunjucks.render(
+                    'food_form.html', {
+                        label: this.foodtype.getLabelDisplay(),
+                        food: this
+                    }
+                )
             );
 
-            var ingredientGroupsTemplate = $.templates('#templateIngredientGroups');
-            this.element.append(
-                ingredientGroupsTemplate.render({
-                    food: this
-                })
-            );
+            if (this.hasIngredients) {
+                this.element.append(
+                    nunjucks.render(
+                        'ingredient_groups.html', {
+                            food: this
+                        }
+                    )
+                );
+
+                var self = this;
+                this.element.find('.ingredientgroups .ingredientgroup').each(function(index) {
+                    var ingredientgroup = self.ingredientgroups[index];
+                    ingredientgroup.attachElement($(this));
+                });
+            }
 
             componentHandler.upgradeAllRegistered();
 
             var self = this;
-            this.element.find('.ingredientgroups .ingredientgroup').each(function(index) {
-                var ingredientgroup = self.ingredientgroups[index];
-                ingredientgroup.attachElement($(this));
-            });
             this.inputField = this.element.find('.food-amount input').first();
+            this.inputField.on('keyup', function(event) {
+                self.onInputChange();
+            });
             this.inputError = this.element.find('.food-amount .mdl-textfield__error').first();
+
+            this.rendered = true;
         };
 
         /**
@@ -361,7 +547,7 @@
                 }
             }
 
-            if(this.quantity !== null) {
+            if (this.quantity !== null) {
                 if (value < this.quantity.minimum) {
                     return new Validation(
                         'Minimum ' + this.quantity.getMinimumDisplay() + '.'
@@ -395,12 +581,42 @@
          * Callback when clicking the add button.
          */
         this.onAdd = function() {
-            if (this.hasIngredients) {
-                this.toggle();
-                this.fetch();
+            this.toggle();
+            this.fetch();
+        };
+
+        /**
+         * Set the error message of the amount input field.
+         * @param {string} message Message.
+         */
+        this.setInputError = function(message) {
+            if (message === '') {
+                this.inputError.text(this.originalErrorMessage);
             } else {
-                Inventory.showSnackbar('Toegevoegd aan bestelling.');
+                if (this.originalErrorMessage === undefined)
+                    this.originalErrorMessage = this.inputError.text();
+
+                if (this.inputError.text() !== message) {
+                    console.log('chagne')
+                    this.inputError.text(message);
+                }
+                this.inputError.parent().addClass('is-focused');
+                this.inputError.parent().addClass('is-invalid');
             }
+        };
+
+        /**
+         * Callback for input field when value changes.
+         */
+        this.onInputChange = function() {
+            if (this.inputField.val() !== '') {
+                var validation = this.validate();
+                if (!validation.valid) {
+                    this.setInputError(validation.errorMessage);
+                    return;
+                }
+            }
+            this.setInputError('');
         };
 
         /**
@@ -409,11 +625,11 @@
         this.onConfirm = function() {
             var validation = this.validate();
             if (validation.valid) {
-                Inventory.showSnackbar('Alles oké!');
+                this.addToOrder();
+                this.setInputError('');
+                this.toggle();
             } else {
-                this.inputError.text(validation.errorMessage);
-                this.inputError.parent().addClass('is-focused');
-                this.inputError.parent().addClass('is-invalid');
+                this.setInputError(validation.errorMessage);
             }
         };
 
@@ -428,6 +644,10 @@
     var FoodType = function(food, json) {
         this.food = food;
 
+        /**
+         * Get a label used for inputting a value for the food.
+         * @return {string} Label for input field.
+         */
         this.getLabelDisplay = function() {
             switch (this.inputtype) {
                 case FoodType.InputType.Amount:
@@ -443,6 +663,9 @@
             }
         };
 
+        /**
+         * Update the foodtype on initialization.
+         */
         this.init = function() {
             this.update(json);
         };
@@ -689,6 +912,9 @@
                 this,
                 ingredient
             );
+
+            // Do not modify the json, needed for restoration
+            json.ingredient = ingredient;
             this.updated = true;
         };
 
@@ -718,7 +944,6 @@
             var validation = this.group.validate();
             if (!validation.valid)  {
                 if (this.group.minimum === 1 && this.group.maximum === 1) {
-
                     if (!this.selected) {
                         this.select();
                     } else {
@@ -757,6 +982,10 @@
     };
 
     $(document).ready(function() {
+        nunjucks.configure('/static/nunjucks', {
+            autoescape: true
+        });
+        Order.init();
         Inventory.init();
     });
 

@@ -137,9 +137,6 @@ class FoodForm(forms.ModelForm):
             store_id=self.instance.store_id
         )
 
-    def get_queryset(self, request):
-        print(self)
-
 
 @admin.register(Food)
 class FoodAdmin(admin.ModelAdmin):

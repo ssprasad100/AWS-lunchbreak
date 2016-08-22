@@ -757,6 +757,7 @@ class OrderedFood(models.Model):
         foodGroups = []
         for ingredient_relation in food_ingredient_relations:
             ingredient = ingredient_relation.ingredient
+            ingredient.selected = ingredient_relation.selected
             food_ingredients.append(ingredient)
             if ingredient_relation.selected and ingredient.group not in foodGroups:
                 foodGroups.append(ingredient.group)
@@ -765,7 +766,7 @@ class OrderedFood(models.Model):
         cost = food.cost
 
         for ingredient in ordered_ingredients:
-            if ingredient not in food_ingredients:
+            if ingredient.selected and ingredient not in food_ingredients:
                 if ingredient.group.calculation in [COST_GROUP_BOTH, COST_GROUP_ADDITIONS]:
                     cost += ingredient.cost
                 elif ingredient.group not in foodGroups:
@@ -775,7 +776,7 @@ class OrderedFood(models.Model):
 
         groups_removed = []
         for ingredient in food_ingredients:
-            if ingredient not in ordered_ingredients:
+            if ingredient.selected and ingredient not in ordered_ingredients:
                 if ingredient.group.calculation == COST_GROUP_BOTH:
                     cost -= ingredient.cost
                 elif ingredient.group not in groups_removed:

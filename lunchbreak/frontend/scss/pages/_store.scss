@@ -219,6 +219,23 @@
             #orderedfoods {
                 margin-top: 16px;
 
+                .orderedfood-empty {
+                    text-align: center;
+                    font-size: $size-small;
+                    color: $grey-dark;
+                    display: none;
+                }
+
+                &.empty {
+                    .orderedfood-empty {
+                        display: block;
+                    }
+
+                    .orderedfood, .order-total {
+                        display: none;
+                    }
+                }
+
                 .orderedfood, .order-total {
                     $item-padding: 16px;
                     $cost-amount-width: 48px;

@@ -1,0 +1,21 @@
+<li class="orderedfood">
+    <div class="orderedfood-amount">
+        {{ orderedfood.getAmountDisplay() }}
+    </div>
+    <div class="orderedfood-text">
+        <div class="orderedfood-name">{{ orderedfood.food.name }}</div>
+        <div class="orderedfood-description">{{ orderedfood.food.description }}</div>
+    </div>
+    <div class="orderedfood-cost">
+        {{ orderedfood.getTotalDisplay() }}
+    </div>
+    <div class="ordered-food-data">
+        <input type="hidden" name="orderedfood[{{ index }}][original]" value="1"/>
+
+        {% for ingredient in orderedfood.food.ingredients %}
+            {% if ingredient.selected %}
+                <input type="hidden" name="orderedfood[{{ orderedfood.food.index }}][ingredients][{{ for.index }}]" value=""/>
+            {% endif %}
+        {% endfor %}
+    </div>
+</li>
