@@ -225,6 +225,27 @@
             return getMoneyDisplay(this.getTotal());
         };
 
+        this.json = function() {
+            var data = {
+                'original': this.food.id
+            }
+
+            var selectedIngredientsIds = [];
+            for(var i = 0; i < this.food.ingredients.length; i++) {
+                var ingredient = this.food.ingredients[i];
+                if(ingredient.selected)
+                    selectedIngredientsIds.push(ingredient.id);
+            }
+
+            if (selectedIngredientsIds.length > 0)
+                data['ingredients'] = selectedIngredientsIds;
+
+            var json = JSON.stringify(data);
+
+            console.log(json);
+            return json;
+        };
+
         /**
          * Update the properties with the JSON data.
          * @param  {Object.<string, object>} json JSON data.

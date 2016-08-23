@@ -71,7 +71,8 @@
             {% endfor %}
         </div>
         <div id="order">
-            <form method="post" action="">
+            <form method="POST" action="/order">
+                <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}"/>
                 <input type="submit" value="Afrekenen"/>
                 <ul id="orderedfoods" class="empty">
                     <li class="orderedfood-empty">Voeg artikelen aan je winkelmandje toe.</li>
@@ -93,4 +94,8 @@
     <div class="mdl-snackbar__text"></div>
     <button class="mdl-snackbar__action" type="button"></button>
 </div>
+
+{% include 'includes/header.html' %}
+{% include 'includes/footer.html' %}
+
 {% endblock content %}

@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div id="login" class="block">
+    <div class="container center">
+        <div class="center-content">
+            <img src="{{ static('logo-login.png') }}" alt="Lunchbreak"/>
+            <h1>Lunchbreak</h1>
+            <h3>Gratis inloggen met een sms'je.</h3>
+
+            <form method="POST">
+                <input type="text" class="input-icon icon-telephone" placeholder="Vul je telefoonnummer in"/>
+                <input type="submit" class="input-icon icon-lock-white" value="Doorgaan"/>
+            </form>
+
+            <p class="subscript">Je gaat akkoord met de <a href="" alt="Algemene voorwaarden">voorwaarden</a> en het <a href="" alt="Privacybeleid">privacybeleid</a> van Lunchbreak.</p>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

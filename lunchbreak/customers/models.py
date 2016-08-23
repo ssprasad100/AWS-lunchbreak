@@ -754,13 +754,13 @@ class OrderedFood(models.Model):
         ).all()
 
         food_ingredients = []
-        foodGroups = []
+        food_groups = []
         for ingredient_relation in food_ingredient_relations:
             ingredient = ingredient_relation.ingredient
             ingredient.selected = ingredient_relation.selected
             food_ingredients.append(ingredient)
-            if ingredient_relation.selected and ingredient.group not in foodGroups:
-                foodGroups.append(ingredient.group)
+            if ingredient_relation.selected and ingredient.group not in food_groups:
+                food_groups.append(ingredient.group)
 
         groups_ordered = []
         cost = food.cost
@@ -769,7 +769,7 @@ class OrderedFood(models.Model):
             if ingredient not in food_ingredients:
                 if ingredient.group.calculation in [COST_GROUP_BOTH, COST_GROUP_ADDITIONS]:
                     cost += ingredient.cost
-                elif ingredient.group not in foodGroups:
+                elif ingredient.group not in food_groups:
                     cost += ingredient.group.cost
             if ingredient.group not in groups_ordered:
                 groups_ordered.append(ingredient.group)

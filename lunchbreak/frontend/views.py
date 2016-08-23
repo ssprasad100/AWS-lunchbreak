@@ -60,3 +60,7 @@ class StoreView(TemplateView):
             pk=pk
         )
         return context
+
+
+class LoginView(TemplateView):
+    template_name = 'pages/login.html'

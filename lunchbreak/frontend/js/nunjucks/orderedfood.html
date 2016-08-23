@@ -9,13 +9,7 @@
     <div class="orderedfood-cost">
         {{ orderedfood.getTotalDisplay() }}
     </div>
-    <div class="ordered-food-data">
-        <input type="hidden" name="orderedfood[{{ index }}][original]" value="1"/>
-
-        {% for ingredient in orderedfood.food.ingredients %}
-            {% if ingredient.selected %}
-                <input type="hidden" name="orderedfood[{{ orderedfood.food.index }}][ingredients][{{ for.index }}]" value=""/>
-            {% endif %}
-        {% endfor %}
+    <div class="orderedfood-data">
+        <input type="hidden" name="orderedfood" value="{{ orderedfood.json() }}"/>
     </div>
 </li>
