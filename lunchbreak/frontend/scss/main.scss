@@ -5,9 +5,13 @@
 @import 'elements/typography';
 @import 'elements/input';
 
+// Material Design Lite
 @import 'checkbox/checkbox';
 @import 'textfield/textfield';
 @import 'snackbar/snackbar';
+
+// intl-tel-input
+@import 'intlTelInput';
 
 @import 'components/positioning';
 @import 'components/block';

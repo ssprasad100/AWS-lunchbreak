@@ -843,14 +843,9 @@ class Food(models.Model):
     @classmethod
     def clean_ingredientgroups(cls, action, instance, pk_set, **kwargs):
         if len(action) > 4 and action[:4] == 'post':
-            print(instance)
-            print(action)
-            print(pk_set)
-            print(kwargs)
             groups = instance.ingredientgroups.filter(
                 ~Q(store_id=instance.store_id)
             )
-            print(groups)
             if groups.exists():
                 raise LinkingError(
                     'The food and its ingredientgroups need to belong to the same store.'

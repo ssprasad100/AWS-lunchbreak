@@ -1,10 +1,16 @@
+from django.conf import settings
+from django.contrib.auth import authenticate, login, logout
+from django.core.urlresolvers import reverse
 from django.db.models import Count
+from django.http import HttpResponseRedirect
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, View
 from lunch.models import Store
+from user_agents import parse as parse_user_agent
 
 from .forms import SearchForm
+from .mixins import LoginForwardMixin
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -62,5 +68,71 @@ class StoreView(TemplateView):
         return context
 
 
+class OrderView(LoginForwardMixin, TemplateView):
+    template_name = 'pages/order.html'
+    forward_group = 'frontend-order'
+
+    def post(self, request, *args, **kwargs):
+        return self.get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['data'] = getattr(self.request, 'forward_data', self.request.POST)
+        return context
+
+
 class LoginView(TemplateView):
     template_name = 'pages/login.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated():
+            return HttpResponseRedirect(
+                request.GET.get('next', settings.LOGIN_REDIRECT_URL)
+            )
+        response = super().dispatch(request, *args, **kwargs)
+
+        user_agent_meta = request.META.get('HTTP_USER_AGENT', None)
+        if user_agent_meta is not None:
+            user_agent = parse_user_agent(user_agent_meta)
+            device = '{device} {os} {browser}'.format(
+                device=user_agent.device.family,
+                os=user_agent.os.family,
+                browser=user_agent.browser.family
+            ).strip()
+        else:
+            device = 'Onbekend toestel'
+
+        response.set_cookie(
+            'device',
+            device
+        )
+
+        return response
+
+    def post(self, request, *args, **kwargs):
+        phone = request.POST.get('login-phone')
+        identifier = request.POST.get('login-identifier')
+        device = request.COOKIES.get('device')
+
+        user = authenticate(
+            identifier=identifier,
+            device=device,
+            phone=phone
+        )
+
+        if user is None:
+            return self.get(request, *args, **kwargs)
+
+        login(request, user)
+        return HttpResponseRedirect(
+            request.GET.get('next', settings.LOGIN_REDIRECT_URL)
+        )
+
+
+class LogoutView(View):
+
+    def get(self, request, *args, **kwargs):
+        logout(request)
+        return HttpResponseRedirect(
+            reverse('frontend-index')
+        )

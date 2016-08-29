@@ -71,7 +71,7 @@
             {% endfor %}
         </div>
         <div id="order">
-            <form method="POST" action="/order">
+            <form method="POST" action="{{ url('frontend-order') }}">
                 <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}"/>
                 <input type="submit" value="Afrekenen"/>
                 <ul id="orderedfoods" class="empty">
@@ -97,5 +97,15 @@
 
 {% include 'includes/header.html' %}
 {% include 'includes/footer.html' %}
+
+<script src="{{ static('nunjucks.min.js') }}" type="text/javascript"></script>
+<script src="{{ static('holmes.js') }}" type="text/javascript"></script>
+<script src="{{ static('mdlComponentHandler.js') }}" type="text/javascript"></script>
+<script src="{{ static('checkbox/checkbox.js') }}" type="text/javascript"></script>
+<script src="{{ static('snackbar/snackbar.js') }}" type="text/javascript"></script>
+<script src="{{ static('textfield/textfield.js') }}" type="text/javascript"></script>
+<script src="{{ static('rounding.js') }}" type="text/javascript"></script>
+<script src="{{ static('store.js') }}" type="text/javascript"></script>
+
 
 {% endblock content %}

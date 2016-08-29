@@ -13,7 +13,6 @@ from lunch.config import COST_GROUP_ADDITIONS, COST_GROUP_BOTH, INPUT_SI_SET
 from lunch.exceptions import BadRequest, LinkingError, NoDeliveryToAddress
 from lunch.models import (AbstractAddress, BaseToken, Food, Ingredient,
                           IngredientGroup, Store)
-from lunch.responses import DoesNotExist
 from phonenumber_field.modelfields import PhoneNumberField
 from push_notifications.models import SERVICE_INACTIVE
 from rest_framework import status
@@ -38,7 +37,9 @@ from .exceptions import (AlreadyMembership, AmountInvalid, CostCheckFailed,
 
 
 class User(models.Model):
-    phone = PhoneNumberField()
+    phone = PhoneNumberField(
+        unique=True
+    )
     name = models.CharField(
         max_length=255
     )
@@ -63,6 +64,9 @@ class User(models.Model):
     enabled = models.BooleanField(
         default=True
     )
+    last_login = models.DateTimeField(
+        null=True
+    )
 
     paymentlinks = models.ManyToManyField(
         Store,
@@ -74,11 +78,42 @@ class User(models.Model):
         blank=True
     )
 
+    USERNAME_FIELD = 'phone'
+    REQUIRED_FIELDS = [
+        'name',
+    ]
+
     def __str__(self):
         return '{name} {phone}'.format(
             name=self.name,
             phone=self.phone
         )
+
+    def get_full_name(self):
+        return self.name
+
+    def get_short_name(self):
+        return self.name
+
+    def has_perm(self, perm, obj=None):
+        return True
+
+    def has_module_perm(self, app_label):
+        return True
+
+    def is_authenticated(self):
+        return True
+
+    def is_anonymous(self):
+        return False
+
+    @property
+    def is_staff(self):
+        return False
+
+    @property
+    def is_active(self):
+        return False
 
     @classmethod
     def digits_register(cls, digits, phone):
@@ -134,34 +169,33 @@ class User(models.Model):
     def login(phone, pin, name, token):
         try:
             user = User.objects.get(phone=phone)
-
-            if not user.enabled:
-                return UserDisabled().response
-
-            if name:
-                user.name = name
-            elif not user.name:
-                return BadRequest().response
-
-            digits = Digits()
-            # User just got registered in the Digits database
-            if not user.request_id and not user.digits_id:
-                user.digits_id = digits.register_confirm(phone, pin)['id']
-            else:
-                digits.signing_confirm(user.request_id, user.digits_id, pin)
-
-            if not user.confirmed_at:
-                user.confirmed_at = timezone.now()
-
-            user.save()
-            return UserToken.response(
-                user=user,
-                device=token['device'],
-                service=token.get('service', SERVICE_INACTIVE),
-                registration_id=token.get('registration_id', '')
-            )
         except User.DoesNotExist:
-            return DoesNotExist()
+            return None
+
+        if not user.enabled:
+            raise UserDisabled()
+
+        if name:
+            user.name = name
+        elif not user.name:
+            raise BadRequest()
+
+        digits = Digits()
+        # User just got registered in the Digits database
+        if not user.request_id and not user.digits_id:
+            user.digits_id = digits.register_confirm(phone, pin)['id']
+        else:
+            digits.signing_confirm(
+                user.request_id,
+                user.digits_id,
+                pin
+            )
+
+        if not user.confirmed_at:
+            user.confirmed_at = timezone.now()
+
+        user.save()
+        return user
 
 
 class Address(AbstractAddress):

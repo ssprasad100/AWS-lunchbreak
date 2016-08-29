@@ -66,7 +66,10 @@ SITE_ID = 1
 
 WSGI_APPLICATION = 'Lunchbreak.wsgi.application'
 
-AUTH_USER_MODEL = 'business.Staff'
+AUTH_USER_MODEL = 'customers.User'
+AUTHENTICATION_BACKENDS = [
+    'customers.authentication.CustomerBackend',
+]
 PASSWORD_HASHERS = (
     'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
     'django.contrib.auth.hashers.SHA1PasswordHasher',
@@ -96,6 +99,9 @@ DATETIME_INPUT_FORMATS = [
     DATETIME_FORMAT,
 ]
 
+LOGIN_REDIRECT_URL = reverse_lazy('frontend-index');
+LOGIN_URL = reverse_lazy('frontend-login')
+
 STATIC_RELATIVE = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, STATIC_RELATIVE)
 STATIC_URL = '/static/'
@@ -103,7 +109,9 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'frontend/img'),
     os.path.join(BASE_DIR, 'frontend/js'),
     os.path.join(BASE_DIR, 'frontend/scss'),
-    os.path.join(BASE_DIR, 'frontend/mdl/src')
+    os.path.join(BASE_DIR, 'frontend/mdl/src'),
+    os.path.join(BASE_DIR, 'frontend/intl-tel-input/build/js'),
+    os.path.join(BASE_DIR, 'frontend/intl-tel-input/build/img'),
 ]
 
 COMPRESS_ENABLED = True
@@ -115,7 +123,8 @@ STATICFILES_FINDERS = [
 ]
 SASS_PROCESSOR_INCLUDE_DIRS = (
     os.path.join(BASE_DIR, 'frontend/mdl/src'),
-    os.path.join(BASE_DIR, 'frontend/scss')
+    os.path.join(BASE_DIR, 'frontend/scss'),
+    os.path.join(BASE_DIR, 'frontend/intl-tel-input/src/css'),
 )
 
 TEMPLATES = [

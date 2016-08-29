@@ -1,6 +1,6 @@
 $font: 'Helvetica Neue';
 
-$red: #FF3030;
+$red: rgb(255, 48, 48);
 $grey-black: #4C4C4C;
 $grey-dark: #929292;
 $grey: #BFBFBF;
@@ -26,7 +26,11 @@ $size-normal: 16px;
 $size-small: 14px;
 $size-xsmall: 12px;
 
-// MDL variables
+$input-height: 40px;
+$input-padding: 0 16px;
+$border-radius: 2px;
+
+// Material Design Lite
 $preferred_font: $font;
 $performance_font: $font;
 $red-rgb: '255, 48, 48';
@@ -37,3 +41,10 @@ $input-text-error-color: $red;
 $image_path: '/static/images';
 $input-text-font-size: $size-small;
 $checkbox-label-font-size: $size-small;
+
+// intl-tel-input
+$flagsImagePath: '/static/';
+$hoverColor: $grey-light;
+$borderWidth: 0;
+$arrowColor: $grey-black;
+$greyText: $grey-black;

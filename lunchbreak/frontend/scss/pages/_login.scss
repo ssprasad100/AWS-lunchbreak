@@ -1,8 +1,11 @@
 #login {
     height: 100%;
+    padding-bottom: 0;
 
     .center-content {
-        width: 310px;
+        $login-width: 310px;
+
+        width: $login-width;
 
         img {
             width: 100px;
@@ -16,16 +19,43 @@
         }
 
         form {
-            input {
+            input, .intl-tel-input {
                 display: block;
                 width: 100%;
-                margin-bottom: 12px;
+
+                &[type='submit'] {
+                    margin: 12px 0;
+                }
+            }
+
+            #pager-data {
+                display: none;
+            }
+
+            .selected-flag {
+                border-radius: $border-radius;
+
+                &:focus {
+                    outline: none;
+                }
+            }
+
+            .country-list {
+                box-shadow: none;
+                width: $login-width;
+                border-radius: $border-radius;
+
+                .country {
+                    height: $input-height;
+                    padding: 8px;
+                }
             }
         }
 
         .subscript {
             width: 75%;
             margin: 0 auto;
+            height: 54px;
         }
     }
 }

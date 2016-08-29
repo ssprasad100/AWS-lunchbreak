@@ -3,13 +3,15 @@ from django.shortcuts import get_object_or_404
 from lunch.models import Food, IngredientGroup, Menu, Store
 from lunch.pagination import SimplePagination
 from lunch.renderers import JPEGRenderer
-from lunch.responses import BadRequest
+from lunch.responses import BadRequest, DoesNotExist
 from lunch.serializers import (FoodDetailSerializer, FoodSerializer,
                                MenuDetailSerializer, MenuSerializer,
                                StoreSerializer)
 from lunch.views import (HolidayPeriodListViewBase, OpeningListViewBase,
                          OpeningPeriodListViewBase, StoreCategoryListViewBase)
+from Lunchbreak.exceptions import LunchbreakException
 from Lunchbreak.views import TargettedViewSet
+from push_notifications.models import SERVICE_INACTIVE
 from rest_framework import filters, generics, mixins, status, viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
@@ -429,7 +431,18 @@ class UserViewSet(viewsets.GenericViewSet):
             pin = request.data['pin']
             name = request.data.get('name', None)
             token = request.data.get('token', None)
-            return User.login(phone, pin, name, token)
+            try:
+                user = User.login(phone, pin, name, token)
+            except LunchbreakException as e:
+                return e.response
+            if user is not None:
+                return UserToken.response(
+                    user=user,
+                    device=token['device'],
+                    service=token.get('service', SERVICE_INACTIVE),
+                    registration_id=token.get('registration_id', '')
+                )
+            return DoesNotExist()
         elif(phone == DEMO_PHONE and
                 'token' in request.data and
                 'device' in request.data['token'] and

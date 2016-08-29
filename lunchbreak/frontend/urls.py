@@ -20,8 +20,18 @@ urlpatterns = patterns(
         name='frontend-store'
     ),
     url(
+        r'^order/?$',
+        views.OrderView.as_view(),
+        name='frontend-order'
+    ),
+    url(
         r'^login/?$',
         views.LoginView.as_view(),
         name='frontend-login'
+    ),
+    url(
+        r'^logout/?$',
+        views.LogoutView.as_view(),
+        name='frontend-logout'
     ),
 )

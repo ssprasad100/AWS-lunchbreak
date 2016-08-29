@@ -12,11 +12,26 @@ class TokenAuthentication(authentication.BaseAuthentication):
         if not identifier or not model_id or not device:
             raise AuthenticationFailed('Not all of the headers were provided.')
 
+        return self._authenticate(
+            identifier=identifier,
+            device=device,
+            filter_args={
+                self.MODEL_NAME + '_id': model_id
+            },
+        )
+
+    def _authenticate(self, identifier=None, device=None, filter_args={}):
+        if identifier is None or device is None or not filter_args:
+            raise AuthenticationFailed(
+                'Either model_id or phone must be passed to TokenAuthentication._authenticate.'
+            )
+
         try:
             arguments = {
-                self.MODEL_NAME + '_id': model_id,
                 'device': device
             }
+            arguments.update(filter_args)
+
             model_tokens = self.TOKEN_MODEL.objects.select_related(
                 self.MODEL_NAME
             ).filter(

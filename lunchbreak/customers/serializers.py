@@ -2,6 +2,7 @@ from django_gocardless.serializers import RedirectFlowSerializer
 from lunch import serializers as lunch_serializers
 from lunch.models import Store
 from Lunchbreak.serializers import PrimaryModelSerializer
+from phonenumber_field.validators import validate_international_phonenumber
 from rest_framework import serializers
 
 from .config import RESERVATION_STATUS_PLACED, RESERVATION_STATUS_USER
@@ -212,6 +213,13 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         fields = (
             'phone',
         )
+        extra_kwargs = {
+            'phone': {
+                'validators': [
+                    validate_international_phonenumber
+                ]
+            }
+        }
         write_only_fields = (
             'phone',
         )
@@ -250,6 +258,13 @@ class UserLoginSerializer(serializers.ModelSerializer):
             'pin',
             'token',
         )
+        extra_kwargs = {
+            'phone': {
+                'validators': [
+                    validate_international_phonenumber
+                ]
+            }
+        }
         write_only_fields = fields
 
 

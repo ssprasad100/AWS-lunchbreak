@@ -1,14 +1,20 @@
 input:not(.mdl-textfield__input) {
-    &[type='text'], &[type='submit'] {
-        height: 40px;
+    &[type='text'], &[type='tel'], &[type='submit'] {
+        height: $input-height;
         box-sizing: border-box;
         border: none;
-        border-radius: 2px;
+        border-radius: $border-radius;
         margin: 0;
         font-size: 14px;
         font-weight: $weight-normal;
         display: inline-block;
         vertical-align: top;
+
+        transition: opacity .25s ease;
+
+        &:disabled {
+            opacity: .5;
+        }
 
         &.input-icon {
             background-size: 14px auto;
@@ -22,12 +28,20 @@ input:not(.mdl-textfield__input) {
             &.icon-lock-white {
                 background-image: url('icons/lock-white.png');
             }
+
+            &.icon-person {
+                background-image: url('icons/person.png');
+            }
+
+            &.icon-pin {
+                background-image: url('icons/pin.png');
+            }
         }
     }
 
-    &[type='text'] {
+    &[type='text'], &[type='tel'] {
         background: white;
-        padding: 0 16px;
+        padding: $input-padding;
         color: $grey-black;
         width: 350px;
 
