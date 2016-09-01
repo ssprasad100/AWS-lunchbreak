@@ -9,11 +9,11 @@ from django.db.models import Count
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
-from lunch.models import (Food, Menu, FoodType, Ingredient,
-                          IngredientGroup, Quantity, Store)
+from lunch.models import (Food, FoodType, Ingredient, IngredientGroup, Menu,
+                          Quantity, Store)
 from lunch.responses import BadRequest
-from lunch.serializers import (MenuSerializer, FoodTypeSerializer,
-                               QuantityDetailSerializer)
+from lunch.serializers import (FoodTypeSerializer, MenuDetailSerializer,
+                               MenuSerializer, QuantityDetailSerializer)
 from lunch.views import (HolidayPeriodListViewBase, OpeningListViewBase,
                          OpeningPeriodListViewBase, StoreCategoryListViewBase)
 from Lunchbreak.views import TargettedViewSet
@@ -175,29 +175,33 @@ class FoodViewSet(TargettedViewSet,
         return result
 
 
-class ListCreateStoreView(generics.ListCreateAPIView):
+class StoreSenderView:
 
-    def perform_create(self, serializer):
-        store = self.request.user.staff.store \
+    @property
+    def store(self):
+        return self.request.user.staff.store \
             if isinstance(self.request.user, Employee) \
             else self.request.user.store
-        serializer.save(store=store)
 
 
-class MenuView(ListCreateStoreView):
+class PerformCreateStore(StoreSenderView, generics.CreateAPIView):
+
+    def perform_create(self, serializer):
+        serializer.save(store=self.store)
+
+
+class MenuViewSet(TargettedViewSet,
+                  mixins.ListModelMixin,
+                  mixins.RetrieveModelMixin,
+                  mixins.CreateModelMixin,
+                  mixins.UpdateModelMixin):
+
     authentication_classes = (EmployeeAuthentication,)
-    serializer_class = MenuSerializer
     permission_classes = (StoreOwnerPermission,)
-    pagination_class = None
 
-    def get_queryset(self):
-        return Menu.objects.filter(store=self.request.user.staff.store)
-
-
-class MenuDetailView(generics.RetrieveUpdateDestroyAPIView):
-    authentication_classes = (EmployeeAuthentication,)
     serializer_class = MenuSerializer
-    permission_classes = (StoreOwnerPermission,)
+
+    pagination_class_list = None
 
     def get_queryset(self):
         return Menu.objects.filter(
@@ -212,7 +216,7 @@ class FoodTypeView(generics.ListAPIView):
     queryset = FoodType.objects.all()
 
 
-class IngredientView(ListCreateStoreView):
+class IngredientView(PerformCreateStore, generics.ListAPIView):
     authentication_classes = (EmployeeAuthentication,)
     serializer_class = IngredientSerializer
     permission_classes = (StoreOwnerPermission,)
@@ -246,7 +250,7 @@ class IngredientDetailView(generics.RetrieveUpdateDestroyAPIView):
         return result.order_by('-priority', 'name')
 
 
-class IngredientGroupView(ListCreateStoreView):
+class IngredientGroupView(PerformCreateStore, generics.ListAPIView):
     authentication_classes = (EmployeeAuthentication,)
     serializer_class = IngredientGroupSerializer
     permission_classes = (StoreOwnerPermission,)
@@ -367,7 +371,7 @@ class OrderSpreadView(viewsets.ReadOnlyModelViewSet):
         ), [frm, to, store_id, ORDER_STATUS_COMPLETED])
 
 
-class QuantityView(ListCreateStoreView):
+class QuantityView(PerformCreateStore, generics.ListAPIView):
     authentication_classes = (EmployeeAuthentication,)
     serializer_class = QuantityDetailSerializer
     permission_classes = (StoreOwnerPermission,)

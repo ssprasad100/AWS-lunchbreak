@@ -621,7 +621,6 @@ class Menu(models.Model):
     )
 
     class Meta:
-        verbose_name_plural = 'Food categories'
         unique_together = ('name', 'store',)
 
     def __str__(self):

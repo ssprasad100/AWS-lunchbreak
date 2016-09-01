@@ -3,11 +3,11 @@ from customers.config import RESERVATION_STATUS_EMPLOYEE
 from customers.models import Order, OrderedFood, Reservation
 from lunch import serializers as lunch_serializers
 from lunch.config import TOKEN_IDENTIFIER_LENGTH
+from lunch.fields import CurrentUserAttributeDefault
 from lunch.models import (Food, Ingredient, IngredientGroup,
                           IngredientRelation, Store)
 from rest_framework import serializers
 
-from .fields import CurrentUserAttributeDefault
 from .models import (AbstractPassword, Employee, EmployeeToken, Staff,
                      StaffToken)
 

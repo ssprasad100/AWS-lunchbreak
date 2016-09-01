@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from .fields import CurrentUserAttributeDefault
 from .models import (BaseToken, Food, FoodType, HolidayPeriod, Ingredient,
                      IngredientGroup, IngredientRelation, Menu, OpeningPeriod,
                      Quantity, Store, StoreCategory)
@@ -180,6 +181,13 @@ class IngredientGroupDetailSerializer(IngredientGroupSerializer):
 
 
 class MenuSerializer(serializers.ModelSerializer):
+    store = serializers.ModelField(
+        model_field=Food()._meta.get_field('store'),
+        write_only=True,
+        default=serializers.CreateOnlyDefault(
+            CurrentUserAttributeDefault('staff.store')
+        )
+    )
 
     class Meta:
         model = Menu
@@ -187,18 +195,23 @@ class MenuSerializer(serializers.ModelSerializer):
             'id',
             'name',
             'priority',
+            'store',
         )
         read_only_fields = (
             'id',
         )
+        write_only_fields = (
+            'store',
+        )
 
 
 class MenuDetailSerializer(MenuSerializer):
+    store = serializers.PrimaryKeyRelatedField(
+        read_only=True
+    )
 
     class Meta(MenuSerializer.Meta):
-        fields = MenuSerializer.Meta.fields + (
-            'store',
-        )
+        write_only_fields = ()
 
 
 class FoodTypeSerializer(serializers.ModelSerializer):

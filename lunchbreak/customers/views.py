@@ -77,7 +77,7 @@ class FoodViewSet(TargettedViewSet,
 
 class MenuRetrieveView(generics.RetrieveAPIView):
 
-    """List all food categories."""
+    """List all menus."""
 
     authentication_classes = (CustomerAuthentication,)
     serializer_class = MenuDetailSerializer

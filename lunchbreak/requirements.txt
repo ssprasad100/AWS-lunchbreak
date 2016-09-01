@@ -4,7 +4,6 @@
 #
 #    pip-compile --output-file lunchbreak/requirements.txt lunchbreak/requirements.in
 #
-
 -e git+git://github.com/RacingTadpole/django-private-media.git@7510f2f63ddf0653679b4134a0542cd78317a5c8#egg=django_private_media
 -e git+git://github.com/AndreasBackx/django-push-notifications.git@27f44dae5af8b0ee2726281f5b654882fd2888a8#egg=django_push_notifications
 -e git+git://github.com/AndreasBackx/google-maps-services-python.git@master#egg=googlemaps
@@ -15,13 +14,14 @@ django-appconf==1.0.2     # via django-compressor, django-imagekit
 django-compressor==2.0
 django-dirtyfields==0.8.1
 django-imagekit==3.3
+django-jsonfield==1.0.1
 django-phonenumber-field==0.7.2
 django-sass-processor==0.3.5
 django-split-settings==0.1.2
 django-subdomains==2.1.0
 Django==1.9.7             # via django-dirtyfields, django-split-settings, django-subdomains
 djangorestframework-jsonp==1.0.0
-djangorestframework==3.4.1
+djangorestframework==3.4.6
 drf-extensions==0.2.8
 et-xmlfile==1.0.1         # via openpyxl
 gocardless-pro==0.2.0
