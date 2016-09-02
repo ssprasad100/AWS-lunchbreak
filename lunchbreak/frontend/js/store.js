@@ -130,7 +130,7 @@
     Order.orderedfood = [];
 
     Order.init = function() {
-        Order.element = $('#orderedfoods');
+        Order.element = $('#orderedfood-list');
     };
 
     /**
@@ -190,11 +190,11 @@
 
     /**
      * OrderedFood belonging to Order.
-     * @param {Food} food Parent food.
-     * @param {number} amount Amount of food selected.
+     * @param {Food} original Parent original.
+     * @param {number} amount Amount of original selected.
      */
-    var OrderedFood = function(food, amount) {
-        this.food = food;
+    var OrderedFood = function(original, amount) {
+        this.original = original;
         this.amount = amount;
 
         /**
@@ -202,7 +202,7 @@
          * @return {string} Formatted amount.
          */
         this.getAmountDisplay = function() {
-            return Quantity.getAmountDisplay(this.food.foodtype.inputtype, this.amount);
+            return Quantity.getAmountDisplay(this.original.foodtype.inputtype, this.amount);
         };
 
         /**
@@ -211,7 +211,7 @@
          * @return {number} Total cost.
          */
         this.getTotal = function() {
-            var amount_food = this.food.foodtype.inputtype === FoodType.InputType.SIAmount ? this.food.amount : 1;
+            var amount_food = this.original.foodtype.inputtype === FoodType.InputType.SIAmount ? this.original.amount : 1;
             return Math.ceil10(this.cost * this.amount * amount_food, -2);
         };
 
@@ -227,12 +227,12 @@
 
         this.json = function() {
             var data = {
-                'original': this.food.id
+                'original': this.original.id
             }
 
             var selectedIngredientsIds = [];
-            for(var i = 0; i < this.food.ingredients.length; i++) {
-                var ingredient = this.food.ingredients[i];
+            for(var i = 0; i < this.original.ingredients.length; i++) {
+                var ingredient = this.original.ingredients[i];
                 if(ingredient.selected)
                     selectedIngredientsIds.push(ingredient.id);
             }
@@ -242,7 +242,6 @@
 
             var json = JSON.stringify(data);
 
-            console.log(json);
             return json;
         };
 
@@ -276,14 +275,14 @@
             var self = this;
             var ingredientIds = [];
 
-            for (var i in this.food.ingredients) {
-                var ingredient = this.food.ingredients[i];
+            for (var i in this.original.ingredients) {
+                var ingredient = this.original.ingredients[i];
                 if (ingredient.selected)
                     ingredientIds.push(ingredient.id);
             }
 
             var data = [{
-                original: this.food.id,
+                original: this.original.id,
                 ingredients: ingredientIds
             }];
 
@@ -1002,7 +1001,7 @@
     };
 
     $(document).ready(function() {
-        nunjucks.configure('/static/nunjucks', {
+        nunjucks.configure('/static', {
             autoescape: true
         });
         Order.init();

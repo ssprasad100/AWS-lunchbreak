@@ -1,4 +1,94 @@
-Dit is de order pagina!
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% set header_class='white' %}
+
+<div id="checkout" class="block fullsize">
+    <div class="container">
+        <div id="checkout-before">
+            <h1>Bestellen bij Pastrie</h1>
+            <div>
+                <a href="" class="subscript">Bestelling aanpassen</a>
+            </div>
+        </div>
+
+        <form method="POST">
+            <div class="split-column">
+                <label>Naam
+                    <input type="text" name="checkout-name" value="{{ request.user.name }}"/>
+                </label>
 
 
-{{ data }}
+                <label>Telefoonnummer
+                    <input type="text" name="checkout-phone" value="{{ request.user.phone }}" disabled/>
+                </label>
+
+                <label>E-mailadres
+                    <input type="email" name="checkout-email" value="andreas@cloock.be"/>
+                </label>
+
+                {% set memberships = request.user.memberships.all() %}
+                {% if memberships %}
+                <label>Bestelling plaatsen in een groep
+                    <select name="checkout-group">
+                        <option>Bestelling niet in een groep plaatsen</option>
+                        {% for membership in request.user.memberships.all() %}
+                        <option>{{ membership.group.name }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                {% endif %}
+
+                <div class="radio-container">
+                    <label>Betaalmethode</label>
+                    <div>
+                        <label class="radio-item mdl-radio mdl-js-radio mdl-js-ripple-effect" for="checkout-payment-0">
+                          <input type="radio" id="checkout-payment-0" class="mdl-radio__button" name="checkout-payment" value="0" checked>
+                          <span class="mdl-radio__label">Contant</span>
+                        </label>
+                        <label class="radio-item mdl-radio mdl-js-radio mdl-js-ripple-effect" for="checkout-payment-1">
+                          <input type="radio" id="checkout-payment-1" class="mdl-radio__button" name="checkout-payment" value="1">
+                          <span class="mdl-radio__label">Online (veilig via GoCardless)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <input type="submit" value="Bestelling plaatsen"/>
+                <p class="subscript">De definitieve prijs kan licht verschillen vanwege de afgewogen hoeveelheid bij de bereiding.</p>
+            </div>
+
+            <div class="split-column">
+                <div id="checkout-receipt">
+                    <div class="split-column">
+                        <label>Datum van afhaling
+                            <select name="checkout-receipt-date" class="input-icon icon-dropdown input-icon-right">
+                                <option>Vandaag</option>
+                                <option>Morgen</option>
+                                <option>Overmorgen</option>
+                            </select>
+                        </label>
+                    </div>
+                    <div class="split-column">
+                        <label for="checkout-receipt-time">Tijd van afhaling
+                            <input type="text" name="checkout-receipt-time" value="14:00"/>
+                        </label>
+                    </div>
+                </div>
+
+                <label>Opmerking bij de bestelling
+                    <textarea name="checkout-comment" placeholder="Gelieve te bellen want de bel doet het niet."></textarea>
+                </label>
+
+                {% include 'includes/orderedfood.html' %}
+            </div>
+        </form>
+    </div>
+</div>
+
+{% include 'includes/header.html' %}
+
+<script src="{{ static('mdlComponentHandler.js') }}" type="text/javascript"></script>
+<script src="{{ static('radio/radio.js') }}" type="text/javascript"></script>
+
+{% endblock content %}

@@ -1,0 +1,21 @@
+@mixin split-view($columns, $spacing) {
+
+    $column-width: 100% / $columns;
+
+    @each $column in $columns {
+        .split-column {
+            width: $column-width;
+            float: left;
+            box-sizing: border-box;
+            padding: 0 ($spacing / 2);
+
+            &:first-child {
+                padding-left: 0;
+            }
+
+            &:last-child {
+                padding-right: 0;
+            }
+        }
+    }
+}

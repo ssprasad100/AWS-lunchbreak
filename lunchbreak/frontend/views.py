@@ -1,3 +1,4 @@
+from customers.models import OrderedFood
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.core.urlresolvers import reverse
@@ -78,6 +79,9 @@ class OrderView(LoginForwardMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['data'] = getattr(self.request, 'forward_data', self.request.POST)
+        context['orderedfoods'] = OrderedFood.objects.filter(
+            amount__gt=1
+        )[:5]
         return context
 
 

@@ -74,17 +74,7 @@
             <form method="POST" action="{{ url('frontend-order') }}">
                 <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}"/>
                 <input type="submit" value="Afrekenen"/>
-                <ul id="orderedfoods" class="empty">
-                    <li class="orderedfood-empty">Voeg artikelen aan je winkelmandje toe.</li>
-                    <li class="order-total">
-                        <div class="order-total-text">
-                            Subtotaal
-                        </div>
-                        <div class="order-total-cost">
-                            &euro; 25,50
-                        </div>
-                    </li>
-                </ul>
+                {% include 'includes/orderedfood.html' %}
             </form>
         </div>
     </div>

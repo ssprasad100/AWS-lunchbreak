@@ -215,92 +215,92 @@
             input[type='submit'] {
                 width: 100%;
             }
+        }
+    }
+}
 
-            #orderedfoods {
-                margin-top: 16px;
+#orderedfood-list {
+    margin-top: 16px;
 
-                .orderedfood-empty {
-                    text-align: center;
-                    font-size: $size-small;
-                    color: $grey-dark;
-                    display: none;
-                }
+    .orderedfood-empty {
+        text-align: center;
+        font-size: $size-small;
+        color: $grey-dark;
+        display: none;
+    }
 
-                &.empty {
-                    .orderedfood-empty {
-                        display: block;
-                    }
+    &.empty {
+        .orderedfood-empty {
+            display: block;
+        }
 
-                    .orderedfood, .order-total {
-                        display: none;
-                    }
-                }
+        .orderedfood, .order-total {
+            display: none;
+        }
+    }
 
-                .orderedfood, .order-total {
-                    $item-padding: 16px;
-                    $cost-amount-width: 48px;
+    .orderedfood, .order-total {
+        $item-padding: 16px;
+        $cost-amount-width: 48px;
 
-                    height: 64px;
-                    display: table;
-                    width: 100%;
+        height: 64px;
+        display: table;
+        width: 100%;
 
-                    > div {
-                        display: table-cell;
-                        height: 64px;
-                    }
+        > div {
+            display: table-cell;
+            height: 64px;
+        }
 
-                    .orderedfood-amount, .orderedfood-cost {
-                        width: $cost-amount-width;
-                        text-align: center;
-                        vertical-align: middle;
-                    }
+        .orderedfood-amount, .orderedfood-cost {
+            width: $cost-amount-width;
+            text-align: center;
+            vertical-align: middle;
+        }
 
-                    .orderedfood-amount {
-                        color: $red;
-                        font-size: $size-small;
-                        font-weight: $weight-medium;
-                    }
+        .orderedfood-amount {
+            color: $red;
+            font-size: $size-small;
+            font-weight: $weight-medium;
+        }
 
-                    .orderedfood-text {
-                        vertical-align: middle;
-                        padding: 0 $item-padding;
+        .orderedfood-text {
+            vertical-align: middle;
+            padding: 0 $item-padding;
 
-                        .orderedfood-name {
-                            font-weight: $weight-medium;
-                            font-size: $size-small;
-                        }
-
-                        .orderedfood-description {
-                            margin-top: 4px;
-                            color: $grey-dark;
-                            font-size: $size-xsmall;
-                        }
-                    }
-
-                    .orderedfood-cost {
-                        font-size: $size-xsmall;
-                        color: $grey-dark;
-                        text-align: right;
-                        padding-right: $item-padding;
-                    }
-
-                    .orderedfood-data {
-                        display: none;
-                    }
-
-                    .order-total-text {
-                        @extend .orderedfood-text;
-
-                        padding-left: $cost-amount-width + $item-padding;
-                        font-weight: $weight-medium;
-                        font-size: $size-small;
-                    }
-
-                    .order-total-cost {
-                        @extend .orderedfood-cost;
-                    }
-                }
+            .orderedfood-name {
+                font-weight: $weight-medium;
+                font-size: $size-small;
             }
+
+            .orderedfood-description {
+                margin-top: 4px;
+                color: $grey-dark;
+                font-size: $size-xsmall;
+            }
+        }
+
+        .orderedfood-cost {
+            font-size: $size-xsmall;
+            color: $grey-dark;
+            text-align: right;
+            padding-right: $item-padding;
+        }
+
+        .orderedfood-data {
+            display: none;
+        }
+
+        .order-total-text {
+            @extend .orderedfood-text;
+
+            padding-left: $cost-amount-width + $item-padding;
+            font-weight: $weight-medium;
+            font-size: $size-small;
+        }
+
+        .order-total-cost {
+            @extend .orderedfood-cost;
         }
     }
 }

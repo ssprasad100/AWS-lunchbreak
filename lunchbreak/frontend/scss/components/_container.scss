@@ -1,7 +1,7 @@
 .container {
     height: 100%;
     width: $page-width;
-    padding: 16px;
+    padding: $container-padding;
     left: 50%;
     margin-left: -($page-width / 2);
     position: relative;

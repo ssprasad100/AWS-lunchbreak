@@ -1,0 +1,22 @@
+{% set empty = not orderedfoods %}
+
+<ul id="orderedfood-list" {% if empty %}class="empty"{% endif %}>
+    <li class="orderedfood-empty">Voeg artikelen aan je winkelmandje toe.</li>
+    <li class="order-total">
+        <div class="order-total-text">
+            Subtotaal
+        </div>
+        <div class="order-total-cost">
+            {% if not empty %}
+                {% set total = orderedfoods | sum(attribute='total') %}
+                &euro; {{ '{:.2f}'.format(total).replace('.', ',') }}
+            {% else %}
+                &hellip;
+            {% endif %}
+        </div>
+    </li>
+
+    {% for orderedfood in orderedfoods %}
+        {% include 'nunjucks/orderedfood.html' %}
+    {% endfor %}
+</ul>

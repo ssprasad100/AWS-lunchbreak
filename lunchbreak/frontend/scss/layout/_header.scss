@@ -1,13 +1,26 @@
 #header {
-    $header-height: 40px;
-
     top: 0;
-    height: $header-height;
     position: absolute;
     font-size: $size-small;
     color: white;
     font-weight: $weight-light;
     line-height: $header-height;
+    background: none;
+    box-sizing: content-box;
+
+    .container {
+        box-sizing: content-box;
+        height: $header-height;
+    }
+
+    &.white {
+        background: white;
+        color: $grey-black;
+        border-bottom: 1px solid $grey;
+
+        & + .block {
+        }
+    }
 
     #header-left {
         float: left;

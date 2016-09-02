@@ -1,70 +1,51 @@
-input:not(.mdl-textfield__input) {
-    &[type='text'], &[type='tel'], &[type='submit'] {
-        height: $input-height;
-        box-sizing: border-box;
-        border: none;
-        border-radius: $border-radius;
-        margin: 0;
-        font-size: 14px;
-        font-weight: $weight-normal;
-        display: inline-block;
-        vertical-align: top;
+%base-input {
+    height: $input-height;
+    box-sizing: border-box;
+    border: none;
+    border-radius: $border-radius;
+    margin: 0;
+    font-size: 14px;
+    font-weight: $weight-normal;
+    display: inline-block;
+    vertical-align: top;
+    transition: opacity .25s ease;
 
-        transition: opacity .25s ease;
-
-        &:disabled {
-            opacity: .5;
-        }
-
-        &.input-icon {
-            background-size: 14px auto;
-            background-position: 13px center;
-            background-repeat: no-repeat;
-
-            &.icon-telephone {
-                background-image: url('icons/telephone.png');
-            }
-
-            &.icon-lock-white {
-                background-image: url('icons/lock-white.png');
-            }
-
-            &.icon-person {
-                background-image: url('icons/person.png');
-            }
-
-            &.icon-pin {
-                background-image: url('icons/pin.png');
-            }
-        }
+    &:disabled {
+        opacity: .5;
     }
 
-    &[type='text'], &[type='tel'] {
-        background: white;
-        padding: $input-padding;
-        color: $grey-black;
-        width: 350px;
+    &.input-icon {
+        background-size: 14px auto;
+        background-position: 13px center;
+        background-repeat: no-repeat;
 
-        &.input-icon {
-            padding-left: 40px;
-        }
-    }
-
-    &[type='submit'] {
-        padding: 12px 20px;
-        background: $red;
-        cursor: pointer;
-        color: white;
-        text-align: center;
-
-        &:visited {
-            color: white;
+        &.input-icon-right {
+            background-position: right 13px center;
+            padding: $input-padding;
         }
 
-        &.transparent {
-            background: transparent;
-            border: 1px solid $red;
-            color: $red;
+        $icons: 'telephone' 'lock-white' 'person' 'pin' 'location' ('dropdown', 10px, 5px);
+
+        @each $icon-info in $icons {
+            $name: nth($icon-info, 1);
+            $width: nth($icon-info, 1);
+            $height: nth($icon-info, 1);
+
+            &.icon-#{$name} {
+                background-image: url('icons/#{$name}.png');
+
+                @if length($icon-info) == 1 {
+                    background-size: 14px auto;
+                }
+
+                @else if length($icon-info) == 2 {
+                    background-size: nth($icon-info, 2);
+                }
+
+                @else {
+                    background-size: nth($icon-info, 2) nth($icon-info, 3);
+                }
+            }
         }
     }
 
@@ -73,6 +54,71 @@ input:not(.mdl-textfield__input) {
     }
 }
 
+%input {
+    @extend %base-input;
+
+    background: white;
+    padding: $input-padding;
+    color: $grey-black;
+    width: 350px;
+
+    &.input-icon {
+        padding-left: 40px;
+    }
+}
+
+%button {
+    @extend %base-input;
+
+    padding: 12px 20px;
+    background: $red;
+    cursor: pointer;
+    color: white;
+    text-align: center;
+
+    &:visited {
+        color: white;
+    }
+
+    &.transparent {
+        background: transparent;
+        border: 1px solid $red;
+        color: $red;
+    }
+}
+
+input:not(.mdl-textfield__input) {
+    &[type='text'], &[type='tel'], &[type='email'] {
+        @extend %input;
+    }
+
+    &[type='submit'] {
+        @extend %button;
+    }
+}
+
 .button {
-    @extend input[type='submit'];
+    @extend %button;
+}
+
+textarea {
+    @extend %input;
+
+    min-height: 140px;
+    padding: $input-padding-vertical $input-padding-horizontal;
+    resize: none;
+}
+
+select {
+    @extend %input;
+
+    -webkit-appearance: none;
+}
+
+input[type='radio'] {
+    @extend %base-input;
+
+    height: auto;
+    width: auto;
+    vertical-align: middle;
 }

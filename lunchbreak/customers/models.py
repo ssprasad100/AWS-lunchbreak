@@ -9,7 +9,8 @@ from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
 from django_gocardless.config import CURRENCY_EUR
 from django_gocardless.models import Payment, RedirectFlow
-from lunch.config import COST_GROUP_ADDITIONS, COST_GROUP_BOTH, INPUT_SI_SET
+from lunch.config import (COST_GROUP_ADDITIONS, COST_GROUP_BOTH, INPUT_SI_SET,
+                          INPUT_SI_VARIABLE)
 from lunch.exceptions import BadRequest, LinkingError, NoDeliveryToAddress
 from lunch.models import (AbstractAddress, BaseToken, Food, Ingredient,
                           IngredientGroup, Store)
@@ -372,16 +373,24 @@ class Group(models.Model):
 class Membership(models.Model):
     group = models.ForeignKey(
         Group,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name='memberships'
     )
     user = models.ForeignKey(
         User,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name='memberships'
     )
 
+    # TODO: Check whether it's the only leader
+    # Perhaps by adding a unique_together:
+    # ['group', 'leader']
     leader = models.BooleanField(
         default=False
     )
+
+    class Meta:
+        unique_together = ['group', 'user']
 
     def __str__(self):
         return '{group}: {user}'.format(
@@ -733,6 +742,24 @@ class OrderedFood(models.Model):
         return math.ceil(
             (self.cost * self.amount * self.amount_food) * 100
         ) / 100.0
+
+    def get_amount_display(self):
+        if self.original.foodtype.inputtype == INPUT_SI_VARIABLE:
+            if self.amount < 1:
+                return '{value} g'.format(
+                    value=self.amount * 1000
+                )
+            else:
+                return '{value} kg'.format(
+                    value=self.amount.normalize()
+                )
+        else:
+            return int(self.amount)
+
+    def get_total_display(self):
+        return '{:.2f}'.format(
+            self.total
+        ).replace('.', ',')
 
     @staticmethod
     def check_cost(cost_calculated, food, amount, cost_given):

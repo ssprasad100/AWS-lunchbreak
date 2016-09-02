@@ -9,6 +9,7 @@
 @import 'checkbox/checkbox';
 @import 'textfield/textfield';
 @import 'snackbar/snackbar';
+@import 'radio/radio';
 
 // intl-tel-input
 @import 'intlTelInput';
@@ -17,6 +18,7 @@
 @import 'components/block';
 @import 'components/container';
 @import 'components/search-box';
+@import 'components/split-view';
 @import 'components/tab-container';
 
 @import 'layout/header';
@@ -27,3 +29,4 @@
 @import 'pages/search';
 @import 'pages/store';
 @import 'pages/login';
+@import 'pages/checkout';

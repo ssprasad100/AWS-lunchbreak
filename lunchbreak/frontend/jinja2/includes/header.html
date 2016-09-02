@@ -1,13 +1,19 @@
-<header id="header" class="container {{ header_class }}">
-    <div id="header-left">
-        <a href="{{ url('frontend-index') }}" alt="Homepagina">
-        <img src="{{ static('logo-header.png') }}" id="header-logo" alt="Lunchbreak"/>Lunchbreak
-        </a>
-    </div>
-    <div id="header-right">
-        <ul>
-            <li><a href="" alt="Contact opnemen">Contact</a></li>
-            <li><a href="{{ url('frontend-login') }}" alt="Inloggen">Inloggen</a></li>
-        </ul>
+<header id="header" class="block {{ header_class }}">
+    <div class="container">
+        <div id="header-left">
+            <a href="{{ url('frontend-index') }}" alt="Homepagina">
+            <img src="{{ static('logo-header.png') }}" id="header-logo" alt="Lunchbreak"/>Lunchbreak
+            </a>
+        </div>
+        <div id="header-right">
+            <ul>
+                <li><a href="" alt="Contact opnemen">Contact</a></li>
+                {% if request.user.is_authenticated() %}
+                    <li>{{ request.user.name }}</li>
+                {% else %}
+                    <li><a href="{{ url('frontend-login') }}" alt="Inloggen">Inloggen</a></li>
+                {% endif %}
+            </ul>
+        </div>
     </div>
 </header>

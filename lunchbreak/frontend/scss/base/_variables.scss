@@ -18,16 +18,21 @@ $weight-extra-bold: 800;
 $weight-black: 900;
 
 $page-width: 1160px;
+$container-padding: 16px;
+$header-height: 40px;
 
 $size-xlarge: 40px;
 $size-large: 24px;
 $size-medium: 20px;
 $size-normal: 16px;
 $size-small: 14px;
-$size-xsmall: 12px;
+$size-xsmall: 13px;
 
 $input-height: 40px;
-$input-padding: 0 16px;
+$input-padding-vertical: 12px;
+$input-padding-horizontal: 16px;
+// Vertical padding set to 0 because input elements automatically center text
+$input-padding: 0 $input-padding-vertical;
 $border-radius: 2px;
 
 // Material Design Lite

@@ -108,6 +108,7 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'frontend/img'),
     os.path.join(BASE_DIR, 'frontend/js'),
+    os.path.join(BASE_DIR, 'frontend/jinja2/nunjucks'),
     os.path.join(BASE_DIR, 'frontend/scss'),
     os.path.join(BASE_DIR, 'frontend/mdl/src'),
     os.path.join(BASE_DIR, 'frontend/intl-tel-input/build/js'),
