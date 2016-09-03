@@ -12,8 +12,7 @@ from django_gocardless.models import Payment, RedirectFlow
 from lunch.config import (COST_GROUP_ADDITIONS, COST_GROUP_BOTH, INPUT_SI_SET,
                           INPUT_SI_VARIABLE)
 from lunch.exceptions import BadRequest, LinkingError, NoDeliveryToAddress
-from lunch.models import (AbstractAddress, BaseToken, Food, Ingredient,
-                          IngredientGroup, Store)
+from lunch.models import AbstractAddress, BaseToken, Food, Ingredient, Store
 from phonenumber_field.modelfields import PhoneNumberField
 from push_notifications.models import SERVICE_INACTIVE
 from rest_framework import status
@@ -35,6 +34,7 @@ from .exceptions import (AlreadyMembership, AmountInvalid, CostCheckFailed,
                          NoInvitePermissions, NoPaymentLink,
                          OnlinePaymentDisabled, PaymentLinkNotConfirmed,
                          UserDisabled)
+from .managers import OrderedFoodManager, OrderManager
 
 
 class User(models.Model):
@@ -540,6 +540,8 @@ class Order(models.Model, DirtyFieldsMixin):
         blank=True
     )
 
+    objects = OrderManager()
+
     def save(self, *args, **kwargs):
         self.full_clean()
 
@@ -573,32 +575,15 @@ class Order(models.Model, DirtyFieldsMixin):
             self.update_staged_deletion()
 
     @classmethod
-    def create(cls, orderedfood, **kwargs):
-        if orderedfood is None or len(orderedfood) == 0:
+    def is_valid(cls, orderedfood, **kwargs):
+        if orderedfood is None or not isinstance(orderedfood, list) or len(orderedfood) == 0:
             raise BadRequest('An order requires to have ordered food.')
 
-        instance = cls.objects.create(**kwargs)
-
-        try:
-            for f in orderedfood:
-                if isinstance(f, dict):
-                    OrderedFood.objects.create(
-                        order=instance,
-                        **f
-                    )
-                elif isinstance(f, OrderedFood):
-                    f.order = instance
-                    f.save()
-                else:
-                    raise NotImplementedError(
-                        'Order.create requires a dict or list of OrderedFood.'
-                    )
-        except:
-            instance.delete()
-            raise
-
-        instance.save()
-        return instance
+        for f in orderedfood:
+            if not isinstance(f, dict) and not isinstance(f, OrderedFood):
+                raise ValueError(
+                    'Order creation requires a list of dicts or OrderedFoods.'
+                )
 
     def delete(self, *args, **kwargs):
         super(Order, self).delete(*args, **kwargs)
@@ -726,6 +711,8 @@ class OrderedFood(models.Model):
         blank=True
     )
 
+    objects = OrderedFoodManager()
+
     class Meta:
         verbose_name_plural = 'Ordered food'
 
@@ -735,15 +722,18 @@ class OrderedFood(models.Model):
 
     @cached_property
     def amount_food(self):
+        """Original amount of food, returns 1 if not variable, else original.amount."""
         return self.original.amount if self.original.foodtype.inputtype == INPUT_SI_SET else 1
 
     @cached_property
     def total(self):
+        """Calculate the total cost of the OrderedFood."""
         return math.ceil(
             (self.cost * self.amount * self.amount_food) * 100
         ) / 100.0
 
     def get_amount_display(self):
+        """Get the amount formatted in a correct format."""
         if self.original.foodtype.inputtype == INPUT_SI_VARIABLE:
             if self.amount < 1:
                 return '{value} g'.format(
@@ -757,21 +747,10 @@ class OrderedFood(models.Model):
             return int(self.amount)
 
     def get_total_display(self):
+        """Get the total amount displayed in a correct format."""
         return '{:.2f}'.format(
             self.total
         ).replace('.', ',')
-
-    @staticmethod
-    def check_cost(cost_calculated, food, amount, cost_given):
-        if math.ceil(
-                (
-                    cost_calculated * amount * (
-                        food.amount
-                        if food.foodtype.inputtype == INPUT_SI_SET
-                        else 1
-                    )
-                ) * 100) / 100.0 != float(cost_given):
-            raise CostCheckFailed()
 
     def clean(self):
         if not self.original.is_valid_amount(self.amount):
@@ -783,38 +762,33 @@ class OrderedFood(models.Model):
         if not self.original.commentable and self.comment:
             self.comment = ''
 
-    def save(self, ingredients=None, *args, **kwargs):
+    def save(self, *args, **kwargs):
         self.full_clean()
-
-        if self.pk is None:
-            self.create(ingredients, *args, **kwargs)
-
-        super(OrderedFood, self).save(*args, **kwargs)
-
-    def create(self, ingredients=None, *args, **kwargs):
-        if ingredients is not None:
-            super(OrderedFood, self).save(*args, **kwargs)
-
-            closest = Food.objects.closest(ingredients, self.original)
-            self.check_amount(closest, self.amount)
-            IngredientGroup.check_ingredients(ingredients, closest)
-            cost_calculated = OrderedFood.calculate_cost(ingredients, closest)
-            self.check_cost(cost_calculated, closest, self.amount, self.cost)
-
-            self.cost = cost_calculated
-            self.ingredients = ingredients
-        else:
-            self.check_cost(self.original.cost, self.original, self.amount, self.cost)
-            self.cost = self.original.cost
-            self.is_original = True
+        super().save(*args, **kwargs)
 
     @staticmethod
-    def calculate_cost(ordered_ingredients, food):
-        food_ingredient_relations = food.ingredientrelation_set.select_related(
-            'ingredient__group'
-        ).all()
+    def calculate_cost(ingredients, food):
+        """Calculate the base cost of the given ingredients and food.
 
+        The base cost of the OrderedFood means that that is the cost for
+        an OrderedFood with amount == 1.
+
+        Args:
+            ingredients (list): List of ingredient ids
+            food (Food): Food to base the calculation off of, most of the time the original/closest food.
+
+        Returns:
+            Decimal: Base cost of edited food.
+        """
+        food_ingredient_relations = food.ingredientrelation_set.select_related(
+            'ingredient__group',
+        ).filter(
+            selected=True
+        )
+
+        # All of the selected ingredients of a food
         food_ingredients = []
+        # All of the ingredient groups of selected ingredients
         food_groups = []
         for ingredient_relation in food_ingredient_relations:
             ingredient = ingredient_relation.ingredient
@@ -826,7 +800,7 @@ class OrderedFood(models.Model):
         groups_ordered = []
         cost = food.cost
 
-        for ingredient in ordered_ingredients:
+        for ingredient in ingredients:
             if ingredient not in food_ingredients:
                 if ingredient.group.calculation in [COST_GROUP_BOTH, COST_GROUP_ADDITIONS]:
                     cost += ingredient.cost
@@ -837,7 +811,7 @@ class OrderedFood(models.Model):
 
         groups_removed = []
         for ingredient in food_ingredients:
-            if ingredient.selected and ingredient not in ordered_ingredients:
+            if ingredient.selected and ingredient not in ingredients:
                 if ingredient.group.calculation == COST_GROUP_BOTH:
                     cost -= ingredient.cost
                 elif ingredient.group not in groups_removed:
@@ -848,6 +822,30 @@ class OrderedFood(models.Model):
                 cost -= group.cost
 
         return cost
+
+    @staticmethod
+    def check_cost(base_cost, food, amount, given_cost):
+        """Check if the given cost is correct based on a base cost, food and amount.
+
+        Args:
+            base_cost (Decimal): Base cost of edited food.
+            food (Food): Original/closest food.
+            amount (Decimal): Amount of food.
+            given_cost (Decimal): Cost given by user.
+
+        Raises:
+            CostCheckFailed: Cost given by user was calculated incorrectly.
+        """
+        if math.ceil(
+                (
+                    base_cost * amount * (
+                        # See OrderedFood.amount_food
+                        food.amount
+                        if food.foodtype.inputtype == INPUT_SI_SET
+                        else 1
+                    )
+                ) * 100) / 100.0 != float(given_cost):
+            raise CostCheckFailed()
 
     def __str__(self):
         return str(self.original)

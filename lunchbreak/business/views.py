@@ -12,8 +12,8 @@ from django.utils import timezone
 from lunch.models import (Food, FoodType, Ingredient, IngredientGroup, Menu,
                           Quantity, Store)
 from lunch.responses import BadRequest
-from lunch.serializers import (FoodTypeSerializer, MenuDetailSerializer,
-                               MenuSerializer, QuantityDetailSerializer)
+from lunch.serializers import (FoodTypeSerializer, MenuSerializer,
+                               QuantityDetailSerializer)
 from lunch.views import (HolidayPeriodListViewBase, OpeningListViewBase,
                          OpeningPeriodListViewBase, StoreCategoryListViewBase)
 from Lunchbreak.views import TargettedViewSet

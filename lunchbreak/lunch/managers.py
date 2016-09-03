@@ -77,7 +77,7 @@ class FoodManager(models.Manager):
         if not original.foodtype.customisable:
             return original
 
-        ingredients_in = -1 if len(ingredients) == 0 else '''
+        ingredients_in = '-1' if len(ingredients) == 0 else '''
             CASE WHEN lunch_ingredient.id IN (%s)
                 THEN
                     1
@@ -87,7 +87,15 @@ class FoodManager(models.Manager):
 
         return self.model.objects.raw('''
             SELECT
-                lunch_food.*
+                lunch_food.*,
+                SUM(
+                    CASE WHEN lunch_ingredient.id IS NULL
+                        THEN
+                            0
+                        ELSE
+                            ''' + ingredients_in + '''
+                        END
+                ) as score
             FROM
                 `lunch_food`
                 LEFT JOIN
@@ -101,20 +109,12 @@ class FoodManager(models.Manager):
             GROUP BY
                 lunch_food.id
             ORDER BY
-                SUM(
-                    CASE WHEN lunch_ingredient.id IS NULL
-                        THEN
-                            0
-                        ELSE
-                            %s
-                        END
-                ) DESC,
+                score DESC,
                 lunch_food.id = %s DESC,
                 lunch_food.cost ASC;
             ''', [
             original.foodtype.id,
             original.store.id,
-            ingredients_in,
             original.id
         ])[0]
 

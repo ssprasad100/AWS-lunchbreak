@@ -172,7 +172,7 @@ class OrderSerializer(serializers.ModelSerializer):
         )
 
     def create(self, validated_data):
-        return Order.create(
+        return Order.objects.create_with_orderedfood(
             **validated_data
         )
 

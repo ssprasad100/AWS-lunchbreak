@@ -99,7 +99,7 @@ DATETIME_INPUT_FORMATS = [
     DATETIME_FORMAT,
 ]
 
-LOGIN_REDIRECT_URL = reverse_lazy('frontend-index');
+LOGIN_REDIRECT_URL = reverse_lazy('frontend-index')
 LOGIN_URL = reverse_lazy('frontend-login')
 
 STATIC_RELATIVE = 'static/'

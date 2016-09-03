@@ -4,12 +4,13 @@ import mock
 from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.utils import timezone
-from lunch.config import BELGIUM
+from lunch.config import (BELGIUM, COST_GROUP_ADDITIONS, COST_GROUP_ALWAYS,
+                          COST_GROUP_BOTH)
 from lunch.exceptions import (BadRequest, DoesNotExist, LinkingError,
                               NoDeliveryToAddress)
-from lunch.models import (Food, Menu, FoodType, HolidayPeriod,
-                          Ingredient, IngredientGroup, IngredientRelation,
-                          Region, Store)
+from lunch.models import (Food, FoodType, HolidayPeriod, Ingredient,
+                          IngredientGroup, IngredientRelation, Menu, Region,
+                          Store)
 from Lunchbreak.test import LunchbreakTestCase
 from push_notifications.models import SERVICE_APNS, SERVICE_GCM
 from rest_framework import status
@@ -21,7 +22,8 @@ from .config import (DEMO_DIGITS_ID, DEMO_PHONE, INVITE_STATUS_ACCEPTED,
                      ORDER_STATUS_COMPLETED, RESERVATION_STATUS_USER,
                      RESERVATION_STATUSES)
 from .exceptions import (AlreadyMembership, InvalidStatusChange,
-                         MaxSeatsExceeded, NoInvitePermissions)
+                         MaxSeatsExceeded, NoInvitePermissions,
+                         OrderedFoodNotOriginal)
 from .models import (Address, Group, Heart, Invite, Membership, Order,
                      OrderedFood, Reservation, User, UserToken)
 
@@ -92,7 +94,8 @@ class CustomersTests(LunchbreakTestCase):
         )
 
         self.foodtype = FoodType.objects.create(
-            name='FoodType test'
+            name='FoodType test',
+            customisable=True
         )
 
         self.menu = Menu.objects.create(
@@ -100,62 +103,96 @@ class CustomersTests(LunchbreakTestCase):
             store=self.store
         )
 
-        self.ingredientGroup = IngredientGroup.objects.create(
+        self.ingredientgroup = IngredientGroup.objects.create(
             name='IngredientGroup test',
             foodtype=self.foodtype,
-            store=self.store
+            store=self.store,
+            cost=1
         )
 
         self.food = Food.objects.create(
             name='Food test',
-            cost=1.00,
+            cost=100.00,
             foodtype=self.foodtype,
             menu=self.menu,
             store=self.store
         )
 
-        IngredientRelation.objects.bulk_create([
+        ingredient_relations = [
             IngredientRelation(
                 ingredient=Ingredient.objects.create(
                     name='Ingredient 1',
-                    group=self.ingredientGroup,
-                    store=self.store
+                    group=self.ingredientgroup,
+                    store=self.store,
+                    cost=0.1
                 ),
-                food=self.food
+                food=self.food,
+                selected=True
             ),
             IngredientRelation(
                 ingredient=Ingredient.objects.create(
                     name='Ingredient 2',
-                    group=self.ingredientGroup,
-                    store=self.store
+                    group=self.ingredientgroup,
+                    store=self.store,
+                    cost=0.1
                 ),
-                food=self.food
+                food=self.food,
+                selected=True
             ),
             IngredientRelation(
                 ingredient=Ingredient.objects.create(
                     name='Ingredient 3',
-                    group=self.ingredientGroup,
-                    store=self.store
+                    group=self.ingredientgroup,
+                    store=self.store,
+                    cost=0.1
                 ),
-                food=self.food
+                food=self.food,
+                selected=True
             ),
             IngredientRelation(
                 ingredient=Ingredient.objects.create(
                     name='Ingredient 4',
-                    group=self.ingredientGroup,
-                    store=self.store
+                    group=self.ingredientgroup,
+                    store=self.store,
+                    cost=0.1
                 ),
-                food=self.food
+                food=self.food,
+                selected=True
             ),
             IngredientRelation(
                 ingredient=Ingredient.objects.create(
                     name='Ingredient 5',
-                    group=self.ingredientGroup,
-                    store=self.store
+                    group=self.ingredientgroup,
+                    store=self.store,
+                    cost=0.1
                 ),
-                food=self.food
+                food=self.food,
+                selected=False
             )
-        ])
+        ]
+        for rel in ingredient_relations:
+            rel.save()
+
+        self.unique_food = Food.objects.create(
+            name='Unique food',
+            cost=1,
+            foodtype=self.foodtype,
+            menu=self.menu,
+            store=self.store
+        )
+
+        self.unique_ingredient = Ingredient.objects.create(
+            name='Unique ingredient',
+            group=self.ingredientgroup,
+            store=self.store,
+            cost=0.1
+        )
+
+        self.unique_ingredientrelation = IngredientRelation.objects.create(
+            ingredient=self.unique_ingredient,
+            food=self.unique_food,
+            selected=True
+        )
 
         HolidayPeriod.objects.bulk_create([
             HolidayPeriod(
@@ -511,6 +548,219 @@ class CustomersTests(LunchbreakTestCase):
         del content['delivery_address']
         response, order = create_order()
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_orderedfood_calculate_cost(self):
+        self.ingredientgroup.calculation = COST_GROUP_ALWAYS
+        self.ingredientgroup.save()
+
+        selected_ingredientrelations = self.food.ingredientrelation_set.filter(
+            selected=True
+        )
+        selected_ingredients = [r.ingredient for r in selected_ingredientrelations]
+        selected_ingredient = selected_ingredients[0]
+        deselected_ingredient = self.food.ingredientrelation_set.filter(
+            selected=False
+        ).first().ingredient
+
+        # Check whether the calculated cost with all of the ingredients
+        # remains the same.
+        self.assertEqual(
+            OrderedFood.calculate_cost(
+                selected_ingredients,
+                self.food
+            ),
+            self.food.cost
+        )
+
+        # Check whether the calculated cost with none of the ingredients
+        # equals that of the food - the cost of the ingredient group
+        self.assertEqual(
+            OrderedFood.calculate_cost(
+                [],
+                self.food
+            ),
+            self.food.cost - self.ingredientgroup.cost
+        )
+
+        # Check whether the calculated cost with 1 missing ingredient
+        # remains the same.
+        selected_ingredients.remove(selected_ingredient)
+        self.assertEqual(
+            OrderedFood.calculate_cost(
+                selected_ingredients,
+                self.food
+            ),
+            self.food.cost
+        )
+
+        # Check whether the calculated cost with 1 added ingredient
+        # remains the same.
+        selected_ingredients.append(selected_ingredient)
+        selected_ingredients.append(deselected_ingredient)
+        self.assertEqual(
+            OrderedFood.calculate_cost(
+                selected_ingredients,
+                self.food
+            ),
+            self.food.cost
+        )
+        selected_ingredients.remove(deselected_ingredient)
+
+        # Check whether the value changes only when adding
+        self.ingredientgroup.calculation = COST_GROUP_ADDITIONS
+        self.ingredientgroup.save()
+        deselected_ingredient.group.refresh_from_db()
+
+        # Check whether the calculated cost with all of the ingredients
+        # remains the same.
+        self.assertEqual(
+            OrderedFood.calculate_cost(
+                selected_ingredients,
+                self.food
+            ),
+            self.food.cost
+        )
+
+        # Check whether the calculated cost with 1 missing ingredient
+        # remains the same.
+        selected_ingredients.remove(selected_ingredient)
+        self.assertEqual(
+            OrderedFood.calculate_cost(
+                selected_ingredients,
+                self.food
+            ),
+            self.food.cost
+        )
+
+        # Check whether the calculated cost with 1 added ingredient
+        # remains the same.
+        selected_ingredients.append(selected_ingredient)
+        selected_ingredients.append(deselected_ingredient)
+        self.assertEqual(
+            OrderedFood.calculate_cost(
+                selected_ingredients,
+                self.food
+            ),
+            self.food.cost + deselected_ingredient.cost
+        )
+        selected_ingredients.remove(deselected_ingredient)
+
+        # Check whether the calculated cost with none of the ingredients
+        # equals that of the food - the cost of the ingredient group
+        self.assertEqual(
+            OrderedFood.calculate_cost(
+                [],
+                self.food
+            ),
+            self.food.cost - self.ingredientgroup.cost
+        )
+
+        # Check whether the value changes only when adding and removing
+        self.ingredientgroup.calculation = COST_GROUP_BOTH
+        self.ingredientgroup.save()
+
+        # Check whether the calculated cost with all of the ingredients
+        # remains the same.
+        self.assertEqual(
+            OrderedFood.calculate_cost(
+                selected_ingredients,
+                self.food
+            ),
+            self.food.cost
+        )
+
+        # Check whether the calculated cost with 1 missing ingredient
+        # remains the same.
+        selected_ingredients.remove(selected_ingredient)
+        self.assertEqual(
+            OrderedFood.calculate_cost(
+                selected_ingredients,
+                self.food
+            ),
+            self.food.cost - selected_ingredient.cost
+        )
+
+        # Check whether the calculated cost with 1 added ingredient
+        # remains the same.
+        selected_ingredients.append(selected_ingredient)
+        selected_ingredients.append(deselected_ingredient)
+        self.assertEqual(
+            OrderedFood.calculate_cost(
+                selected_ingredients,
+                self.food
+            ),
+            self.food.cost + deselected_ingredient.cost
+        )
+        selected_ingredients.remove(deselected_ingredient)
+
+        # Check whether the calculated cost with none of the ingredients
+        # equals that of the food - the separate costs of the ingredients
+        cost_separate_ingredients = 0
+        for ingredient in selected_ingredients:
+            cost_separate_ingredients += ingredient.cost
+        self.assertEqual(
+            OrderedFood.calculate_cost(
+                [],
+                self.food
+            ),
+            self.food.cost - cost_separate_ingredients
+        )
+
+    def test_order_with_ingredients(self):
+        selected_ingredientrelations = self.food.ingredientrelation_set.filter(
+            selected=True
+        )
+        selected_ingredients = [r.ingredient for r in selected_ingredientrelations]
+
+        orderedfood = [
+            {
+                'original': self.food,
+                'amount': 1,
+                'cost': self.food.cost
+            }
+        ]
+
+        order = Order.objects.create_with_orderedfood(
+            orderedfood=orderedfood,
+            user=self.user,
+            store=self.store,
+            receipt=timezone.now() + timedelta(hours=1)
+        )
+
+        of = order.orderedfood_set.all().first()
+        self.assertTrue(of.is_original)
+        self.assertFalse(of.ingredients.all().exists())
+
+        # Adding the same ingredients as selected on the food doesn't set the
+        # ingredients on the OrderedFood.
+        orderedfood[0]['ingredients'] = selected_ingredients
+        order = Order.objects.create_with_orderedfood(
+            orderedfood=orderedfood,
+            user=self.user,
+            store=self.store,
+            receipt=timezone.now() + timedelta(hours=1)
+        )
+
+        of = order.orderedfood_set.all().first()
+        self.assertTrue(of.is_original)
+        self.assertFalse(of.ingredients.all().exists())
+
+        orderedfood[0]['ingredients'] = [self.unique_ingredient]
+        self.assertEqual(
+            Food.objects.closest(
+                ingredients=orderedfood[0]['ingredients'],
+                original=self.food
+            ),
+            self.unique_food
+        )
+        self.assertRaises(
+            OrderedFoodNotOriginal,
+            Order.objects.create_with_orderedfood,
+            orderedfood=orderedfood,
+            user=self.user,
+            store=self.store,
+            receipt=timezone.now() + timedelta(hours=1)
+        )
 
     def test_token_update(self):
         """

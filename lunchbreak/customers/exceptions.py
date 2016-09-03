@@ -18,6 +18,7 @@ INVALID_STATUS_CHANGE = 711
 ONLINE_PAYMENTS_DISABLED = 712
 NO_PAYMENT_LINK = 713
 PAYMENT_LINK_NOT_CONFIRMED = 714
+ORDEREDFOOD_NOT_ORIGINAL = 715
 
 DIGITS_UNKNOWN = -1
 DIGITS_LEGACY_ERROR = 0
@@ -182,3 +183,9 @@ class PaymentLinkNotConfirmed(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
     code = PAYMENT_LINK_NOT_CONFIRMED
     information = 'User has not confirmed the RedirectFlow of the PaymentLink.'
+
+
+class OrderedFoodNotOriginal(LunchbreakException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    code = ORDEREDFOOD_NOT_ORIGINAL
+    information = 'OrderedFoods can only be created if the closest food is the original food.'

@@ -10,7 +10,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import DatabaseError, models
 from django.db.models import Q
-from django.db.models.signals import m2m_changed
+from django.db.models.signals import m2m_changed, post_save
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
@@ -831,13 +831,15 @@ class Food(models.Model):
         return self.name
 
     @staticmethod
-    def changed_ingredients(sender, instance, action, reverse, model, pk_set, **kwargs):
-        if len(action) > 4 and action[:4] == 'post':
+    def changed_ingredients(sender, instance, action=None, **kwargs):
+        if action is None or len(action) > 4 and action[:4] == 'post':
             if isinstance(instance, Food):
                 instance.update_typical()
             elif instance.__class__ in [Ingredient, IngredientGroup]:
                 for food in instance.food_set.all():
                     food.update_typical()
+            elif isinstance(instance, IngredientRelation):
+                instance.food.update_typical()
 
     @classmethod
     def clean_ingredientgroups(cls, action, instance, pk_set, **kwargs):
@@ -1040,13 +1042,21 @@ class BaseToken(BareDevice, DirtyFieldsMixin):
 
 m2m_changed.connect(
     Food.changed_ingredients,
-    sender=Food.ingredientgroups.through
+    sender=Food.ingredientgroups.through,
+    weak=False
+)
+post_save.connect(
+    Food.changed_ingredients,
+    sender=IngredientRelation,
+    weak=False
 )
 m2m_changed.connect(
     Food.changed_ingredients,
-    sender=Food.ingredients.through
+    sender=Food.ingredients.through,
+    weak=False
 )
 m2m_changed.connect(
     Food.clean_ingredientgroups,
-    sender=Food.ingredientgroups.through
+    sender=Food.ingredientgroups.through,
+    weak=False
 )
