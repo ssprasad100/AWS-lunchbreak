@@ -20,7 +20,7 @@ urlpatterns = patterns(
         name='frontend-store'
     ),
     url(
-        r'^order/?$',
+        r'^store/(?P<store_id>\d+)/order/?$',
         views.OrderView.as_view(),
         name='frontend-order'
     ),

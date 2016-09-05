@@ -6,10 +6,10 @@
 
 <div id="checkout" class="block fullsize">
     <div class="container">
-        <div id="checkout-before">
-            <h1>Bestellen bij Pastrie</h1>
+        <div id="checkout-before" class="title-split">
+            <h1>Bestellen bij {{ store.name }}</h1>
             <div>
-                <a href="" class="subscript">Bestelling aanpassen</a>
+                <a href="{{ url('frontend-store', kwargs={'pk': store.id}) }}" class="subscript">Bestelling annuleren</a>
             </div>
         </div>
 
@@ -28,7 +28,10 @@
                     <input type="email" name="checkout-email" value="andreas@cloock.be"/>
                 </label>
 
-                {% set memberships = request.user.memberships.all() %}
+                {% set memberships = request.user.memberships.select_related(
+                        'group'
+                    ).all()
+                %}
                 {% if memberships %}
                 <label>Bestelling plaatsen in een groep
                     <select name="checkout-group">
@@ -80,7 +83,9 @@
                     <textarea name="checkout-comment" placeholder="Gelieve te bellen want de bel doet het niet."></textarea>
                 </label>
 
-                {% include 'includes/orderedfood.html' %}
+                {% for orderedfood in orderedfoods %}
+                    {% include 'includes/orderedfood.html' %}
+                {% endfor %}
             </div>
         </form>
     </div>

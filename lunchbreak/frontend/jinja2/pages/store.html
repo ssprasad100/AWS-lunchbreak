@@ -71,9 +71,9 @@
             {% endfor %}
         </div>
         <div id="order">
-            <form method="POST" action="{{ url('frontend-order') }}">
+            <form method="POST" action="{{ url('frontend-order', kwargs={'store_id': store.id}) }}">
                 <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}"/>
-                <input type="submit" value="Afrekenen"/>
+                <input type="submit" value="Afrekenen" disabled/>
                 {% include 'includes/orderedfood.html' %}
             </form>
         </div>

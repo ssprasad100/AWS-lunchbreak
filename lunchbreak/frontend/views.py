@@ -1,13 +1,16 @@
-from customers.models import OrderedFood
+import json
+
+from customers.models import Order, OrderedFood
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.core.urlresolvers import reverse
 from django.db.models import Count
 from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404, render
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView, View
-from lunch.models import Store
+from lunch.models import Food, Store
 from user_agents import parse as parse_user_agent
 
 from .forms import SearchForm
@@ -73,16 +76,55 @@ class OrderView(LoginForwardMixin, TemplateView):
     template_name = 'pages/order.html'
     forward_group = 'frontend-order'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        data = getattr(
+            self.request,
+            'forward_data',
+            dict(self.request.POST)
+        )
+
+        context['store'] = get_object_or_404(
+            Store,
+            pk=kwargs['store_id']
+        )
+        if 'orderedfood' in data:
+            orderedfoods_list = [json.loads(d) for d in data['orderedfood']]
+            for orderedfood in orderedfoods_list:
+                orderedfood['original'] = Food.objects.get(
+                    pk=orderedfood['original']
+                )
+
+            orderedfoods = [
+                OrderedFood.objects.create_for_order(
+                    save=False,
+                    **d
+                ) for d in orderedfoods_list
+            ]
+            Order.is_valid(orderedfoods)
+            context['orderedfoods'] = orderedfoods
+
+        return context
+
     def post(self, request, *args, **kwargs):
         return self.get(request, *args, **kwargs)
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['data'] = getattr(self.request, 'forward_data', self.request.POST)
-        context['orderedfoods'] = OrderedFood.objects.filter(
-            amount__gt=1
-        )[:5]
-        return context
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        if 'orderedfoods' not in context:
+            return HttpResponseRedirect(
+                reverse(
+                    'frontend-store',
+                    kwargs={
+                        'pk': kwargs['store_id']
+                    }
+                )
+            )
+        return render(
+            request=request,
+            template_name=self.template_name,
+            context=context
+        )
 
 
 class LoginView(TemplateView):

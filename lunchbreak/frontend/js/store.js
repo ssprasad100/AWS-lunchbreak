@@ -138,6 +138,7 @@
      * @param {OrderedFood} orderedfood Orderedfood.
      */
     Order.addOrderedFood = function(orderedfood) {
+        Order.element.parent().find('input[type="submit"]').attr('disabled', false);
         Order.orderedfood.push(orderedfood);
         this.renderOrderedFood(orderedfood);
         orderedfood.fetch();
@@ -201,8 +202,8 @@
          * Get a formatted amount for use in the order list.
          * @return {string} Formatted amount.
          */
-        this.getAmountDisplay = function() {
-            return Quantity.getAmountDisplay(this.original.foodtype.inputtype, this.amount);
+        this.get_amount_display = function() {
+            return Quantity.get_amount_display(this.original.foodtype.inputtype, this.amount);
         };
 
         /**
@@ -219,21 +220,28 @@
          * Get the total cost displayed in an appropriate money format.
          * @return {string} Total cost formatted.
          */
-        this.getTotalDisplay = function() {
+        this.get_total_display = function() {
             if (this.cost === undefined)
                 return '...';
             return getMoneyDisplay(this.getTotal());
         };
 
+        /**
+         * A JSON representation of the object passed onto the form and then
+         * the backend.
+         * @return {string} JSON representation
+         */
         this.json = function() {
             var data = {
-                'original': this.original.id
-            }
+                'original': this.original.id,
+                'amount': this.amount,
+                'cost': this.getTotal()
+            };
 
             var selectedIngredientsIds = [];
-            for(var i = 0; i < this.original.ingredients.length; i++) {
+            for (var i = 0; i < this.original.ingredients.length; i++) {
                 var ingredient = this.original.ingredients[i];
-                if(ingredient.selected)
+                if (ingredient.selected)
                     selectedIngredientsIds.push(ingredient.id);
             }
 
@@ -262,7 +270,8 @@
          */
         this.updateCost = function() {
             var costElement = this.element.find('.orderedfood-cost').first();
-            costElement.html(this.getTotalDisplay());
+            costElement.html(this.get_total_display());
+            this.element.find('.orderedfood-data').first().val(this.json());
 
             Order.onCostUpdate();
         };
@@ -409,7 +418,7 @@
         this.addToOrder = function() {
             var clone = jQuery.extend(true, {}, this);
             var amount = this.inputField.val();
-            var orderedfood = new OrderedFood(clone, amount);
+            var orderedfood = new OrderedFood(clone, parseInt(amount));
             this.reset();
             Order.addOrderedFood(orderedfood);
         };
@@ -677,7 +686,7 @@
                     break;
                 case FoodType.InputType.SIAmount:
                     var inputtype = this.inputtype === FoodType.InputType.Amount ? this.inputtype : FoodType.InputType.SIVariable;
-                    return 'Aantal (elk ' + Quantity.getAmountDisplay(inputtype, this.food.amount) + ')';
+                    return 'Aantal (elk ' + Quantity.get_amount_display(inputtype, this.food.amount) + ')';
                     break;
             }
         };
@@ -728,14 +737,14 @@
         this.food = food;
 
         this.getMinimumDisplay = function() {
-            return Quantity.getAmountDisplay(
+            return Quantity.get_amount_display(
                 this.food.foodtype.inputtype,
                 this.minimum
             );
         };
 
         this.getMaximumDisplay = function() {
-            return Quantity.getAmountDisplay(
+            return Quantity.get_amount_display(
                 this.food.foodtype.inputtype,
                 this.maximum
             );
@@ -771,7 +780,7 @@
      * @param  {number} value Amount/weight value.
      * @return {string} Representation of the given value and input type.
      */
-    Quantity.getAmountDisplay = function(inputtype, value) {
+    Quantity.get_amount_display = function(inputtype, value) {
         if (inputtype === FoodType.InputType.SIVariable) {
             return Quantity.getWeightDisplay(value);
         } else {

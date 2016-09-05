@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% set header_class='white' %}
+
+<div class="block fullsize">
+    <div class="container">
+        <div class="title-split">
+            <h1>{{ error | default('Er trad een fout op.') }}</h1>
+            <div>
+                <a href="{{ url('frontend-index') }}" class="subscript">Terugkeren</a>
+            </div>
+        </div>
+        <p>{{ description | default('Het Lunchbreak team is op de hoogte gesteld van de fout, we proberen het zo snel mogelijk op te lossen.') }}</p>
+    </div>
+</div>
+
+{% include 'includes/header.html' %}
+
+{% endblock content %}

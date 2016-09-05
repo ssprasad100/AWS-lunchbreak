@@ -33,7 +33,7 @@ class OrderManager(models.Manager):
 
 class OrderedFoodManager(models.Manager):
 
-    def create_for_order(self, order, original, amount, cost, ingredients=None, **kwargs):
+    def create_for_order(self, original, amount, cost, ingredients=None, save=True, **kwargs):
         original.foodtype.is_valid_amount(
             amount=amount,
             quantity=original.quantity
@@ -78,7 +78,6 @@ class OrderedFoodManager(models.Manager):
                 given_cost=cost
             )
             instance = self.model(
-                order=order,
                 amount=amount,
                 original=original,
                 cost=base_cost,
@@ -93,7 +92,6 @@ class OrderedFoodManager(models.Manager):
                 given_cost=cost
             )
             instance = self.model(
-                order=order,
                 amount=amount,
                 original=original,
                 cost=cost,
@@ -101,5 +99,7 @@ class OrderedFoodManager(models.Manager):
                 **kwargs
             )
 
-        instance.save()
+        if save:
+            instance.save()
+
         return instance

@@ -1,6 +1,10 @@
 import os
 
-HOST = 'lunchbreak.dev'
+ALLOWED_HOSTS = [
+    'lunchbreak.dev',
+    'www.lunchbreak.dev',
+    'api.lunchbreak.dev',
+]
 BRANCH = 'development'
 
 SSL = False
@@ -11,7 +15,6 @@ PRIVATE_MEDIA_ROOT = os.path.normpath(os.path.join(BASE_DIR, 'media-private'))
 INSTALLED_APPS = [
     'livereload',
 ] + INSTALLED_APPS
-
 
 MIDDLEWARE_CLASSES += (
     'lunch.middleware.PrintExceptionMiddleware',

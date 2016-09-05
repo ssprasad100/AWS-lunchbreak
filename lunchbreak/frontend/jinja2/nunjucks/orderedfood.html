@@ -1,27 +1,15 @@
-{% set is_javascript = callable and callable(orderedfoods[0].getAmountDisplay) %}
-
 <li class="orderedfood">
     <div class="orderedfood-amount">
-        {% if is_javascript %}
-            {{ orderedfood.getAmountDisplay() }}
-        {% else %}
-            {{ orderedfood.get_amount_display() }}
-        {% endif %}
+        {{ orderedfood.get_amount_display() }}
     </div>
     <div class="orderedfood-text">
         <div class="orderedfood-name">{{ orderedfood.original.name }}</div>
         <div class="orderedfood-description">{{ orderedfood.original.description }}</div>
     </div>
     <div class="orderedfood-cost">
-        {% if is_javascript %}
-            {{ orderedfood.getTotalDisplay() }}
-        {% else %}
-            &euro; {{ orderedfood.get_total_display() }}
-        {% endif %}
+        {{ orderedfood.get_total_display() }}
     </div>
-    {% if is_javascript %}
-    <div class="orderedfood-data">
-        <input type="hidden" name="orderedfood" value="{{ orderedfood.json() }}"/>
-    </div>
+    {% if not orderedfoods %}
+    <input class="orderedfood-data" type="hidden" name="orderedfood" value="{{ orderedfood.json() }}"/>
     {% endif %}
 </li>
