@@ -2,6 +2,7 @@ import math
 
 from business.models import StaffToken
 from dirtyfields import DirtyFieldsMixin
+from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils import timezone
@@ -141,10 +142,11 @@ class User(models.Model):
             if not user.enabled:
                 return UserDisabled().response
 
-            if user.confirmed_at:
-                digits_result = User.digits_login(digits, phone)
-            else:
-                digits_result = User.digits_register(digits, phone)
+            if not settings.DEBUG:
+                if user.confirmed_at:
+                    digits_result = User.digits_login(digits, phone)
+                else:
+                    digits_result = User.digits_register(digits, phone)
 
             if digits_result and type(digits_result) is dict:
                 user.digits_id = digits_result['digits_id']
@@ -183,14 +185,15 @@ class User(models.Model):
 
         digits = Digits()
         # User just got registered in the Digits database
-        if not user.request_id and not user.digits_id:
-            user.digits_id = digits.register_confirm(phone, pin)['id']
-        else:
-            digits.signing_confirm(
-                user.request_id,
-                user.digits_id,
-                pin
-            )
+        if not settings.DEBUG:
+            if not user.request_id and not user.digits_id:
+                user.digits_id = digits.register_confirm(phone, pin)['id']
+            else:
+                digits.signing_confirm(
+                    user.request_id,
+                    user.digits_id,
+                    pin
+                )
 
         if not user.confirmed_at:
             user.confirmed_at = timezone.now()

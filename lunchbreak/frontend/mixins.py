@@ -17,7 +17,7 @@ class LoginForwardMixin(AccessMixin):
             redirect_response = self.handle_no_permission()
 
             if request.method == 'POST' and request.POST:
-                json_data = json.dumps(request.POST)
+                json_data = json.dumps(dict(request.POST))
                 forward = Forward.objects.create(
                     group=self.forward_group,
                     json=json_data
