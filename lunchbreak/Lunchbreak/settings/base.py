@@ -24,7 +24,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.sites',
 
     'push_notifications',
     'rest_framework',
@@ -44,7 +43,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE_CLASSES = (
-    'subdomains.middleware.SubdomainURLRoutingMiddleware',
+    'Lunchbreak.middleware.SubdomainHostMiddleWare',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -62,7 +61,6 @@ SUBDOMAIN_URLCONFS = {
     'www': 'Lunchbreak.urls.frontend',
     'api': 'Lunchbreak.urls.api',
 }
-SITE_ID = 1
 
 WSGI_APPLICATION = 'Lunchbreak.wsgi.application'
 
