@@ -502,7 +502,7 @@ class CustomersTests(LunchbreakTestCase):
         )
         self.assertEqual(
             OrderedFood.objects.filter(
-                order=order
+                placed_order=order
             ).count(),
             0
         )
@@ -727,7 +727,7 @@ class CustomersTests(LunchbreakTestCase):
             receipt=timezone.now() + timedelta(hours=1)
         )
 
-        of = order.orderedfood_set.all().first()
+        of = order.orderedfood.all().first()
         self.assertTrue(of.is_original)
         self.assertFalse(of.ingredients.all().exists())
 
@@ -741,7 +741,7 @@ class CustomersTests(LunchbreakTestCase):
             receipt=timezone.now() + timedelta(hours=1)
         )
 
-        of = order.orderedfood_set.all().first()
+        of = order.orderedfood.all().first()
         self.assertTrue(of.is_original)
         self.assertFalse(of.ingredients.all().exists())
 

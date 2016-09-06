@@ -480,9 +480,6 @@ class AbstractOrder(models.Model):
         Store,
         on_delete=models.CASCADE
     )
-    orderedfood = GenericRelation(
-        'OrderedFood'
-    )
 
     objects = OrderManager()
 
@@ -557,6 +554,10 @@ class Order(AbstractOrder, DirtyFieldsMixin):
         null=True,
         blank=True
     )
+    orderedfood = GenericRelation(
+        'OrderedFood',
+        related_query_name='placed_order'
+    )
 
     def save(self, *args, **kwargs):
         self.full_clean()
@@ -570,7 +571,7 @@ class Order(AbstractOrder, DirtyFieldsMixin):
             )
 
         self.total = 0
-        orderedfood = self.orderedfood_set.all()
+        orderedfood = self.orderedfood.all()
         for f in orderedfood:
             self.total += f.total
 
@@ -596,7 +597,7 @@ class Order(AbstractOrder, DirtyFieldsMixin):
 
     def update_staged_deletion(self, orderedfood=None):
         if orderedfood is None:
-            orderedfood = self.orderedfood_set.all()
+            orderedfood = self.orderedfood.all()
 
         if self.delivery_address is not None and self.delivery_address.deleted:
             self.delivery_address.delete()
@@ -682,6 +683,10 @@ class Order(AbstractOrder, DirtyFieldsMixin):
 
 
 class TemporaryOrder(AbstractOrder):
+    orderedfood = GenericRelation(
+        'OrderedFood',
+        related_query_name='temporary_order'
+    )
 
     class Meta:
         unique_together = ['user', 'store']

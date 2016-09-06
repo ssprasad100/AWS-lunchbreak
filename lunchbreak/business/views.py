@@ -152,8 +152,8 @@ class FoodViewSet(TargettedViewSet,
             to = to if to is not None else timezone.now()
             return Food.objects.filter(
                 store_id=self.request.user.staff.store_id,
-                orderedfood__order__receipt__gt=frm,
-                orderedfood__order__receipt__lt=to
+                orderedfood__placed_order__receipt__gt=frm,
+                orderedfood__placed_order__receipt__lt=to
             ).annotate(
                 orderedfood_count=Count('orderedfood')
             ).order_by('-orderedfood_count')

@@ -187,7 +187,7 @@ class OrderDetailSerializer(OrderSerializer):
     orderedfood = OrderedFoodSerializer(
         many=True,
         read_only=True,
-        source='orderedfood_set'
+        source='orderedfood'
     )
 
     class Meta(OrderSerializer.Meta):

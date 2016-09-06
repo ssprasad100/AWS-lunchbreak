@@ -19,7 +19,7 @@ django-phonenumber-field==0.7.2
 django-sass-processor==0.3.5
 django-split-settings==0.1.2
 django-subdomains==2.1.0
-Django==1.9.7             # via django-dirtyfields, django-split-settings, django-subdomains
+Django==1.9.9             # via django-dirtyfields, django-split-settings, django-subdomains
 djangorestframework-jsonp==1.0.0
 djangorestframework==3.4.6
 drf-extensions==0.2.8

@@ -196,10 +196,10 @@ class StoreViewSet(TargettedViewSet,
         result = Store.objects.prefetch_related(
             'categories',
         ).filter(
-            order__user=self.request.user,
+            placed_order__user=self.request.user,
             enabled=True
         ).order_by(
-            '-order__placed'
+            '-placed_order__placed'
         ).distinct()
         return result
 

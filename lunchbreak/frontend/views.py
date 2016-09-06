@@ -1,6 +1,6 @@
 import json
 
-from customers.models import TemporaryOrder, OrderedFood
+from customers.models import TemporaryOrder
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.core.urlresolvers import reverse

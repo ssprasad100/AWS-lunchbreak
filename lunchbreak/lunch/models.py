@@ -1,7 +1,7 @@
 from datetime import datetime, time, timedelta
 
 import googlemaps
-from customers.config import ORDER_STATUSES_ENDED
+from customers.config import ORDER_STATUSES_ACTIVE
 from customers.exceptions import MinTimeExceeded, PastOrderDenied, StoreClosed
 from dirtyfields import DirtyFieldsMixin
 from django.conf import settings
@@ -821,7 +821,7 @@ class Food(models.Model):
             self.delete()
 
     def delete(self, *args, **kwargs):
-        if self.orderedfood_set.exclude(order__status__in=ORDER_STATUSES_ENDED).count() == 0:
+        if self.orderedfood_set.filter(placed_order__status__in=ORDER_STATUSES_ACTIVE).count() == 0:
             super(Food, self).delete(*args, **kwargs)
         elif not self.deleted:
             self.deleted = True
