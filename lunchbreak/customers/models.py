@@ -3,6 +3,11 @@ import math
 from business.models import StaffToken
 from dirtyfields import DirtyFieldsMixin
 from django.conf import settings
+from django.contrib.auth.base_user import AbstractBaseUser
+from django.contrib.auth.models import PermissionsMixin
+from django.contrib.contenttypes.fields import (GenericForeignKey,
+                                                GenericRelation)
+from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils import timezone
@@ -35,10 +40,10 @@ from .exceptions import (AlreadyMembership, AmountInvalid, CostCheckFailed,
                          NoInvitePermissions, NoPaymentLink,
                          OnlinePaymentDisabled, PaymentLinkNotConfirmed,
                          UserDisabled)
-from .managers import OrderedFoodManager, OrderManager
+from .managers import OrderedFoodManager, OrderManager, UserManager
 
 
-class User(models.Model):
+class User(AbstractBaseUser, PermissionsMixin):
     phone = PhoneNumberField(
         unique=True
     )
@@ -66,9 +71,6 @@ class User(models.Model):
     enabled = models.BooleanField(
         default=True
     )
-    last_login = models.DateTimeField(
-        null=True
-    )
 
     paymentlinks = models.ManyToManyField(
         Store,
@@ -79,11 +81,16 @@ class User(models.Model):
         ),
         blank=True
     )
+    is_staff = models.BooleanField(
+        default=False
+    )
 
     USERNAME_FIELD = 'phone'
     REQUIRED_FIELDS = [
         'name',
     ]
+
+    objects = UserManager()
 
     def __str__(self):
         return '{name} {phone}'.format(
@@ -96,26 +103,6 @@ class User(models.Model):
 
     def get_short_name(self):
         return self.name
-
-    def has_perm(self, perm, obj=None):
-        return True
-
-    def has_module_perm(self, app_label):
-        return True
-
-    def is_authenticated(self):
-        return True
-
-    def is_anonymous(self):
-        return False
-
-    @property
-    def is_staff(self):
-        return False
-
-    @property
-    def is_active(self):
-        return False
 
     @classmethod
     def digits_register(cls, digits, phone):
@@ -140,7 +127,7 @@ class User(models.Model):
             user = User.objects.get(phone=phone)
 
             if not user.enabled:
-                return UserDisabled().response
+                return UserDisabled().responsese
 
             if not settings.DEBUG:
                 if user.confirmed_at:
@@ -148,10 +135,10 @@ class User(models.Model):
                 else:
                     digits_result = User.digits_register(digits, phone)
 
-            if digits_result and type(digits_result) is dict:
-                user.digits_id = digits_result['digits_id']
-                user.request_id = digits_result['request_id']
-            user.save()
+                if digits_result and type(digits_result) is dict:
+                    user.digits_id = digits_result['digits_id']
+                    user.request_id = digits_result['request_id']
+                user.save()
 
             if user.name:
                 return Response(status=status.HTTP_200_OK)
@@ -484,7 +471,7 @@ class Reservation(models.Model):
         super(Reservation, self).save(*args, **kwargs)
 
 
-class Order(models.Model, DirtyFieldsMixin):
+class AbstractOrder(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE
@@ -493,6 +480,34 @@ class Order(models.Model, DirtyFieldsMixin):
         Store,
         on_delete=models.CASCADE
     )
+    orderedfood = GenericRelation(
+        'OrderedFood'
+    )
+
+    objects = OrderManager()
+
+    class Meta:
+        abstract = True
+
+    def __str__(self):
+        return '{user} {id}'.format(
+            user=self.user,
+            id=self.id
+        )
+
+    @classmethod
+    def is_valid(cls, orderedfood, **kwargs):
+        if orderedfood is None or not isinstance(orderedfood, list) or len(orderedfood) == 0:
+            raise BadRequest('An order requires to have ordered food.')
+
+        for f in orderedfood:
+            if not isinstance(f, dict) and not isinstance(f, OrderedFood):
+                raise ValueError(
+                    'Order creation requires a list of dicts or OrderedFoods.'
+                )
+
+
+class Order(AbstractOrder, DirtyFieldsMixin):
     placed = models.DateTimeField(
         auto_now_add=True,
         verbose_name='Time of placement'
@@ -543,8 +558,6 @@ class Order(models.Model, DirtyFieldsMixin):
         blank=True
     )
 
-    objects = OrderManager()
-
     def save(self, *args, **kwargs):
         self.full_clean()
 
@@ -576,17 +589,6 @@ class Order(models.Model, DirtyFieldsMixin):
 
         if dirty_status is not None and self.status in ORDER_STATUSES_ENDED:
             self.update_staged_deletion()
-
-    @classmethod
-    def is_valid(cls, orderedfood, **kwargs):
-        if orderedfood is None or not isinstance(orderedfood, list) or len(orderedfood) == 0:
-            raise BadRequest('An order requires to have ordered food.')
-
-        for f in orderedfood:
-            if not isinstance(f, dict) and not isinstance(f, OrderedFood):
-                raise ValueError(
-                    'Order creation requires a list of dicts or OrderedFoods.'
-                )
 
     def delete(self, *args, **kwargs):
         super(Order, self).delete(*args, **kwargs)
@@ -678,11 +680,11 @@ class Order(models.Model, DirtyFieldsMixin):
             except PaymentLink.DoesNotExist:
                 raise NoPaymentLink()
 
-    def __str__(self):
-        return '{user} {id}'.format(
-            user=self.user,
-            id=self.id
-        )
+
+class TemporaryOrder(AbstractOrder):
+
+    class Meta:
+        unique_together = ['user', 'store']
 
 
 class OrderedFood(models.Model):
@@ -699,9 +701,18 @@ class OrderedFood(models.Model):
         decimal_places=2,
         max_digits=7
     )
-    order = models.ForeignKey(
-        Order,
-        on_delete=models.CASCADE
+    content_type = models.ForeignKey(
+        ContentType,
+        on_delete=models.CASCADE,
+        limit_choices_to=(
+            models.Q(app_label='customers', model='Order') |
+            models.Q(app_label='customers', model='TemporaryOrder')
+        )
+    )
+    object_id = models.PositiveIntegerField()
+    order = GenericForeignKey(
+        'content_type',
+        'object_id'
     )
     original = models.ForeignKey(
         Food,
@@ -759,11 +770,11 @@ class OrderedFood(models.Model):
         if not self.original.is_valid_amount(self.amount):
             raise AmountInvalid()
 
-        if not self.original.is_orderable(self.order.receipt):
-            raise MinDaysExceeded()
-
         if not self.original.commentable and self.comment:
             self.comment = ''
+
+        if isinstance(self.order, Order) and not self.original.is_orderable(self.order.receipt):
+            raise MinDaysExceeded()
 
     def save(self, *args, **kwargs):
         self.full_clean()

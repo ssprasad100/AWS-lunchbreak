@@ -1,6 +1,6 @@
 import json
 
-from customers.models import Order, OrderedFood
+from customers.models import TemporaryOrder, OrderedFood
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.core.urlresolvers import reverse
@@ -95,14 +95,11 @@ class OrderView(LoginForwardMixin, TemplateView):
                     pk=orderedfood['original']
                 )
 
-            orderedfoods = [
-                OrderedFood.objects.create_for_order(
-                    save=False,
-                    **d
-                ) for d in orderedfoods_list
-            ]
-            Order.is_valid(orderedfoods)
-            context['orderedfoods'] = orderedfoods
+            context['order'] = TemporaryOrder.objects.create_with_orderedfood(
+                orderedfood=orderedfoods_list,
+                store=context['store'],
+                user=self.request.user
+            )
 
         return context
 
@@ -111,7 +108,7 @@ class OrderView(LoginForwardMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        if 'orderedfoods' not in context:
+        if 'order' not in context:
             return HttpResponseRedirect(
                 reverse(
                     'frontend-store',

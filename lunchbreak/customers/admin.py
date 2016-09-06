@@ -2,7 +2,9 @@ from django.contrib import admin
 from lunch.admin import BaseTokenAdmin
 
 from .models import (Group, Invite, Membership, Order, OrderedFood,
-                     PaymentLink, Reservation, User, UserToken)
+                     PaymentLink, Reservation, TemporaryOrder, User, UserToken)
+
+admin.site.register(TemporaryOrder)
 
 
 @admin.register(OrderedFood)

@@ -69,6 +69,7 @@ WSGI_APPLICATION = 'Lunchbreak.wsgi.application'
 AUTH_USER_MODEL = 'customers.User'
 AUTHENTICATION_BACKENDS = [
     'customers.authentication.CustomerBackend',
+    'django.contrib.auth.backends.ModelBackend'
 ]
 PASSWORD_HASHERS = (
     'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
@@ -84,20 +85,6 @@ TIME_ZONE = 'UTC'
 USE_I18N = True  # Translate localisation
 USE_L10N = True  # Format localisation
 USE_TZ = True
-
-DATE_FORMAT = 'iso-8601'
-DATE_INPUT_FORMATS = [
-    DATE_FORMAT
-]
-TIME_FORMAT = 'iso-8601'
-TIME_INPUT_FORMATS = [
-    TIME_FORMAT
-]
-DATETIME_FORMAT = 'iso-8601'
-
-DATETIME_INPUT_FORMATS = [
-    DATETIME_FORMAT,
-]
 
 LOGIN_REDIRECT_URL = reverse_lazy('frontend-index')
 LOGIN_URL = reverse_lazy('frontend-login')
@@ -170,13 +157,13 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 25,
     'MAX_PAGINATE_BY': 25,
 
-    'DATE_FORMAT': DATE_FORMAT,
-    'TIME_FORMAT': TIME_FORMAT,
-    'DATETIME_FORMAT': DATETIME_FORMAT,
+    'DATE_FORMAT': 'iso-8601',
+    'TIME_FORMAT': 'iso-8601',
+    'DATETIME_FORMAT': 'iso-8601',
 
-    'DATE_INPUT_FORMATS': list(DATE_INPUT_FORMATS),
-    'TIME_INPUT_FORMATS': list(TIME_INPUT_FORMATS),
-    'DATETIME_INPUT_FORMATS': list(DATETIME_INPUT_FORMATS),
+    'DATE_INPUT_FORMATS': ['iso-8601'],
+    'TIME_INPUT_FORMATS': ['iso-8601'],
+    'DATETIME_INPUT_FORMATS': ['iso-8601'],
 
     'COERCE_DECIMAL_TO_STRING': False,
 

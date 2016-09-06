@@ -83,9 +83,8 @@
                     <textarea name="checkout-comment" placeholder="Gelieve te bellen want de bel doet het niet."></textarea>
                 </label>
 
-                {% for orderedfood in orderedfoods %}
-                    {% include 'includes/orderedfood.html' %}
-                {% endfor %}
+                {% set orderedfoods = order.orderedfood.all() %}
+                {% include 'includes/orderedfood.html' %}
             </div>
         </form>
     </div>

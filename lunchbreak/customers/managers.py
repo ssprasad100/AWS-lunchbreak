@@ -1,8 +1,44 @@
 from django.apps import apps
+from django.contrib.auth.base_user import BaseUserManager
 from django.db import models
 from lunch.models import Food, IngredientGroup
 
 from .exceptions import OrderedFoodNotOriginal
+
+
+class UserManager(BaseUserManager):
+
+    def _create_user(self, phone, name, password=None, **kwargs):
+        user = self.model(
+            phone=phone,
+            name=name,
+            **kwargs
+        )
+        user.set_password(password)
+        user.save()
+        return user
+
+    def create_user(self, phone, name, password=None, **kwargs):
+        kwargs.setdefault('is_staff', False)
+        kwargs.setdefault('is_superuser', False)
+
+        return self._create_user(
+            phone=phone,
+            name=name,
+            password=password,
+            **kwargs
+        )
+
+    def create_superuser(self, phone, name, password=None, **kwargs):
+        kwargs['is_staff'] = True
+        kwargs['is_superuser'] = True
+
+        return self._create_user(
+            phone=phone,
+            name=name,
+            password=password,
+            **kwargs
+        )
 
 
 class OrderManager(models.Manager):
@@ -10,7 +46,14 @@ class OrderManager(models.Manager):
     def create_with_orderedfood(self, orderedfood, **kwargs):
         self.model.is_valid(orderedfood, **kwargs)
 
-        instance = self.model.objects.create(**kwargs)
+        Order = apps.get_model('customers.Order')
+        if self.model == Order:
+            instance = self.create(**kwargs)
+        else:
+            instance, created = self.get_or_create(**kwargs)
+            if not created:
+                instance.orderedfood.all().delete()
+
         OrderedFood = apps.get_model('customers.OrderedFood')
 
         try:

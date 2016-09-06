@@ -36,7 +36,7 @@ class AbstractPassword(AbstractPasswordReset):
         return check_password(password_raw, self.password)
 
 
-class Staff(AbstractBaseUser, AbstractPasswordReset):
+class Staff(AbstractPasswordReset, models.Model):
     store = models.OneToOneField(
         'lunch.Store',
         on_delete=models.CASCADE,
@@ -63,48 +63,18 @@ class Staff(AbstractBaseUser, AbstractPasswordReset):
         blank=True
     )
 
-    is_superuser = models.BooleanField(
-        default=False
-    )
-
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = [
-        'first_name',
-        'last_name'
-    ]
-
     objects = StaffManager()
 
     @cached_property
     def name(self):
-        return self.get_full_name()
-
-    @cached_property
-    def is_staff(self):
-        return self.is_superuser
-
-    @cached_property
-    def is_active(self):
-        return True
-
-    @property
-    def is_merchant(self):
-        return self.merchant is not None and self.merchant.organisation_id
-
-    def get_full_name(self):
         return '{first_name} {last_name}'.format(
             first_name=self.first_name,
             last_name=self.last_name
         )
 
-    def get_short_name(self):
-        return self.first_name
-
-    def has_perm(self, perm, obj=None):
-        return self.is_staff
-
-    def has_module_perms(self, app_label):
-        return self.is_staff
+    @property
+    def is_merchant(self):
+        return self.merchant is not None and self.merchant.organisation_id
 
     class Meta:
         verbose_name_plural = 'Staff'

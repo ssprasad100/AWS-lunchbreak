@@ -462,7 +462,7 @@ class FoodType(models.Model):
         default=INPUT_TYPES[0][0]
     )
     customisable = models.BooleanField(
-        default=False
+        default=True
     )
 
     def is_valid_amount(self, amount, quantity=None):
