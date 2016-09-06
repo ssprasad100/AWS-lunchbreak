@@ -1,6 +1,5 @@
 import json
 
-from django.conf import settings
 from django.test.utils import override_settings
 from rest_framework.test import APITestCase, force_authenticate
 
@@ -25,12 +24,6 @@ class LunchbreakTestCase(APITestCase):
             ]
         }
     ]
-
-    def setUp(self):
-        from django.contrib.sites.models import Site
-        self.site = Site.objects.get_current()
-        self.site.domain = settings.HOST
-        self.site.save()
 
     @override_settings(
         DEFAULT_URL_SCHEME='http',

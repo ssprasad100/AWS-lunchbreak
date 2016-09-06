@@ -1,6 +1,9 @@
 import json
+from datetime import timedelta
 
 from django.contrib.auth.mixins import AccessMixin
+from django.db.models import Q
+from django.utils import timezone
 
 from .models import Forward
 
@@ -36,6 +39,10 @@ class LoginForwardMixin(AccessMixin):
                     id=forward_id
                 )
                 request.forward_data = json.loads(forward.json)
+                Forward.objects.filter(
+                    Q(created_at__gt=timezone.now() + timedelta(days=1)) |
+                    Q(pk=forward.pk)
+                ).delete()
             except Forward.DoesNotExist:
                 pass
 

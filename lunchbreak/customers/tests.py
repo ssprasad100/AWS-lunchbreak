@@ -458,12 +458,12 @@ class CustomersTests(LunchbreakTestCase):
             'orderedfood': [
                 {
                     'original': original.id,
-                    'cost': original.cost,
+                    'total': original.cost * original.amount,
                     'amount': original.amount
                 },
                 {
                     'original': original.id,
-                    'cost': original.cost,
+                    'total': original.cost * original.amount,
                     'amount': original.amount
                 }
             ]
@@ -512,12 +512,12 @@ class CustomersTests(LunchbreakTestCase):
         content['orderedfood'] = [
             {
                 'original': original.id,
-                'cost': original.cost,
+                'total': original.cost * original.amount,
                 'amount': original.amount
             },
             {
                 'original': original.id,
-                'cost': original.cost,
+                'total': original.cost * original.amount,
                 'amount': original.amount
             }
         ]
@@ -716,7 +716,7 @@ class CustomersTests(LunchbreakTestCase):
             {
                 'original': self.food,
                 'amount': 1,
-                'cost': self.food.cost
+                'total': self.food.cost
             }
         ]
 

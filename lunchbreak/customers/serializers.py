@@ -79,6 +79,10 @@ class OrderedFoodSerializer(serializers.ModelSerializer):
         many=True,
         read_only=True
     )
+    total = serializers.DecimalField(
+        decimal_places=3,
+        max_digits=7
+    )
 
     class Meta:
         model = OrderedFood
@@ -90,6 +94,7 @@ class OrderedFoodSerializer(serializers.ModelSerializer):
             'original',
             'ingredientgroups',
             'cost',
+            'total',
             'is_original',
             'comment',
         )
@@ -98,6 +103,7 @@ class OrderedFoodSerializer(serializers.ModelSerializer):
             'order',
             'ingredientgroups',
             'is_original',
+            'cost',
         )
 
 

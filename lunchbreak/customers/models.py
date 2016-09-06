@@ -744,7 +744,7 @@ class OrderedFood(models.Model):
         """Original amount of food, returns 1 if not variable, else original.amount."""
         return self.original.amount if self.original.foodtype.inputtype == INPUT_SI_SET else 1
 
-    @cached_property
+    @property
     def total(self):
         """Calculate the total cost of the OrderedFood."""
         return math.ceil(
@@ -843,14 +843,14 @@ class OrderedFood(models.Model):
         return cost
 
     @staticmethod
-    def check_cost(base_cost, food, amount, given_cost):
+    def check_total(base_cost, food, amount, given_total):
         """Check if the given cost is correct based on a base cost, food and amount.
 
         Args:
             base_cost (Decimal): Base cost of edited food.
             food (Food): Original/closest food.
             amount (Decimal): Amount of food.
-            given_cost (Decimal): Cost given by user.
+            given_total (Decimal): Cost given by user.
 
         Raises:
             CostCheckFailed: Cost given by user was calculated incorrectly.
@@ -863,7 +863,7 @@ class OrderedFood(models.Model):
                         if food.foodtype.inputtype == INPUT_SI_SET
                         else 1
                     )
-                ) * 100) / 100.0 != float(given_cost):
+                ) * 100) / 100.0 != float(given_total):
             raise CostCheckFailed()
 
     def __str__(self):

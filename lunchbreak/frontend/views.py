@@ -100,6 +100,14 @@ class OrderView(LoginForwardMixin, TemplateView):
                 store=context['store'],
                 user=self.request.user
             )
+        else:
+            try:
+                context['order'] = TemporaryOrder.objects.get(
+                    store=context['store'],
+                    user=self.request.user
+                )
+            except TemporaryOrder.DoesNotExist:
+                pass
 
         return context
 

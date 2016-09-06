@@ -7,7 +7,7 @@
         <div class="orderedfood-description">{{ orderedfood.original.description }}</div>
     </div>
     <div class="orderedfood-cost">
-        {{ orderedfood.get_total_display() }}
+        &euro; {{ orderedfood.get_total_display() }}
     </div>
     {% if not orderedfoods %}
     <input class="orderedfood-data" type="hidden" name="orderedfood" value="{{ orderedfood.json() }}"/>

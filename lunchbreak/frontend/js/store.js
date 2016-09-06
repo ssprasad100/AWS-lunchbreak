@@ -235,7 +235,7 @@
             var data = {
                 'original': this.original.id,
                 'amount': this.amount,
-                'cost': this.getTotal()
+                'total': this.getTotal()
             };
 
             var selectedIngredientsIds = [];
