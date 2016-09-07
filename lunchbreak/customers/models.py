@@ -27,7 +27,7 @@ from rest_framework.serializers import ValidationError
 
 from .config import (GROUP_BILLING_SEPARATE, GROUP_BILLINGS,
                      INVITE_STATUS_ACCEPTED, INVITE_STATUS_WAITING,
-                     INVITE_STATUSES, ORDER_STATUS_PLACED,
+                     INVITE_STATUSES, ORDER_STATUS_DENIED, ORDER_STATUS_PLACED,
                      ORDER_STATUS_WAITING, ORDER_STATUSES,
                      ORDER_STATUSES_ACTIVE, ORDER_STATUSES_ENDED,
                      PAYMENT_METHOD_CASH, PAYMENT_METHOD_GOCARDLESS,
@@ -585,6 +585,13 @@ class Order(AbstractOrder, DirtyFieldsMixin):
             if dirty_status is not None:
                 if self.status == ORDER_STATUS_WAITING:
                     self.waiting()
+                elif self.status == ORDER_STATUS_DENIED:
+                    StaffToken.objects.filter(
+                        staff__store_id=self.store_id
+                    ).send_message(
+                        'Je bestelling is spijtig genoeg geweigerd!',
+                        sound='default'
+                    )
 
         super(Order, self).save(*args, **kwargs)
 
