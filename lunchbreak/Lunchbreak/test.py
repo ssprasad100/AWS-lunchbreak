@@ -1,5 +1,6 @@
 import json
 
+from django.conf import settings
 from django.test.utils import override_settings
 from rest_framework.test import APITestCase, force_authenticate
 
@@ -28,10 +29,14 @@ class LunchbreakTestCase(APITestCase):
     @override_settings(
         DEFAULT_URL_SCHEME='http',
         ROOT_URLCONF='Lunchbreak.urls.tests',
-        GOOGLE_CLOUD_SECRET='AIza'
+        GOOGLE_CLOUD_SECRET='AIza',
+        GOCARDLESS_ACCESS_TOKEN='something'
     )
     def run(self, *args, **kwargs):
-        super(LunchbreakTestCase, self).run(*args, **kwargs)
+        gocardless_settings = settings.GOCARDLESS
+        gocardless_settings['access_token'] = 'something'
+        with override_settings(GOCARDLESS=gocardless_settings):
+            super(LunchbreakTestCase, self).run(*args, **kwargs)
 
     def mock_geocode_results(self, mock_geocode, return_value=None, lat=None, lng=None):
         if return_value is None:
