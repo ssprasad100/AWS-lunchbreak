@@ -26,7 +26,9 @@ Django==1.9.9             # via django-dirtyfields, django-livereload-server, dj
 djangorestframework-jsonp==1.0.0
 djangorestframework==3.4.6
 drf-extensions==0.2.8
+ecdsa==0.13               # via paramiko
 et-xmlfile==1.0.1         # via openpyxl
+Fabric3==1.12.0.post1
 flake8==3.0.3
 gocardless-pro==0.2.0
 jdcal==1.2                # via openpyxl
@@ -37,6 +39,7 @@ mccabe==0.5.2             # via flake8
 mock==1.3.0
 mysqlclient==1.3.7
 openpyxl==2.3.4
+paramiko==1.17.2          # via fabric3
 pbr==1.10.0               # via mock
 phonenumbers==7.4.2       # via django-phonenumber-field
 pilkit==1.1.13            # via django-imagekit
@@ -45,13 +48,14 @@ pluggy==0.3.1             # via tox
 py==1.4.31                # via tox
 pycodestyle==2.0.0        # via flake8
 pycparser==2.14           # via cffi
+pycrypto==2.6.1           # via paramiko
 pyflakes==1.0.0           # via flake8
 python-dateutil==2.5.3    # via arrow
 pyyaml==3.11
 rcssmin==1.0.6            # via django-compressor
 requests==2.9.1
 rjsmin==1.0.12            # via django-compressor
-six==1.10.0               # via bcrypt, django-imagekit, django-livereload-server, libsass, mock, python-dateutil
+six==1.10.0               # via bcrypt, django-imagekit, django-livereload-server, fabric3, libsass, mock, python-dateutil
 tornado==4.4.1            # via django-livereload-server
 tox==2.1.1
 ua-parser==0.7.1

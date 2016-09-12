@@ -1,0 +1,23 @@
+version: '2'
+services:
+  lunchbreak_staging:
+    image: 'andreasbackx/lunchbreak:latest'
+    container_name: lunchbreak_staging
+    restart: always
+    links:
+      - db
+    expose:
+      - '49152'
+    environment:
+      - VIRTUAL_HOST=*.staging.lunchbreakapp.be,*.staging.lunchbreak.eu,*.staging.lunchbreak.fr
+      - VIRTUAL_PROTO=uwsgi
+      - DB_HOST=db
+      - MEDIA_ROOT=/var/lunchbreak/media
+      - MEDIA_PRIVATE_ROOT=/var/lunchbreak/media-private
+    depends_on:
+      - db
+    volumes:
+      - /etc/lunchbreak/docker/web/keys/apns:/etc/lunchbreak/certificates/apns:ro
+      - /etc/lunchbreak/docker/web/staging/secrets:/var/secrets:ro
+      - /var/lunchbreak/staging/media:${MEDIA_ROOT}:rw
+      - /var/lunchbreak/staging/media-private:${MEDIA_PRIVATE_ROOT}:rw

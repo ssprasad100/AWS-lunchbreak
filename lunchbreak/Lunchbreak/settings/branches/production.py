@@ -12,9 +12,9 @@ ALLOWED_HOSTS = [
     'www.lunchbreak.fr',
     'api.lunchbreak.fr',
 ]
+DB_HOST = 'db'
 
 OPBEAT_RELEASE = True
-CERT_TYPE = 'production'
 
 # TODO Add production access token
 GOCARDLESS_ENVIRONMENT = 'live'

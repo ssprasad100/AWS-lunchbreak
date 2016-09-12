@@ -8,13 +8,13 @@ TRAVIS_BRANCH = os.environ.get('TRAVIS_BRANCH')
 if TRAVIS_BRANCH is None:
     includes = [
         'base.py',
-        'branches/%s.py' % os.environ.get('DJANGO_SETTINGS_BRANCH'),
+        'branches/%s.py' % os.environ.get('DJANGO_SETTINGS_VERSION'),
         'final.py',
     ]
 else:
     includes = [
         'base.py',
-        'branches/%s.py' % os.environ.get('DJANGO_SETTINGS_BRANCH'),
+        'branches/%s.py' % os.environ.get('DJANGO_SETTINGS_VERSION'),
         'travis.py',
         'final.py',
     ]

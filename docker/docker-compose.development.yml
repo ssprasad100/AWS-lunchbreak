@@ -1,0 +1,26 @@
+version: '2'
+services:
+  lunchbreak_development:
+    build:
+      context: ../
+      args:
+        version: development
+        certificate_type: development
+    container_name: lunchbreak_development
+    restart: always
+    links:
+      - db
+    expose:
+      - '49152'
+    environment:
+      - VIRTUAL_HOST=lunchbreak.dev,api.lunchbreak.dev,www.lunchbreak.dev
+      - VIRTUAL_PROTO=uwsgi
+      - MEDIA_ROOT=/var/lunchbreak/media
+      - MEDIA_PRIVATE_ROOT=/var/lunchbreak/media-private
+    depends_on:
+      - db
+    volumes:
+      - ./web/keys/apns:/etc/lunchbreak/certificates/apns:ro
+      - ./web/development/secrets:/var/secrets:ro
+      - ./_build/media:${MEDIA_ROOT}:rw
+      - ./_build/media-private:${MEDIA_PRIVATE_ROOT}:rw

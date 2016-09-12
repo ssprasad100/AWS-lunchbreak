@@ -10,8 +10,6 @@ BRANCH = 'development'
 SSL = False
 DEBUG = True
 
-PRIVATE_MEDIA_ROOT = os.path.normpath(os.path.join(BASE_DIR, 'media-private'))
-
 INSTALLED_APPS = [
     'livereload',
 ] + INSTALLED_APPS

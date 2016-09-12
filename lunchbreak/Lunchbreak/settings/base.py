@@ -4,9 +4,15 @@ from django.core.urlresolvers import reverse_lazy
 from django.utils.translation import ugettext_lazy as _
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-MEDIA_ROOT = os.path.normpath(os.path.join(BASE_DIR, 'media'))
+MEDIA_ROOT = os.environ.get(
+    'MEDIA_ROOT',
+    os.path.normpath(os.path.join(BASE_DIR, '../media'))
+)
 MEDIA_URL = '/media/'
-PRIVATE_MEDIA_ROOT = '/media/lunchbreak/'
+PRIVATE_MEDIA_ROOT = os.environ.get(
+    'PRIVATE_MEDIA_ROOT',
+    os.path.normpath(os.path.join(BASE_DIR, '../media-private'))
+)
 PRIVATE_MEDIA_URL = '/private/'
 PRIVATE_MEDIA_SERVER = 'private_media.servers.NginxXAccelRedirectServer'
 PRIVATE_MEDIA_PERMISSIONS = 'lunch.authentication.PrivateMediaAuthentication'
@@ -208,52 +214,8 @@ LOGGING = {
 GOOGLE_WEB_CREDENTIALS = 'AIzaSyBb7Bd6r-jTG10gEXH3Tmrasd-qJ4oFHlo'
 
 EMAIL_HOST = 'smtp.sendgrid.net'
-EMAIL_HOST_USER = os.environ.get('SENDGRID_USER')
-EMAIL_HOST_PASSWORD = os.environ.get('SENDGRID_PASSWORD')
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_FROM = 'noreply@lunchbreakapp.be'
-
-# What APNS certificate to use (development or production)
-CERT_TYPE = 'development'
-
-GOCARDLESS = {
-    'access_token': 'fGTKM_yaVZ7t-twTQ9uTJWo6Gy6f8nK70kGgjQTr',
-    'environment': 'sandbox',
-    'app': {
-        'redirect_uri': 'https://isoanufkkl.localtunnel.me/gocardless/redirect',
-        'client_id': '2J4hQVvc7nIdFkpYvM9luLD7JCJWf6Iwco3W7Hu5yFOcmBPNSzQq1XwXurg-B17i',
-        'client_secret': 'u9p1M_5j25uBmGdxTG04E-i_ZnCPERRHQkYFwqYZ3NCwUMyfraS-NJUg63WlJ18w',
-        'oauth_baseurl': {
-            'live': 'https://connect.gocardless.com',
-            'sandbox': 'https://connect-sandbox.gocardless.com'
-        },
-        'webhook': {
-            'secret': 'DpiVqyjEkvDLNDYC-fNIHGQADLpCS_wZfnzrl9LM',
-        },
-        'redirect': {
-            'success': reverse_lazy(
-                'frontend-account', kwargs={
-                    'status': 'success'
-                }
-            ),
-            'error': reverse_lazy(
-                'frontend-account', kwargs={
-                    'status': 'error'
-                }
-            )
-        }
-    },
-    'app_redirect': {
-        'success': 'lunchbreakstore://gocardless/redirectflow/success',
-        'error': {
-            'default': 'lunchbreakstore://gocardless/redirectflow/error',
-            'invalid': 'lunchbreakstore://gocardless/redirectflow/error/invalid',
-            'incomplete': 'lunchbreakstore://gocardless/redirectflow/error/incomplete',
-            'completed': 'lunchbreakstore://gocardless/redirectflow/error/completed',
-        }
-    },
-    'webhook': {
-        'secret': 'UqNOZ-Zplk3ODIke8VldT9jKCM4TIkc0AIAFTWAx',
-    }
-}

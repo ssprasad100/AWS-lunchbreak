@@ -1,13 +1,13 @@
-# Paw
-*.paw
 lunchbreak/static/
 lunchbreak/frontend/static/css
 lunchbreak/frontend/static/CACHE
 lunchbreak/Lunchbreak/settings/local.py
 
-# Certificates
-salt/synced/salt/keys
-salt/synced/pillar/secret.sls
+# Secrets
+secret.sls
+docker/nginx/certs
+docker/web/keys
+docker/web/secrets/*/*
 
 # Lunchbreak
 media-private
