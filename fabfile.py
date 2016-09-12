@@ -2,11 +2,12 @@ import getpass
 import os
 
 from fabric.api import env, local, run, sudo
-from fabric.context_managers import cd, hide, settings
+from fabric.context_managers import cd, hide, quiet, settings
 from fabric.operations import put
 
 # Host
-HOST = os.environ.get('LUNCHBREAK_HOST', input('Host: '))
+HOST = '46.101.96.234'
+#HOST = os.environ.get('LUNCHBREAK_HOST', input('Host: '))
 
 # Fabric environment
 env.hosts = [HOST]
@@ -49,11 +50,11 @@ def deploy(username=None, password=None):
     """The regular deployment.
 
     Tests, pushes new image and updates server."""
-    # local('tox')
-    # push(
-    #     username=username,
-    #     password=password
-    # )
+    local('tox')
+    push(
+        username=username,
+        password=password
+    )
     deployer = Deployer()
     deployer.update_server()
 
@@ -183,7 +184,7 @@ class Deployer:
         sudo('mkdir /etc/lunchbreak/docker -p')
         put(
             local_path='docker',
-            remote_path='/etc/lunchbreak/docker'
+            remote_path='/etc/lunchbreak'
         )
         self.update_compose_config(**kwargs)
 
@@ -213,7 +214,7 @@ class Deployer:
                 if self.password is not None \
                 else os.environ.get('DOCKER_PASSWORD', getpass.getpass('Docker Hub password: '))
 
-        with hide('running'):
+        with quiet():
             method = local if not remote else sudo
             method(
                 'docker login -u="{username}" -p="{password}"'.format(
