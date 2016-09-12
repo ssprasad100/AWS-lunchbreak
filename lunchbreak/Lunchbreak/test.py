@@ -28,6 +28,7 @@ class LunchbreakTestCase(APITestCase):
     @override_settings(
         DEFAULT_URL_SCHEME='http',
         ROOT_URLCONF='Lunchbreak.urls.tests',
+        GOOGLE_CLOUD_SECRET='AIza'
     )
     def run(self, *args, **kwargs):
         super(LunchbreakTestCase, self).run(*args, **kwargs)
