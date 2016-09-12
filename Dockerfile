@@ -31,7 +31,7 @@ RUN chmod +x /docker-entrypoint.sh
 RUN mkdir /code
 WORKDIR /code
 ADD ./lunchbreak /code/
-RUN pip install -r requirements-dev.txt
+RUN pip install -r requirements.txt --exists-action w
 RUN python manage.py collectstatic --noinput -c
 
 ENTRYPOINT ["/docker-entrypoint.sh"]

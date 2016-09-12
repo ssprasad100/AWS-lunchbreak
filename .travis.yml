@@ -1,10 +1,16 @@
 sudo: required
 services:
+  - mysql
   - docker
 language: python
 python:
   - "3.5"
-install: "pip install -r lunchbreak/requirements-dev.txt --exists-action w"
+# Have to install MySQL: https://github.com/travis-ci/travis-ci/issues/4870
+install:
+  - sudo rm -Rf /var/lib/apt/lists/*
+  - sudo apt-get update -qq
+  - sudo apt-get install -y mysql-server-5.6 mysql-client-5.6 mysql-client-core-5.6
+  - pip install -r lunchbreak/requirements-dev.txt --exists-action w
 script:
   - "fab deploy"
 notifications:
