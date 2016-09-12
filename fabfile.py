@@ -6,8 +6,9 @@ from fabric.context_managers import cd, hide, quiet, settings
 from fabric.operations import put
 
 # Host
-HOST = '46.101.96.234'
-#HOST = os.environ.get('LUNCHBREAK_HOST', input('Host: '))
+HOST = os.environ.get('LUNCHBREAK_HOST')
+if not HOST:
+    HOST = input('Host: ')
 
 # Fabric environment
 env.hosts = [HOST]
@@ -205,14 +206,17 @@ class Deployer:
         sudo('ufw --force reload')
 
     def _docker_login(self, remote=True):
+        self.username = self.username \
+            if self.username is not None \
+            else os.environ.get('DOCKER_USERNAME')
         if not self.username:
-            self.username = self.username \
-                if self.username is not None \
-                else os.environ.get('DOCKER_USERNAME', input('Docker Hub username: '))
+            self.username = input('Docker Hub username: ')
+
+        self.password = self.password \
+            if self.password is not None \
+            else os.environ.get('DOCKER_PASSWORD')
         if not self.password:
-            self.password = self.password \
-                if self.password is not None \
-                else os.environ.get('DOCKER_PASSWORD', getpass.getpass('Docker Hub password: '))
+            self.password = getpass.getpass('Docker Hub password: ')
 
         with quiet():
             method = local if not remote else sudo
