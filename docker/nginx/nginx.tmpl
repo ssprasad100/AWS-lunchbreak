@@ -184,6 +184,12 @@ server {
                 include /etc/nginx/vhost.d/default_location;
                 {{ end }}
 	}
+
+	location /static/ {
+		alias /var/lunchbreak/static/;
+        access_log  off;
+        expires     30d;
+	}
 }
 
 {{ end }}
@@ -217,6 +223,12 @@ server {
                 {{ else if (exists "/etc/nginx/vhost.d/default_location") }}
                 include /etc/nginx/vhost.d/default_location;
                 {{ end }}
+	}
+
+	location /static/ {
+		alias /var/lunchbreak/static/;
+        access_log  off;
+        expires     30d;
 	}
 }
 

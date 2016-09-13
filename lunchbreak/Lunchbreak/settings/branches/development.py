@@ -1,5 +1,3 @@
-import os
-
 ALLOWED_HOSTS = [
     'lunchbreak.dev',
     'www.lunchbreak.dev',

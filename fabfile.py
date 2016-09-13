@@ -253,23 +253,32 @@ class Deployer:
                         )
 
             self._docker_login()
-            run('docker-compose pull')
 
             config_params = '-f ' + ' -f '.join(
                 [os.path.basename(config) for config in configs]
             )
 
+            run(
+                'docker-compose {config_params} pull'.format(
+                    config_params=config_params
+                )
+            )
+
             if service is not None:
                 run(
-                    'docker-compose {config_params} up --no-deps -d {service}'.format(
+                    'docker-compose {config_params} up --build --no-deps -d {service}'.format(
                         service=service,
                         config_params=config_params
                     )
                 )
             else:
-                run('docker-compose down')
                 run(
-                    'docker-compose {config_params} up -d'.format(
+                    'docker-compose {config_params} down'.format(
+                        config_params=config_params
+                    )
+                )
+                run(
+                    'docker-compose {config_params} up --build -d'.format(
                         config_params=config_params
                     )
                 )

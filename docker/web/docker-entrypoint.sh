@@ -20,7 +20,8 @@ fi
 # Need to find a way so secrets are no longer available after initialisation,
 # then the directory can be deleted.
 #rm -rf /var/secrets
-python manage.py migrate --no-input
+python manage.py migrate --no-input 1> /dev/null
+python manage.py collectstatic --noinput -c 1> /dev/null
 
 uwsgi \
     --chdir=/code/ \
@@ -32,6 +33,7 @@ uwsgi \
 \
     --env DB_NAME="${DB_NAME}" \
     --env DB_USER="${DB_USER}" \
+    --env DB_USER="${DB_PASS}" \
     --env DB_HOST="${DB_HOST}" \
 \
     --env BUSINESS_APNS_CERTIFICATE="${BUSINESS_APNS_CERTIFICATE}" \
