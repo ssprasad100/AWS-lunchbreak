@@ -61,12 +61,13 @@ MIDDLEWARE_CLASSES = (
 )
 
 HOST = 'lunchbreak.eu'
-ROOT_URLCONF = 'Lunchbreak.urls.api'
+ROOT_URLCONF = 'Lunchbreak.urls.frontend'
 SUBDOMAIN_URLCONFS = {
     None: 'Lunchbreak.urls.frontend',
     'www': 'Lunchbreak.urls.frontend',
     'api': 'Lunchbreak.urls.api',
 }
+SUBDOMAIN_DEFAULT = 'www'
 
 WSGI_APPLICATION = 'Lunchbreak.wsgi.application'
 

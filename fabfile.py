@@ -184,8 +184,12 @@ class Deployer:
 
         sudo('mkdir /etc/lunchbreak/docker -p')
         put(
-            local_path='docker',
-            remote_path='/etc/lunchbreak'
+            local_path='docker/web',
+            remote_path='/etc/lunchbreak/docker'
+        )
+        put(
+            local_path='docker/nginx',
+            remote_path='/etc/lunchbreak/docker'
         )
         self.update_compose_config(**kwargs)
 

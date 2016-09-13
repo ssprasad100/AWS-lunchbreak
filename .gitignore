@@ -1,4 +1,3 @@
-lunchbreak/static/
 lunchbreak/frontend/static/css
 lunchbreak/frontend/static/CACHE
 lunchbreak/Lunchbreak/settings/local.py
@@ -9,6 +8,7 @@ docker/nginx/certs
 docker/web/keys
 docker/web/secrets/*/*
 _build
+static
 
 # Lunchbreak
 media-private
