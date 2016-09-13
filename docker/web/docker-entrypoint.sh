@@ -22,6 +22,7 @@ fi
 #rm -rf /var/secrets
 python manage.py migrate --no-input 1> /dev/null
 python manage.py collectstatic --noinput -c 1> /dev/null
+python manage.py compilescss 1> /dev/null
 
 uwsgi \
     --chdir=/code/ \
