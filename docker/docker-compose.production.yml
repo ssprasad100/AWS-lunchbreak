@@ -18,7 +18,7 @@ services:
       - db
     volumes:
       - ./docker/web/keys/apns:/etc/lunchbreak/certificates/apns:ro
-      - ./docker/web/staging/secrets:/var/secrets:ro
+      - ./docker/web/secrets/staging:/var/secrets:ro
       - /var/lunchbreak/staging/static:/var/lunchbreak/static:rw
       - /var/lunchbreak/staging/media:/var/lunchbreak/media:rw
       - /var/lunchbreak/staging/media-private:/var/lunchbreak/media-private:rw

@@ -14,7 +14,7 @@ services:
         certificate_type: development
         requirements_file: requirements-dev.txt
         db_user: root
-        db_pass:
+        db_pass: ''
     container_name: lunchbreak_development
     restart: always
     links:
@@ -25,7 +25,7 @@ services:
       - db
     volumes:
       - ./web/keys/apns:/etc/lunchbreak/certificates/apns:ro
-      - ./web/development/secrets:/var/secrets:ro
+      - ./web/secrets/development:/var/secrets:ro
       - ./_build/static:/var/lunchbreak/static:rw
       - ./_build/media:/var/lunchbreak/media:rw
       - ./_build/media-private:/var/lunchbreak/media-private:rw
