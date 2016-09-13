@@ -17,8 +17,8 @@ services:
     depends_on:
       - db
     volumes:
-      - ./docker/web/keys/apns:/etc/lunchbreak/certificates/apns:ro
-      - ./docker/web/secrets/staging:/var/secrets:ro
+      - ./web/keys/apns:/etc/lunchbreak/certificates/apns:ro
+      - ./web/secrets/staging:/var/secrets:ro
       - /var/lunchbreak/staging/static:/var/lunchbreak/static:rw
       - /var/lunchbreak/staging/media:/var/lunchbreak/media:rw
       - /var/lunchbreak/staging/media-private:/var/lunchbreak/media-private:rw

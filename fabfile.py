@@ -3,6 +3,7 @@ import os
 
 from fabric.api import env, local, run, sudo
 from fabric.context_managers import cd, hide, quiet, settings
+from fabric.contrib.files import exists
 from fabric.operations import put
 
 # Host
@@ -47,11 +48,12 @@ if is_production:
     print('We\'re currently on production!')
 
 
-def deploy(username=None, password=None):
+def deploy(username=None, password=None, skiptests=False):
     """The regular deployment.
 
     Tests, pushes new image and updates server."""
-    local('tox')
+    if not skiptests:
+        local('tox')
     push(
         username=username,
         password=password
@@ -192,6 +194,18 @@ class Deployer:
             remote_path='/etc/lunchbreak/docker'
         )
         self.update_compose_config(**kwargs)
+
+        # if file exists /swap
+        if not exists('/swap', use_sudo=True):
+            sudo('fallocate -l 1G /swap')
+            sudo('chmod 600 /swap')
+            sudo('mkswap /swap')
+            sudo('swapon /swap')
+            sudo('echo \'/swapfile none swap sw 0 0\' | sudo tee -a /etc/fstab')
+            sudo('sysctl vm.swappiness=10')
+            sudo('echo "vm.swappiness=10" >> /etc/sysctl.conf')
+            sudo('sysctl vm.vfs_cache_pressure=50')
+            sudo('echo "vm.vfs_cache_pressure=50" >> /etc/sysctl.conf')
 
     def _image_name(self, tag):
         return '{username}/lunchbreak:{tag}'.format(
