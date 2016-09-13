@@ -6,12 +6,12 @@ from django.utils.translation import ugettext_lazy as _
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 MEDIA_ROOT = os.environ.get(
     'MEDIA_ROOT',
-    os.path.normpath(os.path.join(BASE_DIR, '../media'))
+    os.path.normpath(os.path.join(BASE_DIR, 'media'))
 )
 MEDIA_URL = '/media/'
 PRIVATE_MEDIA_ROOT = os.environ.get(
     'PRIVATE_MEDIA_ROOT',
-    os.path.normpath(os.path.join(BASE_DIR, '../media-private'))
+    os.path.normpath(os.path.join(BASE_DIR, 'media-private'))
 )
 PRIVATE_MEDIA_URL = '/private/'
 PRIVATE_MEDIA_SERVER = 'private_media.servers.NginxXAccelRedirectServer'
@@ -96,7 +96,7 @@ LOGIN_URL = reverse_lazy('frontend-login')
 
 STATIC_ROOT = os.environ.get(
     'STATIC_ROOT',
-    os.path.normpath(os.path.join(BASE_DIR, '../static'))
+    os.path.normpath(os.path.join(BASE_DIR, 'static'))
 )
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
@@ -116,6 +116,7 @@ STATICFILES_FINDERS = [
     'compressor.finders.CompressorFinder',
     'sass_processor.finders.CssFinder',
 ]
+SASS_PROCESSOR_ENABLED = True
 SASS_PROCESSOR_INCLUDE_DIRS = (
     os.path.join(BASE_DIR, 'frontend/mdl/src'),
     os.path.join(BASE_DIR, 'frontend/scss'),
