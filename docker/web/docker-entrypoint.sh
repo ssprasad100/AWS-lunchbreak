@@ -34,7 +34,7 @@ uwsgi \
 \
     --env DB_NAME="${DB_NAME}" \
     --env DB_USER="${DB_USER}" \
-    --env DB_USER="${DB_PASS}" \
+    --env DB_PASS="${DB_PASS}" \
     --env DB_HOST="${DB_HOST}" \
 \
     --env BUSINESS_APNS_CERTIFICATE="${BUSINESS_APNS_CERTIFICATE}" \
