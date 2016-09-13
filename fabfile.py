@@ -244,18 +244,22 @@ class Deployer:
             ]
 
         with cd('/etc/lunchbreak'):
-            if configs is not None:
-                for config in configs:
-                    if os.path.isfile(config):
-                        put(
-                            local_path=config,
-                            remote_path='/etc/lunchbreak'
-                        )
+            put(
+                local_path='docker/*.*',
+                remote_path='/etc/lunchbreak/docker'
+            )
 
             self._docker_login()
 
             config_params = '-f ' + ' -f '.join(
-                [os.path.basename(config) for config in configs]
+                [
+                    os.path.normpath(
+                        os.path.join(
+                            '/etc/lunchbreak/docker',
+                            os.path.basename(config)
+                        )
+                    ) for config in configs
+                ]
             )
 
             run(
