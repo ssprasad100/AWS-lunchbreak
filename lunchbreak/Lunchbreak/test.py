@@ -75,3 +75,9 @@ class LunchbreakTestCase(APITestCase):
             user = self.user
         force_authenticate(request, user=user, token=self.usertoken)
         return self.as_view(request, view, view_actions, *args, **kwargs)
+
+    def assertInCount(self, haystack, needles):
+        self.assertEqual(len(haystack), len(needles))
+
+        for needle in needles:
+            self.assertIn(needle, haystack)
