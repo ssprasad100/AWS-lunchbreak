@@ -18,7 +18,7 @@
             {% endif %}
             {% for store in stores %}
                 <div class="search-result">
-                    <a class="search-result-container" href="{{ url('frontend-store', kwargs={'pk': store.id})}}" alt="Bestel bij {{ store.name }}">
+                    <a class="search-result-container" href="{{ url('frontend-store', pk=store.id)}}" alt="Bestel bij {{ store.name }}">
                         <div class="search-result-content">
                             <div class="search-result-hearts">
                                 {{ store.hearts_count }}

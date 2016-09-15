@@ -2,6 +2,7 @@ import os
 
 from django.core.urlresolvers import reverse_lazy
 from django.utils.translation import ugettext_lazy as _
+from django_jinja.builtins import DEFAULT_EXTENSIONS
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 MEDIA_ROOT = os.environ.get(
@@ -37,6 +38,7 @@ INSTALLED_APPS = [
     'compressor',
     'sass_processor',
     'subdomains',
+    'django_jinja',
 
     'imagekit',
     'polaroid',
@@ -102,7 +104,7 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'frontend/img'),
     os.path.join(BASE_DIR, 'frontend/js'),
-    os.path.join(BASE_DIR, 'frontend/jinja2/nunjucks'),
+    os.path.join(BASE_DIR, 'frontend/templates/nunjucks'),
     os.path.join(BASE_DIR, 'frontend/scss'),
     os.path.join(BASE_DIR, 'frontend/mdl/src'),
     os.path.join(BASE_DIR, 'frontend/intl-tel-input/build/js'),
@@ -123,7 +125,34 @@ SASS_PROCESSOR_INCLUDE_DIRS = (
     os.path.join(BASE_DIR, 'frontend/intl-tel-input/src/css'),
 )
 
+GOOGLE_WEB_CREDENTIALS = 'AIzaSyBb7Bd6r-jTG10gEXH3Tmrasd-qJ4oFHlo'
 TEMPLATES = [
+    {
+        'BACKEND': 'django_jinja.backend.Jinja2',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'match_extension': None,
+            'match_regex': r'^(?!admin/).*',
+            'context_processors': [
+                'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.debug',
+                'django.template.context_processors.i18n',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
+                'django.template.context_processors.tz',
+                'django.contrib.messages.context_processors.messages',
+            ],
+            'constants': {
+                'GOOGLE_WEB_CREDENTIALS': GOOGLE_WEB_CREDENTIALS
+            },
+            'extensions': DEFAULT_EXTENSIONS + [
+                'sass_processor.jinja2.ext.SassSrc',
+                'compressor.contrib.jinja2ext.CompressorExtension',
+                'jinja2.ext.loopcontrols'
+            ]
+        }
+    },
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [],
@@ -139,14 +168,6 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
             ],
         },
-    },
-    {
-        'BACKEND': 'django.template.backends.jinja2.Jinja2',
-        'DIRS': [],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'environment': 'frontend.jinja2.environment'
-        }
     }
 ]
 
@@ -214,8 +235,6 @@ LOGGING = {
         },
     },
 }
-
-GOOGLE_WEB_CREDENTIALS = 'AIzaSyBb7Bd6r-jTG10gEXH3Tmrasd-qJ4oFHlo'
 
 EMAIL_HOST = 'smtp.sendgrid.net'
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')

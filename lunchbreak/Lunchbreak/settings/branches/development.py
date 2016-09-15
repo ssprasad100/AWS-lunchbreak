@@ -24,3 +24,5 @@ APNS_FEEDBACK_HOST = 'feedback.sandbox.push.apple.com'
 QUERY_INSPECT_ENABLED = True
 #QUERY_INSPECT_LOG_QUERIES = True
 QUERY_INSPECT_LOG_TRACEBACKS = True
+
+TEMPLATES[0]['OPTIONS']['constants']['dir'] = 'dir'

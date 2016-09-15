@@ -17,6 +17,7 @@ django-appconf==1.0.2     # via django-compressor, django-imagekit
 django-compressor==2.0
 django-dirtyfields==0.8.1
 django-imagekit==3.3
+django-jinja==2.2.1
 django-jsonfield==1.0.1
 django-livereload-server==0.2.1
 django-phonenumber-field==0.7.2
@@ -24,7 +25,7 @@ django-queryinspect==0.1.0
 django-sass-processor==0.3.5
 django-split-settings==0.1.2
 django-subdomains==2.1.0
-Django==1.9.9             # via django-dirtyfields, django-livereload-server, django-queryinspect, django-split-settings, django-subdomains
+Django==1.9.9             # via django-dirtyfields, django-jinja, django-livereload-server, django-queryinspect, django-split-settings, django-subdomains
 djangorestframework-jsonp==1.0.0
 djangorestframework==3.4.6
 drf-extensions==0.2.8
@@ -35,7 +36,7 @@ first==2.0.1              # via pip-tools
 flake8==3.0.3
 gocardless-pro==0.2.0
 jdcal==1.2                # via openpyxl
-Jinja2==2.8
+Jinja2==2.8               # via django-jinja
 libsass==0.11.1           # via django-sass-processor
 MarkupSafe==0.23          # via jinja2
 mccabe==0.5.2             # via flake8
