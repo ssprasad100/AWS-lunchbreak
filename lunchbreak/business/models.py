@@ -35,7 +35,7 @@ class AbstractPassword(AbstractPasswordReset):
         return check_password(password_raw, self.password)
 
 
-class Staff(AbstractPasswordReset, models.Model):
+class Staff(AbstractPassword):
     store = models.OneToOneField(
         'lunch.Store',
         on_delete=models.CASCADE,
