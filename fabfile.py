@@ -139,7 +139,7 @@ class Deployer:
         """Make sure the remote server updates its containers."""
         with hide('output'):
             sudo('apt-get update')
-            sudo('apt-get upgrade')
+            sudo('apt-get upgrade -y')
 
             self._setup_ufw()
 
