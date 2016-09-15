@@ -1,5 +1,6 @@
 import copy
 
+import pendulum
 from django.core.exceptions import MultipleObjectsReturned
 from django.db import models
 from push_notifications.models import DeviceManager
@@ -117,6 +118,46 @@ class FoodManager(models.Manager):
             original.store.id,
             original.id
         ])[0]
+
+
+class PeriodQuerySet(models.QuerySet):
+
+    def periods(self):
+        return [model.period for model in self]
+
+    def merged_periods(self):
+        return pendulum.Period.merge_periods(
+            *self.periods()
+        )
+
+    def between(self, period):
+        periods = self.all().merged_periods()
+        result = []
+
+        for p in periods:
+            if (p.start in period or p.end in period) \
+                    or (p.start <= period.start and period.end <= p.end):
+                result.append(p)
+
+        return result
+
+
+class HolidayPeriodQuerySet(PeriodQuerySet):
+
+    def between(self, period):
+        return self.filter(
+            models.Q(
+                start__range=(
+                    period.start,
+                    period.end
+                )
+            ) | models.Q(
+                end__range=(
+                    period.start,
+                    period.end
+                )
+            )
+        )
 
 
 class BaseTokenManager(DeviceManager):

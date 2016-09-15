@@ -9,11 +9,18 @@
                 <li>
                     {{ store.street }} {{ store.number }}
                 </li>
+                {% set openingperiods = store.openingperiods_today %}
                 <li class="openingperiods">
-                    8:00 - 15:00
-                </li>
-                <li class="deliveryperiods">
-                    8:00 - 15:30
+                {% if openingperiods %}
+                    {% for openingperiod in openingperiods -%}
+                        {% if not loop.first -%}
+                            ,
+                        {%- endif %}
+                        {{ openingperiod.start.time() }} - {{ openingperiod.end.time() }}
+                    {%- endfor %}
+                {% else %}
+                    Vandaag gesloten
+                {% endif %}
                 </li>
             </ul>
         </div>

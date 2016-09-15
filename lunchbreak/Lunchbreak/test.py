@@ -1,7 +1,9 @@
 import json
 
+import mock
 from django.conf import settings
 from django.test.utils import override_settings
+from lunch.models import Store
 from rest_framework.test import APITestCase, force_authenticate
 
 
@@ -37,6 +39,19 @@ class LunchbreakTestCase(APITestCase):
         gocardless_settings['access_token'] = 'something'
         with override_settings(GOCARDLESS=gocardless_settings):
             super(LunchbreakTestCase, self).run(*args, **kwargs)
+
+    @mock.patch('googlemaps.Client.geocode')
+    def setUp(self, mock_geocode):
+        self.mock_geocode_results(mock_geocode)
+        self.store = Store.objects.create(
+            name='valid',
+            country='Belgie',
+            province='Oost-Vlaanderen',
+            city='Wetteren',
+            postcode='9230',
+            street='Dendermondesteenweg',
+            number=10
+        )
 
     def mock_geocode_results(self, mock_geocode, return_value=None, lat=None, lng=None):
         if return_value is None:

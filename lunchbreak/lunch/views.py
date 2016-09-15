@@ -61,7 +61,7 @@ class OpeningListViewBase(generics.ListAPIView):
 
     def get(self, request, pk=None):
         store_id = self.get_store_id()
-        OpeningPeriod = OpeningPeriodSerializer(
+        openingperiods = OpeningPeriodSerializer(
             OpeningPeriodListViewBase._get_queryset(store_id),
             many=True
         )
@@ -71,7 +71,7 @@ class OpeningListViewBase(generics.ListAPIView):
         )
 
         data = {
-            'openingperiods': OpeningPeriod.data,
+            'openingperiods': openingperiods.data,
             'holidayperiods': holidayperiods.data
         }
 

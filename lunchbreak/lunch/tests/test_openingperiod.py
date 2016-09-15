@@ -4,27 +4,18 @@ import mock
 from Lunchbreak.test import LunchbreakTestCase
 
 from ..config import MONDAY, SUNDAY
-from ..models import OpeningPeriod, Store
+from ..models import OpeningPeriod
 
 
-class LunchTests(LunchbreakTestCase):
+class OpeningPeriodTestCase(LunchbreakTestCase):
 
     @mock.patch('googlemaps.Client.geocode')
     def test_openingperiod(self, mock_geocode):
         self.mock_geocode_results(mock_geocode)
-        store = Store.objects.create(
-            name='valid',
-            country='Belgie',
-            province='Oost-Vlaanderen',
-            city='Wetteren',
-            postcode='9230',
-            street='Dendermondesteenweg',
-            number=10
-        )
 
         # Weekday 0 - 1
         sun_mon = OpeningPeriod.objects.create(
-            store=store,
+            store=self.store,
             day=SUNDAY,
             time=time(00, 00),
             duration=timedelta(days=1)
@@ -48,7 +39,7 @@ class LunchTests(LunchbreakTestCase):
 
         # Weekday 0 - 1 @ 11:59
         sun_mon_mid = OpeningPeriod.objects.create(
-            store=store,
+            store=self.store,
             day=SUNDAY,
             time=time(11, 59),
             duration=timedelta(days=1)
@@ -69,7 +60,7 @@ class LunchTests(LunchbreakTestCase):
         self.assertFalse(sun_mon_mid.contains(tue_12))
 
         mon_sun_mid = OpeningPeriod.objects.create(
-            store=store,
+            store=self.store,
             day=MONDAY,
             time=time(11, 59),
             duration=timedelta(days=6)
@@ -81,7 +72,7 @@ class LunchTests(LunchbreakTestCase):
 
         # Same day, hour test
         time_12_14 = OpeningPeriod.objects.create(
-            store=store,
+            store=self.store,
             day=SUNDAY,
             time=time(12, 00),
             duration=timedelta(hours=2)

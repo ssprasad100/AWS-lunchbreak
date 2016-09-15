@@ -1,6 +1,7 @@
 from datetime import datetime, time, timedelta
 
 import googlemaps
+import pendulum
 from customers.config import ORDER_STATUSES_ACTIVE
 from customers.exceptions import MinTimeExceeded, PastOrderDenied, StoreClosed
 from dirtyfields import DirtyFieldsMixin
@@ -26,7 +27,8 @@ from .config import (CCTLDS, COST_GROUP_ALWAYS, COST_GROUP_CALCULATIONS,
 from .exceptions import (AddressNotFound, IngredientGroupMaxExceeded,
                          IngredientGroupsMinimumNotMet, InvalidFoodTypeAmount,
                          LinkingError)
-from .managers import BaseTokenManager, FoodManager, StoreManager
+from .managers import (BaseTokenManager, FoodManager, HolidayPeriodQuerySet,
+                       PeriodQuerySet, StoreManager)
 from .specs import HDPI, LDPI, MDPI, XHDPI, XXHDPI, XXXHDPI
 
 
@@ -242,6 +244,47 @@ class Store(AbstractAddress):
     def hearts_count(self):
         return self.hearts.count()
 
+    @property
+    def openingperiods_today(self):
+        start = pendulum.instance(timezone.now()).hour_(0).minute_(0).second_(0)
+        end = start.hour_(23).minute_(59).second_(59)
+        period = pendulum.Period(
+            start=start,
+            end=end
+        )
+
+        return self.openingperiods_for(
+            period=period
+        )
+
+    def openingperiods_for(self, period):
+        openingperiods = OpeningPeriod.objects.filter(
+            store=self
+        ).between(
+            period=period
+        )
+        holidayperiods = HolidayPeriod.objects.filter(
+            store=self
+        ).between(
+            period=period
+        ).periods()
+
+        closingperiods = []
+        for period in holidayperiods:
+            if not period.closed:
+                openingperiods.append(period)
+            else:
+                closingperiods.append(period)
+
+        result = []
+        for openingperiod in openingperiods:
+            result.extend(
+                openingperiod.exclude(
+                    *closingperiods
+                )
+            )
+        return result
+
     def delivers_to(self, address):
         return self.regions.filter(
             postcode=address.postcode
@@ -365,6 +408,8 @@ class Period(models.Model):
     time = models.TimeField()
     duration = models.DurationField()
 
+    objects = PeriodQuerySet.as_manager()
+
     class Meta:
         abstract = True
 
@@ -375,6 +420,17 @@ class Period(models.Model):
     @property
     def start(self):
         return self.start_from_datetime(timezone.now())
+
+    @property
+    def end(self):
+        return self.start + self.duration
+
+    @property
+    def period(self):
+        return pendulum.Period(
+            start=self.start,
+            end=self.end
+        )
 
     def start_from_datetime(self, given):
         if self.day is None or self.time is None:
@@ -430,6 +486,17 @@ class HolidayPeriod(models.Model):
     closed = models.BooleanField(
         default=True
     )
+
+    objects = HolidayPeriodQuerySet.as_manager()
+
+    @property
+    def period(self):
+        period = pendulum.Period(
+            start=self.start,
+            end=self.end
+        )
+        period.closed = self.closed
+        return period
 
     def clean(self):
         if self.start >= self.end:

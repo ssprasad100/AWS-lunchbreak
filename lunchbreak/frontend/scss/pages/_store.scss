@@ -9,12 +9,12 @@
     li {
         display: inline;
         margin-right: 16px;
-        padding-left: 24px;
 
         &.openingperiods, &.deliveryperiods {
             background-repeat: no-repeat;
             background-size: 16px;
             background-position: 0 center;
+            padding-left: 24px;
         }
 
         &.openingperiods {
