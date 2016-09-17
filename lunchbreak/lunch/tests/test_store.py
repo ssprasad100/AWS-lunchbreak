@@ -3,6 +3,7 @@ from datetime import datetime, time, timedelta
 import mock
 from customers.exceptions import MinTimeExceeded, PastOrderDenied, StoreClosed
 from Lunchbreak.test import LunchbreakTestCase
+from pendulum import Pendulum
 
 from ..models import HolidayPeriod, OpeningPeriod, Store
 
@@ -135,8 +136,12 @@ class StoreTestCase(LunchbreakTestCase):
     @mock.patch('django.utils.timezone.now')
     @mock.patch('googlemaps.Client.geocode')
     def test_check_open(self, mock_geocode, mock_now):
-        today = datetime.now()
-        today = today.replace(hour=0, minute=0, second=0, microsecond=0)
+        today = Pendulum.now().with_time(
+            hour=0,
+            minute=0,
+            second=0,
+            microsecond=0
+        )._datetime
 
         # Mock also used for Store.last_modified
         mock_now.return_value = today + timedelta(hours=1)

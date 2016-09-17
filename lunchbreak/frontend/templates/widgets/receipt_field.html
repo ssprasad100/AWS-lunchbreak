@@ -1,0 +1,42 @@
+{% set openingperiods = store.openingperiods_for(days=7) %}
+{% if openingperiods %}
+    {% set first_openingperiod = openingperiods[0] %}
+    {% set weekday_openingperiods = store.periods_per_weekday(periods=openingperiods) %}
+    {% set first_openingperiods = weekday_openingperiods[first_openingperiod.start.isoweekday()] %}
+{% endif %}
+
+
+<div class="split-column">
+    <label>Datum van afhaling
+        <select name="{{ name_weekday }}" class="input-icon icon-dropdown input-icon-right">
+            {% for weekday in store.open_weekdays(openingperiods=openingperiods) %}
+                {% set selected -%}
+                    {% if value and weekday == value.isoweekday() %}
+                        selected
+                    {% endif %}
+                {%- endset %}
+                <option value="{{ weekday }}" {{ selected }}>
+                    {{ weekday | humanize_weekday }}
+                </option>
+            {% endfor %}
+        </select>
+    </label>
+</div>
+<div class="split-column">
+    <label for="{{ name_time }}">Tijd van afhaling
+        {% if value %}
+            {% set time = value.time() %}
+        {% else %}
+            {% set time = first_openingperiod.start.time() %}
+        {% endif %}
+        <input type="text" name="{{ name_time }}" value="{{ time | time('H:i') }}"/>
+    </label>
+</div>
+
+<p class="subscript">
+    {% if first_openingperiods %}
+        Openingsuren: {{ first_openingperiods | list_periods() }}.
+    {% else %}
+        De winkel is op deze datum gesloten.
+    {% endif %}
+</p>

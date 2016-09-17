@@ -1,0 +1,7 @@
+{% macro render_errors(errors) -%}
+    {% if errors %}
+        {% for error in errors %}
+            <p class="subscript">{{ error }}</p>
+        {% endfor %}
+    {% endif %}
+{%- endmacro %}

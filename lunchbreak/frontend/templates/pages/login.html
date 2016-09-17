@@ -10,7 +10,7 @@
             <h3>Gratis inloggen met een sms'je.</h3>
 
             <form method="POST">
-                <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}"/>
+                {% csrf_token %}
                 <div id="pager-transition">
                     <input type="tel" name="login-phone" id="login-phone" placeholder="Vul je telefoonnummer in" value="+32472907605"/>
                 </div>

@@ -21,7 +21,7 @@
                 }
             }
 
-            input, textarea, select {
+            input, textarea, select, .subscript {
                 margin-bottom: 16px;
                 display: block;
                 width: 100%;
@@ -30,6 +30,10 @@
                 &[type='submit'] {
                     margin-top: 8px;
                 }
+            }
+
+            input + .subscript {
+                margin-top: -8px;
             }
 
             .radio-container {

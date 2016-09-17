@@ -195,7 +195,6 @@ class Deployer:
         )
         self.update_compose_config(**kwargs)
 
-        # if file exists /swap
         if not exists('/swap', use_sudo=True):
             sudo('fallocate -l 1G /swap')
             sudo('chmod 600 /swap')

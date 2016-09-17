@@ -1,13 +1,52 @@
 from datetime import time, timedelta
 
+import mock
 import pendulum
 from Lunchbreak.test import LunchbreakTestCase
+from pendulum import Pendulum
 
 from ..config import WEEKDAYS
-from ..models import OpeningPeriod
+from ..models import OpeningPeriod, Period
 
 
 class PeriodTestCase(LunchbreakTestCase):
+
+    @mock.patch('pendulum.now')
+    def test_time_as_datetime(self, mock_now):
+        set_time = time(12, 00)
+        # This is a monday
+        now = Pendulum(
+            year=2016,
+            month=9,
+            day=19,
+            hour=set_time.hour,
+            minute=set_time.minute,
+            tzinfo=None
+        )
+
+        for current_day in range(7):
+            now = now.add(days=1)
+            mock_now.return_value = now
+
+            for weekday_config in WEEKDAYS:
+                day_in_week = weekday_config[0]
+
+                period = Period(
+                    day=day_in_week,
+                    time=set_time,
+                    duration=time(1, 00)
+                )
+
+                if day_in_week == now.isoweekday():
+                    self.assertEqual(
+                        period.time_as_datetime(),
+                        now
+                    )
+                else:
+                    self.assertGreater(
+                        period.time_as_datetime(),
+                        now
+                    )
 
     def test_between(self):
         times = [

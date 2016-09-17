@@ -12,12 +12,7 @@
                 {% set openingperiods = store.openingperiods_today %}
                 <li class="openingperiods">
                 {% if openingperiods %}
-                    {% for openingperiod in openingperiods -%}
-                        {% if not loop.first -%}
-                            ,
-                        {%- endif %}
-                        {{ openingperiod.start.time() }} - {{ openingperiod.end.time() }}
-                    {%- endfor %}
+                    {{ openingperiods | list_periods }}
                 {% else %}
                     Vandaag gesloten
                 {% endif %}
@@ -79,7 +74,7 @@
         </div>
         <div id="order">
             <form method="POST" action="{{ url('frontend-order', store_id=store.id) }}">
-                <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}"/>
+                {% csrf_token %}
                 <input type="submit" value="Afrekenen" disabled/>
                 {% include 'includes/orderedfood.html' %}
             </form>

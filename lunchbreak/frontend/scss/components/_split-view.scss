@@ -9,11 +9,11 @@
             box-sizing: border-box;
             padding: 0 ($spacing / 2);
 
-            &:first-child {
+            &:first-of-type {
                 padding-left: 0;
             }
 
-            &:last-child {
+            &:last-of-type {
                 padding-right: 0;
             }
         }

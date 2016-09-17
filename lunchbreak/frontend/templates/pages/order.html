@@ -14,24 +14,28 @@
         </div>
 
         <form method="POST">
+            {% csrf_token %}
             <div class="split-column">
-                <label>Naam
-                    <input type="text" name="checkout-name" value="{{ request.user.name }}"/>
+                <label>{{ user_form.name.label }}
+                    {{ user_form.name }}
+                    {{ forms.render_errors(user_form.name.errors) }}
                 </label>
 
 
                 <label>Telefoonnummer
-                    <input type="text" name="checkout-phone" value="{{ request.user.phone }}" disabled/>
+                    <input type="text" value="{{ request.user.phone }}" disabled/>
                 </label>
 
-                <label>E-mailadres
-                    <input type="email" name="checkout-email" value="andreas@cloock.be"/>
+                <label>{{ user_form.email.label }}
+                    {{ user_form.email }}
+                    {{ forms.render_errors(user_form.email.errors) }}
                 </label>
 
                 {% set memberships = request.user.memberships.select_related(
                         'group'
                     ).all()
                 %}
+
                 {% if memberships %}
                 <label>Bestelling plaatsen in een groep
                     <select name="checkout-group">
@@ -47,14 +51,15 @@
                     <label>Betaalmethode</label>
                     <div>
                         <label class="radio-item mdl-radio mdl-js-radio mdl-js-ripple-effect" for="checkout-payment-0">
-                          <input type="radio" id="checkout-payment-0" class="mdl-radio__button" name="checkout-payment" value="0" checked>
-                          <span class="mdl-radio__label">Contant</span>
+                          <input type="radio" id="checkout-payment-0" class="mdl-radio__button" name="{{ order_form.payment_method.html_name }}" value="{{ order_form.fields['payment_method'].choices[0][0] }}" checked>
+                          <span class="mdl-radio__label">{{ order_form.fields['payment_method'].choices[0][1] }}</span>
                         </label>
                         <label class="radio-item mdl-radio mdl-js-radio mdl-js-ripple-effect" for="checkout-payment-1">
-                          <input type="radio" id="checkout-payment-1" class="mdl-radio__button" name="checkout-payment" value="1">
-                          <span class="mdl-radio__label">Online (veilig via GoCardless)</span>
+                          <input type="radio" id="checkout-payment-1" class="mdl-radio__button" name="{{ order_form.payment_method.html_name }}" value="{{ order_form.fields['payment_method'].choices[1][0] }}">
+                          <span class="mdl-radio__label">{{ order_form.fields['payment_method'].choices[1][1] }}</span>
                         </label>
                     </div>
+                    {{ forms.render_errors(order_form.payment_method.errors) }}
                 </div>
 
                 <input type="submit" value="Bestelling plaatsen"/>
@@ -63,24 +68,12 @@
 
             <div class="split-column">
                 <div id="checkout-receipt">
-                    <div class="split-column">
-                        <label>Datum van afhaling
-                            <select name="checkout-receipt-date" class="input-icon icon-dropdown input-icon-right">
-                                <option>Vandaag</option>
-                                <option>Morgen</option>
-                                <option>Overmorgen</option>
-                            </select>
-                        </label>
-                    </div>
-                    <div class="split-column">
-                        <label for="checkout-receipt-time">Tijd van afhaling
-                            <input type="text" name="checkout-receipt-time" value="14:00"/>
-                        </label>
-                    </div>
+                    {{ order_form.receipt }}
+                    {{ forms.render_errors(order_form.receipt.errors) }}
                 </div>
 
                 <label>Opmerking bij de bestelling
-                    <textarea name="checkout-comment" placeholder="Gelieve te bellen want de bel doet het niet."></textarea>
+                    <textarea name="checkout-comment" placeholder="Extra extra mayonaise graag!"></textarea>
                 </label>
 
                 {% set orderedfoods = order.orderedfood.all() %}

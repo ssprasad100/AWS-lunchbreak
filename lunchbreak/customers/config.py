@@ -83,5 +83,5 @@ PAYMENT_METHOD_GOCARDLESS = 1
 
 PAYMENT_METHODS = (
     (PAYMENT_METHOD_CASH, 'Cash'),
-    (PAYMENT_METHOD_GOCARDLESS, 'GoCardless'),
+    (PAYMENT_METHOD_GOCARDLESS, 'Online (veilig via GoCardless)'),
 )

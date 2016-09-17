@@ -45,10 +45,17 @@ from .managers import OrderedFoodManager, OrderManager, UserManager
 
 class User(AbstractBaseUser, PermissionsMixin):
     phone = PhoneNumberField(
-        unique=True
+        unique=True,
+        verbose_name='Telefoonnummer'
     )
     name = models.CharField(
-        max_length=255
+        max_length=255,
+        verbose_name='Naam'
+    )
+    email = models.EmailField(
+        null=True,
+        blank=True,
+        verbose_name='E-mailadres'
     )
     digits_id = models.CharField(
         unique=True,
@@ -494,14 +501,19 @@ class AbstractOrder(models.Model):
 
     @classmethod
     def is_valid(cls, orderedfood, **kwargs):
-        if orderedfood is None or not isinstance(orderedfood, list) or len(orderedfood) == 0:
+        if orderedfood is None or len(orderedfood) == 0:
             raise BadRequest('An order requires to have ordered food.')
 
-        for f in orderedfood:
-            if not isinstance(f, dict) and not isinstance(f, OrderedFood):
-                raise ValueError(
-                    'Order creation requires a list of dicts or OrderedFoods.'
-                )
+        try:
+            for f in orderedfood:
+                if not isinstance(f, dict) and not isinstance(f, OrderedFood):
+                    raise ValueError(
+                        'Order creation requires a list of dicts or OrderedFoods.'
+                    )
+        except TypeError:
+            raise BadRequest(
+                'Given orderedfood is not iterable'
+            )
 
 
 class Order(AbstractOrder, DirtyFieldsMixin):
@@ -697,6 +709,16 @@ class TemporaryOrder(AbstractOrder):
 
     class Meta:
         unique_together = ['user', 'store']
+
+    def place(self, **kwargs):
+        order = Order.objects.create_with_orderedfood(
+            orderedfood=self.orderedfood.all(),
+            user=self.user,
+            store=self.store,
+            **kwargs
+        )
+        self.delete()
+        return order
 
 
 class OrderedFood(models.Model):

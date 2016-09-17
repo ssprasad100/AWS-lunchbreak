@@ -83,10 +83,9 @@ PASSWORD_HASHERS = (
     'django.contrib.auth.hashers.SHA1PasswordHasher',
 )
 
-LANGUAGE_CODE = 'en'
+LANGUAGE_CODE = 'nl-BE'
 LANGUAGES = [
-    ('nl-be', _('Belgium Dutch')),
-    ('en', _('Europe')),
+    ('nl-BE', _('Belgium Dutch')),
 ]
 TIME_ZONE = 'UTC'
 USE_I18N = True  # Translate localisation
@@ -150,7 +149,11 @@ TEMPLATES = [
                 'sass_processor.jinja2.ext.SassSrc',
                 'compressor.contrib.jinja2ext.CompressorExtension',
                 'jinja2.ext.loopcontrols'
-            ]
+            ],
+            'filters': {
+                'list_periods': 'frontend.templatetags.filters.list_periods',
+                'humanize_weekday': 'frontend.templatetags.filters.humanize_weekday',
+            }
         }
     },
     {

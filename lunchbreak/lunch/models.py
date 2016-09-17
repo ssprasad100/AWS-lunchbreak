@@ -1,3 +1,4 @@
+from collections import defaultdict
 from datetime import datetime, time, timedelta
 
 import googlemaps
@@ -244,8 +245,56 @@ class Store(AbstractAddress):
     def hearts_count(self):
         return self.hearts.count()
 
+    def open_weekdays(self, openingperiods=None, **kwargs):
+        """Wrapper for openingperiods_for returning the weekdays.
+
+        Will use given openingperiods instead of using openingperiods_for if not None.
+        Else it will use openingperiods_for with given kwargs.
+
+        Args:
+            **kwargs (dict): Passed onto openingperiods_for.
+            openingperiods (list, optional): List of :obj:`pendulum.Period`s.
+
+        Returns:
+            set: Weekdays of the openingperiods.
+        """
+        if openingperiods is None:
+            openingperiods = self.openingperiods_for(**kwargs)
+
+        weekdays = set()
+        for openingperiod in openingperiods:
+            weekdays.add(openingperiod.start.isoweekday())
+            weekdays.add(openingperiod.end.isoweekday())
+
+        return weekdays
+
+    def periods_per_weekday(self, periods=None, **kwargs):
+        """Split periods into their starting weekdays.
+
+        Return a dict with as keys the starting weekdays and values a set of periods with that starting weekday.
+
+        Args:
+            **kwargs (dict): Kwargs passed onto openingperiods_for if periods is None.
+            periods (:obj:`list`, optional): List of :obj:`pendulum.Period`s.
+
+        Returns:
+            dict: Key: weekday of start, value set of periods
+        """
+        if periods is None:
+            periods = self.openingperiods_for(
+                **kwargs
+            )
+
+        result = defaultdict(set)
+
+        for period in periods:
+            result[period.start.isoweekday()].add(period)
+
+        return result
+
     @property
     def openingperiods_today(self):
+        """Wrapper for opening_periods where period is the whole current day."""
         start = pendulum.instance(timezone.now()).hour_(0).minute_(0).second_(0)
         end = start.hour_(23).minute_(59).second_(59)
         period = pendulum.Period(
@@ -257,7 +306,42 @@ class Store(AbstractAddress):
             period=period
         )
 
-    def openingperiods_for(self, period):
+    def openingperiods_for(self, period=None, start=None, **kwargs):
+        """Get opening periods for given period.
+
+        Return a list of periods indicating when the store is open for the given period.
+        If period is None, it will use start as the start of the period.
+        If start is None, it will use the current datetime + Store.wait as the start of the period.
+        It will pass **kwargs onto pendulum.Pendulum.add calculate an end to
+        the period based on the start.
+
+        Args:
+            **kwargs (dict): Passed onto pendulum.Pendulum.add to calculate the
+            end of the period based off of the start.
+            period (:obj:`pendulum.Period`, optional): Period for which the
+            openingperiods are requested.
+            start (:obj:`pendulum.Pendulum`, optional): Start of the period.
+
+        Returns:
+            list: List of :obj:`pendulum.Period` indicating when the store is open.
+
+        Raises:
+            ValueError: A period or start or kwargs must be given.
+        """
+        if period is None and start is None and not kwargs:
+            raise ValueError('A period or start or kwargs must be given.')
+
+        if period is None:
+            if start is None:
+                start = pendulum.instance(timezone.now())
+                start += self.wait
+            end = start.add(**kwargs)
+
+            period = pendulum.Period(
+                start=start,
+                end=end
+            )
+
         openingperiods = OpeningPeriod.objects.filter(
             store=self
         ).between(
@@ -290,15 +374,22 @@ class Store(AbstractAddress):
             postcode=address.postcode
         ).exists()
 
-    def is_open(self, dt):
+    def is_open(self, dt, raise_exception=True):
         """Check whether the store is open at the specified time."""
+
+        if isinstance(dt, pendulum.Pendulum):
+            dt = dt._datetime
 
         now = timezone.now()
 
         if dt < now:
+            if not raise_exception:
+                return False
             raise PastOrderDenied()
 
         if dt - now < self.wait:
+            if not raise_exception:
+                return False
             raise MinTimeExceeded()
 
         holidayperiods = HolidayPeriod.objects.filter(
@@ -316,20 +407,26 @@ class Store(AbstractAddress):
         else:
             # Open stores are
             if closed:
+                if not raise_exception:
+                    return False
                 raise StoreClosed(
                     'Store is exclusively closed by a holiday period.'
                 )
 
-            openingperiods = OpeningPeriod.objects.filter(
+            periods = OpeningPeriod.objects.filter(
                 store=self
-            )
+            ).merged_periods()
 
-            for openingperiod in openingperiods:
-                if openingperiod.contains(dt):
-                    return
+            for period in periods:
+                if dt in period:
+                    return True
+
+            if not raise_exception:
+                return False
             raise StoreClosed(
                 'Store has no opening period for this time.'
             )
+        return True
 
 
 class Region(models.Model):
@@ -419,7 +516,7 @@ class Period(models.Model):
 
     @property
     def start(self):
-        return self.start_from_datetime(timezone.now())
+        return self.time_as_datetime()
 
     @property
     def end(self):
@@ -432,27 +529,35 @@ class Period(models.Model):
             end=self.end
         )
 
-    def start_from_datetime(self, given):
-        if self.day is None or self.time is None:
+    @classmethod
+    def weekday_as_datetime(cls, weekday, time):
+        if weekday is None or time is None:
             return None
 
-        weekday = given.isoweekday()
-        start = given - timedelta(days=weekday)
-        start += timedelta(days=self.day)
-        return start.replace(
-            hour=self.time.hour,
-            minute=self.time.minute,
-            second=self.time.second,
-            microsecond=self.time.microsecond,
+        now = pendulum.now('UTC')
+        start = now.subtract(
+            days=now.isoweekday()
+        ).add(
+            days=weekday
         )
+        result = start.with_time(
+            hour=time.hour,
+            minute=time.minute,
+            second=time.second,
+            microsecond=time.microsecond
+        )
+        if result.date() < pendulum.now('UTC').date():
+            result = result.add(
+                days=7
+            )
+        return result
 
-    def contains(self, given_datetime):
-        """Return True if given_datetime (datetime) is in the period."""
-        start = self.start_from_datetime(given_datetime)
-        end = start + self.duration
 
-        return start <= given_datetime <= end \
-            or start <= given_datetime + timedelta(days=7) <= end
+    def time_as_datetime(self):
+        return self.weekday_as_datetime(
+            weekday=self.day,
+            time=self.time
+        )
 
     def __str__(self):
         return '{day} {time} - {duration}'.format(

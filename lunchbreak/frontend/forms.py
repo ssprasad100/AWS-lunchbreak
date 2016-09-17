@@ -1,5 +1,10 @@
+from customers.config import PAYMENT_METHODS
+from customers.models import Order, User
 from django import forms
+from django.core.exceptions import ValidationError
 from lunch.models import AbstractAddress
+
+from .widgets import ReceiptField
 
 
 class SearchForm(forms.Form):
@@ -23,3 +28,52 @@ class SearchForm(forms.Form):
                 )
             context['search_form'] = form
             return context
+
+
+class UserForm(forms.ModelForm):
+
+    class Meta:
+        model = User
+        fields = ['name', 'email']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name in ['name', 'email']:
+            self.fields[field_name].required = True
+            self.fields[field_name].widget.attrs['placeholder'] = self.fields[field_name].label
+
+
+class OrderForm(forms.ModelForm):
+
+    class Meta:
+        model = Order
+        fields = ['payment_method', 'receipt', 'description']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.store = kwargs.get('instance')
+
+        self.fields['payment_method'].required = True
+        self.fields['payment_method'].widget = forms.widgets.RadioSelect(
+            choices=PAYMENT_METHODS
+        )
+        self.fields['receipt'].required = True
+        self.fields['receipt'].widget = ReceiptField(
+            store=self.store
+        )
+
+    def save(self, temporary_order):
+        return temporary_order.place(
+            **self.cleaned_data
+        )
+
+    def clean_receipt(self):
+        if not self.store.is_open(
+            self.cleaned_data['receipt'],
+            raise_exception=False
+        ):
+            raise ValidationError(
+                'De winkel is gesloten op het gekozen tijdstip.'
+            )
+
+        return self.cleaned_data['receipt']._datetime

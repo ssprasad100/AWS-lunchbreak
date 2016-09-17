@@ -13,7 +13,7 @@ from django.views.generic import TemplateView, View
 from lunch.models import Food, Store
 from user_agents import parse as parse_user_agent
 
-from .forms import SearchForm
+from .forms import OrderForm, SearchForm, UserForm
 from .mixins import LoginForwardMixin
 
 
@@ -83,11 +83,11 @@ class OrderView(LoginForwardMixin, TemplateView):
             'forward_data',
             dict(self.request.POST)
         )
-
         context['store'] = get_object_or_404(
             Store,
             pk=kwargs['store_id']
         )
+
         if 'orderedfood' in data:
             orderedfoods_list = [json.loads(d) for d in data['orderedfood']]
             for orderedfood in orderedfoods_list:
@@ -107,7 +107,16 @@ class OrderView(LoginForwardMixin, TemplateView):
                     user=self.request.user
                 )
             except TemporaryOrder.DoesNotExist:
-                pass
+                return context
+
+        context['user_form'] = UserForm(
+            data=self.request.POST or None,
+            instance=self.request.user
+        )
+        context['order_form'] = OrderForm(
+            data=self.request.POST or None,
+            instance=context['store']
+        )
 
         return context
 
@@ -125,6 +134,13 @@ class OrderView(LoginForwardMixin, TemplateView):
                     }
                 )
             )
+
+        if context['user_form'].is_valid() and context['order_form'].is_valid():
+            context['user_form'].save()
+            context['order_form'].save(
+                temporary_order=context['order']
+            )
+
         return render(
             request=request,
             template_name=self.template_name,
