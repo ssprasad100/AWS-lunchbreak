@@ -36,7 +36,7 @@
 {% set closed = 'De winkel is op deze datum gesloten.' %}
 <p class="subscript">
     {% if first_openingperiods %}
-        Openingsuren: <span class="openingperiods">{{ first_openingperiods | list_periods() }}</span>.
+        Openingsuren: <span class="openinghours">{{ first_openingperiods | list_periods() }}</span>.
     {% else %}
         {{ closed }}
     {% endif %}

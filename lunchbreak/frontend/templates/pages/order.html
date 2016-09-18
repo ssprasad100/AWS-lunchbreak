@@ -54,11 +54,17 @@
                           <input type="radio" id="checkout-payment-0" class="mdl-radio__button" name="{{ order_form.payment_method.html_name }}" value="{{ order_form.fields['payment_method'].choices[0][0] }}" checked>
                           <span class="mdl-radio__label">{{ order_form.fields['payment_method'].choices[0][1] }}</span>
                         </label>
+
                         <label class="radio-item mdl-radio mdl-js-radio mdl-js-ripple-effect" for="checkout-payment-1">
-                          <input type="radio" id="checkout-payment-1" class="mdl-radio__button" name="{{ order_form.payment_method.html_name }}" value="{{ order_form.fields['payment_method'].choices[1][0] }}">
+                          <input type="radio" id="checkout-payment-1" class="mdl-radio__button" name="{{ order_form.payment_method.html_name }}" value="{{ order_form.fields['payment_method'].choices[1][0] }}" {% if not store.staff.is_merchant %}disabled{% endif %}>
                           <span class="mdl-radio__label">{{ order_form.fields['payment_method'].choices[1][1] }}</span>
                         </label>
                     </div>
+                    {% if not store.staff.is_merchant %}
+                    <p class="subscript">
+                    Deze winkel heeft online betalen uitgeschakeld.
+                    </p>
+                    {% endif %}
                     {{ forms.render_errors(order_form.payment_method.errors) }}
                 </div>
 

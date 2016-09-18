@@ -3,31 +3,29 @@ from datetime import timedelta
 
 from django.contrib.auth.mixins import AccessMixin
 from django.db.models import Q
+from django.http.request import QueryDict
 from django.utils import timezone
 
 from .models import Forward
 
 
-class LoginForwardMixin(AccessMixin):
+class ForwardMixin:
 
     forward_group = None
 
     def dispatch(self, request, *args, **kwargs):
         assert self.forward_group is not None, \
-            'LoginForwardMixin subclasses need to set a forward_group.'
+            'ForwardMixin subclasses need to set a forward_group.'
 
-        if not request.user.is_authenticated():
-            redirect_response = self.handle_no_permission()
+        if self.should_forward(request, *args, **kwargs):
+            redirect_response = self.get_redirect_response(
+                request, *args, **kwargs
+            )
 
             if request.method == 'POST' and request.POST:
-                json_data = json.dumps(dict(request.POST))
-                forward = Forward.objects.create(
-                    group=self.forward_group,
-                    json=json_data
-                )
-                redirect_response.set_cookie(
-                    key='forward',
-                    value=forward.id
+                redirect_response = self.create_forward(
+                    request=request,
+                    response=redirect_response
                 )
 
             return redirect_response
@@ -49,3 +47,36 @@ class LoginForwardMixin(AccessMixin):
         return super().dispatch(
             request, *args, **kwargs
         )
+
+    def create_forward(self, request, response, data=None):
+        if data is None:
+            data = request.POST
+
+        if isinstance(data, QueryDict):
+            data = dict(data)
+
+        json_data = json.dumps(data)
+        forward = Forward.objects.create(
+            group=self.forward_group,
+            json=json_data
+        )
+        response.set_cookie(
+            key='forward',
+            value=forward.id
+        )
+        return response
+
+    def should_forward(self, request, *args, **kwargs):
+        raise NotImplementedError()
+
+    def get_redirect_response(self, request, *args, **kwargs):
+        raise NotImplementedError()
+
+
+class LoginForwardMixin(ForwardMixin, AccessMixin):
+
+    def should_forward(self, request, *args, **kwargs):
+        return not request.user.is_authenticated()
+
+    def get_redirect_response(self, request, *args, **kwargs):
+        return self.handle_no_permission()
