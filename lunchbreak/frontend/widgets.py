@@ -31,10 +31,13 @@ class ReceiptField(widgets.Widget):
         )
 
     def value_from_datadict(self, data, files, name):
-        return Period.weekday_as_datetime(
-            weekday=int(data.get(name + self.name_weekday)),
-            time=datetime.strptime(
-                data.get(name + self.name_time),
-                '%H:%M'
-            ).time()
-        )
+        try:
+            return Period.weekday_as_datetime(
+                weekday=int(data.get(name + self.name_weekday)),
+                time=datetime.strptime(
+                    data.get(name + self.name_time),
+                    '%H:%M'
+                ).time()
+            )
+        except TypeError:
+            return None

@@ -109,12 +109,14 @@ class OrderView(LoginForwardMixin, TemplateView):
             except TemporaryOrder.DoesNotExist:
                 return context
 
+        data = self.request.POST if 'orderedfood' not in data else None
+
         context['user_form'] = UserForm(
-            data=self.request.POST or None,
+            data=data,
             instance=self.request.user
         )
         context['order_form'] = OrderForm(
-            data=self.request.POST or None,
+            data=data,
             instance=context['store']
         )
 
