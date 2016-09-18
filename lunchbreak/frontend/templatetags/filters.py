@@ -1,3 +1,5 @@
+import json
+
 from django.template.defaultfilters import time
 from django_jinja import library
 from lunch.config import WEEKDAYS
@@ -14,6 +16,20 @@ def list_periods(periods, arg='H:i'):
             end=time(period.end.time(), arg)
         ) for period in periods
     ])
+
+
+@library.filter
+def json_weekday_periods(weekday_periods, **kwargs):
+    """
+    Usage: {{ 'Hello'|mylower() }}
+    """
+    result = {}
+    for weekday, periods in weekday_periods.items():
+        result[weekday] = list_periods(
+            periods=periods,
+            **kwargs
+        )
+    return json.dumps(result)
 
 
 @library.filter

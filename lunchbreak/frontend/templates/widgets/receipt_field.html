@@ -33,10 +33,17 @@
     </label>
 </div>
 
+{% set closed = 'De winkel is op deze datum gesloten.' %}
 <p class="subscript">
     {% if first_openingperiods %}
-        Openingsuren: {{ first_openingperiods | list_periods() }}.
+        Openingsuren: <span class="openingperiods">{{ first_openingperiods | list_periods() }}</span>.
     {% else %}
-        De winkel is op deze datum gesloten.
+        {{ closed }}
     {% endif %}
 </p>
+
+<script type="text/javascript">
+    var weekday_openingperiods_json = '{{ weekday_openingperiods | json_weekday_periods | safe }}';
+    var closed = '{{ closed }}';
+</script>
+<script type="text/javascript" src="{{ static('receipt-field.js') }}"></script>

@@ -153,6 +153,7 @@ TEMPLATES = [
             'filters': {
                 'list_periods': 'frontend.templatetags.filters.list_periods',
                 'humanize_weekday': 'frontend.templatetags.filters.humanize_weekday',
+                'json_weekday_periods': 'frontend.templatetags.filters.json_weekday_periods',
             }
         }
     },
