@@ -552,7 +552,6 @@ class Period(models.Model):
             )
         return result
 
-
     def time_as_datetime(self):
         return self.weekday_as_datetime(
             weekday=self.day,

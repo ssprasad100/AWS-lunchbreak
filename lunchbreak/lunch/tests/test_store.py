@@ -136,7 +136,7 @@ class StoreTestCase(LunchbreakTestCase):
     @mock.patch('django.utils.timezone.now')
     @mock.patch('googlemaps.Client.geocode')
     def test_check_open(self, mock_geocode, mock_now):
-        today = Pendulum.now().with_time(
+        today = Pendulum.now('UTC').with_time(
             hour=0,
             minute=0,
             second=0,
@@ -190,7 +190,7 @@ class StoreTestCase(LunchbreakTestCase):
 
         mock_now.return_value = today
         self.assertRaises(StoreClosed, store.is_open, before)
-        self.assertIsNone(store.is_open(between))
+        self.assertTrue(store.is_open(between))
         self.assertRaises(StoreClosed, store.is_open, after)
 
         hp = HolidayPeriod.objects.create(
@@ -206,13 +206,13 @@ class StoreTestCase(LunchbreakTestCase):
 
         hp.closed = False
         hp.save()
-        self.assertIsNone(store.is_open(before))
-        self.assertIsNone(store.is_open(between))
-        self.assertIsNone(store.is_open(after))
+        self.assertTrue(store.is_open(before))
+        self.assertTrue(store.is_open(between))
+        self.assertTrue(store.is_open(after))
 
         hp.closed = True
         hp.end = between
         hp.save()
         self.assertRaises(StoreClosed, store.is_open, before)
         self.assertRaises(StoreClosed, store.is_open, between)
-        self.assertIsNone(store.is_open(between + timedelta(minutes=1)))
+        self.assertTrue(store.is_open(between + timedelta(minutes=1)))
