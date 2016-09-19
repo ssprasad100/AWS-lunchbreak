@@ -61,11 +61,16 @@ class Merchant(models.Model):
             state=state
         )
 
+        redirect_uri = '{protocol}://{domain}/{path}'.format(
+            protocol='https' if settings.SSL else 'http',
+            domain=settings.GOCARDLESS['app']['redirect_domain'],
+            path=reverse('gocardless-redirect')
+        )
         params = {
             'response_type': 'code',
             'client_id': settings.GOCARDLESS['app']['client_id'],
             'scope': 'read_write',
-            'redirect_uri': settings.GOCARDLESS['app']['redirect_uri'],
+            'redirect_uri': redirect_uri,
             'state': merchant.state,
             'initial_view': initial_view
         }
@@ -103,7 +108,9 @@ class Merchant(models.Model):
             response_data = response.json()
 
             if 'error' in response_data:
-                raise ExchangeAuthorisationError(response_data['error'])
+                raise ExchangeAuthorisationError(
+                    response_data['error']
+                )
 
             if response_data.get('scope', None) == 'read_write':
                 merchant = cls.objects.get(state=state)
@@ -113,7 +120,9 @@ class Merchant(models.Model):
                 merchant.save()
                 return merchant
             else:
-                raise ExchangeAuthorisationError('Scope not read_write.')
+                raise ExchangeAuthorisationError(
+                    'Scope not read_write.'
+                )
         except cls.DoesNotExist:
             raise ExchangeAuthorisationError()
         except ValueError:

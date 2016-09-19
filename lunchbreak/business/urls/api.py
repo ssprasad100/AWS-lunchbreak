@@ -7,6 +7,7 @@ from ..models import Employee, EmployeeToken, Staff, StaffToken
 from ..serializers import EmployeePasswordSerializer, StaffPasswordSerializer
 
 router = SimpleRouter()
+router.register(r'store', views.StoreViewSet, base_name='business-store')
 router.register(r'food', views.FoodViewSet, base_name='business-food')
 router.register(r'menu', views.MenuViewSet, base_name='business-menu')
 
@@ -130,10 +131,6 @@ urlpatterns = patterns(
         }
     ),
 
-    url(
-        r'^store/?$',
-        views.StoreDetailView.as_view()
-    ),
     url(
         r'^store/openingperiods/?$',
         views.OpeningPeriodView.as_view()

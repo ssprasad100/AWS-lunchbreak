@@ -88,7 +88,12 @@ GOCARDLESS = {
             'GOCARDLESS_ACCESS_TOKEN'
         )
     ),
-    'environment': 'sandbox',
+    'environment': globals().get(
+        'GOCARDLESS_ENVIRONMENT',
+        os.environ.get(
+            'GOCARDLESS_ENVIRONMENT'
+        )
+    ),
     'webhook': {
         'secret': globals().get(
             'GOCARDLESS_WEBHOOK_SECRET',
@@ -98,10 +103,10 @@ GOCARDLESS = {
         ),
     },
     'app': {
-        'redirect_uri': globals().get(
-            'GOCARDLESS_APP_REDIRECT_URI',
+        'redirect_domain': globals().get(
+            'GOCARDLESS_APP_REDIRECT_DOMAIN',
             os.environ.get(
-                'GOCARDLESS_APP_REDIRECT_URI'
+                'GOCARDLESS_APP_REDIRECT_DOMAIN'
             )
         ),
         'client_id': globals().get(
@@ -129,16 +134,8 @@ GOCARDLESS = {
             )
         },
         'redirect': {
-            'success': reverse_lazy(
-                'frontend-account', kwargs={
-                    'status': 'success'
-                }
-            ),
-            'error': reverse_lazy(
-                'frontend-account', kwargs={
-                    'status': 'error'
-                }
-            )
+            'success': 'lunchbreakstore://gocardless/redirect/success',
+            'error': 'lunchbreakstore://gocardless/redirect/error'
         }
     },
     'app_redirect': {

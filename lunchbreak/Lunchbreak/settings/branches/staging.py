@@ -10,3 +10,6 @@ APNS_HOST = 'gateway.sandbox.push.apple.com'
 APNS_FEEDBACK_HOST = 'feedback.sandbox.push.apple.com'
 
 DB_HOST = 'db'
+
+GOCARDLESS_ENVIRONMENT = 'sandbox'
+GOCARDLESS_APP_REDIRECT_DOMAIN = 'api.staging.lunchbreakapp.be'

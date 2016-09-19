@@ -20,3 +20,4 @@ OPBEAT_RELEASE = True
 
 # TODO Add production access token
 GOCARDLESS_ENVIRONMENT = 'live'
+GOCARDLESS_APP_REDIRECT_DOMAIN = 'api.lunchbreakapp.be'

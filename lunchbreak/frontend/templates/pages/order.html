@@ -62,7 +62,7 @@
                     </div>
                     {% if not store.staff.is_merchant %}
                     <p class="subscript">
-                    Deze winkel heeft online betalen uitgeschakeld.
+                        Deze winkel heeft online betalingen uitgeschakeld.
                     </p>
                     {% endif %}
                     {{ forms.render_errors(order_form.payment_method.errors) }}

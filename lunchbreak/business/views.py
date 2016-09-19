@@ -7,8 +7,9 @@ from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.db.models import Count
 from django.http import Http404
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.utils import timezone
+from django_gocardless.models import Merchant
 from lunch.models import (Food, FoodType, Ingredient, IngredientGroup, Menu,
                           Quantity, Store)
 from lunch.responses import BadRequest
@@ -108,6 +109,52 @@ class ResetRequestView(generics.CreateAPIView):
 
     def post(self, request, authentication, *args, **kwargs):
         return authentication.password_reset_request(request)
+
+
+class StoreViewSet(TargettedViewSet,
+                   mixins.RetrieveModelMixin,
+                   mixins.UpdateModelMixin):
+    authentication_classes = (EmployeeAuthentication,)
+    permission_classes = (StoreOwnerPermission,)
+    serializer_class = StoreDetailSerializer
+
+    def get_queryset(self):
+        return Store.objects.filter(
+            id=self.request.user.staff.store_id
+        )
+
+    def get_object(self):
+        return get_object_or_404(self.get_queryset())
+
+    def retrieve(self, request, *args, **kwargs):
+        # Not allowed to use a pk directly
+        raise Http404()
+
+    def list(self, request):
+        result = super().retrieve(request)
+        return result
+
+    @list_route(methods=['get'])
+    def merchant(self, request):
+        store = self.get_object()
+
+        if not store.is_merchant:
+            merchant, url = Merchant.authorisation_link(
+                email=store.email
+            )
+
+            if store.staff.merchant is not None:
+                store.staff.merchant.delete()
+
+            store.staff.merchant = merchant
+            store.staff.save()
+            return redirect(
+                to=url
+            )
+        else:
+            raise Response(
+                status=status.HTTP_200_OK
+            )
 
 
 class FoodViewSet(TargettedViewSet,
@@ -442,20 +489,6 @@ class StaffDetailView(generics.RetrieveAPIView):
 
     def get_queryset(self):
         return Staff.objects.filter(id=self.request.user.id)
-
-
-class StoreDetailView(generics.RetrieveUpdateAPIView):
-    authentication_classes = (EmployeeAuthentication,)
-    permission_classes = (StoreOwnerPermission,)
-    serializer_class = StoreDetailSerializer
-
-    def get_object(self):
-        return get_object_or_404(self.get_queryset())
-
-    def get_queryset(self):
-        return Store.objects.filter(
-            id=self.request.user.staff.store_id
-        )
 
 
 class GetStoreMixin(object):

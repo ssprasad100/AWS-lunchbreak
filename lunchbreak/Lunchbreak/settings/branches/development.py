@@ -2,6 +2,10 @@ ALLOWED_HOSTS = [
     'lunchbreak.dev',
     'www.lunchbreak.dev',
     'api.lunchbreak.dev',
+
+    'andreas.cloock.be',
+    'www.andreas.cloock.be',
+    'api.andreas.cloock.be',
 ]
 BRANCH = 'development'
 
@@ -26,3 +30,5 @@ QUERY_INSPECT_ENABLED = True
 QUERY_INSPECT_LOG_TRACEBACKS = True
 
 TEMPLATES[0]['OPTIONS']['constants']['dir'] = 'dir'
+GOCARDLESS_ENVIRONMENT = 'sandbox'
+GOCARDLESS_APP_REDIRECT_DOMAIN = 'api.andreas.cloock.be'
