@@ -561,7 +561,7 @@
          * @return {Validation}
          */
         this.validate = function() {
-            var value = new Number(this.inputField.val());
+            var value = parseInt(this.inputField.val());
             if (value === NaN)
                 return new Validation(
                     'Gelieve een geldig nummer in te geven.'
