@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'sass_processor',
     'subdomains',
     'django_jinja',
+    'opbeat.contrib.django',
 
     'imagekit',
     'polaroid',
@@ -52,6 +53,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE_CLASSES = (
+    'opbeat.contrib.django.middleware.OpbeatAPMMiddleware',
     'Lunchbreak.middleware.SubdomainHostMiddleWare',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',

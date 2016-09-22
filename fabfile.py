@@ -1,10 +1,14 @@
 import getpass
 import os
 
-from fabric.api import env, local, run, sudo
+from fabric.api import env, lcd, local, run, sudo
 from fabric.context_managers import cd, hide, quiet, settings
+from fabric.contrib import django
 from fabric.contrib.files import exists
 from fabric.operations import put
+
+django.project('Lunchbreak')
+django.settings_module('lunchbreak.Lunchbreak.settings')
 
 # Host
 HOST = os.environ.get('LUNCHBREAK_HOST')
@@ -43,15 +47,37 @@ else:
 print('Current git commit: ' + str(git_commit))
 print('Current git branch: ' + str(git_branch))
 
+
 is_production = git_tag and git_branch == 'master'
 if is_production:
     print('We\'re currently on production!')
+version = 'production' if is_production else 'staging'
+
+
+os.environ.setdefault(
+    'DJANGO_SETTINGS_VERSION',
+    version
+)
+
+with lcd('lunchbreak'):
+    from django.conf import settings  # NOQA
+    OPBEAT_APP_ID = getattr(settings, 'OPBEAT_APP_ID', None)
+    OPBEAT_SECRET_TOKEN = getattr(settings, 'OPBEAT_SECRET_TOKEN', None)
+
+    if OPBEAT_APP_ID is None or OPBEAT_SECRET_TOKEN is None:
+        OPBEAT_APP_ID = os.environ.get(
+            'OPBEAT_APP_ID_PRODUCTION' if is_production else 'OPBEAT_APP_ID_STAGING'
+        )
+        OPBEAT_SECRET_TOKEN = os.environ.get(
+            'OPBEAT_SECRET_TOKEN_PRODUCTION' if is_production else 'OPBEAT_SECRET_TOKEN_STAGING'
+        )
 
 
 def deploy(username=None, password=None, skiptests=False):
     """The regular deployment.
 
     Tests, pushes new image and updates server."""
+
     if not skiptests:
         local('tox')
     push(
@@ -60,6 +86,7 @@ def deploy(username=None, password=None, skiptests=False):
     )
     deployer = Deployer()
     deployer.update_server()
+    deployer.register_opbeat()
 
 
 def push(username=None, password=None):
@@ -113,7 +140,7 @@ class Deployer:
             image_names.append(image_name)
 
         build_args = {
-            'version': 'production' if is_production else 'staging',
+            'version': version,
             'certificate_type': 'production' if is_production else 'development'
         }
 
@@ -303,3 +330,20 @@ class Deployer:
                         config_params=config_params
                     )
                 )
+
+    def register_opbeat(self):
+        with hide('running'):
+            revision = local('git log -n 1 --pretty="format:%H"', capture=True)
+            local(
+                'curl https://intake.opbeat.com/api/v1/organizations/{organization}/apps/{app}/releases/'
+                ' -H "Authorization: Bearer {secret_token}"'
+                ' -d rev="{revision}"'
+                ' -d branch="{branch}"'
+                ' -d status=completed'.format(
+                    organization='5d9db7394a424d27b704ace52cf4f9ef',
+                    app=OPBEAT_APP_ID,
+                    secret_token=OPBEAT_SECRET_TOKEN,
+                    revision=revision,
+                    branch=git_branch
+                )
+            )

@@ -44,6 +44,10 @@ uwsgi \
     --env GOCARDLESS_APP_WEBHOOK_SECRET="${GOCARDLESS_APP_WEBHOOK_SECRET}" \
     --env EMAIL_HOST_USER="${EMAIL_HOST_USER}" \
     --env EMAIL_HOST_PASSWORD="${EMAIL_HOST_PASSWORD}" \
+    --env PLIVO_AUTH_ID="${PLIVO_AUTH_ID}" \
+    --env PLIVO_AUTH_TOKEN="${PLIVO_AUTH_TOKEN}" \
+    --env OPBEAT_APP_ID="${OPBEAT_APP_ID}" \
+    --env OPBEAT_SECRET_TOKEN="${OPBEAT_SECRET_TOKEN}" \
     --master \
     --pidfile=/tmp/lunchbreak-master.pid \
     --socket=0.0.0.0:49152 \

@@ -25,6 +25,7 @@ Pillow==3.2.0
 requests==2.9.1
 uwsgidecorators==1.1.0
 plivo==0.11.1
+opbeat==3.4.0
 
 # user-agents: https://github.com/selwin/python-user-agents/issues/67
 pyyaml==3.11

@@ -168,3 +168,19 @@ SMS = {
         )
     }
 }
+
+OPBEAT = {
+    'ORGANIZATION_ID': '5d9db7394a424d27b704ace52cf4f9ef',
+    'APP_ID': globals().get(
+        'OPBEAT_APP_ID',
+        os.environ.get(
+            'OPBEAT_APP_ID'
+        )
+    ),
+    'SECRET_TOKEN': globals().get(
+        'OPBEAT_SECRET_TOKEN',
+        os.environ.get(
+            'OPBEAT_SECRET_TOKEN'
+        )
+    ),
+}
