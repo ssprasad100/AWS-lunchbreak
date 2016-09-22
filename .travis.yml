@@ -17,7 +17,7 @@ notifications:
   email: false
   slack:
     rooms:
-      - cloock:SXLRwJ3UHzH4R4sZwycCnt9J#lunchbreak-api
+      - cloock:SXLRwJ3UHzH4R4sZwycCnt9J#lunchbreak-backend
 branches:
   only:
     - master
