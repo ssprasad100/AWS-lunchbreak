@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'imagekit',
     'polaroid',
 
+    'django_sms',
     'django_gocardless',
     'business',
     'customers',

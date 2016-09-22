@@ -1,4 +1,5 @@
 from django_gocardless.serializers import RedirectFlowSerializer
+from django_sms.models import Phone
 from lunch import serializers as lunch_serializers
 from lunch.models import Store
 from Lunchbreak.serializers import PrimaryModelSerializer
@@ -215,8 +216,11 @@ class OrderDetailSerializer(OrderSerializer):
 class UserRegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = User
+        model = Phone
         fields = (
+            'phone',
+        )
+        write_only_fields = (
             'phone',
         )
         extra_kwargs = {
@@ -226,9 +230,6 @@ class UserRegisterSerializer(serializers.ModelSerializer):
                 ]
             }
         }
-        write_only_fields = (
-            'phone',
-        )
 
 
 class UserTokenLoginSerializer(serializers.ModelSerializer):
@@ -254,6 +255,12 @@ class UserLoginSerializer(serializers.ModelSerializer):
         max_length=255,
         required=False,
         write_only=True
+    )
+    phone = serializers.CharField(
+        write_only=True,
+        validators=[
+            validate_international_phonenumber
+        ]
     )
 
     class Meta:

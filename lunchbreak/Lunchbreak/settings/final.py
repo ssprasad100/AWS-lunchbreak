@@ -36,7 +36,7 @@ DB_HOST = globals().get(
     'DB_HOST',
     os.environ.get(
         'DB_HOST',
-        'localhost'
+        '127.0.0.1'
     )
 )
 
@@ -146,5 +146,25 @@ GOCARDLESS = {
             'incomplete': 'lunchbreakstore://gocardless/redirectflow/error/incomplete',
             'completed': 'lunchbreakstore://gocardless/redirectflow/error/completed',
         }
+    }
+}
+
+
+SMS = {
+    'phone': '+32466900406',
+    'text_template': '{pin} is je Lunchbreak authenticatie code, welkom!',
+    'plivo': {
+        'auth_id': globals().get(
+            'PLIVO_AUTH_ID',
+            os.environ.get(
+                'PLIVO_AUTH_ID'
+            )
+        ),
+        'auth_token': globals().get(
+            'PLIVO_AUTH_TOKEN',
+            os.environ.get(
+                'PLIVO_AUTH_TOKEN'
+            )
+        )
     }
 }

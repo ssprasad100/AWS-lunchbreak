@@ -20,8 +20,7 @@ class PaymentLinkInline(admin.TabularInline):
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
-    list_display = ('name', 'phone', 'confirmed_at',)
-    readonly_fields = ('digits_id', 'request_id', 'confirmed_at',)
+    list_display = ('name', 'phone',)
     inlines = (PaymentLinkInline,)
     search_fields = ('name',)
 

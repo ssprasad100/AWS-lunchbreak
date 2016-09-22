@@ -6,9 +6,9 @@ from customers.models import Order, OrderedFood, User, UserToken
 from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.utils import timezone
-from lunch.models import (Food, Menu, FoodType, HolidayPeriod,
-                          Ingredient, IngredientGroup, IngredientRelation,
-                          Store)
+from django_sms.models import Phone
+from lunch.models import (Food, FoodType, HolidayPeriod, Ingredient,
+                          IngredientGroup, IngredientRelation, Menu, Store)
 from Lunchbreak.test import LunchbreakTestCase
 from push_notifications.models import SERVICE_APNS
 from rest_framework import status
@@ -44,9 +44,14 @@ class BusinessTests(LunchbreakTestCase):
             lng=3.9075993
         )
 
+        self.phone = Phone.objects.create(
+            phone=self.PHONE_USER,
+            confirmed_at=timezone.now()
+        )
+
         self.user = User.objects.create(
-            phone=BusinessTests.PHONE_USER,
-            name=BusinessTests.NAME_USER
+            phone=self.phone,
+            name=self.NAME_USER
         )
 
         self.usertoken = UserToken.objects.create(
@@ -58,7 +63,7 @@ class BusinessTests(LunchbreakTestCase):
         )
 
         self.store = Store.objects.create(
-            name='BusinessTests',
+            name='self',
             country='België',
             province='Oost-Vlaanderen',
             city='Wetteren',
@@ -73,7 +78,7 @@ class BusinessTests(LunchbreakTestCase):
         )
 
         self.owner = Employee.objects.create(
-            name=BusinessTests.NAME_USER,
+            name=self.NAME_USER,
             staff=self.staff,
             owner=True
         )

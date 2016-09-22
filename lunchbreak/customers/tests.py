@@ -4,6 +4,7 @@ import mock
 from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.utils import timezone
+from django_sms.models import Phone
 from lunch.config import (BELGIUM, COST_GROUP_ADDITIONS, COST_GROUP_ALWAYS,
                           COST_GROUP_BOTH)
 from lunch.exceptions import (BadRequest, DoesNotExist, LinkingError,
@@ -17,30 +18,31 @@ from rest_framework import status
 from rest_framework.test import APIRequestFactory
 
 from . import views
-from .config import (DEMO_DIGITS_ID, DEMO_PHONE, INVITE_STATUS_ACCEPTED,
-                     INVITE_STATUS_IGNORED, INVITE_STATUS_WAITING,
-                     ORDER_STATUS_COMPLETED, RESERVATION_STATUS_USER,
-                     RESERVATION_STATUSES)
+from .config import (DEMO_PHONE, INVITE_STATUS_ACCEPTED, INVITE_STATUS_IGNORED,
+                     INVITE_STATUS_WAITING, ORDER_STATUS_COMPLETED,
+                     RESERVATION_STATUS_USER, RESERVATION_STATUSES)
 from .exceptions import (AlreadyMembership, InvalidStatusChange,
                          MaxSeatsExceeded, NoInvitePermissions,
                          OrderedFoodNotOriginal)
 from .models import (Address, Group, Heart, Invite, Membership, Order,
                      OrderedFood, Reservation, User, UserToken)
+from django.test.utils import override_settings
 
 
+@override_settings(DEBUG=True)
 class CustomersTests(LunchbreakTestCase):
 
     PHONE_USER = '+32472907604'
     NAME_USER = 'Meneer Aardappel'
     FORMAT = 'json'
     VALID_PHONE = '+32472907605'
-    VALID_PHONE2 = '+32472907606'
+    VALID_PHONE2 = '+32479427866'
     INVALID_PHONE = '+123456789'
     PIN = '123456'
     NAME = 'Meneer De Bolle'
-    NAME_ALTERNATE = 'Mevrouw De Bolle'
+    NAME_OTHER = 'Mevrouw De Bolle'
     EMAIL = 'meneer@debolle.com'
-    EMAIL_ALTERNATE = 'mevrouw@debolle.com'
+    EMAIL_OTHER = 'mevrouw@debolle.com'
     DEVICE = 'Test device'
     REGISTRATION_ID = '123456789'
 
@@ -49,6 +51,15 @@ class CustomersTests(LunchbreakTestCase):
         super(CustomersTests, self).setUp()
         self.factory = APIRequestFactory()
 
+        self.phone = Phone.objects.create(
+            phone=self.PHONE_USER,
+            confirmed_at=timezone.now()
+        )
+        self.phone_other = Phone.objects.create(
+            phone=self.VALID_PHONE2,
+            confirmed_at=timezone.now()
+        )
+
         self.mock_geocode_results(
             mock_geocode,
             lat=51.0111595,
@@ -56,13 +67,13 @@ class CustomersTests(LunchbreakTestCase):
         )
 
         self.user = User.objects.create(
-            phone=CustomersTests.PHONE_USER,
+            phone=self.phone,
             name=CustomersTests.NAME_USER
         )
 
         self.user_other = User.objects.create(
-            phone=CustomersTests.VALID_PHONE2,
-            name=CustomersTests.NAME_ALTERNATE
+            phone=self.phone_other,
+            name=CustomersTests.NAME_OTHER
         )
 
         self.usertoken = UserToken.objects.create(
@@ -203,16 +214,7 @@ class CustomersTests(LunchbreakTestCase):
             )
         ])
 
-    @mock.patch('customers.models.User.digits_register')
-    @mock.patch('customers.models.User.digits_login')
-    def test_registration(self, mock_login, mock_register):
-        mock_info = {
-            'digits_id': 123,
-            'request_id': 123
-        }
-        mock_login.return_value = mock_info
-        mock_register.return_value = mock_info
-
+    def test_registration(self):
         url = reverse('customers-user-register')
         content = {
             'phone': CustomersTests.VALID_PHONE
@@ -230,8 +232,6 @@ class CustomersTests(LunchbreakTestCase):
             response.render()
             self.assertEqual(len(response.content), 0)
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-        User.objects.filter(phone=CustomersTests.VALID_PHONE).delete()
 
     @mock.patch('customers.models.User.register')
     def test_registration_demo(self, mock_register):
@@ -277,14 +277,7 @@ class CustomersTests(LunchbreakTestCase):
         self.assertEqualException(response, BadRequest)
         self.assertFalse(mock_register.called)
 
-    @mock.patch('customers.digits.Digits.signing_confirm')
-    @mock.patch('customers.digits.Digits.register_confirm')
-    def test_login(self, mock_registration, mock_signin):
-        mock_registration.return_value = {
-            'id': 123
-        }
-        mock_signin.return_value = None
-
+    def test_login(self):
         url = reverse('customers-user-login')
         content = {
             'phone': CustomersTests.VALID_PHONE,
@@ -306,8 +299,11 @@ class CustomersTests(LunchbreakTestCase):
         response = self.as_view(request, view, view_actions)
         self.assertEqualException(response, DoesNotExist)
 
-        user = User.objects.create(
+        phone = Phone.objects.create(
             phone=CustomersTests.VALID_PHONE
+        )
+        user = User.objects.create(
+            phone=phone
         )
 
         # A username is required
@@ -315,7 +311,6 @@ class CustomersTests(LunchbreakTestCase):
         response = self.as_view(request, view, view_actions)
         self.assertEqualException(response, BadRequest)
         self.assertFalse(user.name)
-        self.assertFalse(user.confirmed_at)
 
         content['name'] = CustomersTests.NAME
         request = self.factory.post(url, content)
@@ -325,11 +320,9 @@ class CustomersTests(LunchbreakTestCase):
         tokens = UserToken.objects.filter(user=user)
         self.assertEqual(len(tokens), 1)
         identifier = tokens[0].identifier
-        self.assertTrue(user.confirmed_at)
         self.assertEqual(user.name, CustomersTests.NAME)
-        confirmed_at = user.confirmed_at
 
-        content['name'] = CustomersTests.NAME_ALTERNATE
+        content['name'] = CustomersTests.NAME_OTHER
         request = self.factory.post(url, content)
         response = self.as_view(request, view, view_actions)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -337,8 +330,7 @@ class CustomersTests(LunchbreakTestCase):
         tokens = UserToken.objects.filter(user=user)
         self.assertEqual(len(tokens), 1)
         self.assertNotEqual(identifier, tokens[0].identifier)
-        self.assertEqual(user.name, CustomersTests.NAME_ALTERNATE)
-        self.assertEqual(user.confirmed_at, confirmed_at)
+        self.assertEqual(user.name, CustomersTests.NAME_OTHER)
 
         user.delete()
 
@@ -366,15 +358,21 @@ class CustomersTests(LunchbreakTestCase):
         response = self.as_view(request, view, view_actions)
         self.assertEqualException(response, BadRequest)
 
-        demoPin = '1337'
-        demo = User.objects.create(phone=DEMO_PHONE, request_id=demoPin, digits_id=DEMO_DIGITS_ID)
+        demo_pin = '1337'
+        demo_phone = Phone.objects.create(
+            phone=DEMO_PHONE,
+            pin=demo_pin
+        )
+        demo = User.objects.create(
+            phone=demo_phone
+        )
 
         # Invalid pin
         request = self.factory.post(url, content)
         response = self.as_view(request, view, view_actions)
         self.assertEqualException(response, BadRequest)
 
-        content['pin'] = demoPin
+        content['pin'] = demo_pin
         request = self.factory.post(url, content)
         response = self.as_view(request, view, view_actions)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)

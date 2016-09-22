@@ -19,7 +19,7 @@ from rest_framework.views import APIView
 from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from .authentication import CustomerAuthentication
-from .config import DEMO_DIGITS_ID, DEMO_PHONE
+from .config import DEMO_PHONE
 from .models import (Heart, Order, OrderedFood, PaymentLink, Reservation, User,
                      UserToken)
 from .serializers import (GroupSerializer, InviteSerializer,
@@ -449,9 +449,8 @@ class UserViewSet(viewsets.GenericViewSet):
                 'pin' in request.data):
             try:
                 user_demo = User.objects.get(
-                    phone=phone,
-                    request_id=request.data['pin'],
-                    digits_id=DEMO_DIGITS_ID
+                    phone__phone=phone,
+                    phone__pin=request.data['pin']
                 )
                 return UserToken.response(
                     user_demo,

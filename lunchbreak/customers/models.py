@@ -10,16 +10,16 @@ from django.contrib.contenttypes.fields import (GenericForeignKey,
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MinValueValidator
 from django.db import models
-from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
 from django_gocardless.config import CURRENCY_EUR
 from django_gocardless.models import Payment, RedirectFlow
+from django_sms.exceptions import PinTimeout
+from django_sms.models import Phone
 from lunch.config import (COST_GROUP_ADDITIONS, COST_GROUP_BOTH, INPUT_SI_SET,
                           INPUT_SI_VARIABLE)
 from lunch.exceptions import BadRequest, LinkingError, NoDeliveryToAddress
 from lunch.models import AbstractAddress, BaseToken, Food, Ingredient, Store
-from phonenumber_field.modelfields import PhoneNumberField
 from push_notifications.models import SERVICE_INACTIVE
 from rest_framework import status
 from rest_framework.response import Response
@@ -33,20 +33,18 @@ from .config import (GROUP_BILLING_SEPARATE, GROUP_BILLINGS,
                      PAYMENT_METHOD_CASH, PAYMENT_METHOD_GOCARDLESS,
                      PAYMENT_METHODS, RESERVATION_STATUS_DENIED,
                      RESERVATION_STATUS_PLACED, RESERVATION_STATUSES)
-from .digits import Digits
 from .exceptions import (AlreadyMembership, AmountInvalid, CostCheckFailed,
-                         DigitsException, InvalidStatusChange,
-                         MaxSeatsExceeded, MinDaysExceeded,
-                         NoInvitePermissions, NoPaymentLink,
+                         InvalidStatusChange, MaxSeatsExceeded,
+                         MinDaysExceeded, NoInvitePermissions, NoPaymentLink,
                          OnlinePaymentDisabled, PaymentLinkNotConfirmed,
                          UserDisabled)
 from .managers import OrderedFoodManager, OrderManager, UserManager
 
 
 class User(AbstractBaseUser, PermissionsMixin):
-    phone = PhoneNumberField(
-        unique=True,
-        verbose_name='Telefoonnummer'
+    phone = models.OneToOneField(
+        'django_sms.Phone',
+        on_delete=models.CASCADE
     )
     name = models.CharField(
         max_length=255,
@@ -57,24 +55,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         blank=True,
         verbose_name='E-mailadres'
     )
-    digits_id = models.CharField(
-        unique=True,
-        max_length=10,
-        blank=True,
-        null=True,
-        verbose_name='Digits ID'
-    )
-    request_id = models.CharField(
-        max_length=32,
-        blank=True,
-        null=True,
-        verbose_name='Digits Request ID'
-    )
 
-    confirmed_at = models.DateField(
-        blank=True,
-        null=True
-    )
     enabled = models.BooleanField(
         default=True
     )
@@ -111,61 +92,54 @@ class User(AbstractBaseUser, PermissionsMixin):
     def get_short_name(self):
         return self.name
 
-    @classmethod
-    def digits_register(cls, digits, phone):
-        try:
-            digits.register(phone)
-            return True
-        except DigitsException:
-            return cls.digits_login(digits, phone)
-
-    @staticmethod
-    def digits_login(digits, phone):
-        content = digits.signin(phone)
-        return {
-            'digits_id': content['login_verification_user_id'],
-            'request_id': content['login_verification_request_id']
-        }
-
     @staticmethod
     def register(phone):
-        digits = Digits()
         try:
-            user = User.objects.get(phone=phone)
+            user = User.objects.get(
+                phone__phone=phone
+            )
 
             if not user.enabled:
-                return UserDisabled().responsese
+                return UserDisabled().response
 
             if not settings.DEBUG:
-                if user.confirmed_at:
-                    digits_result = User.digits_login(digits, phone)
-                else:
-                    digits_result = User.digits_register(digits, phone)
-
-                if digits_result and type(digits_result) is dict:
-                    user.digits_id = digits_result['digits_id']
-                    user.request_id = digits_result['request_id']
-                user.save()
+                try:
+                    user.phone.send_pin()
+                except PinTimeout:
+                    pass
+            else:
+                user.phone.new_pin()
 
             if user.name:
-                return Response(status=status.HTTP_200_OK)
-            return Response(status=status.HTTP_201_CREATED)
+                return Response(
+                    status=status.HTTP_200_OK
+                )
+            return Response(
+                status=status.HTTP_201_CREATED
+            )
         except User.DoesNotExist:
-            digits_registration = User.digits_register(digits, phone)
-            if digits_registration:
-                user = User(phone=phone)
-                if type(digits_registration) is dict:
-                    user.digits_id = digits_registration['digits_id']
-                    user.request_id = digits_registration['request_id']
-                user.save()
-                return Response(status=status.HTTP_201_CREATED)
+            if not settings.DEBUG:
+                phone, created = Phone.register(
+                    phone=phone
+                )
             else:
-                return Response(status=status.HTTP_201_CREATED)
+                phone = Phone.objects.create(
+                    phone=phone
+                )
+            User.objects.create(
+                phone=phone
+            )
+
+            return Response(
+                status=status.HTTP_201_CREATED
+            )
 
     @staticmethod
     def login(phone, pin, name, token):
         try:
-            user = User.objects.get(phone=phone)
+            user = User.objects.get(
+                phone__phone=phone
+            )
         except User.DoesNotExist:
             return None
 
@@ -177,23 +151,12 @@ class User(AbstractBaseUser, PermissionsMixin):
         elif not user.name:
             raise BadRequest()
 
-        digits = Digits()
-        # User just got registered in the Digits database
-        if not settings.DEBUG:
-            if not user.request_id and not user.digits_id:
-                user.digits_id = digits.register_confirm(phone, pin)['id']
-            else:
-                digits.signing_confirm(
-                    user.request_id,
-                    user.digits_id,
-                    pin
-                )
+        if name:
+            user.name = name
+            user.save()
 
-        if not user.confirmed_at:
-            user.confirmed_at = timezone.now()
-
-        user.save()
-        return user
+        if settings.DEBUG or user.phone.is_valid(pin=pin):
+            return user
 
 
 class Address(AbstractAddress):
