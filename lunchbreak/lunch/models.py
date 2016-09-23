@@ -82,32 +82,47 @@ class StoreHeader(Polaroid):
 
 class AbstractAddress(models.Model, DirtyFieldsMixin):
     country = models.CharField(
-        max_length=255
+        max_length=255,
+        verbose_name=_('Land'),
+        help_text=_('Land.')
     )
     province = models.CharField(
-        max_length=255
+        max_length=255,
+        verbose_name=_('Provincie'),
+        help_text=_('Provincie.')
     )
     city = models.CharField(
-        max_length=255
+        max_length=255,
+        verbose_name=_('Stad'),
+        help_text=_('Stad.')
     )
     postcode = models.CharField(
         max_length=20,
-        verbose_name=_('Postal code')
+        verbose_name=_('Postcode'),
+        help_text=_('Postcode.')
     )
     street = models.CharField(
-        max_length=255
+        max_length=255,
+        verbose_name=_('Straat'),
+        help_text=_('Straat.')
     )
     number = models.CharField(
-        max_length=10
+        max_length=10,
+        verbose_name=_('Straatnummer'),
+        help_text=_('Straatnummer.')
     )
 
     latitude = models.DecimalField(
         decimal_places=7,
-        max_digits=10
+        max_digits=10,
+        verbose_name=_('Breedtegraad'),
+        help_text=_('Breedtegraad.')
     )
     longitude = models.DecimalField(
         decimal_places=7,
-        max_digits=10
+        max_digits=10,
+        verbose_name=_('Lengtegraad'),
+        help_text=_('Lengtegraad.')
     )
 
     class Meta:
@@ -184,48 +199,75 @@ class AbstractAddress(models.Model, DirtyFieldsMixin):
 
 class Store(AbstractAddress):
     name = models.CharField(
-        max_length=255
+        max_length=255,
+        verbose_name=_('Naam'),
+        help_text=_('Naam.')
     )
     header = models.ForeignKey(
         StoreHeader,
         on_delete=models.SET_NULL,
         blank=True,
-        null=True
+        null=True,
+        verbose_name=_('Header'),
+        help_text=_('Header afbeelding.')
     )
 
     categories = models.ManyToManyField(
-        StoreCategory
+        StoreCategory,
+        verbose_name=_('Cateogorieën'),
+        help_text=_('Cateogorieën.')
     )
     wait = models.DurationField(
-        default=timedelta(seconds=60)
+        default=timedelta(seconds=60),
+        verbose_name=_('Wachttijd'),
+        help_text=_('Minimum tijd dat op voorhand besteld moet worden.')
     )
     preorder_time = models.TimeField(
-        default=time(hour=12)
+        default=time(hour=12),
+        verbose_name=_('Tijd voorafgaande bestelling'),
+        help_text=_(
+            'Indien bepaalde waren meer dan een dag op voorhand besteld moeten '
+            'worden, moeten ze voor dit tijdstip besteld worden.'
+        )
     )
     hearts = models.ManyToManyField(
         'customers.User',
         through='customers.Heart',
-        blank=True
+        blank=True,
+        verbose_name=_('Hearts'),
+        help_text=_('Hearts van klanten.')
     )
     seats_max = models.PositiveIntegerField(
         default=10,
         validators=[
             MinValueValidator(1)
-        ]
+        ],
+        verbose_name=_('Maximum plaatsen'),
+        help_text=_('Maximum aantal plaatsen voor reservaties.')
     )
     regions = models.ManyToManyField(
         'Region',
-        help_text=_('Active delivery regions.')
+        blank=True,
+        verbose_name=_('Regio\'s'),
+        help_text=_('Regio\'s waaraan geleverd wordt.')
     )
 
     last_modified = models.DateTimeField(
-        auto_now=True
+        auto_now=True,
+        verbose_name=_('Laatst aangepast'),
+        help_text=_('Wanneer deze winkel laatst aangepast werd.')
     )
     enabled = models.BooleanField(
-        default=True
+        default=True,
+        verbose_name=_('Ingeschakeld'),
+        help_text=_('Ingeschakeld.')
     )
 
     objects = StoreManager()
+
+    class Meta:
+        verbose_name = 'winkel'
+        verbose_name_plural = 'winkels'
 
     def __str__(self):
         return '{name}, {city}'.format(

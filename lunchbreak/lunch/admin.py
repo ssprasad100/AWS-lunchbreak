@@ -61,6 +61,19 @@ class StoreAdmin(admin.ModelAdmin):
         'longitude',
         'hearts',
     )
+    search_fields = (
+        'name',
+        'city',
+        'street',
+        'country'
+    )
+    ordering = (
+        'name',
+    )
+    list_filter = (
+        'city',
+        'country',
+    )
 
 
 @admin.register(OpeningPeriod)
