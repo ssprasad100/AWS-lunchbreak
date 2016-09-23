@@ -44,10 +44,14 @@ class StoreManager(models.Manager):
         )
         '''
         haversine_where = "{} < %s".format(haversine)
-        return self.get_queryset().exclude(
-            latitude=None
+        return self.get_queryset().filter(
+            enabled=True
         ).exclude(
-            longitude=None
+            models.Q(
+                latitude=None
+            ) | models.Q(
+                longitude=None
+            )
         ).extra(
             select={
                 'distance': haversine

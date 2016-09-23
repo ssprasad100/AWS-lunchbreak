@@ -2,6 +2,7 @@ from customers.config import PAYMENT_METHODS
 from customers.models import Order, User
 from django import forms
 from django.core.exceptions import ValidationError
+from lunch.exceptions import AddressNotFound
 from lunch.models import AbstractAddress
 
 from .widgets import ReceiptField
@@ -23,9 +24,12 @@ class SearchForm(forms.Form):
             context = super().get_context_data(**kwargs)
             form = SearchForm(self.request.GET)
             if form.is_valid():
-                form.latitude, form.longitude = AbstractAddress.geocode(
-                    address=form.data['address']
-                )
+                try:
+                    form.latitude, form.longitude = AbstractAddress.geocode(
+                        address=form.data['address']
+                    )
+                except AddressNotFound:
+                    pass
             context['search_form'] = form
             return context
 

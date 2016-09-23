@@ -30,13 +30,24 @@ class SearchView(SearchForm.ViewMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         search_form = context['search_form']
         if search_form.is_valid():
-            stores = Store.objects.nearby(
-                latitude=search_form.latitude,
-                longitude=search_form.longitude,
-                proximity=10
+            stores_byname = Store.objects.filter(
+                name__icontains=search_form.data['address']
             )
+            stores = list(stores_byname)
+
+            if hasattr(search_form, 'latitude'):
+                stores_nearby = Store.objects.nearby(
+                    latitude=search_form.latitude,
+                    longitude=search_form.longitude,
+                    proximity=10
+                )
+
+                stores += list(stores_nearby)
 
             for store in stores:
+                if not hasattr(store, 'distance'):
+                    continue
+
                 if store.distance < 1:
                     store.distance = '{distance} m'.format(
                         distance=int(store.distance * 1000)
