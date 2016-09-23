@@ -12,8 +12,7 @@ from .managers import StaffManager
 class AbstractPasswordReset(models.Model):
     password_reset = models.CharField(
         max_length=TOKEN_IDENTIFIER_LENGTH,
-        null=True,
-        default=None
+        blank=True
     )
 
     class Meta:
