@@ -1,5 +1,5 @@
 .banner {
-    height: 500px;
+    height: $banner-height;
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center;
@@ -7,6 +7,6 @@
     box-sizing: border-box;
 
     &.small {
-        height: 300px;
+        height: $banner-height-small;
     }
 }

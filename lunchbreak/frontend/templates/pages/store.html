@@ -1,7 +1,14 @@
 {% extends 'base.html' %}
 
 {% block content %}
+
+{% set header_class = 'fixed' %}
+
+{% include 'includes/header.html' %}
+
 <div id="store-banner" class="block banner small">
+</div>
+<div id="store-info" class="block banner small">
     <div class="container">
         <div class="bottom">
             <h1>{{ store.name }}</h1>
@@ -30,7 +37,7 @@
     'name'
 ) %}
 
-<div class="tab-container">
+<div id="menu-tabs" class="tab-container">
     <div class="container">
         <ul>
             {% for menu in menus %}
@@ -72,23 +79,24 @@
                 {% endif %}
             {% endfor %}
         </div>
-        <div id="order">
-            <form method="POST" action="{{ url('frontend-order', store_id=store.id) }}">
-                {% csrf_token %}
-                <input type="submit" value="Afrekenen" disabled/>
-                {% include 'includes/orderedfood.html' %}
-            </form>
+        <div id="order-container">
+            <div id="order">
+                <form method="POST" action="{{ url('frontend-order', store_id=store.id) }}">
+                    {% csrf_token %}
+                    <input type="submit" value="Afrekenen" disabled/>
+                    {% include 'includes/orderedfood.html' %}
+                </form>
+            </div>
         </div>
     </div>
 </div>
+
+{% include 'includes/footer.html' %}
 
 <div id="snackbar" class="mdl-js-snackbar mdl-snackbar">
     <div class="mdl-snackbar__text"></div>
     <button class="mdl-snackbar__action" type="button"></button>
 </div>
-
-{% include 'includes/header.html' %}
-{% include 'includes/footer.html' %}
 
 <script src="{{ static('nunjucks.min.js') }}" type="text/javascript"></script>
 <script src="{{ static('holmes.js') }}" type="text/javascript"></script>

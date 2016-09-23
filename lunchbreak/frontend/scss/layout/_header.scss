@@ -7,6 +7,7 @@
     line-height: $header-height;
     background: none;
     box-sizing: content-box;
+    z-index: 1;
 
     .container {
         box-sizing: content-box;
@@ -17,9 +18,10 @@
         background: white;
         color: $grey-black;
         border-bottom: 1px solid $grey;
+    }
 
-        & + .block {
-        }
+    &.fixed {
+        position: fixed;
     }
 
     #header-left {

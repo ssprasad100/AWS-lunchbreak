@@ -70,7 +70,7 @@
      * Load the menus and start initializing those together with holmes.js.
      */
     Inventory.init = function() {
-        Inventory.element = $('#menus');
+        Inventory.element = $('#inventory');
         Inventory.menus = [];
 
         Inventory.element.find('.menu').each(function(key, value) {
@@ -130,7 +130,8 @@
     Order.orderedfood = [];
 
     Order.init = function() {
-        Order.element = $('#orderedfood-list');
+        Order.element = $('#order');
+        Order.itemsElement = $('#orderedfood-list');
     };
 
     /**
@@ -138,7 +139,7 @@
      * @param {OrderedFood} orderedfood Orderedfood.
      */
     Order.addOrderedFood = function(orderedfood) {
-        Order.element.parent().find('input[type="submit"]').attr('disabled', false);
+        Order.element.find('input[type="submit"]').attr('disabled', false);
         Order.orderedfood.push(orderedfood);
         this.renderOrderedFood(orderedfood);
         orderedfood.fetch();
@@ -149,12 +150,12 @@
      * @param  {OrderedFood} orderedfood Orderedfood that needs to be rendered.
      */
     Order.renderOrderedFood = function(orderedfood) {
-        if (this.element.hasClass('empty'))
-            this.element.removeClass('empty');
+        if (this.itemsElement.hasClass('empty'))
+            this.itemsElement.removeClass('empty');
 
         var index = this.orderedfood.indexOf(orderedfood);
 
-        Order.element.prepend(
+        Order.itemsElement.prepend(
             nunjucks.render(
                 'orderedfood.html', {
                     'orderedfood': orderedfood,
@@ -163,7 +164,7 @@
             )
         );
 
-        var element = Order.element.find('.orderedfood').first();
+        var element = Order.itemsElement.find('.orderedfood').first();
         orderedfood.attachElement(element);
     };
 
@@ -171,7 +172,7 @@
      * Calculate and update the total cost of the order list.
      */
     Order.updateTotal = function() {
-        var costElement = Order.element.find('.order-total .order-total-cost').first();
+        var costElement = Order.itemsElement.find('.order-total .order-total-cost').first();
         var total = 0;
 
         for (var i in Order.orderedfood) {
@@ -1009,12 +1010,77 @@
         this.init();
     };
 
+    var TabContainer = function() {
+        this.element = $('#menu-tabs');
+        this.header = $('#header');
+        this.storeInfo = $('#store-info');
+        this.stickyClass = 'sticky';
+
+        this.init = function() {
+            this.position = this.element.position();
+            this.onPositionChange();
+
+            var self = this;
+            $(window).resize(function(event) {
+                self.onPositionChange();
+            });
+            $(window).scroll(function(event) {
+                self.onPositionChange();
+            });
+        };
+
+        this.onPositionChange = function(event) {
+            var scrollTop = $(document).scrollTop();
+            var headerHeight = this.header.height();
+
+            var relativePosition = this.position.top - headerHeight;
+            var difference = relativePosition - scrollTop;
+            var percentage = Math.max(difference / relativePosition, 0);
+
+            var storeInfoBackground = 'rgba(255, 255, 255, ' + (1 - percentage) + ')';
+            var storeInfoColor = 'rgba(255, 255, 255, ' + percentage + ')';
+            var whiteColor = $.Color('rgb(255, 255, 255)');
+            var darkGreyColor = $.Color('rgb(76, 76, 76)');
+
+            var fadeTime = 50;
+            this.storeInfo.stop();
+            this.storeInfo.animate({
+                backgroundColor: storeInfoBackground,
+                color: storeInfoColor
+            }, fadeTime);
+            this.header.animate({
+                color: whiteColor.transition(darkGreyColor, 1 - percentage)
+            }, fadeTime);
+            Order.element.css('width', Order.element.width());
+
+            if (difference <= 0) {
+                this.element.addClass(this.stickyClass);
+                this.header.addClass(this.stickyClass);
+                this.header.addClass('white');
+                Order.element.addClass(this.stickyClass);
+
+                Inventory.element.css('margin-top', this.element.height() + 'px');
+                Order.element.css('margin-top', (this.header.height() + this.element.height()) + 'px');
+            } else {
+                this.element.removeClass(this.stickyClass);
+                this.header.removeClass(this.stickyClass);
+                this.header.removeClass('white');
+                Order.element.removeClass(this.stickyClass);
+                Inventory.element.css('margin-top', '0px');
+                Order.element.css('margin-top', '0px');
+            }
+        };
+
+        this.init();
+    };
+
     $(document).ready(function() {
         nunjucks.configure('/static', {
             autoescape: true
         });
         Order.init();
         Inventory.init();
+        new TabContainer();
     });
 
 })();

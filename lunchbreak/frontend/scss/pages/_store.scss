@@ -1,6 +1,13 @@
 #store-banner {
     background-image: url('banner-store.png');
+    position: fixed;
+    top: 0;
+}
+
+#store-info {
+    position: relative;
     padding-bottom: 16px;
+    background: transparent;
 
     h1 {
         margin-bottom: 16px;
@@ -32,19 +39,23 @@
 }
 
 #inventory {
-    display: table;
     padding: 0 16px;
+    height: auto;
+    position: relative;
 
     .container {
         padding: 0;
+        position: relative;
+        overflow: hidden;
+        padding-bottom: 192px;
 
         > div {
             padding: 16px 0;
         }
 
         #menus {
-            display: table-cell;
-            width: 66%;
+            float: left;
+            width: 67%;
 
             .menu {
                 font-size: 0;
@@ -202,16 +213,45 @@
             }
         }
 
-        #order {
-            display: table-cell;
-            height: 100%;
+        #order-container {
+            padding: 0;
+            margin-left: 67%;
+            width: 33%;
             background: white;
-            padding: 16px;
+            position: absolute;
+            box-sizing: border-box;
+            float: right;
+            height: 100%;
+            overflow: hidden;
 
-            input[type='submit'] {
-                width: 100%;
+            #order {
+            padding: 16px;
+                position: relative;
+                height: 100%;
+                overflow: hidden;
+
+                &.sticky {
+                    position: fixed;
+                    top: 0;
+                }
+
+                input[type='submit'] {
+                    width: 100%;
+                }
             }
         }
+    }
+
+    & + #footer {
+        &:before {
+            height: 0;
+        }
+    }
+
+    &:after {
+        content: '';
+        display: block;
+        clear: both;
     }
 }
 
