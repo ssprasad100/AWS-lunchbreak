@@ -1,6 +1,9 @@
 import json
 
+import pendulum
+from django.conf import settings
 from django.template.defaultfilters import time
+from django.utils.translation import ugettext_lazy as _
 from django_jinja import library
 from lunch.config import WEEKDAYS
 
@@ -34,6 +37,13 @@ def json_weekday_periods(weekday_periods, **kwargs):
 
 @library.filter
 def humanize_weekday(value):
+    if value == pendulum.today(settings.TIME_ZONE).isoweekday():
+        return _('Vandaag')
+    elif value == pendulum.tomorrow(settings.TIME_ZONE).isoweekday():
+        return _('Morgen')
+    elif value == pendulum.today(settings.TIME_ZONE).add(days=2).isoweekday():
+        return _('Overmorgen')
+
     for weekday in WEEKDAYS:
         number = weekday[0]
 

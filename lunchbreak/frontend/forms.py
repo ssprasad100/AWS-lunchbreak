@@ -1,6 +1,8 @@
+import pendulum
 from customers.config import PAYMENT_METHODS
 from customers.models import Order, User
 from django import forms
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from lunch.exceptions import AddressNotFound
 from lunch.models import AbstractAddress
@@ -72,6 +74,11 @@ class OrderForm(forms.ModelForm):
         )
 
     def clean_receipt(self):
+        if self.cleaned_data['receipt'] < pendulum.now(settings.TIME_ZONE):
+            raise ValidationError(
+                'Een bestelling moet in de toekomst geplaatst worden.'
+            )
+
         if not self.store.is_open(
             self.cleaned_data['receipt'],
             raise_exception=False

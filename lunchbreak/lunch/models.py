@@ -261,17 +261,20 @@ class Store(AbstractAddress):
         if openingperiods is None:
             openingperiods = self.openingperiods_for(**kwargs)
 
-        weekdays = set()
+        weekdays = list()
         for openingperiod in openingperiods:
-            weekdays.add(openingperiod.start.isoweekday())
-            weekdays.add(openingperiod.end.isoweekday())
+            if openingperiod.start.isoweekday() not in weekdays:
+                weekdays.append(openingperiod.start.isoweekday())
+            if openingperiod.end.isoweekday() not in weekdays:
+                weekdays.append(openingperiod.end.isoweekday())
 
         return weekdays
 
     def periods_per_weekday(self, periods=None, **kwargs):
         """Split periods into their starting weekdays.
 
-        Return a dict with as keys the starting weekdays and values a set of periods with that starting weekday.
+        Return a dict with as keys the starting weekdays and values a set of
+        periods with that starting weekday.
 
         Args:
             **kwargs (dict): Kwargs passed onto openingperiods_for if periods is None.
@@ -534,7 +537,7 @@ class Period(models.Model):
         if weekday is None or time is None:
             return None
 
-        now = pendulum.now('UTC')
+        now = pendulum.now(settings.TIME_ZONE)
         start = now.subtract(
             days=now.isoweekday()
         ).add(
@@ -546,7 +549,7 @@ class Period(models.Model):
             second=time.second,
             microsecond=time.microsecond
         )
-        if result.date() < pendulum.now('UTC').date():
+        if result.date() < pendulum.now(settings.TIME_ZONE).date():
             result = result.add(
                 days=7
             )
