@@ -1,10 +1,12 @@
 import urllib
+from datetime import timedelta
 
 import requests
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from django.db import models
 from django.core.urlresolvers import reverse
+from django.db import models
+from django.utils import timezone
 from django.utils.crypto import get_random_string
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
@@ -51,26 +53,40 @@ class Merchant(models.Model):
     def __str__(self):
         return self.organisation_id if self.organisation_id else _('In progress')
 
+    @property
+    def confirmed(self):
+        return bool(self.organisation_id)
+
+    @staticmethod
+    def get_redirect_uri():
+        return '{protocol}://{domain}{path}'.format(
+        protocol='https' if settings.SSL else 'http',
+        domain=settings.GOCARDLESS['app']['merchant']['exchange_domain'],
+        path=reverse('gocardless-redirect')
+    )
+
+
     @classmethod
     def authorisation_link(cls, email=None, initial_view='signup'):
         state = None
         while state is None or cls.objects.filter(state=state).count() > 0:
             state = get_random_string(length=56)
 
+        # Delete Merchants that have not been confirmed
+        cls.objects.filter(
+            created_at__lt=timezone.now() - timedelta(hours=1),
+            access_token='',
+            organisation_id=''
+        ).delete()
         merchant = cls.objects.create(
             state=state
         )
 
-        redirect_uri = '{protocol}://{domain}/{path}'.format(
-            protocol='https' if settings.SSL else 'http',
-            domain=settings.GOCARDLESS['app']['redirect_domain'],
-            path=reverse('gocardless-redirect')
-        )
         params = {
             'response_type': 'code',
             'client_id': settings.GOCARDLESS['app']['client_id'],
             'scope': 'read_write',
-            'redirect_uri': redirect_uri,
+            'redirect_uri': cls.get_redirect_uri(),
             'state': merchant.state,
             'initial_view': initial_view
         }
@@ -91,7 +107,7 @@ class Merchant(models.Model):
         data = {
             'grant_type': 'authorization_code',
             'code': code,
-            'redirect_uri': settings.GOCARDLESS['app']['redirect_uri'],
+            'redirect_uri': cls.get_redirect_uri(),
             'client_id': settings.GOCARDLESS['app']['client_id'],
             'client_secret': settings.GOCARDLESS['app']['client_secret']
         }

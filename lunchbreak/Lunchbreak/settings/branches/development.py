@@ -31,4 +31,4 @@ QUERY_INSPECT_LOG_TRACEBACKS = True
 
 TEMPLATES[0]['OPTIONS']['constants']['dir'] = 'dir'
 GOCARDLESS_ENVIRONMENT = 'sandbox'
-GOCARDLESS_APP_REDIRECT_DOMAIN = 'api.andreas.cloock.be'
+GOCARDLESS_APP_EXCHANGE_DOMAIN = 'api.andreas.cloock.be'

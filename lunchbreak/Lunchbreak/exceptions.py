@@ -1,5 +1,5 @@
 from rest_framework import status
-from rest_framework.exceptions import APIException
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
 
@@ -29,14 +29,14 @@ def lunchbreak_exception_handler(exception, context):
     return response
 
 
-class LunchbreakException(APIException):
+class LunchbreakException(ValidationError):
 
     def __init__(self, detail=None):
         if detail is None:
-            super(LunchbreakException, self).__init__()
+            super(LunchbreakException, self).__init__('No details.')
             self.detail = None
         elif not isinstance(detail, str):
-            super(LunchbreakException, self).__init__()
+            super(LunchbreakException, self).__init__(str(detail))
             self.detail = detail
         else:
             super(LunchbreakException, self).__init__(detail)

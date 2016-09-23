@@ -41,4 +41,11 @@ class StaffTokenAdmin(BaseTokenAdmin):
 class EmployeeToken(BaseTokenAdmin):
     pass
 
-admin.site.register(Staff)
+
+@admin.register(Staff)
+class StaffAdmin(admin.ModelAdmin):
+    readonly_fields = ('password', 'merchant',)
+    list_display = ('store', 'email', 'first_name', 'last_name',)
+    list_filter = ('store',)
+    search_fields = ('first_name', 'last_name', 'store__name',)
+    ordering = ('store', 'first_name', 'last_name',)

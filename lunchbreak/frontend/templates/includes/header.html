@@ -1,7 +1,7 @@
 <header id="header" class="block {{ header_class }}">
     <div class="container">
         <div id="header-left">
-            <a href="{{ url('frontend-index') }}" alt="Homepagina">
+            <a href="/" alt="Homepagina">
             <img src="{{ static('logo-header.png') }}" id="header-logo" alt="Lunchbreak"/>Lunchbreak
             </a>
         </div>
@@ -11,7 +11,7 @@
                 {% if request.user.is_authenticated() %}
                     <li>{{ request.user.name }}</li>
                 {% else %}
-                    <li><a href="{{ url('frontend-login') }}" alt="Inloggen">Inloggen</a></li>
+                    <li><a href="/" alt="Inloggen">Inloggen</a></li>
                 {% endif %}
             </ul>
         </div>

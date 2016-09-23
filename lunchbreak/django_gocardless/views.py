@@ -115,7 +115,6 @@ class WebhookView(CSRFExemptView):
 class OAuthRedirectView(CSRFExemptView):
 
     def get(self, request, *args, **kwargs):
-
         for error in ['invalid_request', 'invalid_scope', 'unsupported_response_type']:
             if error in request.GET:
                 return HttpResponseRedirect(
@@ -135,16 +134,18 @@ class OAuthRedirectView(CSRFExemptView):
                 settings.GOCARDLESS['app']['redirect']['error']
             )
 
+        response = HttpResponse(
+            status=307,  # Temporary redirect
+        )
+        response['Location'] = settings.GOCARDLESS['app']['redirect']['success']
+
         try:
             Merchant.exchange_authorisation(
                 state=state,
                 code=code
             )
         except ExchangeAuthorisationError:
-            return HttpResponseRedirect(
-                settings.GOCARDLESS['app']['redirect']['error']
-            )
+            raise
+            response['Location'] = settings.GOCARDLESS['app']['redirect']['error']
 
-        return HttpResponseRedirect(
-            settings.GOCARDLESS['app']['redirect']['success']
-        )
+        return response

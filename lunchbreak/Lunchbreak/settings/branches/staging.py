@@ -12,4 +12,8 @@ APNS_FEEDBACK_HOST = 'feedback.sandbox.push.apple.com'
 DB_HOST = 'db'
 
 GOCARDLESS_ENVIRONMENT = 'sandbox'
-GOCARDLESS_APP_REDIRECT_DOMAIN = 'api.staging.lunchbreakapp.be'
+GOCARDLESS_APP_EXCHANGE_DOMAIN = 'api.staging.lunchbreakapp.be'
+
+MIDDLEWARE_CLASSES += (
+    'opbeat.contrib.django.middleware.OpbeatAPMMiddleware',
+)

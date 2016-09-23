@@ -12,7 +12,9 @@ from .managers import StaffManager
 class AbstractPasswordReset(models.Model):
     password_reset = models.CharField(
         max_length=TOKEN_IDENTIFIER_LENGTH,
-        blank=True
+        blank=True,
+        verbose_name=_('Wachtwoord reset'),
+        help_text=_('Code gebruikt om het wachtwoord te veranderen')
     )
 
     class Meta:
@@ -21,7 +23,9 @@ class AbstractPasswordReset(models.Model):
 
 class AbstractPassword(AbstractPasswordReset):
     password = models.CharField(
-        max_length=255
+        max_length=255,
+        verbose_name=_('Wachtwoord'),
+        help_text=_('Geëncrypteerd wachtwoord')
     )
 
     class Meta:
@@ -39,26 +43,32 @@ class Staff(AbstractPassword):
         'lunch.Store',
         on_delete=models.CASCADE,
         null=True,
-        blank=True
+        blank=True,
+        verbose_name=_('Winkel'),
+        help_text=_('Winkel')
     )
     email = models.EmailField(
         max_length=255,
         unique=True,
-        help_text=_('Email address')
+        verbose_name=_('E-mailadres'),
+        help_text=_('E-mailadres')
     )
     first_name = models.CharField(
         max_length=255,
-        help_text=_('First name')
+        verbose_name=_('Voornaam'),
+        help_text=_('Voornaam')
     )
     last_name = models.CharField(
         max_length=255,
-        help_text=_('Last name')
+        verbose_name=_('Familienaam'),
+        help_text=_('Familienaam')
     )
     merchant = models.ForeignKey(
         'django_gocardless.Merchant',
         on_delete=models.SET_NULL,
         null=True,
-        blank=True
+        blank=True,
+        help_text=_('GoCardless account')
     )
 
     objects = StaffManager()
@@ -75,7 +85,8 @@ class Staff(AbstractPassword):
         return self.merchant is not None and self.merchant.organisation_id
 
     class Meta:
-        verbose_name_plural = 'Staff'
+        verbose_name = _('Personeel')
+        verbose_name_plural = _('Personeel')
 
     def __str__(self):
         return '{store}: {name}'.format(

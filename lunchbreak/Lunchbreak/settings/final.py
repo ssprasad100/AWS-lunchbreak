@@ -103,12 +103,14 @@ GOCARDLESS = {
         ),
     },
     'app': {
-        'redirect_domain': globals().get(
-            'GOCARDLESS_APP_REDIRECT_DOMAIN',
-            os.environ.get(
-                'GOCARDLESS_APP_REDIRECT_DOMAIN'
-            )
-        ),
+        'merchant': {
+            'exchange_domain': globals().get(
+                'GOCARDLESS_APP_EXCHANGE_DOMAIN',
+                os.environ.get(
+                    'GOCARDLESS_APP_EXCHANGE_DOMAIN'
+                )
+            ),
+        },
         'client_id': globals().get(
             'GOCARDLESS_APP_CLIENT_ID',
             os.environ.get(

@@ -46,7 +46,7 @@ class DjangoGoCardlessException(Exception):
 
 
 class ExchangeAuthorisationError(DjangoGoCardlessException):
-    message = 'Error exhcanging authorisation.'
+    message = 'Error exchanging authorisation.'
 
 
 class RedirectFlowIncompleteError(DjangoGoCardlessException):

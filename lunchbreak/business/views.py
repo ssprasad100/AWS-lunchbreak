@@ -10,6 +10,7 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.utils import timezone
 from django_gocardless.models import Merchant
+from django_gocardless.serializers import MerchantSerializer
 from lunch.models import (Food, FoodType, Ingredient, IngredientGroup, Menu,
                           Quantity, Store)
 from lunch.responses import BadRequest
@@ -18,7 +19,7 @@ from lunch.serializers import (FoodTypeSerializer, MenuSerializer,
 from lunch.views import (HolidayPeriodListViewBase, OpeningListViewBase,
                          OpeningPeriodListViewBase, StoreCategoryListViewBase)
 from Lunchbreak.views import TargettedViewSet
-from rest_framework import generics, mixins, status, viewsets
+from rest_framework import generics, mixins, status, views, viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.exceptions import MethodNotAllowed
 from rest_framework.response import Response
@@ -26,7 +27,7 @@ from rest_framework.response import Response
 from .authentication import EmployeeAuthentication, StaffAuthentication
 from .exceptions import InvalidDatetime, InvalidEmail, InvalidPasswordReset
 from .models import Employee, Staff
-from .permissions import StoreOwnerPermission
+from .permissions import StoreOwnerOnlyPermission, StoreOwnerPermission
 from .serializers import (EmployeeSerializer, FoodDetailSerializer,
                           FoodSerializer, IngredientGroupDetailSerializer,
                           IngredientGroupSerializer, IngredientSerializer,
@@ -117,6 +118,7 @@ class StoreViewSet(TargettedViewSet,
     authentication_classes = (EmployeeAuthentication,)
     permission_classes = (StoreOwnerPermission,)
     serializer_class = StoreDetailSerializer
+    serializer_class_merchant = MerchantSerializer
 
     def get_queryset(self):
         return Store.objects.filter(
@@ -134,27 +136,29 @@ class StoreViewSet(TargettedViewSet,
         result = super().retrieve(request)
         return result
 
-    @list_route(methods=['get'])
+    @list_route(methods=['get'], permission_classes=[StoreOwnerOnlyPermission])
     def merchant(self, request):
         store = self.get_object()
 
-        if not store.is_merchant:
-            merchant, url = Merchant.authorisation_link(
-                email=store.email
+        if store.staff.is_merchant:
+            return Response(
+                self.get_serializer_class()(
+                    store.staff.merchant
+                ).data
             )
 
-            if store.staff.merchant is not None:
-                store.staff.merchant.delete()
+        if store.staff.merchant is not None:
+            store.staff.merchant.delete()
 
-            store.staff.merchant = merchant
-            store.staff.save()
-            return redirect(
-                to=url
-            )
-        else:
-            raise Response(
-                status=status.HTTP_200_OK
-            )
+        merchant, url = Merchant.authorisation_link(
+            email=store.staff.email
+        )
+        store.staff.merchant = merchant
+        store.staff.save()
+
+        return redirect(
+            to=url
+        )
 
 
 class FoodViewSet(TargettedViewSet,
@@ -485,10 +489,11 @@ class StaffView(generics.ListAPIView):
 class StaffDetailView(generics.RetrieveAPIView):
     authentication_classes = (StaffAuthentication,)
     serializer_class = StaffSerializer
-    queryset = Staff.objects.all()
 
     def get_queryset(self):
-        return Staff.objects.filter(id=self.request.user.id)
+        return Staff.objects.filter(
+            id=self.request.user.id
+        )
 
 
 class GetStoreMixin(object):
