@@ -60,11 +60,10 @@ class Merchant(models.Model):
     @staticmethod
     def get_redirect_uri():
         return '{protocol}://{domain}{path}'.format(
-        protocol='https' if settings.SSL else 'http',
-        domain=settings.GOCARDLESS['app']['merchant']['exchange_domain'],
-        path=reverse('gocardless-redirect')
-    )
-
+            protocol='https' if settings.SSL else 'http',
+            domain=settings.GOCARDLESS['app']['merchant']['exchange_domain'],
+            path=reverse('gocardless-redirect')
+        )
 
     @classmethod
     def authorisation_link(cls, email=None, initial_view='signup'):

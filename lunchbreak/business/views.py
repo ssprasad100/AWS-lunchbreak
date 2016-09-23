@@ -16,10 +16,9 @@ from lunch.models import (Food, FoodType, Ingredient, IngredientGroup, Menu,
 from lunch.responses import BadRequest
 from lunch.serializers import (FoodTypeSerializer, MenuSerializer,
                                QuantityDetailSerializer)
-from lunch.views import (HolidayPeriodListViewBase, OpeningListViewBase,
-                         OpeningPeriodListViewBase, StoreCategoryListViewBase)
+from lunch.views import StoreCategoryListViewBase
 from Lunchbreak.views import TargettedViewSet
-from rest_framework import generics, mixins, status, views, viewsets
+from rest_framework import generics, mixins, status, viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.exceptions import MethodNotAllowed
 from rest_framework.response import Response
@@ -127,14 +126,6 @@ class StoreViewSet(TargettedViewSet,
 
     def get_object(self):
         return get_object_or_404(self.get_queryset())
-
-    def retrieve(self, request, *args, **kwargs):
-        # Not allowed to use a pk directly
-        raise Http404()
-
-    def list(self, request):
-        result = super().retrieve(request)
-        return result
 
     @list_route(methods=['get'], permission_classes=[StoreOwnerOnlyPermission])
     def merchant(self, request):
@@ -496,23 +487,5 @@ class StaffDetailView(generics.RetrieveAPIView):
         )
 
 
-class GetStoreMixin(object):
-
-    def get_store_id(self):
-        return self.request.user.staff.store_id
-
-
-class OpeningPeriodView(GetStoreMixin, OpeningPeriodListViewBase):
-    authentication_classes = (EmployeeAuthentication,)
-
-
-class HolidayPeriodView(GetStoreMixin, HolidayPeriodListViewBase):
-    authentication_classes = (EmployeeAuthentication,)
-
-
-class StoreOpenView(GetStoreMixin, OpeningListViewBase):
-    authentication_classes = (EmployeeAuthentication,)
-
-
-class StoreCategoryView(GetStoreMixin, StoreCategoryListViewBase):
+class StoreCategoryView(StoreCategoryListViewBase):
     authentication_classes = (EmployeeAuthentication,)

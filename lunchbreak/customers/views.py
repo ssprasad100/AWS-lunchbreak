@@ -7,8 +7,7 @@ from lunch.responses import BadRequest, DoesNotExist
 from lunch.serializers import (FoodDetailSerializer, FoodSerializer,
                                MenuDetailSerializer, MenuSerializer,
                                StoreSerializer)
-from lunch.views import (HolidayPeriodListViewBase, OpeningListViewBase,
-                         OpeningPeriodListViewBase, StoreCategoryListViewBase)
+from lunch.views import StoreCategoryListViewBase
 from Lunchbreak.exceptions import LunchbreakException
 from Lunchbreak.views import TargettedViewSet
 from push_notifications.models import SERVICE_INACTIVE
@@ -364,24 +363,6 @@ class ReservationSingleView(generics.RetrieveUpdateAPIView):
         return Reservation.objects.filter(
             user=self.request.user
         )
-
-
-class GetStoreMixin(object):
-
-    def get_store_id(self):
-        return self.kwargs['pk']
-
-
-class OpeningPeriodListView(GetStoreMixin, OpeningPeriodListViewBase):
-    authentication_classes = (CustomerAuthentication,)
-
-
-class HolidayPeriodListView(GetStoreMixin, HolidayPeriodListViewBase):
-    authentication_classes = (CustomerAuthentication,)
-
-
-class StorePeriodsView(GetStoreMixin, OpeningListViewBase):
-    authentication_classes = (CustomerAuthentication,)
 
 
 class StoreHeaderView(APIView):

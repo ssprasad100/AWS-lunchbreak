@@ -1,4 +1,6 @@
 from django.conf.urls import patterns, url
+from lunch.views import (StoreHolidayPeriodViewSet, StorePeriodsViewSet,
+                         StoreOpeningPeriodViewSet)
 from rest_framework.routers import SimpleRouter
 from rest_framework_extensions.routers import ExtendedSimpleRouter
 
@@ -27,33 +29,65 @@ router_simple.register(
 )
 
 router_extended = ExtendedSimpleRouter()
-(
-    router_extended.register(
-        r'store',
-        views.StoreViewSet,
-        base_name='customers-store'
-    ).register(
-        r'food',
-        views.StoreFoodViewSet,
-        base_name='customers-store-food',
-        parents_query_lookups=[
-            'pk'
-        ]
-    )
+router_extended.register(
+    r'store',
+    views.StoreViewSet,
+    base_name='customers-store'
+).register(
+    r'food',
+    views.StoreFoodViewSet,
+    base_name='customers-store-food',
+    parents_query_lookups=[
+        'pk'
+    ]
 )
-(
-    router_extended.register(
-        r'store',
-        views.StoreViewSet,
-        base_name='customers-store'
-    ).register(
-        r'menu',
-        views.StoreMenuViewSet,
-        base_name='customers-store-menu',
-        parents_query_lookups=[
-            'pk'
-        ]
-    )
+router_extended.register(
+    r'store',
+    views.StoreViewSet,
+    base_name='customers-store'
+).register(
+    r'menu',
+    views.StoreMenuViewSet,
+    base_name='customers-store-menu',
+    parents_query_lookups=[
+        'pk'
+    ]
+)
+router_extended.register(
+    r'store',
+    views.StoreViewSet,
+    base_name='customers-store'
+).register(
+    r'openingperiods',
+    StoreOpeningPeriodViewSet,
+    base_name='customers-store-openingperiods',
+    parents_query_lookups=[
+        'pk'
+    ]
+)
+router_extended.register(
+    r'store',
+    views.StoreViewSet,
+    base_name='customers-store'
+).register(
+    r'holidayperiods',
+    StoreHolidayPeriodViewSet,
+    base_name='customers-store-holidayperiods',
+    parents_query_lookups=[
+        'pk'
+    ]
+)
+router_extended.register(
+    r'store',
+    views.StoreViewSet,
+    base_name='customers-store'
+).register(
+    r'periods',
+    StorePeriodsViewSet,
+    base_name='customers-store-periods',
+    parents_query_lookups=[
+        'pk'
+    ]
 )
 
 urlpatterns = patterns(
@@ -101,18 +135,6 @@ urlpatterns = patterns(
     url(
         r'^store/(?P<store_id>\d+)/header/(?P<width>\d+)/(?P<height>\d+)/?$',
         views.StoreHeaderView.as_view()
-    ),
-    url(
-        r'^store/(?P<pk>\d+)/holidayperiods/?$',
-        views.HolidayPeriodListView.as_view()
-    ),
-    url(
-        r'^store/(?P<pk>\d+)/periods/?$',
-        views.StorePeriodsView.as_view()
-    ),
-    url(
-        r'^store/(?P<pk>\d+)/openingperiods/?$',
-        views.OpeningPeriodListView.as_view()
     ),
     url(
         r'^store/nearby'

@@ -1,5 +1,8 @@
 from django.conf.urls import patterns, url
+from lunch.views import (StoreHolidayPeriodViewSet, StoreOpeningPeriodViewSet,
+                         StorePeriodsViewSet)
 from rest_framework.routers import SimpleRouter
+from rest_framework_extensions.routers import ExtendedSimpleRouter
 
 from .. import views
 from ..authentication import EmployeeAuthentication, StaffAuthentication
@@ -7,9 +10,59 @@ from ..models import Employee, EmployeeToken, Staff, StaffToken
 from ..serializers import EmployeePasswordSerializer, StaffPasswordSerializer
 
 router = SimpleRouter()
-router.register(r'store', views.StoreViewSet, base_name='business-store')
-router.register(r'food', views.FoodViewSet, base_name='business-food')
-router.register(r'menu', views.MenuViewSet, base_name='business-menu')
+router.register(
+    r'store',
+    views.StoreViewSet,
+    base_name='business-store'
+)
+router.register(
+    r'food',
+    views.FoodViewSet,
+    base_name='business-food'
+)
+router.register(
+    r'menu',
+    views.MenuViewSet,
+    base_name='business-menu'
+)
+
+router_extended = ExtendedSimpleRouter()
+router_extended.register(
+    r'store',
+    views.StoreViewSet,
+    base_name='customers-store'
+).register(
+    r'openingperiods',
+    StoreOpeningPeriodViewSet,
+    base_name='customers-store-openingperiods',
+    parents_query_lookups=[
+        'pk'
+    ]
+)
+router_extended.register(
+    r'store',
+    views.StoreViewSet,
+    base_name='customers-store'
+).register(
+    r'holidayperiods',
+    StoreHolidayPeriodViewSet,
+    base_name='customers-store-holidayperiods',
+    parents_query_lookups=[
+        'pk'
+    ]
+)
+router_extended.register(
+    r'store',
+    views.StoreViewSet,
+    base_name='customers-store'
+).register(
+    r'periods',
+    StorePeriodsViewSet,
+    base_name='customers-store-periods',
+    parents_query_lookups=[
+        'pk'
+    ]
+)
 
 urlpatterns = patterns(
     '',
@@ -132,20 +185,7 @@ urlpatterns = patterns(
     ),
 
     url(
-        r'^store/openingperiods/?$',
-        views.OpeningPeriodView.as_view()
-    ),
-    url(
-        r'^store/holidayperiods/?$',
-        views.HolidayPeriodView.as_view()
-    ),
-    url(
-        r'^store/periods/?$',
-        views.StoreOpenView.as_view()
-    ),
-
-    url(
         r'^storecategory/?$',
         views.StoreCategoryView.as_view()
     ),
-) + router.urls
+) + router.urls + router_extended.urls

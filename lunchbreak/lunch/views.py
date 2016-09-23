@@ -1,9 +1,11 @@
 import datetime
 
 from django.utils import timezone
-from rest_framework import generics, status
+from Lunchbreak.views import TargettedViewSet
+from rest_framework import generics, mixins, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from .models import HolidayPeriod, OpeningPeriod, StoreCategory
 from .responses import WrongAPIVersion
@@ -11,62 +13,68 @@ from .serializers import (HolidayPeriodSerializer, OpeningPeriodSerializer,
                           StoreCategorySerializer)
 
 
-class OpeningPeriodListViewBase(generics.ListAPIView):
+class StoreOpeningPeriodViewSet(TargettedViewSet,
+                                NestedViewSetMixin,
+                                mixins.ListModelMixin):
+
     serializer_class = OpeningPeriodSerializer
     pagination_class = None
 
-    def get_store_id(self):
-        raise NotImplementedError('get_store_id() needs to return the id of the store.')
+    @property
+    def queryset(self):
+        return self._get_queryset(
+            parent_pk=self.kwargs['parent_lookup_pk']
+        )
 
-    def get_queryset(self):
-        return self._get_queryset(self.get_store_id())
-
-    @staticmethod
-    def _get_queryset(store_id):
+    @classmethod
+    def _get_queryset(cls, parent_pk):
         return OpeningPeriod.objects.filter(
-            store_id=store_id
+            store_id=parent_pk
         ).order_by(
             'day',
             'time'
         )
 
 
-class HolidayPeriodListViewBase(generics.ListAPIView):
+class StoreHolidayPeriodViewSet(TargettedViewSet,
+                                NestedViewSetMixin,
+                                mixins.ListModelMixin):
+
     serializer_class = HolidayPeriodSerializer
     pagination_class = None
 
-    def get_store_id(self):
-        raise NotImplementedError('get_store_id() needs to return the id of the store.')
+    @property
+    def queryset(self):
+        return self._get_queryset(
+            parent_pk=self.kwargs['parent_lookup_pk']
+        )
 
-    def get_queryset(self):
-        return self._get_queryset(self.get_store_id())
-
-    @staticmethod
-    def _get_queryset(store_id):
+    @classmethod
+    def _get_queryset(cls, parent_pk):
         return HolidayPeriod.objects.filter(
-            store_id=store_id,
+            store_id=parent_pk,
             start__lte=timezone.now() + datetime.timedelta(days=7),
             end__gte=timezone.now()
         )
 
 
-class OpeningListViewBase(generics.ListAPIView):
+class StorePeriodsViewSet(TargettedViewSet,
+                          NestedViewSetMixin,
+                          mixins.ListModelMixin):
     serializer_class = OpeningPeriodSerializer
     pagination_class = None
 
-    def get_store_id(self):
-        raise NotImplementedError(
-            'get_store_id() needs to return the id of the store.'
-        )
-
-    def get(self, request, pk=None):
-        store_id = self.get_store_id()
+    def list(self, request, *args, **kwargs):
         openingperiods = OpeningPeriodSerializer(
-            OpeningPeriodListViewBase._get_queryset(store_id),
+            StoreOpeningPeriodViewSet._get_queryset(
+                parent_pk=self.kwargs['parent_lookup_pk']
+            ),
             many=True
         )
         holidayperiods = HolidayPeriodSerializer(
-            HolidayPeriodListViewBase._get_queryset(store_id),
+            StoreHolidayPeriodViewSet._get_queryset(
+                parent_pk=self.kwargs['parent_lookup_pk']
+            ),
             many=True
         )
 
@@ -75,7 +83,10 @@ class OpeningListViewBase(generics.ListAPIView):
             'holidayperiods': holidayperiods.data
         }
 
-        return Response(data=data, status=status.HTTP_200_OK)
+        return Response(
+            data=data,
+            status=status.HTTP_200_OK
+        )
 
 
 class StoreCategoryListViewBase(generics.ListAPIView):
