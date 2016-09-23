@@ -7,7 +7,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.db.models import Count
 from django.http import Http404
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import redirect
 from django.utils import timezone
 from django_gocardless.models import Merchant
 from django_gocardless.serializers import MerchantSerializer
@@ -118,17 +118,18 @@ class StoreViewSet(TargettedViewSet,
     permission_classes = (StoreOwnerPermission,)
     serializer_class = StoreDetailSerializer
     serializer_class_merchant = MerchantSerializer
+    queryset = Store.objects.all()
 
-    def get_queryset(self):
-        return Store.objects.filter(
-            id=self.request.user.staff.store_id
-        )
+    # def get_queryset(self):
+    #     return Store.objects.filter(
+    #         id=self.request.user.staff.store_id
+    #     )
 
-    def get_object(self):
-        return get_object_or_404(self.get_queryset())
+    # def get_object(self):
+    #     return get_object_or_404(self.get_queryset())
 
-    @list_route(methods=['get'], permission_classes=[StoreOwnerOnlyPermission])
-    def merchant(self, request):
+    @detail_route(methods=['get'], permission_classes=[StoreOwnerOnlyPermission])
+    def merchant(self, request, pk=None):
         store = self.get_object()
 
         if store.staff.is_merchant:

@@ -1,3 +1,4 @@
+from lunch.models import Store
 from rest_framework import permissions
 
 from .models import Employee, Staff
@@ -13,33 +14,22 @@ class StoreOwnerPermission(permissions.BasePermission):
         return True
 
     def has_object_permission(self, request, view, obj):
-        if hasattr(obj, 'store'):
-            store = None
-            if isinstance(request.user, Employee):
-                store = request.user.staff.store
-            elif isinstance(request.user, Staff):
-                store = request.user.store
+        authenticated_store = None
+        user = getattr(request, 'user', None)
+        if isinstance(user, Employee):
+            authenticated_store = user.staff.store
+        elif isinstance(user, Staff):
+            authenticated_store = user.store
 
-            if store is not None:
-                return store == obj.store
-            return False
-        return True
+        if authenticated_store is not None:
+            return authenticated_store == (
+                obj if isinstance(obj, Store)
+                else getattr(obj, 'store', None)
+            )
+        return False
 
 
-class StoreOwnerOnlyPermission(permissions.BasePermission):
+class StoreOwnerOnlyPermission(StoreOwnerPermission):
 
     def has_permission(self, request, view):
         return isinstance(request.user, Employee) and request.user.owner
-
-    def has_object_permission(self, request, view, obj):
-        if hasattr(obj, 'store'):
-            store = None
-            if isinstance(request.user, Employee):
-                store = request.user.staff.store
-            elif isinstance(request.user, Staff):
-                store = request.user.store
-
-            if store is not None:
-                return store == obj.store
-            return False
-        return True

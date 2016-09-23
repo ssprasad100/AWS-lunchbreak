@@ -1,24 +1,19 @@
 from datetime import timedelta
 
 import mock
-from customers.config import ORDER_STATUS_COMPLETED
-from customers.models import Order, OrderedFood, User, UserToken
-from django.core.urlresolvers import reverse
-from django.http import Http404
+from customers.models import User, UserToken
 from django.utils import timezone
 from django_sms.models import Phone
 from lunch.models import (Food, FoodType, HolidayPeriod, Ingredient,
                           IngredientGroup, IngredientRelation, Menu, Store)
 from Lunchbreak.test import LunchbreakTestCase
 from push_notifications.models import SERVICE_APNS
-from rest_framework import status
 from rest_framework.test import APIRequestFactory
 
-from . import views
-from .models import Employee, Staff
+from ..models import Employee, Staff
 
 
-class BusinessTests(LunchbreakTestCase):
+class BusinessTestCase(LunchbreakTestCase):
 
     PHONE_USER = '+32472907604'
     NAME_USER = 'Meneer Aardappel'
@@ -32,10 +27,11 @@ class BusinessTests(LunchbreakTestCase):
     DEVICE = 'Test device'
     REGISTRATION_ID = '123456789'
     EMAIL = 'hello@cloock.be'
+    EMAIL_OTHER = 'other@cloock.be'
 
     @mock.patch('googlemaps.Client.geocode')
     def setUp(self, mock_geocode):
-        super(BusinessTests, self).setUp()
+        super().setUp()
         self.factory = APIRequestFactory()
 
         self.mock_geocode_results(
@@ -78,8 +74,43 @@ class BusinessTests(LunchbreakTestCase):
         )
 
         self.owner = Employee.objects.create(
-            name=self.NAME_USER,
             staff=self.staff,
+            name='Owner',
+            owner=True
+        )
+        self.employee = Employee.objects.create(
+            staff=self.staff,
+            name='Employee'
+        )
+
+        self.other_store = Store.objects.create(
+            name='other self',
+            country='België',
+            province='Oost-Vlaanderen',
+            city='Wetteren',
+            postcode='9230',
+            street='Dendermondesteenweg',
+            number=10
+        )
+
+        self.other_staff = Staff.objects.create(
+            store=self.other_store,
+            email=self.EMAIL_OTHER
+        )
+
+        self.other_owner = Employee.objects.create(
+            staff=self.other_staff,
+            name='Owner',
+            owner=True
+        )
+        self.other_employee = Employee.objects.create(
+            staff=self.other_staff,
+            name='Employee'
+        )
+
+        self.other_owner = Employee.objects.create(
+            name=self.NAME_USER,
+            staff=self.other_staff,
             owner=True
         )
 
@@ -157,89 +188,3 @@ class BusinessTests(LunchbreakTestCase):
                 closed=False
             )
         ])
-
-    def test_food_delete(self):
-        food = Food.objects.get(id=self.food.id)
-        food.pk = None
-        food.save()
-
-        orderedfood = OrderedFood(
-            cost=1,
-            original=food,
-            is_original=True
-        )
-
-        order = Order.objects.create_with_orderedfood(
-            user=self.user,
-            store=self.store,
-            receipt=timezone.now() + timedelta(days=1),
-            orderedfood=[orderedfood]
-        )
-
-        food_duplicate = Food.objects.get(id=self.food.id)
-        food_duplicate.pk = None
-        food_duplicate.save()
-
-        url_kwargs = {
-            'pk': food.id
-        }
-        url = reverse(
-            'business-food-delete',
-            kwargs=url_kwargs
-        )
-
-        # Trying to delete it while there still is a depending OrderedFood
-        # should return 200
-        request = self.factory.delete(url)
-        response = self.authenticate_request(
-            request,
-            views.FoodViewSet,
-            user=self.owner,
-            view_actions={
-                'delete': 'delete'
-            },
-            **url_kwargs
-        )
-
-        self.assertTrue(Food.objects.filter(id=food.id).exists())
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        # Because the food is now marked to be deleted
-        # Updating the order status should delete it
-        order.status = ORDER_STATUS_COMPLETED
-        order.save()
-
-        request = self.factory.delete(url)
-
-        self.assertRaises(
-            Http404,
-            self.authenticate_request,
-            request,
-            views.FoodViewSet,
-            user=self.owner,
-            view_actions={
-                'delete': 'delete'
-            },
-            **url_kwargs
-        )
-        self.assertRaises(Food.DoesNotExist, Food.objects.get, id=food.id)
-
-        # If the food is not yet marked as deleted, but has no
-        # unfinished orders, a 204 should be returned.
-        url_kwargs['pk'] = food_duplicate.id
-        orderedfood.original = food_duplicate
-        orderedfood.save()
-
-        request = self.factory.delete(url)
-        response = self.authenticate_request(
-            request,
-            views.FoodViewSet,
-            user=self.owner,
-            view_actions={
-                'delete': 'delete'
-            },
-            **url_kwargs
-        )
-
-        self.assertRaises(Food.DoesNotExist, Food.objects.get, id=food.id)
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
