@@ -3,7 +3,6 @@ from datetime import timedelta
 from customers.config import ORDER_STATUS_COMPLETED
 from customers.models import Order, OrderedFood
 from django.core.urlresolvers import reverse
-from django.http import Http404
 from django.utils import timezone
 from lunch.models import Food
 from rest_framework import status
@@ -67,9 +66,7 @@ class StagedDeleteTestCase(BusinessTestCase):
 
         request = self.factory.delete(url)
 
-        self.assertRaises(
-            Http404,
-            self.authenticate_request,
+        response = self.authenticate_request(
             request,
             views.FoodViewSet,
             user=self.owner,
@@ -78,7 +75,16 @@ class StagedDeleteTestCase(BusinessTestCase):
             },
             **url_kwargs
         )
-        self.assertRaises(Food.DoesNotExist, Food.objects.get, id=food.id)
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_404_NOT_FOUND
+        )
+        self.assertRaises(
+            Food.DoesNotExist,
+            Food.objects.get,
+            id=food.id
+        )
 
         # If the food is not yet marked as deleted, but has no
         # unfinished orders, a 204 should be returned.

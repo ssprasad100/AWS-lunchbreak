@@ -4,7 +4,11 @@ from rest_framework.views import exception_handler
 
 def lunchbreak_exception_handler(exception, context):
     response = exception_handler(exception, context)
-    if 'detail' in response.data:
+    if isinstance(response.data, list):
+        response.data = {
+            'information': response.data
+        }
+    elif 'detail' in response.data:
         response.data['information'] = response.data.pop('detail')
     response.data = {
         'error': response.data

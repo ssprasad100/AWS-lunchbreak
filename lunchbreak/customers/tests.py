@@ -2,7 +2,6 @@ from datetime import timedelta
 
 import mock
 from django.core.urlresolvers import reverse
-from django.http import Http404
 from django.utils import timezone
 from django_sms.models import Phone
 from lunch.config import (BELGIUM, COST_GROUP_ADDITIONS, COST_GROUP_ALWAYS,
@@ -426,13 +425,17 @@ class CustomersTests(LunchbreakTestCase):
         self.assertEqual(Heart.objects.filter(user=self.user).count(), 0)
 
         request = self.factory.patch(unheart_url, {})
-        self.assertRaises(
-            Http404,
-            self.authenticate_request,
+
+        response = self.authenticate_request(
             request,
             views.StoreViewSet,
             view_actions=view_actions_unheart,
             pk=self.store.id
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_404_NOT_FOUND
         )
 
     def clone_model(self, model):
