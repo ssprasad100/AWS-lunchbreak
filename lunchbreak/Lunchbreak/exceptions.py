@@ -1,11 +1,14 @@
-from rest_framework import status
 from rest_framework.exceptions import ValidationError
-from rest_framework.response import Response
+from rest_framework.views import exception_handler
 
 
 def lunchbreak_exception_handler(exception, context):
-    response = Response()
-    response.data = {'error': {}}
+    response = exception_handler(exception, context)
+    if 'detail' in response.data:
+        response.data['information'] = response.data.pop('detail')
+    response.data = {
+        'error': response.data
+    }
     if exception is None:
         return response
 
@@ -17,14 +20,14 @@ def lunchbreak_exception_handler(exception, context):
             response.data['error']['detail'] = exception.detail
     elif hasDetail:
         response.data['error']['information'] = exception.detail
-    else:
-        raise
 
-    response.status_code = getattr(
+    status_code = getattr(
         exception.__class__,
         'status_code',
-        status.HTTP_400_BAD_REQUEST
+        None
     )
+    if status_code is not None:
+        response.status_code = status_code
 
     return response
 
