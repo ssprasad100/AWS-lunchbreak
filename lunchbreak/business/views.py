@@ -120,14 +120,6 @@ class StoreViewSet(TargettedViewSet,
     serializer_class_merchant = MerchantSerializer
     queryset = Store.objects.all()
 
-    # def get_queryset(self):
-    #     return Store.objects.filter(
-    #         id=self.request.user.staff.store_id
-    #     )
-
-    # def get_object(self):
-    #     return get_object_or_404(self.get_queryset())
-
     @detail_route(methods=['get'], permission_classes=[StoreOwnerOnlyPermission])
     def merchant(self, request, pk=None):
         store = self.get_object()
@@ -164,6 +156,10 @@ class FoodViewSet(TargettedViewSet,
 
     authentication_classes = (EmployeeAuthentication,)
     permission_classes = [StoreOwnerPermission]
+
+    @property
+    def pagination_class_list(self):
+        return None
 
     @property
     def queryset(self):

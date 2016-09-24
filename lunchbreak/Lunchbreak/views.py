@@ -4,7 +4,7 @@ from rest_framework.response import Response
 
 class TargettedViewSet(viewsets.GenericViewSet):
 
-    def get_attr_action(self, attribute):
+    def get_attr_action(self, attribute, fallback=True):
         action_attribute = '{attribute}_{action}'.format(
             attribute=attribute,
             action=self.action
@@ -12,6 +12,8 @@ class TargettedViewSet(viewsets.GenericViewSet):
         try:
             return getattr(self, action_attribute)
         except AttributeError:
+            if not fallback:
+                raise
             return getattr(super(), 'get_' + attribute)()
 
     def get_object(self):
@@ -23,8 +25,9 @@ class TargettedViewSet(viewsets.GenericViewSet):
     def get_queryset(self):
         return self.get_attr_action('queryset')
 
-    def get_pagination_class(self):
-        return self.get_attr_action('pagination_class')
+    @property
+    def pagination_class(self):
+        return self.get_attr_action('pagination_class', fallback=False)
 
     def get_serializer_context(self):
         return self.get_attr_action('serializer_context')

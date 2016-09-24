@@ -347,12 +347,14 @@ class FoodSerializer(serializers.ModelSerializer):
             'ingredientrelations',
             'orderedfood_count',
             'deleted',
+            'last_modified',
         )
         read_only_fields = (
             'id',
             'ingredients',
             'orderedfood_count',
             'store',
+            'last_modified',
         )
         write_only_fields = (
             'ingredientrelations',
