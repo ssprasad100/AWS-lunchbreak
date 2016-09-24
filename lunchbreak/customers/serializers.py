@@ -6,7 +6,8 @@ from Lunchbreak.serializers import PrimaryModelSerializer
 from phonenumber_field.validators import validate_international_phonenumber
 from rest_framework import serializers
 
-from .config import RESERVATION_STATUS_PLACED, RESERVATION_STATUS_USER
+from .config import (PAYMENTLINK_COMPLETION_REDIRECT_URL,
+                     RESERVATION_STATUS_PLACED, RESERVATION_STATUS_USER)
 from .models import (Address, Group, Invite, Membership, Order, OrderedFood,
                      PaymentLink, Reservation, User, UserToken)
 
@@ -473,12 +474,14 @@ class PaymentLinkSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         return PaymentLink.create(
             user=validated_data['user'],
-            store=self.context['store']
+            store=self.context['store'],
+            completion_redirect_url=PAYMENTLINK_COMPLETION_REDIRECT_URL
         )
 
     def update(self, instance, validated_data):
         return PaymentLink.create(
             user=validated_data['user'],
             store=self.context['store'],
-            instance=instance
+            instance=instance,
+            completion_redirect_url=PAYMENTLINK_COMPLETION_REDIRECT_URL
         )

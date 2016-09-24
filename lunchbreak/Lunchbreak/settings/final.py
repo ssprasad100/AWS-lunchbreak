@@ -139,15 +139,6 @@ GOCARDLESS = {
             'success': 'lunchbreakstore://gocardless/redirect/success',
             'error': 'lunchbreakstore://gocardless/redirect/error'
         }
-    },
-    'app_redirect': {
-        'success': 'lunchbreakstore://gocardless/redirectflow/success',
-        'error': {
-            'default': 'lunchbreakstore://gocardless/redirectflow/error',
-            'invalid': 'lunchbreakstore://gocardless/redirectflow/error/invalid',
-            'incomplete': 'lunchbreakstore://gocardless/redirectflow/error/incomplete',
-            'completed': 'lunchbreakstore://gocardless/redirectflow/error/completed',
-        }
     }
 }
 

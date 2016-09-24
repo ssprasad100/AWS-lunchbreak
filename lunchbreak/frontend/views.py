@@ -1,12 +1,12 @@
 import json
 
-from customers.models import TemporaryOrder
+from customers.models import PaymentLink, TemporaryOrder
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.core.urlresolvers import reverse
 from django.db.models import Count
 from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView, View
@@ -128,7 +128,8 @@ class OrderView(LoginForwardMixin, TemplateView):
         )
         context['order_form'] = OrderForm(
             data=data,
-            instance=context['store']
+            store=context['store'],
+            user=self.request.user
         )
 
         return context
@@ -148,11 +149,37 @@ class OrderView(LoginForwardMixin, TemplateView):
                 )
             )
 
-        if context['user_form'].is_valid() and context['order_form'].is_valid():
-            context['user_form'].save()
-            context['order_form'].save(
+        user_form = context['user_form']
+        order_form = context['order_form']
+        if user_form.is_valid() and order_form.is_valid():
+            user_form.save()
+
+            order_form.save(
                 temporary_order=context['order']
             )
+
+        if order_form.needs_paymentlink:
+            store = context['store']
+            paymentlink = PaymentLink.create(
+                user=self.request.user,
+                store=store,
+                merchant=store.staff.merchant,
+                completion_redirect_url=request.build_absolute_uri(
+                    reverse(
+                        'frontend-order',
+                        kwargs={
+                            'store_id': store.id
+                        }
+                    )
+                )
+            )
+            response = self.create_forward(
+                request=request,
+                response=redirect(
+                    to=paymentlink.redirectflow.redirect_uri
+                ),
+            )
+            return response
 
         return render(
             request=request,

@@ -84,3 +84,5 @@ PAYMENT_METHODS = (
     (PAYMENT_METHOD_CASH, 'Cash'),
     (PAYMENT_METHOD_GOCARDLESS, 'Online (veilig via GoCardless)'),
 )
+
+PAYMENTLINK_COMPLETION_REDIRECT_URL = 'lunchbreak://gocardless/redirectflow/'

@@ -10,22 +10,22 @@ INVALID_PASSWORD_RESET = 803
 class InvalidEmail(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
     code = INVALID_EMAIL
-    information = 'Invalid email address.'
+    information = 'Ongeldig e-mailadres.'
 
 
 class IncorrectPassword(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
     code = INCORRECT_PASSWORD
-    information = 'Invalid password.'
+    information = 'Ongeldig wachtwoord.'
 
 
 class InvalidDatetime(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
     code = INVALID_DATE
-    information = 'Invalid datetime.'
+    information = 'Ongeldige tijd.'
 
 
 class InvalidPasswordReset(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
     code = INVALID_PASSWORD_RESET
-    information = 'Invalid password reset token and email combination.'
+    information = 'Ongeldige wachtwoord reset token en e-mailadres combinatie.'

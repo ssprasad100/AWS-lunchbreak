@@ -402,6 +402,10 @@ class RedirectFlow(models.Model, GCCreateMixin):
         ]
     }
 
+    ignore_fields = [
+        'completion_redirect_url'
+    ]
+
     id = models.CharField(
         primary_key=True,
         max_length=255
@@ -423,7 +427,11 @@ class RedirectFlow(models.Model, GCCreateMixin):
         blank=True
     )
     redirect_url = models.URLField(
-        blank=True
+        blank=True,
+        help_text=(
+            'The URL of the hosted payment pages for this redirect flow. '
+            'This is the URL you should redirect your customer to.'
+        )
     )
 
     customer = models.OneToOneField(
@@ -451,6 +459,11 @@ class RedirectFlow(models.Model, GCCreateMixin):
         blank=True
     )
 
+    completion_redirect_url = models.URLField(
+        null=True,
+        help_text='After completion of the RedirectFlow where to redirect the user to.'
+    )
+
     @cached_property
     def is_completed(self):
         return self.customer is not None and \
@@ -458,13 +471,15 @@ class RedirectFlow(models.Model, GCCreateMixin):
             self.mandate is not None
 
     @classmethod
-    def create(cls, description='', merchant=None, *args, **kwargs):
+    def create(cls, description='', merchant=None, completion_redirect_url=None,
+               *args, **kwargs):
         redirectflow = cls(
             session_token='SESS_{random}'.format(
                 random=get_random_string(length=56)
             ),
             description=description,
-            merchant=merchant
+            merchant=merchant,
+            completion_redirect_url=completion_redirect_url
         )
 
         params = {

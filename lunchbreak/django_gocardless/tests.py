@@ -123,8 +123,12 @@ class DjangoGoCardlessTestCase(TestCase):
 
     def assertModelEqual(self, model, expected):
         fields = model.__class__._meta.get_fields()
+        ignore_fields = getattr(model.__class__, 'ignore_fields', [])
 
         for field in fields:
+            if field.name in ignore_fields:
+                continue
+
             if not issubclass(field.__class__, django_models.fields.Field):
                 continue
 
@@ -140,6 +144,9 @@ class DjangoGoCardlessTestCase(TestCase):
                 if expected_value is None:
                     expected_value = field_default(field)
 
+            print('field.name', field.name)
+            print('value', value)
+            print('expected_value', expected_value)
             self.assertEqual(value, expected_value)
 
     def test_event_actions_connected(self):

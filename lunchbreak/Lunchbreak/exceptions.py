@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework.exceptions import ValidationError
 from rest_framework.views import exception_handler
 
@@ -40,7 +41,7 @@ class LunchbreakException(ValidationError):
 
     def __init__(self, detail=None):
         if detail is None:
-            super(LunchbreakException, self).__init__('No details.')
+            super(LunchbreakException, self).__init__('Geen details beschikbaar.')
             self.detail = None
         elif not isinstance(detail, str):
             super(LunchbreakException, self).__init__(str(detail))
@@ -51,3 +52,8 @@ class LunchbreakException(ValidationError):
     @property
     def response(self):
         return lunchbreak_exception_handler(self, None)
+
+    @property
+    def django_validation_error(self):
+        detail = self.detail if self.detail is not None else self.information
+        return DjangoValidationError(detail)

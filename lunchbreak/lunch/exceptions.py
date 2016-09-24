@@ -13,46 +13,46 @@ NO_DELIVERY_TO_ADDRESS = 607
 class BadRequest(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
     code = status.HTTP_400_BAD_REQUEST
-    information = 'Bad request.'
+    information = 'Foute ingeving.'
 
 
 class AddressNotFound(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
     code = ADDRESS_NOT_FOUND
-    information = 'The address given could not be found.'
+    information = 'Het gegeven adres kon niet gevonden worden.'
 
 
 class DoesNotExist(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
     code = DOES_NOT_EXIST
-    information = 'Object does not exist.'
+    information = 'Object bestaat niet.'
 
 
 class IngredientGroupMaxExceeded(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
     code = INGR_GROUP_MAX_EXCEEDED
-    information = 'IngredientGroup maximum exceeded.'
+    information = 'Ingrediëntengroep maximum overschreden.'
 
 
 class IngredientGroupsMinimumNotMet(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
     code = INGR_GROUP_MIN_NOT_MET
-    information = 'Minimum IngredientGroups not met.'
+    information = 'Ingrediëntengroep minimum niet voldaan.'
 
 
 class LinkingError(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
     code = INVALID_LINKING
-    information = 'Invalid model linking.'
+    information = 'Fout bij linken objecten.'
 
 
 class InvalidFoodTypeAmount(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
     code = INVALID_FOODTYPE_AMOUNT
-    information = 'Invalid food type amount.'
+    information = 'Ongeldig voedseltype hoeveelheid.'
 
 
 class NoDeliveryToAddress(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
     code = NO_DELIVERY_TO_ADDRESS
-    information = 'Store does not deliver to given address.'
+    information = 'Winkel levert niet aan opgegeven adres.'

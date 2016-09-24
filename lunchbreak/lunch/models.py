@@ -455,7 +455,7 @@ class Store(AbstractAddress):
                 if not raise_exception:
                     return False
                 raise StoreClosed(
-                    'Store is exclusively closed by a holiday period.'
+                    'De winkel is exclusief gesloten vanwege een vakantieperiode.'
                 )
 
             periods = OpeningPeriod.objects.filter(
@@ -468,9 +468,7 @@ class Store(AbstractAddress):
 
             if not raise_exception:
                 return False
-            raise StoreClosed(
-                'Store has no opening period for this time.'
-            )
+            raise StoreClosed()
         return True
 
 

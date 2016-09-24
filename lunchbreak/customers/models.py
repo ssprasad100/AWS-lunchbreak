@@ -20,10 +20,11 @@ from lunch.config import (COST_GROUP_ADDITIONS, COST_GROUP_BOTH, INPUT_SI_SET,
                           INPUT_SI_VARIABLE)
 from lunch.exceptions import BadRequest, LinkingError, NoDeliveryToAddress
 from lunch.models import AbstractAddress, BaseToken, Food, Ingredient, Store
+from Lunchbreak.mixins import CleanModelMixin
 from push_notifications.models import SERVICE_INACTIVE
 from rest_framework import status
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
-from rest_framework.serializers import ValidationError
 
 from .config import (GROUP_BILLING_SEPARATE, GROUP_BILLINGS,
                      INVITE_STATUS_ACCEPTED, INVITE_STATUS_WAITING,
@@ -200,7 +201,7 @@ class PaymentLink(models.Model):
         unique_together = ('user', 'store',)
 
     @classmethod
-    def create(cls, user, store, instance=None):
+    def create(cls, user, store, instance=None, **kwargs):
         if not store.staff.is_merchant:
             raise OnlinePaymentDisabled()
 
@@ -210,8 +211,9 @@ class PaymentLink(models.Model):
         merchant = store.staff.merchant
 
         redirectflow = RedirectFlow.create(
-            description=_('Lunchbreak orders'),
-            merchant=merchant
+            description=_('Lunchbreak'),
+            merchant=merchant,
+            **kwargs
         )
 
         return cls.objects.create(
@@ -382,7 +384,7 @@ class Heart(models.Model):
         )
 
 
-class Reservation(models.Model):
+class Reservation(CleanModelMixin, models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE
@@ -424,24 +426,24 @@ class Reservation(models.Model):
         default=RESERVATION_STATUS_PLACED
     )
 
-    def clean(self, *args, **kwargs):
+    def clean_seats(self):
         if self.seats > self.store.seats_max:
             raise MaxSeatsExceeded()
 
+    def clean_reservation_time(self):
         self.store.is_open(self.reservation_time)
 
-        super(Reservation, self).clean(*args, **kwargs)
+    def clean_status(self):
+        if self.suggestion is not None:
+            self.status = RESERVATION_STATUS_DENIED
 
     def save(self, *args, **kwargs):
         self.full_clean()
 
-        if self.suggestion is not None:
-            self.status = RESERVATION_STATUS_DENIED
-
         super(Reservation, self).save(*args, **kwargs)
 
 
-class AbstractOrder(models.Model):
+class AbstractOrder(CleanModelMixin, models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE
@@ -561,8 +563,8 @@ class Order(AbstractOrder, DirtyFieldsMixin):
                 if self.status == ORDER_STATUS_WAITING:
                     self.waiting()
                 elif self.status == ORDER_STATUS_DENIED:
-                    StaffToken.objects.filter(
-                        staff__store_id=self.store_id
+                    UserToken.objects.filter(
+                        user_id=self.user_id
                     ).send_message(
                         'Je bestelling is spijtig genoeg geweigerd!',
                         sound='default'
@@ -634,7 +636,7 @@ class Order(AbstractOrder, DirtyFieldsMixin):
             # TODO Send the user an email/text stating the failed transaction.
             self.payment_method = PAYMENT_METHOD_CASH
 
-    def clean(self):
+    def clean_delivery_address(self):
         if self.delivery_address is not None:
             is_user_address = self.user.address_set.filter(
                 id=self.delivery_address.id
@@ -645,13 +647,18 @@ class Order(AbstractOrder, DirtyFieldsMixin):
 
             if not self.store.delivers_to(self.delivery_address):
                 raise NoDeliveryToAddress()
-        else:
+
+    def clean_receipt(self):
+        # TODO: Check whether the store can accept an order if it is
+        # for delivery and needs to be delivered asap (receipt=None).
+        if self.delivery_address is None:
             if self.receipt is None:
                 raise ValidationError(
                     _('Receipt cannot be None for pickup.')
                 )
             self.store.is_open(self.receipt)
 
+    def clean_payment_method(self):
         if self.payment_method == PAYMENT_METHOD_GOCARDLESS:
             try:
                 paymentlink = PaymentLink.objects.get(

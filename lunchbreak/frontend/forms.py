@@ -1,11 +1,9 @@
-import pendulum
-from customers.config import PAYMENT_METHODS
+from customers.config import PAYMENT_METHOD_GOCARDLESS, PAYMENT_METHODS
 from customers.models import Order, User
 from django import forms
-from django.conf import settings
-from django.core.exceptions import ValidationError
 from lunch.exceptions import AddressNotFound
 from lunch.models import AbstractAddress
+from Lunchbreak.forms import FatModelForm
 
 from .widgets import ReceiptField
 
@@ -49,15 +47,21 @@ class UserForm(forms.ModelForm):
             self.fields[field_name].widget.attrs['placeholder'] = self.fields[field_name].label
 
 
-class OrderForm(forms.ModelForm):
+class OrderForm(FatModelForm):
 
     class Meta:
         model = Order
         fields = ['payment_method', 'receipt', 'description']
 
     def __init__(self, *args, **kwargs):
+        self.store = kwargs.pop('store')
+        self.user = kwargs.pop('user')
         super().__init__(*args, **kwargs)
-        self.store = kwargs.get('instance')
+
+        self.instance_data = {
+            'store': self.store,
+            'user': self.user
+        }
 
         self.fields['payment_method'].required = True
         self.fields['payment_method'].widget = forms.widgets.RadioSelect(
@@ -73,18 +77,7 @@ class OrderForm(forms.ModelForm):
             **self.cleaned_data
         )
 
-    def clean_receipt(self):
-        if self.cleaned_data['receipt'] < pendulum.now(settings.TIME_ZONE):
-            raise ValidationError(
-                'Een bestelling moet in de toekomst geplaatst worden.'
-            )
-
-        if not self.store.is_open(
-            self.cleaned_data['receipt'],
-            raise_exception=False
-        ):
-            raise ValidationError(
-                'De winkel is gesloten op het gekozen tijdstip.'
-            )
-
-        return self.cleaned_data['receipt']._datetime
+    @property
+    def needs_paymentlink(self):
+        is_gocardless = self['payment_method'] == PAYMENT_METHOD_GOCARDLESS
+        return is_gocardless and 'payment_method' in self.errors

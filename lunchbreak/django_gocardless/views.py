@@ -1,17 +1,17 @@
 import hashlib
 import hmac
 import json
+from urllib.parse import urlencode
 
 from django.conf import settings
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse
 from django.shortcuts import HttpResponseRedirect
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import RedirectView, View
 from gocardless_pro.resources import Event
 
-from .exceptions import (BadRequestError, DjangoGoCardlessException,
-                         ExchangeAuthorisationError,
+from .exceptions import (BadRequestError, ExchangeAuthorisationError,
                          RedirectFlowAlreadyCompletedError,
                          RedirectFlowIncompleteError)
 from .handlers import EventHandler
@@ -36,26 +36,32 @@ class RedirectFlowSuccessView(View):
         response = HttpResponse(
             status=307,  # Temporary redirect
         )
-        response['Location'] = settings.GOCARDLESS['app_redirect']
+        response['Location'] = settings.GOCARDLESS['redirectflow']
         if redirectflow_id is not None:
             try:
                 redirectflow = RedirectFlow.objects.get(
                     id=redirectflow_id
                 )
+                params = {}
                 redirectflow.complete()
-                response['Location'] = settings.GOCARDLESS['app_redirect']['success']
-            except (RedirectFlow.DoesNotExist, DjangoGoCardlessException) as e:
-                raise
-                if isinstance(e, RedirectFlowIncompleteError):
-                    response['Location'] = settings.GOCARDLESS[
-                        'app_redirect']['error']['incomplete']
-                elif isinstance(e, RedirectFlowAlreadyCompletedError):
-                    response['Location'] = settings.GOCARDLESS[
-                        'app_redirect']['error']['completed']
-                elif isinstance(e, BadRequestError):
-                    response['Location'] = settings.GOCARDLESS['app_redirect']['error']['invalid']
-                else:
-                    response['Location'] = settings.GOCARDLESS['app_redirect']['error']['default']
+            except RedirectFlow.DoesNotExist:
+                raise Http404('RedirectFlow not found.')
+            except RedirectFlowIncompleteError:
+                params['error'] = 'incomplete'
+            except RedirectFlowAlreadyCompletedError:
+                params['error'] = 'completed'
+            except BadRequestError:
+                params['error'] = 'invalid'
+            except:
+                params['error'] = 'default'
+
+        url = redirectflow.completion_redirect_url
+
+        if params:
+            data = urlencode(params)
+            url += '?' + data
+
+        response['Location'] = url
 
         return response
 
@@ -72,40 +78,37 @@ class WebhookView(CSRFExemptView):
     INVALID_TOKEN = 498
 
     def post(self, request, *args, **kwargs):
-        try:
-            webhook_signature = request.META.get('HTTP_WEBHOOK_SIGNATURE', None)
+        webhook_signature = request.META.get('HTTP_WEBHOOK_SIGNATURE', None)
 
-            if webhook_signature is None:
-                return HttpResponse(
-                    status=self.INVALID_TOKEN
-                )
+        if webhook_signature is None:
+            return HttpResponse(
+                status=self.INVALID_TOKEN
+            )
 
-            is_app = kwargs.get('is_app', False)
-            secret = secret = settings.GOCARDLESS['app']['webhook']['secret'] \
-                if is_app else settings.GOCARDLESS['webhook']['secret']
-            calculated_signature = hmac.new(
-                secret,
-                msg=request.body,
-                digestmod=hashlib.sha256
-            ).hexdigest()
+        is_app = kwargs.get('is_app', False)
+        secret = secret = settings.GOCARDLESS['app']['webhook']['secret'] \
+            if is_app else settings.GOCARDLESS['webhook']['secret']
+        calculated_signature = hmac.new(
+            secret,
+            msg=request.body,
+            digestmod=hashlib.sha256
+        ).hexdigest()
 
-            if not hmac.compare_digest(calculated_signature, webhook_signature):
-                return HttpResponse(
-                    status=self.INVALID_TOKEN
-                )
+        if not hmac.compare_digest(calculated_signature, webhook_signature):
+            return HttpResponse(
+                status=self.INVALID_TOKEN
+            )
 
-            data = json.loads(request.body)
-            events = data.get('events', None)
+        data = json.loads(request.body)
+        events = data.get('events', None)
 
-            if events is not None and isinstance(events, list):
-                for event in events:
-                    EventHandler(Event(event, None))
+        if events is not None and isinstance(events, list):
+            for event in events:
+                EventHandler(Event(event, None))
 
-                return HttpResponse(
-                    status=200
-                )
-        except ValueError:
-            raise
+            return HttpResponse(
+                status=200
+            )
 
         return HttpResponse(
             status=400
@@ -145,7 +148,6 @@ class OAuthRedirectView(CSRFExemptView):
                 code=code
             )
         except ExchangeAuthorisationError:
-            raise
             response['Location'] = settings.GOCARDLESS['app']['redirect']['error']
 
         return response
