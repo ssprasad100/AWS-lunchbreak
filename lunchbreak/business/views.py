@@ -3,7 +3,6 @@ from customers.config import (ORDER_STATUS_COMPLETED, ORDER_STATUS_PLACED,
                               ORDER_STATUS_RECEIVED, ORDER_STATUS_STARTED,
                               ORDER_STATUS_WAITING)
 from customers.models import Order, Reservation
-from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.db.models import Count
 from django.http import Http404
@@ -17,6 +16,7 @@ from lunch.responses import BadRequest
 from lunch.serializers import (FoodTypeSerializer, MenuSerializer,
                                QuantityDetailSerializer)
 from lunch.views import StoreCategoryListViewBase
+from Lunchbreak.exceptions import LunchbreakException
 from Lunchbreak.views import TargettedViewSet
 from rest_framework import generics, mixins, status, viewsets
 from rest_framework.decorators import detail_route, list_route
@@ -87,7 +87,7 @@ class PasswordResetView(generics.CreateAPIView):
                         email=email,
                         password_reset=password_reset
                     )
-            except ValidationError:
+            except LunchbreakException:
                 return InvalidEmail().response
             except model.DoesNotExist:
                 return InvalidPasswordReset().response

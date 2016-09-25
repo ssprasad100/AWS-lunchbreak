@@ -10,6 +10,7 @@ from django.contrib.contenttypes.fields import (GenericForeignKey,
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.db.models.signals import post_delete
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
 from django_gocardless.config import CURRENCY_EUR
@@ -20,10 +21,11 @@ from lunch.config import (COST_GROUP_ADDITIONS, COST_GROUP_BOTH, INPUT_SI_SET,
                           INPUT_SI_VARIABLE)
 from lunch.exceptions import BadRequest, LinkingError, NoDeliveryToAddress
 from lunch.models import AbstractAddress, BaseToken, Food, Ingredient, Store
+from Lunchbreak.exceptions import LunchbreakException
 from Lunchbreak.mixins import CleanModelMixin
+from pendulum import Pendulum
 from push_notifications.models import SERVICE_INACTIVE
 from rest_framework import status
-from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
 from .config import (GROUP_BILLING_SEPARATE, GROUP_BILLINGS,
@@ -205,7 +207,12 @@ class PaymentLink(models.Model):
         if not store.staff.is_merchant:
             raise OnlinePaymentDisabled()
 
-        if instance is not None and isinstance(instance, cls):
+        if instance is None:
+            cls.objects.filter(
+                user=user,
+                store=store
+            ).delete()
+        elif isinstance(instance, cls):
             instance.delete()
 
         merchant = store.staff.merchant
@@ -221,6 +228,10 @@ class PaymentLink(models.Model):
             store=store,
             redirectflow=redirectflow
         )
+
+    @staticmethod
+    def post_delete(sender, instance, using, **kwargs):
+        instance.redirectflow.delete()
 
 
 class Invite(models.Model, DirtyFieldsMixin):
@@ -651,10 +662,13 @@ class Order(AbstractOrder, DirtyFieldsMixin):
     def clean_receipt(self):
         # TODO: Check whether the store can accept an order if it is
         # for delivery and needs to be delivered asap (receipt=None).
+        if isinstance(self.receipt, Pendulum):
+            self.receipt = self.receipt._datetime
+
         if self.delivery_address is None:
             if self.receipt is None:
-                raise ValidationError(
-                    _('Receipt cannot be None for pickup.')
+                raise LunchbreakException(
+                    _('Er moet een tijdstip voor het ophalen gegeven worden.')
                 )
             self.store.is_open(self.receipt)
 
@@ -895,3 +909,10 @@ class UserToken(BaseToken):
             serializer.data,
             status=(status.HTTP_201_CREATED if created else status.HTTP_200_OK)
         )
+
+
+post_delete.connect(
+    PaymentLink.post_delete,
+    sender=PaymentLink,
+    weak=False
+)

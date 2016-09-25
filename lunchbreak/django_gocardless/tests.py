@@ -144,9 +144,6 @@ class DjangoGoCardlessTestCase(TestCase):
                 if expected_value is None:
                     expected_value = field_default(field)
 
-            print('field.name', field.name)
-            print('value', value)
-            print('expected_value', expected_value)
             self.assertEqual(value, expected_value)
 
     def test_event_actions_connected(self):

@@ -1,11 +1,11 @@
 from django.conf import settings
-from django.core.exceptions import ValidationError
 from django.core.mail import BadHeaderError, EmailMultiAlternatives
 from django.core.validators import validate_email
 from django.template.loader import render_to_string
 from lunch.authentication import TokenAuthentication
 from lunch.config import random_token
 from lunch.responses import BadRequest, DoesNotExist
+from Lunchbreak.exceptions import LunchbreakException
 from push_notifications.models import SERVICE_INACTIVE
 from rest_framework import status
 from rest_framework.response import Response
@@ -80,7 +80,7 @@ class BusinessAuthentication(TokenAuthentication):
             try:
                 validate_email(to_email)
                 model = cls.MODEL.objects.get(email=to_email)
-            except ValidationError:
+            except LunchbreakException:
                 return InvalidEmail().response
             except cls.MODEL.DoesNotExist:
                 return InvalidEmail('Email address not found.').response

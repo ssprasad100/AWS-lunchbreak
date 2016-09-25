@@ -1,5 +1,5 @@
 import mock
-from django.core.exceptions import ValidationError
+from Lunchbreak.exceptions import LunchbreakException
 from Lunchbreak.test import LunchbreakTestCase
 
 from ..models import FoodType, IngredientGroup, Store
@@ -32,7 +32,7 @@ class IngredientGroupTestCase(LunchbreakTestCase):
 
         try:
             group.save()
-        except ValidationError:
+        except LunchbreakException:
             try:
                 group.minimum = 0
                 group.save()

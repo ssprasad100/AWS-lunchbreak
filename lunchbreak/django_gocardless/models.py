@@ -11,10 +11,10 @@ from django.utils.crypto import get_random_string
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
 
-from .config import (CURRENCIES, MANDATE_STATUSES, PAYMENT_STATUSES,
-                     PAYOUT_STATUSES, SCHEMES, SUBSCRIPTION_DAY_OF_MONTH,
-                     SUBSCRIPTION_INTERVAL_UNIT, SUBSCRIPTION_MONTHS,
-                     SUBSCRIPTION_STATUSES)
+from .config import (CURRENCIES, DEFAULT_DOMAIN, MANDATE_STATUSES,
+                     PAYMENT_STATUSES, PAYOUT_STATUSES, SCHEMES,
+                     SUBSCRIPTION_DAY_OF_MONTH, SUBSCRIPTION_INTERVAL_UNIT,
+                     SUBSCRIPTION_MONTHS, SUBSCRIPTION_STATUSES)
 from .exceptions import ExchangeAuthorisationError
 from .mixins import GCCacheMixin, GCCreateMixin, GCCreateUpdateMixin
 from .utils import model_from_links
@@ -471,8 +471,8 @@ class RedirectFlow(models.Model, GCCreateMixin):
             self.mandate is not None
 
     @classmethod
-    def create(cls, description='', merchant=None, completion_redirect_url=None,
-               *args, **kwargs):
+    def create(cls, description='', merchant=None,
+               completion_redirect_url=None, request=None, **kwargs):
         redirectflow = cls(
             session_token='SESS_{random}'.format(
                 random=get_random_string(length=56)
@@ -482,18 +482,30 @@ class RedirectFlow(models.Model, GCCreateMixin):
             completion_redirect_url=completion_redirect_url
         )
 
+        if request is not None:
+            success_redirect_url = request.build_absolute_uri(
+                reverse(
+                    'gocardless-redirectflow-success',
+                )
+            )
+        else:
+            success_redirect_url = '{scheme}://{domain}{location}'.format(
+                scheme='https' if settings.SSL else 'http',
+                domain=DEFAULT_DOMAIN,
+                location=reverse(
+                    'gocardless-redirectflow-success',
+                )
+            )
+
         params = {
             'session_token': redirectflow.session_token,
             'description': description,
-            'success_redirect_url': reverse(
-                'gocardless-redirectflow-success',
-            )
+            'success_redirect_url': success_redirect_url
         }
 
         return super(RedirectFlow, cls).create(
             params,
             redirectflow,
-            *args,
             **kwargs
         )
 

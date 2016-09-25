@@ -1,6 +1,6 @@
 import mock
-from django.core.exceptions import ValidationError
 from Lunchbreak.test import LunchbreakTestCase
+from Lunchbreak.exceptions import LunchbreakException
 
 from ..models import FoodType, Quantity, Store
 
@@ -23,7 +23,7 @@ class QuantityTestCase(LunchbreakTestCase):
         )
 
         self.assertRaises(
-            ValidationError,
+            LunchbreakException,
             Quantity.objects.create,
             foodtype=foodtype,
             store=store,

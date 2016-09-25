@@ -79,5 +79,8 @@ class OrderForm(FatModelForm):
 
     @property
     def needs_paymentlink(self):
-        is_gocardless = self['payment_method'] == PAYMENT_METHOD_GOCARDLESS
-        return is_gocardless and 'payment_method' in self.errors
+        try:
+            is_gocardless = int(self['payment_method'].value()) == PAYMENT_METHOD_GOCARDLESS
+            return is_gocardless and 'payment_method' in self.errors.as_data()
+        except (ValueError, TypeError):
+            return False

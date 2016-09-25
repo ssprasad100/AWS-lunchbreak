@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 import mock
-from django.core.exceptions import ValidationError
+from Lunchbreak.exceptions import LunchbreakException
 from Lunchbreak.test import LunchbreakTestCase
 
 from ..models import HolidayPeriod, Store
@@ -33,7 +33,7 @@ class HolidayPeriodTestCase(LunchbreakTestCase):
 
         try:
             hp.save()
-        except ValidationError:
+        except LunchbreakException:
             try:
                 tomorrow = now + timedelta(days=1)
                 hp.end = tomorrow

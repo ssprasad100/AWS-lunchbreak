@@ -5,7 +5,7 @@ from .exceptions import LunchbreakException
 
 class CleanModelMixin:
 
-    def clean(self, form=None):
+    def clean(self):
         fields = self.__class__._meta.get_fields()
 
         for field in fields:
@@ -14,15 +14,16 @@ class CleanModelMixin:
                 try:
                     getattr(self, clean_method_name)()
                 except Exception as e:
+                    form = getattr(self, '_form', None)
                     if form is None:
                         raise
 
-                    validation_error = None
-                    if isinstance(e, ValidationError):
-                        validation_error = e
-                    elif isinstance(e, LunchbreakException):
-                        validation_error = e.django_validation_error
-                    else:
+                    if isinstance(e, LunchbreakException):
+                        e = e.django_validation_error
+                    elif not isinstance(e, ValidationError):
                         raise
 
-                    form.add_error(field.name, validation_error)
+                    form.add_error(
+                        field.name,
+                        e
+                    )

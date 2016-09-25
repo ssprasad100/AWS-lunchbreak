@@ -8,7 +8,6 @@ from customers.exceptions import MinTimeExceeded, PastOrderDenied, StoreClosed
 from dirtyfields import DirtyFieldsMixin
 from django.conf import settings
 from django.contrib.auth.hashers import check_password, make_password
-from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import DatabaseError, models
 from django.db.models import Q
@@ -17,6 +16,8 @@ from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from imagekit.models import ImageSpecField
+from Lunchbreak.exceptions import LunchbreakException
+from Lunchbreak.mixins import CleanModelMixin
 from openpyxl import load_workbook
 from polaroid.models import Polaroid
 from private_media.storages import PrivateMediaStorage
@@ -617,7 +618,7 @@ class DeliveryPeriod(Period):
     pass
 
 
-class HolidayPeriod(models.Model):
+class HolidayPeriod(CleanModelMixin, models.Model):
     store = models.ForeignKey(
         Store,
         on_delete=models.CASCADE
@@ -645,9 +646,11 @@ class HolidayPeriod(models.Model):
         period.closed = self.closed
         return period
 
-    def clean(self):
+    def clean_start(self):
         if self.start >= self.end:
-            raise ValidationError('Start needs to be before end.')
+            raise LunchbreakException(
+                'Het begin moet voor het einde zijn.'
+            )
 
     def save(self, *args, **kwargs):
         self.full_clean()
@@ -690,7 +693,7 @@ class FoodType(models.Model):
         return self.name
 
 
-class IngredientGroup(models.Model):
+class IngredientGroup(CleanModelMixin, models.Model):
     name = models.CharField(
         max_length=255
     )
@@ -727,9 +730,11 @@ class IngredientGroup(models.Model):
         default=COST_GROUP_ALWAYS
     )
 
-    def clean(self):
+    def clean_minimum(self):
         if self.minimum > self.maximum:
-            raise ValidationError('Minimum cannot be higher than maximum.')
+            raise LunchbreakException(
+                'Het minimum kan niet groter zijn dan het maximum.'
+            )
 
     def save(self, *args, **kwargs):
         self.full_clean()
@@ -841,7 +846,7 @@ class Menu(models.Model):
         return self.name
 
 
-class Quantity(models.Model):
+class Quantity(CleanModelMixin, models.Model):
     foodtype = models.ForeignKey(
         FoodType,
         on_delete=models.CASCADE
@@ -870,11 +875,16 @@ class Quantity(models.Model):
         unique_together = ('foodtype', 'store',)
         verbose_name_plural = 'Quantities'
 
-    def clean(self):
+    def clean_minimum(self):
         if self.minimum > self.maximum:
-            raise ValidationError('Amount maximum need to be greater or equal to its minimum.')
-        if not self.foodtype.is_valid_amount(self.minimum) or \
-                not self.foodtype.is_valid_amount(self.maximum):
+            raise LunchbreakException(
+                'Het minimum kan niet groter zijn dan het maximum.'
+            )
+        if not self.foodtype.is_valid_amount(self.minimum):
+            raise InvalidFoodTypeAmount()
+
+    def clean_maximum(self):
+        if not self.foodtype.is_valid_amount(self.maximum):
             raise InvalidFoodTypeAmount()
 
     def save(self, *args, **kwargs):
@@ -888,7 +898,7 @@ class Quantity(models.Model):
         )
 
 
-class Food(models.Model):
+class Food(CleanModelMixin, models.Model):
     name = models.CharField(
         max_length=255
     )
@@ -1014,16 +1024,14 @@ class Food(models.Model):
             self.quantity.minimum <= amount <= self.quantity.maximum
         )
 
-    def clean(self):
+    def clean_amount(self):
         if not self.foodtype.is_valid_amount(self.amount):
             raise InvalidFoodTypeAmount()
+
+    def clean_store(self):
         if self.store_id != self.menu.store_id:
             raise LinkingError(
-                'The food and its menu need to belong to the same store. '
-                '{food_store} != {menu_store}'.format(
-                    food_store=self.store_id,
-                    menu_store=self.menu.store_id
-                )
+                'De menu van het eten moet van dezelfde winkel zijn als het eten.'
             )
 
     def save(self, *args, **kwargs):
@@ -1056,7 +1064,7 @@ class Food(models.Model):
                 instance.food.update_typical()
 
     @classmethod
-    def clean_ingredientgroups(cls, action, instance, pk_set, **kwargs):
+    def check_ingredientgroups(cls, action, instance, pk_set, **kwargs):
         if len(action) > 4 and action[:4] == 'post':
             groups = instance.ingredientgroups.filter(
                 ~Q(store_id=instance.store_id)
@@ -1066,11 +1074,6 @@ class Food(models.Model):
                     'The food and its ingredientgroups need to belong to the same store.'
                 )
 
-        # if instance.store_id != instance.food.store_id:
-        #     raise LinkingError(
-        #         'Food.ingredientgroups must belong to the same store as the linked food.'
-        #     )
-
     @classmethod
     def from_excel(cls, store, file):
         workbook = load_workbook(
@@ -1079,7 +1082,7 @@ class Food(models.Model):
         )
 
         if 'Food' not in workbook:
-            raise ValidationError(
+            raise LunchbreakException(
                 _('The worksheet "Food" could not be found. Please use our template.')
             )
 
@@ -1171,10 +1174,10 @@ class Food(models.Model):
             )
             try:
                 food.clean_fields(exclude=exclude)
-            except ValidationError:
+            except LunchbreakException:
                 for relation in created_relations:
                     relation.delete()
-                raise ValidationError(
+                raise LunchbreakException(
                     _('Could not import row %(row)d.') % {
                         'row': cell.row
                     }
@@ -1270,7 +1273,7 @@ m2m_changed.connect(
     weak=False
 )
 m2m_changed.connect(
-    Food.clean_ingredientgroups,
+    Food.check_ingredientgroups,
     sender=Food.ingredientgroups.through,
     weak=False
 )

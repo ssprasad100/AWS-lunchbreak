@@ -36,7 +36,6 @@ class RedirectFlowSuccessView(View):
         response = HttpResponse(
             status=307,  # Temporary redirect
         )
-        response['Location'] = settings.GOCARDLESS['redirectflow']
         if redirectflow_id is not None:
             try:
                 redirectflow = RedirectFlow.objects.get(

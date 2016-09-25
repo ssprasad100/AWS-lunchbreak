@@ -36,7 +36,9 @@ class ForwardMixin:
                 forward = Forward.objects.get(
                     id=forward_id
                 )
-                request.forward_data = json.loads(forward.json)
+                forward_data = QueryDict('', mutable=True)
+                forward_data.update(json.loads(forward.json))
+                request.forward_data = forward_data
                 Forward.objects.filter(
                     Q(created_at__gt=timezone.now() + timedelta(days=1)) |
                     Q(pk=forward.pk)
@@ -53,7 +55,7 @@ class ForwardMixin:
             data = request.POST
 
         if isinstance(data, QueryDict):
-            data = dict(data)
+            data = data.dict()
 
         json_data = json.dumps(data)
         forward = Forward.objects.create(

@@ -27,7 +27,7 @@ class CustomerBackend(CustomerAuthentication):
                 identifier=identifier,
                 device=device,
                 filter_args={
-                    'user__phone': phone
+                    'user__phone__phone': phone
                 }
             )
         except LunchbreakException:

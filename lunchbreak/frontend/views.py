@@ -87,20 +87,24 @@ class OrderView(LoginForwardMixin, TemplateView):
     template_name = 'pages/order.html'
     forward_group = 'frontend-order'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        data = getattr(
+    @property
+    def data(self):
+        return getattr(
             self.request,
             'forward_data',
-            dict(self.request.POST)
+            self.request.POST
         )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        data = self.data
         context['store'] = get_object_or_404(
             Store,
             pk=kwargs['store_id']
         )
 
         if 'orderedfood' in data:
-            orderedfoods_list = [json.loads(d) for d in data['orderedfood']]
+            orderedfoods_list = [json.loads(d) for d in data.getlist('orderedfood')]
             for orderedfood in orderedfoods_list:
                 orderedfood['original'] = Food.objects.get(
                     pk=orderedfood['original']
@@ -120,7 +124,7 @@ class OrderView(LoginForwardMixin, TemplateView):
             except TemporaryOrder.DoesNotExist:
                 return context
 
-        data = self.request.POST if 'orderedfood' not in data else None
+        data = data if 'orderedfood' not in data else None
 
         context['user_form'] = UserForm(
             data=data,
@@ -163,7 +167,6 @@ class OrderView(LoginForwardMixin, TemplateView):
             paymentlink = PaymentLink.create(
                 user=self.request.user,
                 store=store,
-                merchant=store.staff.merchant,
                 completion_redirect_url=request.build_absolute_uri(
                     reverse(
                         'frontend-order',
@@ -175,9 +178,10 @@ class OrderView(LoginForwardMixin, TemplateView):
             )
             response = self.create_forward(
                 request=request,
+                data=self.data,
                 response=redirect(
-                    to=paymentlink.redirectflow.redirect_uri
-                ),
+                    to=paymentlink.redirectflow.redirect_url
+                )
             )
             return response
 

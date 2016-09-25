@@ -4,12 +4,12 @@ from .mixins import CleanModelMixin
 
 class FatModelForm(forms.ModelForm):
 
-    def _clean_fields(self):
-        super()._clean_fields()
-
+    def _post_clean(self):
         assert issubclass(self._meta.model, CleanModelMixin)
-        instance = self._meta.model(
+
+        self.instance = self._meta.model(
             **self.cleaned_data,
             **getattr(self, 'instance_data', {})
         )
-        instance.clean(form=self)
+        self.instance._form = self
+        super()._post_clean()
