@@ -8,6 +8,7 @@
 
 <div id="store-banner" class="block banner small">
 </div>
+
 <div id="store-info" class="block banner small">
     <div class="container">
         <div class="bottom">
@@ -16,13 +17,19 @@
                 <li>
                     {{ store.street }} {{ store.number }}
                 </li>
-                {% set openingperiods = store.openingperiods_today %}
+                {% set openingperiods_today = store.openingperiods_today %}
                 <li class="openingperiods">
-                {% if openingperiods %}
-                    {{ openingperiods | list_periods }}
-                {% else %}
-                    Vandaag gesloten
-                {% endif %}
+                {%- if openingperiods_today %}
+                    {{ openingperiods_today | list_periods }}
+                {% else -%}
+                    {%- set openingperiods = store.openingperiods_for(days=7) %}
+                    {%- if openingperiods -%}
+                        {%- set first_openingperiod = openingperiods[0] %}
+                        {{ first_openingperiod.start.isoweekday() | humanize_weekday }} open om {{ first_openingperiod.start | time('H:i') }}
+                    {% else %}
+                        Komende week gesloten
+                    {%- endif %}
+                {%- endif -%}
                 </li>
             </ul>
         </div>
