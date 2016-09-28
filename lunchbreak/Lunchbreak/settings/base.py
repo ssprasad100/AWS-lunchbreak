@@ -147,6 +147,9 @@ TEMPLATES = [
             'constants': {
                 'GOOGLE_WEB_CREDENTIALS': GOOGLE_WEB_CREDENTIALS
             },
+            'globals': {
+                'url_query': 'frontend.templatetags.globals.url_query'
+            },
             'extensions': DEFAULT_EXTENSIONS + [
                 'sass_processor.jinja2.ext.SassSrc',
                 'compressor.contrib.jinja2ext.CompressorExtension',

@@ -247,3 +247,7 @@ class LogoutView(View):
         return HttpResponseRedirect(
             reverse('frontend-index')
         )
+
+
+class TermsView(TemplateView):
+    template_name = 'pages/terms.html'

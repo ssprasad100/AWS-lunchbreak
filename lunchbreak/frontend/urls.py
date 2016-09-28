@@ -34,4 +34,9 @@ urlpatterns = patterns(
         views.LogoutView.as_view(),
         name='frontend-logout'
     ),
+    url(
+        r'^terms/?$',
+        views.TermsView.as_view(),
+        name='frontend-terms'
+    ),
 )

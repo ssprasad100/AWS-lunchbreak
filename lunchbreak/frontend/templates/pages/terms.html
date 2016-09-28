@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="block">
+    <div class="container">
+        <h1>Voorwaarden</h1>
+        <h2>In het kort</h2>
+
+        <ul>
+            <li>Bij het inloggen wordt je telefoonnumer, naam en apparaat opgeslagen.</li>
+            <li>Enkel uw naam is zichtbaar voor het personeel in de winkels waar u een bestelling plaatst.</li>
+            <li>Uw gegevens zullen nooit gedeeld worden met derden, tenzij wettelijk verplicht of bij misbruik.</li>
+            <li>De winkel en niet Lunchbreak is verantwoordelijk voor bestellingen, leveringen en andere mogelijkheden verschaft door Lunchbreak.</li>
+            <li>Bestellingen zijn verplicht te betalen, na meerdere gefaalde betalingspogingen wordt u account beëindigd.</li>
+        </ul>
+    </div>
+</div>
+
+<div class="block">
+    <div class="container">
+        <h1>Algemene voorwaarden</h1>
+        <h2>Consumenten</h2>
+    </div>
+</div>
+
+{% set header_class = 'white' %}
+{% include 'includes/header.html' %}
+{% include 'includes/footer.html' %}
+
+{% endblock content %}
