@@ -20,7 +20,8 @@
         var timeoutId, previousValue;
 
         var init = function() {
-            getCurrentLocation();
+            if (!field.val())
+                getCurrentLocation();
             registerEvents();
         };
 
