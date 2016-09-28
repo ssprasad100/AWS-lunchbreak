@@ -10,18 +10,6 @@ COST_GROUP_CALCULATIONS = (
     (COST_GROUP_BOTH, 'Duurder bij toevoegen, goedkoper bij aftrekken')
 )
 
-ICONS = (
-    (0, 'Onbekend'),
-    # 1xx StoreCategories
-    (100, 'Slager'),
-    (101, 'Bakker'),
-    (102, 'Broodjeszaak'),
-    # 2xx Ingredients
-    (200, 'Tomaten'),
-    # 3xx FoodTypes
-    (300, 'Broodje')
-)
-
 MONDAY = 1
 TUESDAY = 2
 WEDNESDAY = 3

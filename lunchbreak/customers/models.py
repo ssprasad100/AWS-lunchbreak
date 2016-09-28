@@ -1,4 +1,5 @@
 import math
+from decimal import Decimal
 
 from business.models import StaffToken
 from dirtyfields import DirtyFieldsMixin
@@ -47,20 +48,26 @@ from .managers import OrderedFoodManager, OrderManager, UserManager
 class User(AbstractBaseUser, PermissionsMixin):
     phone = models.OneToOneField(
         'django_sms.Phone',
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        verbose_name=_('telefoonnummer'),
+        help_text=_('Telefoonnummer.')
     )
     name = models.CharField(
         max_length=255,
-        verbose_name='Naam'
+        verbose_name=_('naam'),
+        help_text=_('Naam.')
     )
     email = models.EmailField(
         null=True,
         blank=True,
-        verbose_name='E-mailadres'
+        verbose_name=_('e-mailadres'),
+        help_text=_('E-mailadres.')
     )
 
     enabled = models.BooleanField(
-        default=True
+        default=True,
+        verbose_name=_('ingeschakeld'),
+        help_text=_('Ingeschakeld.')
     )
 
     paymentlinks = models.ManyToManyField(
@@ -70,10 +77,16 @@ class User(AbstractBaseUser, PermissionsMixin):
             'user',
             'store',
         ),
-        blank=True
+        blank=True,
+        verbose_name=_('etekende mandaten'),
+        help_text=_('Getekende mandaten.')
     )
     is_staff = models.BooleanField(
-        default=False
+        default=False,
+        verbose_name=_('Lunchbreak werknemer'),
+        help_text=_(
+            'Lunchbreak werknemer, dit geeft toegang tot het controle paneel.'
+        )
     )
 
     USERNAME_FIELD = 'phone'
@@ -82,6 +95,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     ]
 
     objects = UserManager()
+
+    class Meta:
+        verbose_name = _('gebruiker')
+        verbose_name_plural = _('gebruikers')
 
     def __str__(self):
         return '{name} {phone}'.format(
@@ -165,12 +182,24 @@ class User(AbstractBaseUser, PermissionsMixin):
 class Address(AbstractAddress):
     user = models.ForeignKey(
         User,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        verbose_name=_('gebruiker'),
+        help_text=_('Gebruiker.')
     )
 
     deleted = models.BooleanField(
-        default=False
+        default=False,
+        verbose_name=_('verwijderd'),
+        help_text=_(
+            'Duid aan of het item wacht om verwijderd te worden. Het wordt '
+            'pas verwijderd wanneer er geen actieve bestellingen meer zijn '
+            'met dit adres.'
+        )
     )
+
+    class Meta:
+        verbose_name = _('adres')
+        verbose_name_plural = _('adressen')
 
     def delete(self, *args, **kwargs):
         active_orders = self.order_set.filter(
@@ -187,20 +216,30 @@ class Address(AbstractAddress):
 class PaymentLink(models.Model):
     user = models.ForeignKey(
         User,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        verbose_name=_('gebruiker'),
+        help_text=_('Gebruiker.')
     )
     store = models.ForeignKey(
         Store,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        verbose_name=_('winkel'),
+        help_text=_('Winkel.')
     )
 
     redirectflow = models.ForeignKey(
         RedirectFlow,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        verbose_name=_('doorverwijzing'),
+        help_text=_(
+            'GoCardless doorverwijzing voor het tekenen van een mandaat.'
+        )
     )
 
     class Meta:
         unique_together = ('user', 'store',)
+        verbose_name = _('betalingskoppeling')
+        verbose_name_plural = _('betalingskoppelingen')
 
     @classmethod
     def create(cls, user, store, instance=None, **kwargs):
@@ -237,30 +276,42 @@ class PaymentLink(models.Model):
 class Invite(models.Model, DirtyFieldsMixin):
     group = models.ForeignKey(
         'Group',
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        verbose_name=_('groep'),
+        help_text=_('Groep.')
     )
     user = models.ForeignKey(
         'User',
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        verbose_name=_('gebruiker'),
+        help_text=_('Gebruiker.')
     )
     invited_by = models.ForeignKey(
         'User',
         on_delete=models.CASCADE,
-        related_name='sent_invites'
+        related_name='sent_invites',
+        verbose_name=_('uitgenodigd door'),
+        help_text=_('Gebruiker die de uitnodiging heeft verstuurd.')
     )
     membership = models.ForeignKey(
         'Membership',
         on_delete=models.CASCADE,
         null=True,
-        blank=True
+        blank=True,
+        verbose_name=_('lidmaatschap'),
+        help_text=_('Lidmaatschap.')
     )
     status = models.IntegerField(
         default=INVITE_STATUS_WAITING,
-        choices=INVITE_STATUSES
+        choices=INVITE_STATUSES,
+        verbose_name=_('status'),
+        help_text=_('Status.')
     )
 
     class Meta:
         unique_together = ('group', 'user',)
+        verbose_name = _('uitnodiging')
+        verbose_name_plural = _('uitnodigingen')
 
     def save(self, *args, **kwargs):
         dirty_fields = self.get_dirty_fields()
@@ -311,16 +362,22 @@ class Invite(models.Model, DirtyFieldsMixin):
 
 class Group(models.Model):
     name = models.CharField(
-        max_length=255
+        max_length=255,
+        verbose_name=_('naam'),
+        help_text=_('Naam.')
     )
     billing = models.IntegerField(
         default=GROUP_BILLING_SEPARATE,
-        choices=GROUP_BILLINGS
+        choices=GROUP_BILLINGS,
+        verbose_name=_('betalingswijze'),
+        help_text=_('Wijze van betaling.')
     )
     users = models.ManyToManyField(
         User,
         through='Membership',
-        through_fields=('group', 'user',)
+        through_fields=('group', 'user',),
+        verbose_name=_('leden'),
+        help_text=_('Leden.')
     )
 
     @classmethod
@@ -347,23 +404,31 @@ class Membership(models.Model):
     group = models.ForeignKey(
         Group,
         on_delete=models.CASCADE,
-        related_name='memberships'
+        related_name='memberships',
+        verbose_name=_('groep'),
+        help_text=_('Groep.')
     )
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='memberships'
+        related_name='memberships',
+        verbose_name=_('gebruiker'),
+        help_text=_('Gebruiker.')
     )
 
     # TODO: Check whether it's the only leader
     # Perhaps by adding a unique_together:
     # ['group', 'leader']
     leader = models.BooleanField(
-        default=False
+        default=False,
+        verbose_name=_('leider'),
+        help_text=_('Of dit de leider van de groep is.')
     )
 
     class Meta:
         unique_together = ['group', 'user']
+        verbose_name = _('lidmaatschap')
+        verbose_name_plural = _('lidmaatschappen')
 
     def __str__(self):
         return '{group}: {user}'.format(
@@ -375,18 +440,26 @@ class Membership(models.Model):
 class Heart(models.Model):
     user = models.ForeignKey(
         User,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        verbose_name=_('gebruiker'),
+        help_text=_('Gebruiker.')
     )
     store = models.ForeignKey(
         Store,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        verbose_name=_('winkel'),
+        help_text=_('Winkel.')
     )
     added = models.DateTimeField(
-        auto_now_add=True
+        auto_now_add=True,
+        verbose_name=_('toegevoegd'),
+        help_text=_('Datum waarop deze persoon deze winkel "geheart" heeft.')
     )
 
     class Meta:
         unique_together = ('user', 'store',)
+        verbose_name = _('hart')
+        verbose_name_plural = _('hartjes')
 
     def __str__(self):
         return '{user}, {store}'.format(
@@ -398,44 +471,65 @@ class Heart(models.Model):
 class Reservation(CleanModelMixin, models.Model):
     user = models.ForeignKey(
         User,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        verbose_name=_('gebruiker'),
+        help_text=_('Gebruiker.')
     )
     store = models.ForeignKey(
         Store,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        verbose_name=_('winkel'),
+        help_text=_('Winkel.')
     )
 
     seats = models.PositiveIntegerField(
         default=1,
         validators=[
             MinValueValidator(1)
-        ]
+        ],
+        verbose_name=_('plaatsen'),
+        help_text=_('Plaatsen.')
     )
     placed = models.DateTimeField(
         auto_now_add=True,
-        verbose_name='Time of placement'
+        verbose_name=_('geplaatst'),
+        help_text=_('Tijd waarop reservatie werd geplaatst.')
     )
     reservation_time = models.DateTimeField(
-        verbose_name='Time of reservation'
+        verbose_name=_('tijd van reservatie'),
+        help_text=_('Tijd van reservatie.')
     )
     comment = models.TextField(
         blank=True,
-        verbose_name='Comment from user'
+        verbose_name=_('commentaar'),
+        help_text=_('Commentaar.')
     )
 
     suggestion = models.DateTimeField(
         null=True,
-        blank=True
+        blank=True,
+        verbose_name=_('suggestie'),
+        help_text=_(
+            'Indien de reservatie werd afgewezen wordt, kan er een andere '
+            'datum worden voorgesteld.'
+        )
     )
     response = models.TextField(
         blank=True,
-        verbose_name='Response from store'
+        verbose_name=_('antwoord'),
+        help_text=_('Antwoord van de winkel.')
     )
 
     status = models.IntegerField(
         choices=RESERVATION_STATUSES,
-        default=RESERVATION_STATUS_PLACED
+        default=RESERVATION_STATUS_PLACED,
+        verbose_name=_('status'),
+        help_text=_('Status.')
     )
+
+    class Meta:
+        verbose_name = _('reservatie')
+        verbose_name_plural = _('reservaties')
 
     def clean_seats(self):
         if self.seats > self.store.seats_max:
@@ -457,11 +551,15 @@ class Reservation(CleanModelMixin, models.Model):
 class AbstractOrder(CleanModelMixin, models.Model):
     user = models.ForeignKey(
         User,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        verbose_name=_('gebruiker'),
+        help_text=_('Gebruiker.')
     )
     store = models.ForeignKey(
         Store,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        verbose_name=_('winkel'),
+        help_text=_('Winkel.')
     )
 
     objects = OrderManager()
@@ -495,57 +593,87 @@ class AbstractOrder(CleanModelMixin, models.Model):
 class Order(AbstractOrder, DirtyFieldsMixin):
     placed = models.DateTimeField(
         auto_now_add=True,
-        verbose_name='Time of placement'
+        verbose_name=_('tijd van plaatsing'),
+        help_text=_('Tijdstip waarop de bestelling werd geplaatst.')
     )
     receipt = models.DateTimeField(
         null=True,
-        verbose_name='Time of receipt'
+        verbose_name=_('tijd afgave'),
+        help_text=_('Tijd van afhalen of levering.')
     )
     status = models.PositiveIntegerField(
         choices=ORDER_STATUSES,
-        default=ORDER_STATUS_PLACED
+        default=ORDER_STATUS_PLACED,
+        verbose_name=_('status'),
+        help_text=_('Status.')
     )
     total = models.DecimalField(
         decimal_places=2,
         max_digits=7,
-        default=0
+        default=0,
+        verbose_name=_('totale prijs'),
+        help_text=_('Totale prijs.')
     )
     total_confirmed = models.DecimalField(
         decimal_places=2,
         max_digits=7,
         default=None,
         null=True,
-        blank=True
+        blank=True,
+        verbose_name=_('totale gecorrigeerde prijs'),
+        help_text=_(
+            'Totale prijs na correctie van de winkel indien een afgewogen '
+            'hoeveelheid licht afwijkt van de bestelde hoeveelheid.'
+        )
     )
     description = models.TextField(
-        blank=True
+        blank=True,
+        verbose_name=_('commentaar'),
+        help_text=_('Commentaar.')
     )
     reservation = models.OneToOneField(
         Reservation,
         on_delete=models.SET_NULL,
         null=True,
-        blank=True
+        blank=True,
+        verbose_name=_('reservatie'),
+        help_text=_(
+            'Reservaties kunnen gekoppeld worden met een bestelling zodat '
+            'men kan de bestelling bij de winkel kunnen opeten.'
+        )
     )
     payment = models.ForeignKey(
         Payment,
         on_delete=models.SET_NULL,
         null=True,
-        blank=True
+        blank=True,
+        verbose_name=_('betaling'),
+        help_text=_('Betaling.')
     )
     payment_method = models.IntegerField(
         choices=PAYMENT_METHODS,
-        default=PAYMENT_METHOD_CASH
+        default=PAYMENT_METHOD_CASH,
+        verbose_name=_('betalingswijze'),
+        help_text=_('Betalingswijze.')
     )
     delivery_address = models.ForeignKey(
         Address,
         on_delete=models.SET_NULL,
         null=True,
-        blank=True
+        blank=True,
+        verbose_name=_('leveringsadres'),
+        help_text=_('Leveringsadres.')
     )
     orderedfood = GenericRelation(
         'OrderedFood',
-        related_query_name='placed_order'
+        related_query_name='placed_order',
+        verbose_name=_('bestelde etenswaren'),
+        help_text=_('Bestelde etenswaren.')
     )
+
+    class Meta:
+        verbose_name = _('bestelling')
+        verbose_name_plural = _('bestellingen')
 
     def save(self, *args, **kwargs):
         self.full_clean()
@@ -688,11 +816,15 @@ class Order(AbstractOrder, DirtyFieldsMixin):
 class TemporaryOrder(AbstractOrder):
     orderedfood = GenericRelation(
         'OrderedFood',
-        related_query_name='temporary_order'
+        related_query_name='temporary_order',
+        verbose_name=_('bestelde etenswaren'),
+        help_text=_('Bestelde etenswaren.')
     )
 
     class Meta:
         unique_together = ['user', 'store']
+        verbose_name = _('tijdelijke bestelling')
+        verbose_name_plural = _('tijdelijke bestellingen')
 
     def place(self, **kwargs):
         order = Order.objects.create_with_orderedfood(
@@ -708,16 +840,22 @@ class TemporaryOrder(AbstractOrder):
 class OrderedFood(models.Model):
     ingredients = models.ManyToManyField(
         Ingredient,
-        blank=True
+        blank=True,
+        verbose_name=_('ingrediënten'),
+        help_text=_('Ingrediënten.')
     )
     amount = models.DecimalField(
         decimal_places=3,
         max_digits=7,
-        default=1
+        default=1,
+        verbose_name=_('hoeveelheid'),
+        help_text=_('Hoeveelheid.')
     )
     cost = models.DecimalField(
         decimal_places=2,
-        max_digits=7
+        max_digits=7,
+        verbose_name=_('kostprijs'),
+        help_text=_('Kostprijs.')
     )
     content_type = models.ForeignKey(
         ContentType,
@@ -730,23 +868,33 @@ class OrderedFood(models.Model):
     object_id = models.PositiveIntegerField()
     order = GenericForeignKey(
         'content_type',
-        'object_id'
+        'object_id',
     )
     original = models.ForeignKey(
         Food,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        verbose_name=_('origineel etenswaar'),
+        help_text=_('Origineel etenswaar.')
     )
     is_original = models.BooleanField(
-        default=False
+        default=False,
+        verbose_name=_('identiek aan origineel'),
+        help_text=_(
+            'Bestelde etenswaren zijn identiek aan het origineel als er geen '
+            'ingrediënten toegevoegd of afgetrokken werden.'
+        )
     )
     comment = models.TextField(
-        blank=True
+        blank=True,
+        verbose_name=_('commentaar'),
+        help_text=_('Commentaar.')
     )
 
     objects = OrderedFoodManager()
 
     class Meta:
-        verbose_name_plural = 'Ordered food'
+        verbose_name = _('besteld etenswaar')
+        verbose_name_plural = _('bestelde etenswaren')
 
     @cached_property
     def ingredientgroups(self):
@@ -760,9 +908,11 @@ class OrderedFood(models.Model):
     @property
     def total(self):
         """Calculate the total cost of the OrderedFood."""
-        return math.ceil(
-            (self.cost * self.amount * self.amount_food) * 100
-        ) / 100.0
+        return Decimal(
+            math.ceil(
+                (self.cost * self.amount * self.amount_food) * 100
+            ) / 100.0
+        )
 
     def get_amount_display(self):
         """Get the amount formatted in a correct format."""
@@ -886,8 +1036,14 @@ class OrderedFood(models.Model):
 class UserToken(BaseToken):
     user = models.ForeignKey(
         User,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        verbose_name=_('gebruiker'),
+        help_text=_('Gebruiker.')
     )
+
+    class Meta:
+        verbose_name = _('gebruikerstoken')
+        verbose_name_plural = _('gebruikerstokens')
 
     @staticmethod
     def response(user, device, service=SERVICE_INACTIVE, registration_id=''):
