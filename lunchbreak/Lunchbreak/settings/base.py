@@ -105,7 +105,7 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'frontend/img'),
     os.path.join(BASE_DIR, 'frontend/js'),
-    os.path.join(BASE_DIR, 'frontend/templates/nunjucks'),
+    os.path.join(BASE_DIR, 'frontend/jinja2/nunjucks'),
     os.path.join(BASE_DIR, 'frontend/scss'),
     os.path.join(BASE_DIR, 'frontend/mdl/src'),
     os.path.join(BASE_DIR, 'frontend/intl-tel-input/build/js'),
@@ -130,11 +130,8 @@ GOOGLE_WEB_CREDENTIALS = 'AIzaSyBb7Bd6r-jTG10gEXH3Tmrasd-qJ4oFHlo'
 TEMPLATES = [
     {
         'BACKEND': 'django_jinja.backend.Jinja2',
-        'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
-            'match_extension': None,
-            'match_regex': r'^(?!admin/).*',
             'context_processors': [
                 'django.contrib.auth.context_processors.auth',
                 'django.template.context_processors.debug',
@@ -153,14 +150,14 @@ TEMPLATES = [
             'extensions': DEFAULT_EXTENSIONS + [
                 'sass_processor.jinja2.ext.SassSrc',
                 'compressor.contrib.jinja2ext.CompressorExtension',
-                'jinja2.ext.loopcontrols'
             ],
             'filters': {
                 'list_periods': 'frontend.templatetags.filters.list_periods',
                 'humanize_weekday': 'frontend.templatetags.filters.humanize_weekday',
                 'json_weekday_periods': 'frontend.templatetags.filters.json_weekday_periods',
             },
-            'translation_engine': 'django.utils.translation',
+            'match_extension': '.html',
+            'app_dirname': 'jinja2',
         }
     },
     {

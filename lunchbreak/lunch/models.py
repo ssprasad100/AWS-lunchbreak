@@ -36,15 +36,14 @@ from .specs import HDPI, LDPI, MDPI, XHDPI, XXHDPI, XXXHDPI
 
 class StoreCategory(models.Model):
     name = models.CharField(
-        max_length=255
-    )
-    icon = models.PositiveIntegerField(
-        choices=ICONS,
-        default=ICONS[0][0]
+        max_length=255,
+        verbose_name=_('Naam'),
+        help_text=_('Naam.')
     )
 
     class Meta:
-        verbose_name_plural = 'Store categories'
+        verbose_name = _('winkelcategorie')
+        verbose_name_plural = _('winkelcategorieën')
 
     def __str__(self):
         return self.name
@@ -53,32 +52,38 @@ class StoreCategory(models.Model):
 class StoreHeader(Polaroid):
     original = models.ImageField(
         storage=PrivateMediaStorage(),
-        upload_to='storeheader'
+        upload_to='storeheader',
+        verbose_name=_('Origineel'),
+        help_text=_('De originele afbeelding die werd geüpload.')
     )
     ldpi = ImageSpecField(
         spec=LDPI,
-        source='original'
+        source='original',
     )
     mdpi = ImageSpecField(
         spec=MDPI,
-        source='original'
+        source='original',
     )
     hdpi = ImageSpecField(
         spec=HDPI,
-        source='original'
+        source='original',
     )
     xhdpi = ImageSpecField(
         spec=XHDPI,
-        source='original'
+        source='original',
     )
     xxhdpi = ImageSpecField(
         spec=XXHDPI,
-        source='original'
+        source='original',
     )
     xxxhdpi = ImageSpecField(
         spec=XXXHDPI,
-        source='original'
+        source='original',
     )
+
+    class Meta:
+        verbose_name = _('headerafbeelding')
+        verbose_name_plural = _('headerafbeeldingen')
 
 
 class AbstractAddress(models.Model, DirtyFieldsMixin):
@@ -215,8 +220,8 @@ class Store(AbstractAddress):
 
     categories = models.ManyToManyField(
         StoreCategory,
-        verbose_name=_('Cateogorieën'),
-        help_text=_('Cateogorieën.')
+        verbose_name=_('Winkelcategorieën'),
+        help_text=_('Winkelcategorieën.')
     )
     wait = models.DurationField(
         default=timedelta(seconds=60),
@@ -475,16 +480,24 @@ class Store(AbstractAddress):
 
 class Region(models.Model):
     name = models.CharField(
-        max_length=255
+        max_length=255,
+        verbose_name=_('Naam'),
+        help_text=_('Naam.')
     )
     country = models.PositiveSmallIntegerField(
-        choices=COUNTRIES
+        choices=COUNTRIES,
+        verbose_name=_('Land'),
+        help_text=_('Land.')
     )
     postcode = models.CharField(
-        max_length=255
+        max_length=255,
+        verbose_name=_('Postcode'),
+        help_text=_('Postcode.')
     )
 
     class Meta:
+        verbose_name = _('regio')
+        verbose_name_plural = _('regio\'s')
         unique_together = ('country', 'postcode',)
 
     def save(self, *args, **kwargs):
@@ -540,14 +553,24 @@ class Region(models.Model):
 class Period(models.Model):
     store = models.ForeignKey(
         Store,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        verbose_name=_('Winkel'),
+        help_text=_('Winkel.')
     )
 
     day = models.PositiveSmallIntegerField(
-        choices=WEEKDAYS
+        choices=WEEKDAYS,
+        verbose_name=_('Weekdag'),
+        help_text=_('Dag van de week.')
     )
-    time = models.TimeField()
-    duration = models.DurationField()
+    time = models.TimeField(
+        verbose_name=_('Openingstijd'),
+        help_text=_('Tijdstip waarop de winkel opengaat.')
+    )
+    duration = models.DurationField(
+        verbose_name=_('Openingsduur'),
+        help_text=_('Hoelang de winkel open is vanaf de openingstijd.')
+    )
 
     objects = PeriodQuerySet.as_manager()
 
@@ -611,31 +634,53 @@ class Period(models.Model):
 
 
 class OpeningPeriod(Period):
-    pass
+
+    class Meta:
+        verbose_name = _('openingstijd')
+        verbose_name_plural = _('openingstijden')
 
 
 class DeliveryPeriod(Period):
-    pass
+
+    class Meta:
+        verbose_name = _('leveringstijd')
+        verbose_name_plural = _('leveringstijden')
 
 
 class HolidayPeriod(CleanModelMixin, models.Model):
     store = models.ForeignKey(
         Store,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        verbose_name=_('Winkel'),
+        help_text=_('Winkel.')
     )
     description = models.CharField(
         max_length=255,
-        blank=True
+        blank=True,
+        verbose_name=_('Beschrijving'),
+        help_text=_('Beschrijving met een reden.')
     )
 
-    start = models.DateTimeField()
-    end = models.DateTimeField()
+    start = models.DateTimeField(
+        verbose_name=_('Start'),
+        help_text=_('Start van de vakantieperiode.')
+    )
+    end = models.DateTimeField(
+        verbose_name=_('Einde'),
+        help_text=_('Einde van de vakantieperiode.')
+    )
 
     closed = models.BooleanField(
-        default=True
+        default=True,
+        verbose_name=_('Gesloten'),
+        help_text=_('Of de winkel gesloten is tijdens deze vakantieperiode.')
     )
 
     objects = HolidayPeriodQuerySet.as_manager()
+
+    class Meta:
+        verbose_name = _('vakantieperiode')
+        verbose_name_plural = _('vakantieperiodes')
 
     @property
     def period(self):
@@ -667,20 +712,35 @@ class HolidayPeriod(CleanModelMixin, models.Model):
 
 class FoodType(models.Model):
     name = models.CharField(
-        max_length=255
+        max_length=255,
+        verbose_name=_('Naam'),
+        help_text=_('Naam.')
     )
     quantifier = models.CharField(
         max_length=255,
         blank=True,
-        null=True
+        null=True,
+        verbose_name=_('Eenheid'),
+        help_text=_('Naam van de eenheid van eten, vb: "broodjes", "broden"...')
     )
     inputtype = models.PositiveIntegerField(
         choices=INPUT_TYPES,
-        default=INPUT_TYPES[0][0]
+        default=INPUT_TYPES[0][0],
+        verbose_name=_('Invoer type'),
+        help_text=_(
+            'Invoer type die aanduid hoe de hoeveelheid ingegeven moet en '
+            'kan worden.'
+        )
     )
     customisable = models.BooleanField(
-        default=True
+        default=True,
+        verbose_name=_('Aanpasbaar'),
+        help_text=_('Of dit type etenswaar aanpasbaar kan zijn.')
     )
+
+    class Meta:
+        verbose_name = _('type etenswaar')
+        verbose_name_plural = _('type etenswaren')
 
     def is_valid_amount(self, amount, quantity=None):
         return (
@@ -695,27 +755,37 @@ class FoodType(models.Model):
 
 class IngredientGroup(CleanModelMixin, models.Model):
     name = models.CharField(
-        max_length=255
+        max_length=255,
+        verbose_name=_('Naam'),
+        help_text=_('Naam.')
     )
     foodtype = models.ForeignKey(
         FoodType,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        verbose_name=_('Type etenswaar'),
+        help_text=_('Type etenswaar.')
     )
     store = models.ForeignKey(
         Store,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        verbose_name=_('Winkel'),
+        help_text=_('Winkel.')
     )
 
     maximum = models.PositiveIntegerField(
         default=0,
-        verbose_name='Maximum amount'
+        verbose_name=_('Maximum'),
+        help_text=_('Maximum hoeveelheid.')
     )
     minimum = models.PositiveIntegerField(
         default=0,
-        verbose_name='Minimum amount'
+        verbose_name=_('Minimum'),
+        help_text=_('Minimum hoeveelheid.')
     )
     priority = models.PositiveIntegerField(
-        default=0
+        default=0,
+        verbose_name=_('Prioriteit'),
+        help_text=_('Prioriteit waarop gesorteerd wordt.')
     )
     cost = models.DecimalField(
         default=0,
@@ -723,12 +793,25 @@ class IngredientGroup(CleanModelMixin, models.Model):
             MinValueValidator(0)
         ],
         max_digits=7,
-        decimal_places=2
+        decimal_places=2,
+        verbose_name=_('Basisprijs'),
+        help_text=_(
+            'Basisprijs indien toegevoegd of afgetrokken van het etenswaar.'
+        )
     )
     calculation = models.PositiveIntegerField(
         choices=COST_GROUP_CALCULATIONS,
-        default=COST_GROUP_ALWAYS
+        default=COST_GROUP_ALWAYS,
+        verbose_name=_('Prijsberekening'),
+        help_text=_(
+            'Manier waarop de prijs moet berekened worden indien '
+            'ingrediënten aangepast toegevoegd of afgetrokken worden.'
+        )
     )
+
+    class Meta:
+        verbose_name = _('ingrediëntengroep')
+        verbose_name_plural = _('ingrediëntengroepen')
 
     def clean_minimum(self):
         if self.minimum > self.maximum:
@@ -785,27 +868,44 @@ class IngredientGroup(CleanModelMixin, models.Model):
 
 class Ingredient(models.Model, DirtyFieldsMixin):
     name = models.CharField(
-        max_length=255
+        max_length=255,
+        verbose_name=_('Naam'),
+        help_text=('Naam.')
     )
     cost = models.DecimalField(
         default=0,
         max_digits=7,
-        decimal_places=2
+        decimal_places=2,
+        verbose_name=_('Basisprijs'),
+        help_text=(
+            'Basisprijs diet in rekening wordt gebracht afhankelijk van de '
+            'prijsberekening ingesteld op de ingrediëntengroep.'
+        )
     )
 
     group = models.ForeignKey(
         IngredientGroup,
         on_delete=models.CASCADE,
-        related_name='ingredients'
+        related_name='ingredients',
+        verbose_name=_('Ingrediëntengroep'),
+        help_text=('Ingrediëntengroep.')
     )
     store = models.ForeignKey(
         Store,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        verbose_name=_('Winkel'),
+        help_text=('Winkel.')
     )
 
     last_modified = models.DateTimeField(
-        auto_now=True
+        auto_now=True,
+        verbose_name=_('Laatst aangepast'),
+        help_text=('Laatst aangepast.')
     )
+
+    class Meta:
+        verbose_name = _('ingrediënt')
+        verbose_name_plural = _('ingrediënt')
 
     def save(self, *args, **kwargs):
         if self.store != self.group.store:
@@ -828,19 +928,27 @@ class Ingredient(models.Model, DirtyFieldsMixin):
 
 class Menu(models.Model):
     name = models.CharField(
-        max_length=255
+        max_length=255,
+        verbose_name=_('Naam'),
+        help_text=('Naam.')
     )
     priority = models.PositiveIntegerField(
-        default=0
+        default=0,
+        verbose_name=_('Prioriteit'),
+        help_text=('Prioriteit.')
     )
     store = models.ForeignKey(
         Store,
         on_delete=models.CASCADE,
-        related_name='menus'
+        related_name='menus',
+        verbose_name=_('Winkel'),
+        help_text=('Winkel.')
     )
 
     class Meta:
         unique_together = ('name', 'store',)
+        verbose_name = 'menu'
+        verbose_name_plural = 'menu\'s'
 
     def __str__(self):
         return self.name
@@ -849,31 +957,42 @@ class Menu(models.Model):
 class Quantity(CleanModelMixin, models.Model):
     foodtype = models.ForeignKey(
         FoodType,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        verbose_name=_('Type etenswaar'),
+        help_text=('Type etenswaar.')
     )
     store = models.ForeignKey(
         Store,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        verbose_name=_('Winkel'),
+        help_text=('Winkel.')
     )
 
     minimum = models.DecimalField(
         decimal_places=3,
         max_digits=7,
-        default=1
+        default=1,
+        verbose_name=_('Minimum'),
+        help_text=('Minimum hoeveelheid.')
     )
     maximum = models.DecimalField(
         decimal_places=3,
         max_digits=7,
-        default=10
+        default=10,
+        verbose_name=_('Maximum'),
+        help_text=('Maximum hoeveelheid.')
     )
 
     last_modified = models.DateTimeField(
-        auto_now=True
+        auto_now=True,
+        verbose_name=_('Laatst aangepast'),
+        help_text=('Laatst aangepast.')
     )
 
     class Meta:
         unique_together = ('foodtype', 'store',)
-        verbose_name_plural = 'Quantities'
+        verbose_name = _('hoeveelheid')
+        verbose_name_plural = _('hoeveelheden')
 
     def clean_minimum(self):
         if self.minimum > self.maximum:
@@ -900,63 +1019,105 @@ class Quantity(CleanModelMixin, models.Model):
 
 class Food(CleanModelMixin, models.Model):
     name = models.CharField(
-        max_length=255
+        max_length=255,
+        verbose_name=_('Naam'),
+        help_text=('Naam.')
     )
     description = models.TextField(
-        blank=True
+        blank=True,
+        verbose_name=_('Beschrijving'),
+        help_text=('Beschrijving.')
     )
     amount = models.DecimalField(
         decimal_places=3,
         max_digits=7,
-        default=1
+        default=1,
+        verbose_name=_('Standaardhoeveelheid'),
+        help_text=('Hoeveelheid die standaard is ingevuld.')
     )
     cost = models.DecimalField(
         decimal_places=2,
-        max_digits=7
+        max_digits=7,
+        verbose_name=_('Basisprijs'),
+        help_text=(
+            'Basisprijs, dit is inclusief de gekozen ingrediënten en '
+            'ingrediëntengroepen.'
+        )
     )
     foodtype = models.ForeignKey(
         FoodType,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        verbose_name=_('Type etenswaar'),
+        help_text=('Type etenswaar.')
     )
     preorder_days = models.PositiveIntegerField(
-        default=0
+        default=0,
+        verbose_name=_('Dagen op voorhand bestellen'),
+        help_text=(
+            'Minimum dagen op voorhand bestellen voor het uur ingesteld op de '
+            'winkel.'
+        )
     )
     commentable = models.BooleanField(
-        default=False
+        default=False,
+        verbose_name=_('Commentaar mogelijk'),
+        help_text=(
+            'Of er commentaar kan achter worden gelaten bij het bestellen.'
+        )
     )
     priority = models.BigIntegerField(
-        default=0
+        default=0,
+        verbose_name=_('Prioriteit'),
+        help_text=('Prioriteit.')
     )
 
     menu = models.ForeignKey(
         Menu,
         on_delete=models.CASCADE,
-        related_name='food'
+        related_name='food',
+        verbose_name=_('Menu'),
+        help_text=('Menu.')
     )
     ingredients = models.ManyToManyField(
         Ingredient,
         through='IngredientRelation',
-        blank=True
+        blank=True,
+        verbose_name=_('Ingrediënten'),
+        help_text=('Ingrediënten.')
     )
     ingredientgroups = models.ManyToManyField(
         IngredientGroup,
-        blank=True
+        blank=True,
+        verbose_name=_('Inrgediëntengroep'),
+        help_text=('Inrgediëntengroep.')
     )
     store = models.ForeignKey(
         Store,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        verbose_name=_('Winkel'),
+        help_text=('Winkel.')
     )
 
     last_modified = models.DateTimeField(
-        auto_now=True
+        auto_now=True,
+        verbose_name=_('Laatst aangepast'),
+        help_text=('Laatst aangepast.')
     )
     deleted = models.BooleanField(
-        default=False
+        default=False,
+        verbose_name=_('Verwijderd'),
+        help_text=(
+            'Duid aan of het item wacht om verwijderd te worden. Het wordt '
+            'pas verwijderd wanneer er geen actieve bestellingen meer zijn '
+            'met dit etenswaar.'
+        )
     )
+
     objects = FoodManager()
 
     class Meta:
-        verbose_name_plural = 'Food'
+        verbose_name = 'etenswaar'
+        verbose_name_plural = 'etenswaren'
 
     @cached_property
     def has_ingredients(self):
@@ -1031,7 +1192,8 @@ class Food(CleanModelMixin, models.Model):
     def clean_store(self):
         if self.store_id != self.menu.store_id:
             raise LinkingError(
-                'De menu van het eten moet van dezelfde winkel zijn als het eten.'
+                'De menu van het etenswaar moet van dezelfde winkel zijn als '
+                'het etenswaar.'
             )
 
     def save(self, *args, **kwargs):
@@ -1043,7 +1205,10 @@ class Food(CleanModelMixin, models.Model):
             self.delete()
 
     def delete(self, *args, **kwargs):
-        if self.orderedfood_set.filter(placed_order__status__in=ORDER_STATUSES_ACTIVE).count() == 0:
+        active_orders_amount = self.orderedfood_set.filter(
+            placed_order__status__in=ORDER_STATUSES_ACTIVE
+        ).count()
+        if active_orders_amount == 0:
             super(Food, self).delete(*args, **kwargs)
         elif not self.deleted:
             self.deleted = True
@@ -1195,17 +1360,25 @@ class Food(CleanModelMixin, models.Model):
 class IngredientRelation(models.Model, DirtyFieldsMixin):
     food = models.ForeignKey(
         Food,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        verbose_name=_('Etenswaar'),
+        help_text=_('Etenswaar.')
     )
     ingredient = models.ForeignKey(
         Ingredient,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        verbose_name=_('Ingrediënt'),
+        help_text=_('Ingrediënt.')
     )
     selected = models.BooleanField(
-        default=False
+        default=False,
+        verbose_name=_('Geselecteerd'),
+        help_text=_('Of het ingrediënt standaard geselecteerd is.')
     )
     typical = models.BooleanField(
-        default=False
+        default=False,
+        verbose_name=_('Typisch'),
+        help_text=_('Of het een typisch ingrediënt is voor het gelinkte etenswaar.')
     )
 
     class Meta:
@@ -1227,16 +1400,20 @@ class IngredientRelation(models.Model, DirtyFieldsMixin):
 
 class BaseToken(BareDevice, DirtyFieldsMixin):
     device = models.CharField(
-        max_length=255
+        max_length=255,
+        verbose_name=_('Apparaat'),
+        help_text=_('Naam van het apparaat.')
     )
     identifier = models.CharField(
-        max_length=255
+        max_length=255,
+        verbose_name=_('Idenfitifcatie'),
+        help_text=_('Idenfitifcatie code die toegang geeft to Lunchbreak.')
     )
 
     objects = BaseTokenManager()
 
     class Meta:
-        abstract = True
+        abstract = True,
 
     def save(self, *args, **kwargs):
         # forced hashing can be removed when resetting migrations

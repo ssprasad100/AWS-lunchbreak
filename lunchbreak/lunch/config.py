@@ -64,11 +64,11 @@ LUXEMBURG = 2
 FRANCE = 3
 GERMANY = 4
 COUNTRIES = (
-    (BELGIUM, 'Belgium'),
-    (NETHERLANDS, 'The Netherlands'),
+    (BELGIUM, 'België'),
+    (NETHERLANDS, 'Nederland'),
     (LUXEMBURG, 'Luxemburg'),
-    (FRANCE, 'France'),
-    (GERMANY, 'Germany'),
+    (FRANCE, 'Frankrijk'),
+    (GERMANY, 'Duitsland'),
 )
 
 LANGUAGES = {
