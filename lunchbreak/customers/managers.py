@@ -8,9 +8,14 @@ from .exceptions import OrderedFoodNotOriginal
 
 class UserManager(BaseUserManager):
 
+    def get_by_natural_key(self, username):
+        return self.get(
+            phone__phone=username
+        )
+
     def _create_user(self, phone, name, password=None, **kwargs):
         user = self.model(
-            phone=phone,
+            phone__phone=phone,
             name=name,
             **kwargs
         )

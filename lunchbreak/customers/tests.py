@@ -929,9 +929,6 @@ class CustomersTests(LunchbreakTestCase):
                 'status': status_denied
             }
 
-            print('status_original', status_original)
-            print('status_denied', status_denied)
-
             request = self.factory.patch(url, content)
             response = self.authenticate_request(request, views.ReservationSingleView, **kwargs)
             self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

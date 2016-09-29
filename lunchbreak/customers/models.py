@@ -78,7 +78,7 @@ class User(AbstractBaseUser, PermissionsMixin):
             'store',
         ),
         blank=True,
-        verbose_name=_('etekende mandaten'),
+        verbose_name=_('getekende mandaten'),
         help_text=_('Getekende mandaten.')
     )
     is_staff = models.BooleanField(
@@ -105,6 +105,17 @@ class User(AbstractBaseUser, PermissionsMixin):
             name=self.name,
             phone=self.phone
         )
+
+    def phone_clean(raw_value, model_instance):
+        return Phone._meta.get_field('phone').clean(
+            raw_value, model_instance
+        )
+
+    phone.clean = phone_clean
+
+    @property
+    def phonenumber(self):
+        return self.phone.phone
 
     def get_full_name(self):
         return self.name

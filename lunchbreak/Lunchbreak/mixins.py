@@ -6,6 +6,8 @@ from .exceptions import LunchbreakException
 class CleanModelMixin:
 
     def clean(self):
+        super().clean()
+
         fields = self.__class__._meta.get_fields()
 
         for field in fields:
