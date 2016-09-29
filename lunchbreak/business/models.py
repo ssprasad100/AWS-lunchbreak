@@ -13,8 +13,8 @@ class AbstractPasswordReset(models.Model):
     password_reset = models.CharField(
         max_length=TOKEN_IDENTIFIER_LENGTH,
         blank=True,
-        verbose_name=_('Wachtwoord reset'),
-        help_text=_('Code gebruikt om het wachtwoord te veranderen')
+        verbose_name=_('wachtwoord reset'),
+        help_text=_('Code gebruikt om het wachtwoord te veranderen.')
     )
 
     class Meta:
@@ -24,8 +24,8 @@ class AbstractPasswordReset(models.Model):
 class AbstractPassword(AbstractPasswordReset):
     password = models.CharField(
         max_length=255,
-        verbose_name=_('Wachtwoord'),
-        help_text=_('Geëncrypteerd wachtwoord')
+        verbose_name=_('wachtwoord'),
+        help_text=_('Geëncrypteerd wachtwoord.')
     )
 
     class Meta:
@@ -44,31 +44,32 @@ class Staff(AbstractPassword):
         on_delete=models.CASCADE,
         null=True,
         blank=True,
-        verbose_name=_('Winkel'),
-        help_text=_('Winkel')
+        verbose_name=_('winkel'),
+        help_text=_('Winkel.')
     )
     email = models.EmailField(
         max_length=255,
         unique=True,
-        verbose_name=_('E-mailadres'),
-        help_text=_('E-mailadres')
+        verbose_name=_('e-mailadres'),
+        help_text=_('E-mailadres.')
     )
     first_name = models.CharField(
         max_length=255,
-        verbose_name=_('Voornaam'),
-        help_text=_('Voornaam')
+        verbose_name=_('voornaam'),
+        help_text=_('Voornaam.')
     )
     last_name = models.CharField(
         max_length=255,
-        verbose_name=_('Familienaam'),
-        help_text=_('Familienaam')
+        verbose_name=_('familienaam'),
+        help_text=_('Familienaam.')
     )
     merchant = models.ForeignKey(
         'django_gocardless.Merchant',
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        help_text=_('GoCardless account')
+        verbose_name=_('GoCardless account'),
+        help_text=_('GoCardless account.')
     )
 
     objects = StaffManager()
@@ -98,23 +99,39 @@ class Staff(AbstractPassword):
 class StaffToken(BaseToken):
     staff = models.ForeignKey(
         Staff,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        verbose_name=_('personeel'),
+        help_text=_('Personeel.')
     )
 
     APNS_CERTIFICATE = settings.BUSINESS_APNS_CERTIFICATE
 
+    class Meta:
+        verbose_name = _('personeelstoken')
+        verbose_name_plural = _('personeelstokens')
+
 
 class Employee(AbstractPassword):
     name = models.CharField(
-        max_length=255
+        max_length=255,
+        verbose_name=_('naam'),
+        help_text=_('Naam.')
     )
     staff = models.ForeignKey(
         Staff,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        verbose_name=_('peroneel'),
+        help_text=_('Personeel.')
     )
     owner = models.BooleanField(
-        default=False
+        default=False,
+        verbose_name=_('eigenaar'),
+        help_text=_('Of deze werknemer een eigenaar is.')
     )
+
+    class Meta:
+        verbose_name = _('werknemer')
+        verbose_name_plural = _('weknemers')
 
     def __str__(self):
         return self.name
@@ -123,7 +140,13 @@ class Employee(AbstractPassword):
 class EmployeeToken(BaseToken):
     employee = models.ForeignKey(
         Employee,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        verbose_name=_('werknemer'),
+        help_text=_('Werknemer.')
     )
 
     APNS_CERTIFICATE = settings.BUSINESS_APNS_CERTIFICATE
+
+    class Meta:
+        verbose_name = _('werknemerstoken')
+        verbose_name_plural = _('werknemerstokens')
