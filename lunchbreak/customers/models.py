@@ -131,7 +131,7 @@ class User(AbstractBaseUser, PermissionsMixin):
             )
 
             if not user.enabled:
-                return UserDisabled().response
+                raise UserDisabled()
 
             if not settings.DEBUG:
                 try:

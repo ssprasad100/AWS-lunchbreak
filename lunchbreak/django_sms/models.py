@@ -109,7 +109,8 @@ class Phone(models.Model):
             self.save()
 
     def is_valid(self, pin, raise_exception=True):
-        pin = str(pin)
+        # In case the pin is not a string, prepend it with zeros
+        pin = '{:06d}'.format(int(pin))
 
         if self.tries >= MAX_TRIES:
             if raise_exception:

@@ -349,7 +349,7 @@
         this.onConfirm = function() {
             if (!this.isValid())
                 return false;
-            pager.data['pin'] = parseInt(this.element.val());
+            pager.data['pin'] = this.element.val();
             this.login();
         };
 
