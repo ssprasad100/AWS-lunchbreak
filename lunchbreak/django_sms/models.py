@@ -109,6 +109,8 @@ class Phone(models.Model):
             self.save()
 
     def is_valid(self, pin, raise_exception=True):
+        pin = str(pin)
+
         if self.tries >= MAX_TRIES:
             if raise_exception:
                 raise PinTriesExceeded()
