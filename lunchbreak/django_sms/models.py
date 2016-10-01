@@ -109,12 +109,19 @@ class Phone(models.Model):
             self.save()
 
     def is_valid(self, pin, raise_exception=True):
-        # In case the pin is not a string, prepend it with zeros
-        pin = '{:06d}'.format(int(pin))
-
         if self.tries >= MAX_TRIES:
             if raise_exception:
                 raise PinTriesExceeded()
+            return False
+
+        # In case the pin is not a string, prepend it with zeros
+        try:
+            pin = '{:06d}'.format(int(pin))
+        except (ValueError, TypeError):
+            self.tries += 1
+            self.save()
+            if raise_exception:
+                raise PinIncorrect()
             return False
 
         if not pin or not self.pin or self.pin != pin:
