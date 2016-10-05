@@ -8,8 +8,10 @@ from ..models import Food, FoodType, Menu, Store
 
 class FoodTestCase(LunchbreakTestCase):
 
+    @mock.patch('googlemaps.Client.timezone')
     @mock.patch('googlemaps.Client.geocode')
-    def test_orderable(self, mock_geocode):
+    def test_orderable(self, mock_geocode, mock_timezone):
+        self.mock_timezone_result(mock_timezone)
         self.mock_geocode_results(mock_geocode)
         preorder_time = time(hour=12)
 

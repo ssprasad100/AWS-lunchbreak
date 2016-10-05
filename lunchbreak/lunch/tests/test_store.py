@@ -11,9 +11,11 @@ from ..models import HolidayPeriod, OpeningPeriod, Store
 
 class StoreTestCase(LunchbreakTestCase):
 
+    @mock.patch('googlemaps.Client.timezone')
     @mock.patch('googlemaps.Client.geocode')
-    def test_nearby(self, mock_geocode):
+    def test_nearby(self, mock_geocode, mock_timezone):
         """ Test whether LunchbreakManager.nearby returns the right stores. """
+        self.mock_timezone_result(mock_timezone)
         Store.objects.all().delete()
 
         self.mock_geocode_results(
@@ -96,9 +98,11 @@ class StoreTestCase(LunchbreakTestCase):
             [store_center, store_under2, store_under5, store_under8]
         )
 
+    @mock.patch('googlemaps.Client.timezone')
     @mock.patch('googlemaps.Client.geocode')
-    def test_last_modified(self, mock_geocode):
+    def test_last_modified(self, mock_geocode, mock_timezone):
         """Test whether updating OpeningPeriod and HolidayPeriod objects updates the Store."""
+        self.mock_timezone_result(mock_timezone)
         self.mock_geocode_results(mock_geocode)
         store = Store.objects.create(
             name='valid',
@@ -134,9 +138,11 @@ class StoreTestCase(LunchbreakTestCase):
 
         self.assertGreater(store.last_modified, last_modified_second)
 
+    @mock.patch('googlemaps.Client.timezone')
     @mock.patch('django.utils.timezone.now')
     @mock.patch('googlemaps.Client.geocode')
-    def test_check_open(self, mock_geocode, mock_now):
+    def test_check_open(self, mock_geocode, mock_now, mock_timezone):
+        self.mock_timezone_result(mock_timezone)
         today = Pendulum.now(settings.TIME_ZONE).with_time(
             hour=0,
             minute=0,

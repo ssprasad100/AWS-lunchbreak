@@ -29,9 +29,11 @@ class BusinessTestCase(LunchbreakTestCase):
     EMAIL = 'hello@cloock.be'
     EMAIL_OTHER = 'other@cloock.be'
 
+    @mock.patch('googlemaps.Client.timezone')
     @mock.patch('googlemaps.Client.geocode')
-    def setUp(self, mock_geocode):
+    def setUp(self, mock_geocode, mock_timezone):
         super().setUp()
+        self.mock_timezone_result(mock_timezone)
         self.factory = APIRequestFactory()
 
         self.mock_geocode_results(

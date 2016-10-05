@@ -7,8 +7,10 @@ from ..models import FoodType, IngredientGroup, Store
 
 class IngredientGroupTestCase(LunchbreakTestCase):
 
+    @mock.patch('googlemaps.Client.timezone')
     @mock.patch('googlemaps.Client.geocode')
-    def test_ingredientgroup(self, mock_geocode):
+    def test_ingredientgroup(self, mock_geocode, mock_timezone):
+        self.mock_timezone_result(mock_timezone)
         self.mock_geocode_results(mock_geocode)
         store = Store.objects.create(
             name='valid',

@@ -45,8 +45,10 @@ class CustomersTests(LunchbreakTestCase):
     DEVICE = 'Test device'
     REGISTRATION_ID = '123456789'
 
+    @mock.patch('googlemaps.Client.timezone')
     @mock.patch('googlemaps.Client.geocode')
-    def setUp(self, mock_geocode):
+    def setUp(self, mock_geocode, mock_timezone):
+        self.mock_timezone_result(mock_timezone)
         super(CustomersTests, self).setUp()
         self.factory = APIRequestFactory()
 
@@ -444,11 +446,13 @@ class CustomersTests(LunchbreakTestCase):
         model.save()
         return (model, model.__class__.objects.get(pk=oldPk),)
 
+    @mock.patch('googlemaps.Client.timezone')
     @mock.patch('googlemaps.Client.geocode')
-    def test_order(self, mock_geocode):
+    def test_order(self, mock_geocode, mock_timezone):
         """
         Test an order's total and whether marked Food's are deleted on save.
         """
+        self.mock_timezone_result(mock_timezone)
 
         self.mock_geocode_results(mock_geocode)
         self.food, original = self.clone_model(self.food)
@@ -1110,8 +1114,10 @@ class CustomersTests(LunchbreakTestCase):
 
         Group.objects.all().delete()
 
+    @mock.patch('googlemaps.Client.timezone')
     @mock.patch('googlemaps.Client.geocode')
-    def test_address_delete(self, mock_geocode):
+    def test_address_delete(self, mock_geocode, mock_timezone):
+        self.mock_timezone_result(mock_timezone)
         self.mock_geocode_results(
             mock_geocode,
             lat=51.0111595,

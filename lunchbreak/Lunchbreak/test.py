@@ -9,6 +9,13 @@ from rest_framework.test import APITestCase, force_authenticate
 
 class LunchbreakTestCase(APITestCase):
 
+    MOCK_TIMEZONE = {
+        'dstOffset': 0,
+        'rawOffset': 0,
+        'status': 'OK',
+        'timeZoneId': 'Europe/Brussels',
+        'timeZoneName': 'Central European Summer Time'
+    }
     MOCK_ADDRESS = [
         {
             'geometry': {
@@ -32,7 +39,8 @@ class LunchbreakTestCase(APITestCase):
         DEFAULT_URL_SCHEME='http',
         ROOT_URLCONF='Lunchbreak.urls.tests',
         GOOGLE_CLOUD_SECRET='AIza',
-        GOCARDLESS_ACCESS_TOKEN='something'
+        GOCARDLESS_ACCESS_TOKEN='something',
+        DEBUG=True
     )
     def run(self, *args, **kwargs):
         gocardless_settings = settings.GOCARDLESS
@@ -40,9 +48,11 @@ class LunchbreakTestCase(APITestCase):
         with override_settings(GOCARDLESS=gocardless_settings):
             super(LunchbreakTestCase, self).run(*args, **kwargs)
 
+    @mock.patch('googlemaps.Client.timezone')
     @mock.patch('googlemaps.Client.geocode')
-    def setUp(self, mock_geocode):
+    def setUp(self, mock_geocode, mock_timezone):
         self.mock_geocode_results(mock_geocode)
+        self.mock_timezone_result(mock_timezone)
         self.store = Store.objects.create(
             name='valid',
             country='Belgie',
@@ -52,6 +62,9 @@ class LunchbreakTestCase(APITestCase):
             street='Dendermondesteenweg',
             number=10
         )
+
+    def mock_timezone_result(self, mock_timezone):
+        mock_timezone.return_value = self.MOCK_TIMEZONE
 
     def mock_geocode_results(self, mock_geocode, return_value=None, lat=None, lng=None):
         if return_value is None:

@@ -22,9 +22,9 @@ from lunch.config import (COST_GROUP_ADDITIONS, COST_GROUP_BOTH, INPUT_SI_SET,
                           INPUT_SI_VARIABLE)
 from lunch.exceptions import BadRequest, LinkingError, NoDeliveryToAddress
 from lunch.models import AbstractAddress, BaseToken, Food, Ingredient, Store
+from lunch.utils import timezone_for_store
 from Lunchbreak.exceptions import LunchbreakException
 from Lunchbreak.mixins import CleanModelMixin
-from pendulum import Pendulum
 from push_notifications.models import SERVICE_INACTIVE
 from rest_framework import status
 from rest_framework.response import Response
@@ -547,7 +547,17 @@ class Reservation(CleanModelMixin, models.Model):
             raise MaxSeatsExceeded()
 
     def clean_reservation_time(self):
+        self.reservation_time = timezone_for_store(
+            value=self.reservation_time,
+            store=self.store
+        )
         self.store.is_open(self.reservation_time)
+
+    def clean_suggestion(self):
+        self.reservation_time = timezone_for_store(
+            value=self.reservation_time,
+            store=self.store
+        )
 
     def clean_status(self):
         if self.suggestion is not None:
@@ -801,14 +811,16 @@ class Order(AbstractOrder, DirtyFieldsMixin):
     def clean_receipt(self):
         # TODO: Check whether the store can accept an order if it is
         # for delivery and needs to be delivered asap (receipt=None).
-        if isinstance(self.receipt, Pendulum):
-            self.receipt = self.receipt._datetime
 
         if self.delivery_address is None:
             if self.receipt is None:
                 raise LunchbreakException(
                     _('Er moet een tijdstip voor het ophalen gegeven worden.')
                 )
+            self.receipt = timezone_for_store(
+                value=self.receipt,
+                store=self.store
+            )
             self.store.is_open(self.receipt)
 
     def clean_payment_method(self):

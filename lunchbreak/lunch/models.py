@@ -32,6 +32,7 @@ from .exceptions import (AddressNotFound, IngredientGroupMaxExceeded,
 from .managers import (BaseTokenManager, FoodManager, HolidayPeriodQuerySet,
                        PeriodQuerySet, StoreManager)
 from .specs import HDPI, LDPI, MDPI, XHDPI, XXHDPI, XXXHDPI
+from .utils import timezone_for_store
 
 
 class StoreCategory(models.Model):
@@ -134,14 +135,18 @@ class AbstractAddress(models.Model, DirtyFieldsMixin):
     class Meta:
         abstract = True
 
-    @staticmethod
-    def geocode(address):
-        google_client = googlemaps.Client(
+    @classmethod
+    def maps_client(cls):
+        return googlemaps.Client(
             key=settings.GOOGLE_CLOUD_SECRET,
             connect_timeout=5,
             read_timeout=5,
             retry_timeout=1
         )
+
+    @classmethod
+    def geocode(cls, address):
+        google_client = cls.maps_client()
         results = google_client.geocode(
             address=address
         )
@@ -187,20 +192,23 @@ class AbstractAddress(models.Model, DirtyFieldsMixin):
                         'longitude'
                     ]
                 )
-
-                address = '{country}, {province}, {street} {number}, {postcode} {city}'.format(
-                    country=self.country,
-                    province=self.province,
-                    street=self.street,
-                    number=self.number,
-                    postcode=self.postcode,
-                    city=self.city,
-                )
-
-                self.latitude, self.longitude = self.geocode(address=address)
+                self.update_location()
 
         self.full_clean()
         super(AbstractAddress, self).save(*args, **kwargs)
+
+    def update_location(self):
+        """Update the longitude and latitude based on the address."""
+        address = '{country}, {province}, {street} {number}, {postcode} {city}'.format(
+            country=self.country,
+            province=self.province,
+            street=self.street,
+            number=self.number,
+            postcode=self.postcode,
+            city=self.city,
+        )
+
+        self.latitude, self.longitude = self.geocode(address=address)
 
 
 class Store(AbstractAddress):
@@ -257,6 +265,12 @@ class Store(AbstractAddress):
         verbose_name=_('regio\'s'),
         help_text=_('Regio\'s waaraan geleverd wordt.')
     )
+    timezone = models.CharField(
+        max_length=255,
+        default='UTC',
+        verbose_name=_('tijdzone'),
+        help_text=_('Tijdzone.')
+    )
 
     last_modified = models.DateTimeField(
         auto_now=True,
@@ -292,6 +306,20 @@ class Store(AbstractAddress):
     @cached_property
     def hearts_count(self):
         return self.hearts.count()
+
+    def update_location(self):
+        super().update_location()
+
+        google_client = self.maps_client()
+        result = google_client.timezone(
+            location={
+                'lat': self.latitude,
+                'lng': self.longitude
+            },
+            language='English'
+        )
+
+        self.timezone = result['timeZoneId']
 
     def open_weekdays(self, openingperiods=None, **kwargs):
         """Wrapper for openingperiods_for returning the weekdays.
@@ -692,6 +720,16 @@ class HolidayPeriod(CleanModelMixin, models.Model):
         return period
 
     def clean_start(self):
+        self.start = timezone_for_store(
+            value=self.start,
+            store=self.store
+        )
+        # Put here because both the start and end need to be set to the same timezone
+        self.end = timezone_for_store(
+            value=self.end,
+            store=self.store
+        )
+
         if self.start >= self.end:
             raise LunchbreakException(
                 'Het begin moet voor het einde zijn.'
