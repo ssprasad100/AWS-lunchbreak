@@ -245,8 +245,11 @@ LOGGING = {
             'propagate': True,
         },
         'lunchbreak': {
-            'level': 'WARNING',
-            'handlers': ['opbeat'],
+            'level': 'DEBUG',
+            'handlers': [
+                'console',
+                'opbeat'
+            ],
             'propagate': False,
         },
         'opbeat.errors': {

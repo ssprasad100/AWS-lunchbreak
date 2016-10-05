@@ -13,7 +13,7 @@ class TargettedViewSet(viewsets.GenericViewSet):
             return getattr(self, action_attribute)
         except AttributeError:
             if not fallback:
-                raise
+                return getattr(super(), attribute)
             return getattr(super(), 'get_' + attribute)()
 
     def get_object(self):

@@ -1,13 +1,32 @@
+import traceback
+
+from django.conf import settings
 from django.core.exceptions import ValidationError as DjangoValidationError
+from rest_framework import status
 from rest_framework.exceptions import ValidationError as RestValidationError
+from rest_framework.response import Response
 from rest_framework.views import exception_handler
 
 
 def lunchbreak_exception_handler(exception, context):
     response = exception_handler(exception, context)
+
+    if settings.DEBUG:
+        traceback.print_exc()
+
+    if response is None:
+        response = Response(
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            exception=exception
+        )
+
     response.data = {
         'error': {
-            'detail': response.data
+            'detail': (
+                response.data
+                if response.data is not None
+                else str(exception)
+            )
         }
     }
     if exception is None:

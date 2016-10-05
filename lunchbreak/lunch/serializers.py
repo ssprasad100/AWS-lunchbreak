@@ -13,7 +13,6 @@ class StoreCategorySerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'name',
-            'icon',
         )
         read_only_fields = (
             'id',
