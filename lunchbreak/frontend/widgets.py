@@ -37,7 +37,8 @@ class ReceiptField(widgets.Widget):
                 time=datetime.strptime(
                     data.get(name + self.name_time),
                     '%H:%M'
-                ).time()
+                ).time(),
+                store=self.store
             )
         except TypeError:
             return None

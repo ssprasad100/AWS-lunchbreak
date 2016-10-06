@@ -107,6 +107,11 @@ class OrderedFoodSerializer(serializers.ModelSerializer):
             'is_original',
             'cost',
         )
+        extra_kwargs = {
+            'amount': {
+                'required': True
+            }
+        }
 
 
 class OrderedFoodPriceSerializer(serializers.ModelSerializer):

@@ -193,13 +193,13 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 25,
     'MAX_PAGINATE_BY': 25,
 
-    'DATE_FORMAT': 'iso-8601',
-    'TIME_FORMAT': 'iso-8601',
-    'DATETIME_FORMAT': 'iso-8601',
+    'DATE_FORMAT': '%Y-%m-%d',
+    'TIME_FORMAT': '%H:%M:%S%z',
+    'DATETIME_FORMAT': '%Y-%m-%dT%H:%M:%S%z',
 
-    'DATE_INPUT_FORMATS': ['iso-8601'],
-    'TIME_INPUT_FORMATS': ['iso-8601'],
-    'DATETIME_INPUT_FORMATS': ['iso-8601'],
+    'DATE_INPUT_FORMATS': ['%Y-%m-%d'],
+    'TIME_INPUT_FORMATS': ['%H:%M:%S%z'],
+    'DATETIME_INPUT_FORMATS': ['%Y-%m-%dT%H:%M:%S%z'],
 
     'COERCE_DECIMAL_TO_STRING': False,
 

@@ -373,16 +373,24 @@ class Store(AbstractAddress):
 
     @property
     def openingperiods_today(self):
-        """Wrapper for opening_periods where period is the whole current day."""
-        start = pendulum.instance(timezone.now()).hour_(0).minute_(0).second_(0)
+        """Wrapper for openingperiods_for_day where the datetime is the given current day."""
+        return self.openingperiods_for_day(
+            dt=timezone.now()
+        )
+
+    def openingperiods_for_day(self, dt, **kwargs):
+        """Wrapper for opening_periods where period is the whole given day."""
+        start = pendulum.instance(dt).hour_(0).minute_(0).second_(0)
         end = start.hour_(23).minute_(59).second_(59)
         period = pendulum.Period(
             start=start,
             end=end
         )
+        print('period', period)
 
         return self.openingperiods_for(
-            period=period
+            period=period,
+            **kwargs
         )
 
     def openingperiods_for(self, period=None, start=None, **kwargs):
@@ -408,7 +416,9 @@ class Store(AbstractAddress):
             ValueError: A period or start or kwargs must be given.
         """
         if period is None and start is None and not kwargs:
-            raise ValueError('A period or start or kwargs must be given.')
+            raise ValueError(
+                'A period or start or kwargs must be given.'
+            )
 
         if period is None:
             if start is None:
@@ -421,11 +431,17 @@ class Store(AbstractAddress):
                 end=end
             )
 
+        if pendulum.now().add(days=7) < period.end:
+            raise ValueError(
+                _('Bestellingen kunnen maximaal 1 week op voorhand besteld worden.')
+            )
+
         openingperiods = OpeningPeriod.objects.filter(
             store=self
         ).between(
             period=period
         )
+        print('openingperiods', openingperiods)
         holidayperiods = HolidayPeriod.objects.filter(
             store=self
         ).between(
@@ -458,6 +474,8 @@ class Store(AbstractAddress):
 
         if isinstance(dt, pendulum.Pendulum):
             dt = dt._datetime
+
+        print('dt', dt, dt.isoweekday())
 
         now = timezone.now()
 
@@ -492,11 +510,13 @@ class Store(AbstractAddress):
                     'De winkel is exclusief gesloten vanwege een vakantieperiode.'
                 )
 
-            periods = OpeningPeriod.objects.filter(
-                store=self
-            ).merged_periods()
+            periods = self.openingperiods_for_day(
+                dt=dt
+            )
+            print('periods', periods)
 
             for period in periods:
+                print('\tperiod', period)
                 if dt in period:
                     return True
 
@@ -625,11 +645,12 @@ class Period(models.Model):
         )
 
     @classmethod
-    def weekday_as_datetime(cls, weekday, time):
+    def weekday_as_datetime(cls, weekday, time, store):
         if weekday is None or time is None:
             return None
 
-        now = pendulum.now(settings.TIME_ZONE)
+        print('store.timezone', store.timezone)
+        now = pendulum.now(store.timezone)
         start = now.subtract(
             days=now.isoweekday()
         ).add(
@@ -641,7 +662,7 @@ class Period(models.Model):
             second=time.second,
             microsecond=time.microsecond
         )
-        if result.date() < pendulum.now(settings.TIME_ZONE).date():
+        if result.date() < pendulum.now(store.timezone).date():
             result = result.add(
                 days=7
             )
@@ -650,7 +671,8 @@ class Period(models.Model):
     def time_as_datetime(self):
         return self.weekday_as_datetime(
             weekday=self.day,
-            time=self.time
+            time=self.time,
+            store=self.store
         )
 
     def __str__(self):

@@ -28,7 +28,7 @@ class StoreHeaderAdmin(admin.ModelAdmin):
 @admin.register(Store)
 class StoreAdmin(admin.ModelAdmin):
     list_display = ('name', 'city', 'country', 'wait',)
-    readonly_fields = ('latitude', 'longitude', 'hearts',)
+    readonly_fields = ('timezone', 'latitude', 'longitude', 'hearts',)
     search_fields = ('name', 'city', 'street', 'country')
     list_filter = ('city', 'country',)
     ordering = ('name',)
