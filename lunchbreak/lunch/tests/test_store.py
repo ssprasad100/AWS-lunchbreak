@@ -2,7 +2,6 @@ from datetime import datetime, time, timedelta
 
 import mock
 from customers.exceptions import MinTimeExceeded, PastOrderDenied, StoreClosed
-from django.conf import settings
 from Lunchbreak.test import LunchbreakTestCase
 from pendulum import Pendulum
 
@@ -143,7 +142,8 @@ class StoreTestCase(LunchbreakTestCase):
     @mock.patch('googlemaps.Client.geocode')
     def test_check_open(self, mock_geocode, mock_now, mock_timezone):
         self.mock_timezone_result(mock_timezone)
-        today = Pendulum.now(settings.TIME_ZONE).with_time(
+        timezone = 'Europe/Brussels'
+        today = Pendulum.now(timezone).with_time(
             hour=0,
             minute=0,
             second=0,

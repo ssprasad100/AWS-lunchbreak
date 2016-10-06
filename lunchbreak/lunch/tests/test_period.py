@@ -34,7 +34,8 @@ class PeriodTestCase(LunchbreakTestCase):
                 period = Period(
                     day=day_in_week,
                     time=set_time,
-                    duration=time(1, 00)
+                    duration=time(1, 00),
+                    store=self.store
                 )
 
                 if day_in_week == now.isoweekday():

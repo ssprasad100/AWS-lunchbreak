@@ -197,9 +197,15 @@ REST_FRAMEWORK = {
     'TIME_FORMAT': '%H:%M:%S%z',
     'DATETIME_FORMAT': '%Y-%m-%dT%H:%M:%S%z',
 
-    'DATE_INPUT_FORMATS': ['%Y-%m-%d'],
-    'TIME_INPUT_FORMATS': ['%H:%M:%S%z'],
-    'DATETIME_INPUT_FORMATS': ['%Y-%m-%dT%H:%M:%S%z'],
+    'DATE_INPUT_FORMATS': [
+        'iso-8601'
+    ],
+    'TIME_INPUT_FORMATS': [
+        'iso-8601'
+    ],
+    'DATETIME_INPUT_FORMATS': [
+        'iso-8601'
+    ],
 
     'COERCE_DECIMAL_TO_STRING': False,
 

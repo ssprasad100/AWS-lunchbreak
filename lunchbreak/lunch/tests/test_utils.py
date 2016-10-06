@@ -29,7 +29,6 @@ class UtilsTestCase(LunchbreakTestCase):
 
         # The hour should never change, regardless of timezone
         value = Pendulum(2016, 1, 1, 12, 00, tzinfo=london)
-        print(value, timezone_for_store(value, store))
         self.assertEqual(
             timezone_for_store(value, store).hour,
             value.hour

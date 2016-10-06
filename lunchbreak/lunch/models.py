@@ -386,7 +386,6 @@ class Store(AbstractAddress):
             start=start,
             end=end
         )
-        print('period', period)
 
         return self.openingperiods_for(
             period=period,
@@ -441,7 +440,6 @@ class Store(AbstractAddress):
         ).between(
             period=period
         )
-        print('openingperiods', openingperiods)
         holidayperiods = HolidayPeriod.objects.filter(
             store=self
         ).between(
@@ -474,8 +472,6 @@ class Store(AbstractAddress):
 
         if isinstance(dt, pendulum.Pendulum):
             dt = dt._datetime
-
-        print('dt', dt, dt.isoweekday())
 
         now = timezone.now()
 
@@ -513,10 +509,8 @@ class Store(AbstractAddress):
             periods = self.openingperiods_for_day(
                 dt=dt
             )
-            print('periods', periods)
 
             for period in periods:
-                print('\tperiod', period)
                 if dt in period:
                     return True
 
@@ -649,7 +643,6 @@ class Period(models.Model):
         if weekday is None or time is None:
             return None
 
-        print('store.timezone', store.timezone)
         now = pendulum.now(store.timezone)
         start = now.subtract(
             days=now.isoweekday()
