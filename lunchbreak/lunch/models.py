@@ -430,7 +430,12 @@ class Store(AbstractAddress):
                 end=end
             )
 
-        if pendulum.now().add(days=7) < period.end:
+        max_period = pendulum.Period(
+            start=pendulum.now(),
+            end=period.end
+        )
+
+        if max_period.days > 7:
             raise ValueError(
                 _('Bestellingen kunnen maximaal 1 week op voorhand besteld worden.')
             )

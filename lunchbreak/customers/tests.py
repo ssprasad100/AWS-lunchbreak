@@ -874,7 +874,6 @@ class CustomersTests(LunchbreakTestCase):
         reservation = Reservation.objects.create(
             user=self.user,
             store=self.store,
-            # For some reason Travis running Python 2.7.9 saves microseconds and 2.7.10 doesn't
             reservation_time=(timezone.now() + timedelta(days=1)).replace(microsecond=0),
             seats=self.store.seats_max
         )
