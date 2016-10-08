@@ -969,10 +969,11 @@ class Ingredient(models.Model, DirtyFieldsMixin):
         if self.store != self.group.store:
             raise LinkingError()
 
-        dirty_fields = self.get_dirty_fields(check_relationship=True)
-        if 'group' in dirty_fields:
-            for food in self.food_set.all():
-                food.update_typical()
+        if self.pk is not None:
+            dirty_fields = self.get_dirty_fields(check_relationship=True)
+            if 'group' in dirty_fields:
+                for food in self.food_set.all():
+                    food.update_typical()
 
         super(Ingredient, self).save(*args, **kwargs)
 
