@@ -1,7 +1,7 @@
 from datetime import datetime, time, timedelta
 
 import mock
-from customers.exceptions import MinTimeExceeded, PastOrderDenied, StoreClosed
+from customers.exceptions import PreorderTimeExceeded, PastOrderDenied, StoreClosed
 from Lunchbreak.test import LunchbreakTestCase
 from pendulum import Pendulum
 
@@ -167,7 +167,7 @@ class StoreTestCase(LunchbreakTestCase):
         # PastOrderDenied
         self.assertRaises(PastOrderDenied, store.is_open, today)
 
-        # MinTimeExceeded
+        # PreorderTimeExceeded
         wait = timedelta(minutes=15)
         opening_wait = wait * 2
         hours_closing = 10
@@ -184,7 +184,7 @@ class StoreTestCase(LunchbreakTestCase):
         )
         mock_now.return_value = opening
         self.assertRaises(
-            MinTimeExceeded,
+            PreorderTimeExceeded,
             store.is_open,
             opening + wait - timedelta(minutes=1)
         )

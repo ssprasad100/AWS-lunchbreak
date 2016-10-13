@@ -428,6 +428,7 @@ class UserViewSet(viewsets.GenericViewSet):
                 'token' in request.data and
                 'device' in request.data['token'] and
                 'pin' in request.data):
+            print(request.data)
             try:
                 user_demo = User.objects.get(
                     phone__phone=phone,
@@ -437,7 +438,8 @@ class UserViewSet(viewsets.GenericViewSet):
                     user_demo,
                     request.data['token']['device']
                 )
-            except User.DoesNotExist:
+            except User.DoesNotExist as e:
+                print(e)
                 pass
         return BadRequest(serializer.errors)
 

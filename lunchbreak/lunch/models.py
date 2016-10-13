@@ -4,7 +4,7 @@ from datetime import datetime, time, timedelta
 import googlemaps
 import pendulum
 from customers.config import ORDER_STATUSES_ACTIVE
-from customers.exceptions import MinTimeExceeded, PastOrderDenied, StoreClosed
+from customers.exceptions import PreorderTimeExceeded, PastOrderDenied, StoreClosed
 from dirtyfields import DirtyFieldsMixin
 from django.conf import settings
 from django.contrib.auth.hashers import check_password, make_password
@@ -488,7 +488,7 @@ class Store(AbstractAddress):
         if dt - now < self.wait:
             if not raise_exception:
                 return False
-            raise MinTimeExceeded()
+            raise PreorderTimeExceeded()
 
         holidayperiods = HolidayPeriod.objects.filter(
             store=self,
@@ -1180,7 +1180,7 @@ class Food(CleanModelMixin, models.Model):
 
     @cached_property
     def has_ingredients(self):
-        return self.ingredients.count() > 0 and self.ingredientgroups.count() > 0
+        return self.ingredients.count() > 0 or self.ingredientgroups.count() > 0
 
     @cached_property
     def quantity(self):

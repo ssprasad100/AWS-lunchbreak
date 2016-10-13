@@ -1,12 +1,9 @@
-import logging
-
 from Lunchbreak.exceptions import LunchbreakException
 from rest_framework import status
 
 COSTCHECK_FAILED = 700
-MINTIME_EXCEEDED = 701
+PREORDERTIME_EXCEEDED = 701
 PASTORDER_DENIED = 702
-DIGITS_UNAVAILABLE = 703
 STORE_CLOSED = 704
 AMOUNT_INVALID = 705
 MINDAYS_EXCEEDED = 706
@@ -19,86 +16,6 @@ ONLINE_PAYMENTS_DISABLED = 712
 NO_PAYMENT_LINK = 713
 PAYMENT_LINK_NOT_CONFIRMED = 714
 ORDEREDFOOD_NOT_ORIGINAL = 715
-
-DIGITS_UNKNOWN = -1
-DIGITS_LEGACY_ERROR = 0
-DIGITS_INVALID_PHONE = 32
-DIGITS_INVALID_PIN = 44
-DIGITS_CLIENT_NOT_PRIVILIGED = 87
-DIGITS_RATE_LIMIT_EXCEEDED = 88
-DIGITS_APP_AUTH_ERROR = 89
-DIGITS_OVER_CAPACITY = 130
-DIGITS_EXPIRED = 235
-DIGITS_PIN_INCORRECT = 236
-DIGITS_MISSING_LOGIN_VERIFICATION = 237
-DIGITS_GUEST_AUTH_ERROR = 239
-DIGITS_SPAMMER = 240
-DIGITS_NO_SDK_USER = 269
-DIGITS_ALREADY_REGISTERED_ERROR = 285
-DIGITS_OPERATOR_UNSUPPORTED = 286
-DIGITS_DEVICE_RATE_EXCEEDED = 299
-DIGITS_GENERAL_ERROR = 300
-DIGITS_OPERATION_FAILED = 302
-DIGITS_NORMALISATION_FAILED = 303
-
-DIGITS_EXCEPTIONS = {
-    DIGITS_UNKNOWN: 'Unknown error.',
-    DIGITS_LEGACY_ERROR: 'Legacy error.',
-    DIGITS_INVALID_PHONE: [
-        'Invalid phone number.',
-        status.HTTP_400_BAD_REQUEST
-    ],
-    DIGITS_INVALID_PIN: [
-        'Invalid pin.',
-        status.HTTP_400_BAD_REQUEST
-    ],
-    DIGITS_CLIENT_NOT_PRIVILIGED: 'Client not privileged.',
-    DIGITS_RATE_LIMIT_EXCEEDED: 'Rate limit exceeded.',
-    DIGITS_APP_AUTH_ERROR: 'App authorisation failed.',
-    DIGITS_OVER_CAPACITY: 'Over capacity.',
-    DIGITS_EXPIRED: 'Pin expired.',
-    DIGITS_PIN_INCORRECT: [
-        'Incorrect pin.',
-        status.HTTP_400_BAD_REQUEST
-    ],
-    DIGITS_MISSING_LOGIN_VERIFICATION: [
-        'Missing login verification request.',
-        status.HTTP_400_BAD_REQUEST
-    ],
-    DIGITS_GUEST_AUTH_ERROR: 'Guest authorization failed.',
-    DIGITS_SPAMMER: 'Spammer.',
-    DIGITS_NO_SDK_USER: 'User is no SDK user.',
-    DIGITS_ALREADY_REGISTERED_ERROR: 'User already registered.',
-    DIGITS_OPERATOR_UNSUPPORTED: [
-        'Phone operator not supported.',
-        status.HTTP_400_BAD_REQUEST
-    ],
-    DIGITS_DEVICE_RATE_EXCEEDED: 'Device registration rate exceeded.',
-    DIGITS_GENERAL_ERROR: 'General error.',
-    DIGITS_OPERATION_FAILED: 'Operation failed.',
-    DIGITS_NORMALISATION_FAILED: 'Phone normalisation failed.',
-}
-
-
-class DigitsException(LunchbreakException):
-    status_code = status.HTTP_503_SERVICE_UNAVAILABLE
-    code = DIGITS_UNAVAILABLE
-    information = 'Messaging service temporarily unavailable.'
-
-    def __init__(self, code, content):
-        detail = None
-        if code in DIGITS_EXCEPTIONS:
-            info = DIGITS_EXCEPTIONS[code]
-            if type(info) is list:
-                detail = info[0]
-                self.status_code = info[1]
-            else:
-                detail = info
-        else:
-            logger = logging.getLogger(__name__)
-            logger.exception('Undocumented Digits exception code %d: %s' % (code, content,))
-        self.code = code
-        super(DigitsException, self).__init__(detail)
 
 
 class PastOrderDenied(LunchbreakException):
@@ -113,10 +30,10 @@ class CostCheckFailed(LunchbreakException):
     information = 'Prijs komt niet overeen met berekende prijs.'
 
 
-class MinTimeExceeded(LunchbreakException):
+class PreorderTimeExceeded(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
-    code = MINTIME_EXCEEDED
-    information = 'Een bestelling moet vroegen geplaatst worden.'
+    code = PREORDERTIME_EXCEEDED
+    information = 'Een bestelling moet vroeger geplaatst worden.'
 
 
 class StoreClosed(LunchbreakException):
@@ -131,10 +48,10 @@ class AmountInvalid(LunchbreakException):
     information = 'De hoeveelheid is ongeldig.'
 
 
-class MinDaysExceeded(MinTimeExceeded):
+class MinDaysExceeded(PreorderTimeExceeded):
     status_code = status.HTTP_400_BAD_REQUEST
     code = MINDAYS_EXCEEDED
-    # information see MinTimeExceeded
+    # information see PreorderTimeExceeded
 
 
 class UserDisabled(LunchbreakException):
