@@ -6,7 +6,6 @@ from customers.models import Order, Reservation
 from django.core.validators import validate_email
 from django.db.models import Count
 from django.http import Http404
-from django.shortcuts import redirect
 from django.utils import timezone
 from django_gocardless.models import Merchant
 from django_gocardless.serializers import MerchantSerializer
