@@ -24,6 +24,9 @@ class StoreSerializer(serializers.ModelSerializer):
         many=True,
         read_only=True
     )
+    online_payments = serializers.BooleanField(
+        source='staff.is_merchant'
+    )
 
     class Meta:
         model = Store
@@ -37,6 +40,7 @@ class StoreSerializer(serializers.ModelSerializer):
             'categories',
             'hearts_count',
             'last_modified',
+            'online_payments',
         )
         read_only_fields = (
             'id',
@@ -44,6 +48,7 @@ class StoreSerializer(serializers.ModelSerializer):
             'longitude',
             'hearts_count',
             'last_modified',
+            'online_payments',
         )
 
 

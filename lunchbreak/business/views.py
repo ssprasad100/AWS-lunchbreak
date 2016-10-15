@@ -32,7 +32,8 @@ from .serializers import (EmployeeSerializer, FoodDetailSerializer,
                           IngredientGroupSerializer, IngredientSerializer,
                           OrderDetailSerializer, OrderSerializer,
                           OrderSpreadSerializer, ReservationSerializer,
-                          StaffSerializer, StoreDetailSerializer)
+                          StaffSerializer, StoreDetailSerializer,
+                          StoreMerchantSerializer)
 
 AVAILABLE_STATUSES = [
     ORDER_STATUS_PLACED,
@@ -140,8 +141,8 @@ class StoreViewSet(TargettedViewSet,
         store.staff.merchant = merchant
         store.staff.save()
 
-        return redirect(
-            to=url
+        return Response(
+            StoreMerchantSerializer(url).data
         )
 
 

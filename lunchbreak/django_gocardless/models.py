@@ -103,23 +103,27 @@ class Merchant(models.Model):
 
     @classmethod
     def exchange_authorisation(cls, state, code):
-        data = {
-            'grant_type': 'authorization_code',
-            'code': code,
-            'redirect_uri': cls.get_redirect_uri(),
-            'client_id': settings.GOCARDLESS['app']['client_id'],
-            'client_secret': settings.GOCARDLESS['app']['client_secret']
-        }
-        response = requests.post(
-            '{baseurl}{location}'.format(
-                baseurl=settings.GOCARDLESS['app']['oauth_baseurl'][
-                    settings.GOCARDLESS['environment']],
-                location='/oauth/access_token'
-            ),
-            data=data
-        )
-
         try:
+            merchant = cls.objects.get(state=state)
+
+            if merchant.confirmed:
+                raise ExchangeAuthorisationError()
+
+            data = {
+                'grant_type': 'authorization_code',
+                'code': code,
+                'redirect_uri': cls.get_redirect_uri(),
+                'client_id': settings.GOCARDLESS['app']['client_id'],
+                'client_secret': settings.GOCARDLESS['app']['client_secret']
+            }
+            response = requests.post(
+                '{baseurl}{location}'.format(
+                    baseurl=settings.GOCARDLESS['app']['oauth_baseurl'][
+                        settings.GOCARDLESS['environment']],
+                    location='/oauth/access_token'
+                ),
+                data=data
+            )
             response_data = response.json()
 
             if 'error' in response_data:

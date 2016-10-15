@@ -48,6 +48,14 @@ class StoreDetailSerializer(serializers.ModelSerializer):
         )
 
 
+class StoreMerchantSerializer(serializers.BaseSerializer):
+
+    def to_representation(self, url):
+        return {
+            'authorisation_link': url
+        }
+
+
 class EmployeePasswordRequestSerializer(serializers.ModelSerializer):
 
     class Meta:

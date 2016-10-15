@@ -88,7 +88,7 @@ class WebhookView(CSRFExemptView):
         secret = secret = settings.GOCARDLESS['app']['webhook']['secret'] \
             if is_app else settings.GOCARDLESS['webhook']['secret']
         calculated_signature = hmac.new(
-            secret,
+            secret.encode('utf-8'),
             msg=request.body,
             digestmod=hashlib.sha256
         ).hexdigest()
@@ -98,7 +98,7 @@ class WebhookView(CSRFExemptView):
                 status=self.INVALID_TOKEN
             )
 
-        data = json.loads(request.body)
+        data = json.loads(request.body.decode('utf-8'))
         events = data.get('events', None)
 
         if events is not None and isinstance(events, list):
