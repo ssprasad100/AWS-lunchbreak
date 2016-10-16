@@ -124,8 +124,16 @@ class QuantityAdmin(admin.ModelAdmin):
 class IngredientsRelationInline(admin.TabularInline):
     model = IngredientRelation
     extra = 1
-    fields = ('ingredient', 'selected', 'typical',)
-    readonly_fields = ('typical',)
+    fields = ('ingredient', 'selected', 'typical', 'cost', 'group_cost',)
+    readonly_fields = ('typical', 'cost', 'group_cost',)
+
+    def cost(self, obj):
+        return obj.ingredient.cost
+    cost.short_description = _('kostprijs')
+
+    def group_cost(self, obj):
+        return obj.ingredient.group.cost
+    group_cost.short_description = _('kostprijs groep')
 
 
 class FoodForm(forms.ModelForm):

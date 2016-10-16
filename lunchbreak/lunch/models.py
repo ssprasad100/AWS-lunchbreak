@@ -796,7 +796,7 @@ class FoodType(models.Model):
         )
     )
     customisable = models.BooleanField(
-        default=True,
+        default=False,
         verbose_name=_('aanpasbaar'),
         help_text=_('Of dit type etenswaar aanpasbaar kan zijn.')
     )

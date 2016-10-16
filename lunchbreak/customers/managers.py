@@ -1,7 +1,7 @@
 from django.apps import apps
 from django.contrib.auth.base_user import BaseUserManager
 from django.db import models
-from lunch.models import Food, IngredientGroup
+from lunch.models import Food, Ingredient, IngredientGroup
 
 from .exceptions import OrderedFoodNotOriginal
 
@@ -86,6 +86,12 @@ class OrderedFoodManager(models.Manager):
             amount=amount,
             quantity=original.quantity
         )
+
+        if ingredients is not None and len(ingredients) > 0 \
+                and not isinstance(ingredients[0], Ingredient):
+            ingredients = Ingredient.objects.filter(
+                id__in=ingredients
+            )
 
         # It's still the original if the ingredients are the same
         is_original = ingredients is None

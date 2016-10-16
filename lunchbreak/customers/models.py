@@ -1009,8 +1009,10 @@ class OrderedFood(models.Model):
             if ingredient not in food_ingredients:
                 if ingredient.group.calculation in [COST_GROUP_BOTH, COST_GROUP_ADDITIONS]:
                     cost += ingredient.cost
+                    print('ingredient', ingredient)
                 elif ingredient.group not in food_groups:
                     cost += ingredient.group.cost
+                    print('ingredient.group', ingredient.group)
             if ingredient.group not in groups_ordered:
                 groups_ordered.append(ingredient.group)
 
@@ -1041,16 +1043,23 @@ class OrderedFood(models.Model):
         Raises:
             CostCheckFailed: Cost given by user was calculated incorrectly.
         """
-        if math.ceil(
-                (
-                    base_cost * amount * (
-                        # See OrderedFood.amount_food
-                        food.amount
-                        if food.foodtype.inputtype == INPUT_SI_SET
-                        else 1
-                    )
-                ) * 100) / 100.0 != float(given_total):
-            raise CostCheckFailed()
+        calculated_cost = math.ceil(
+            (
+                base_cost * amount * (
+                    # See OrderedFood.amount_food
+                    food.amount
+                    if food.foodtype.inputtype == INPUT_SI_SET
+                    else 1
+                )
+            ) * 100
+        ) / 100.0
+        if calculated_cost != float(given_total):
+            raise CostCheckFailed(
+                '{calculated_cost} != {given_total}'.format(
+                    calculated_cost=calculated_cost,
+                    given_total=given_total
+                )
+            )
 
     def __str__(self):
         return str(self.original)
