@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib import admin
-from imagekit.admin import AdminThumbnail
+from django.core.urlresolvers import reverse
+from django.utils.translation import ugettext_lazy as _
 
 from .models import (DeliveryPeriod, Food, FoodType, HolidayPeriod, Ingredient,
                      IngredientGroup, IngredientRelation, Menu, OpeningPeriod,
@@ -14,15 +15,34 @@ class StoreCategoryAdmin(admin.ModelAdmin):
     ordering = ('name',)
 
 
-@admin.register(StoreHeader)
-class StoreHeaderAdmin(admin.ModelAdmin):
-    list_display = ('__str__', 'admin_ldpi',)
-    readonly_fields = (
-        'admin_ldpi', 'ldpi', 'mdpi', 'hdpi', 'xhdpi', 'xxhdpi', 'xxxhdpi',
-    )
-    fields = ('original',) + readonly_fields
+class StoreHeaderThumbnail:
 
-    admin_ldpi = AdminThumbnail(image_field='ldpi')
+    def thumbnail(self, obj):
+        return '<img src="{}"/>'.format(
+            reverse('customers-store-header', kwargs={
+                'store_id': obj.store.id,
+                'width': 100,
+                'height': 100
+            })
+        )
+    thumbnail.short_description = _('Voorbeeld')
+    thumbnail.allow_tags = True
+
+
+@admin.register(StoreHeader)
+class StoreHeaderAdmin(admin.ModelAdmin, StoreHeaderThumbnail):
+    list_display = ('store', 'thumbnail',)
+    readonly_fields = (
+        'thumbnail', 'ldpi', 'mdpi', 'hdpi', 'xhdpi', 'xxhdpi', 'xxxhdpi',
+    )
+    fields = ('store', 'original',) + readonly_fields
+
+
+class StoreHeaderInline(admin.StackedInline, StoreHeaderThumbnail):
+    model = StoreHeader
+
+    readonly_fields = ('thumbnail',)
+    fields = ('original', 'thumbnail',)
 
 
 @admin.register(Store)
@@ -32,6 +52,7 @@ class StoreAdmin(admin.ModelAdmin):
     search_fields = ('name', 'city', 'street', 'country')
     list_filter = ('city', 'country',)
     ordering = ('name',)
+    inlines = (StoreHeaderInline, )
 
 
 @admin.register(Region)
@@ -103,7 +124,8 @@ class QuantityAdmin(admin.ModelAdmin):
 class IngredientsRelationInline(admin.TabularInline):
     model = IngredientRelation
     extra = 1
-    fields = ('ingredient', 'selected',)
+    fields = ('ingredient', 'selected', 'typical',)
+    readonly_fields = ('typical',)
 
 
 class FoodForm(forms.ModelForm):

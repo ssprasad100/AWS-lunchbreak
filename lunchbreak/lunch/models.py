@@ -51,6 +51,14 @@ class StoreCategory(models.Model):
 
 
 class StoreHeader(Polaroid):
+    store = models.OneToOneField(
+        'Store',
+        on_delete=models.CASCADE,
+        related_name='header',
+        verbose_name=_('winkel'),
+        help_text=_('Winkel.')
+    )
+
     original = models.ImageField(
         storage=PrivateMediaStorage(),
         upload_to='storeheader',
@@ -85,6 +93,11 @@ class StoreHeader(Polaroid):
     class Meta:
         verbose_name = _('headerafbeelding')
         verbose_name_plural = _('headerafbeeldingen')
+
+    def __str__(self):
+        return _('Headerafbeelding voor %(store)s') % {
+            'store': self.store
+        }
 
 
 class AbstractAddress(models.Model, DirtyFieldsMixin):
@@ -216,14 +229,6 @@ class Store(AbstractAddress):
         max_length=255,
         verbose_name=_('naam'),
         help_text=_('Naam.')
-    )
-    header = models.ForeignKey(
-        StoreHeader,
-        on_delete=models.SET_NULL,
-        blank=True,
-        null=True,
-        verbose_name=_('header'),
-        help_text=_('Header afbeelding.')
     )
 
     categories = models.ManyToManyField(
@@ -1147,8 +1152,8 @@ class Food(CleanModelMixin, models.Model):
     ingredientgroups = models.ManyToManyField(
         IngredientGroup,
         blank=True,
-        verbose_name=_('inrgediëntengroep'),
-        help_text=('Inrgediëntengroep.')
+        verbose_name=_('ingrediëntengroep'),
+        help_text=('Ingrediëntengroep.')
     )
     store = models.ForeignKey(
         Store,

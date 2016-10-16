@@ -134,7 +134,8 @@ urlpatterns = patterns(
 
     url(
         r'^store/(?P<store_id>\d+)/header/(?P<width>\d+)/(?P<height>\d+)/?$',
-        views.StoreHeaderView.as_view()
+        views.StoreHeaderView.as_view(),
+        name='customers-store-header'
     ),
     url(
         r'^store/nearby'
