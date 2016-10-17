@@ -49,11 +49,7 @@
         <ul>
             {% for menu in menus %}
                 {% if menu.food.all() %}
-                    {% if loop.first %}
-                        <li class="selected">{{ menu.name }}</li>
-                    {% else %}
-                        <li>{{ menu.name }}</li>
-                    {% endif %}
+                    <li {% if loop.first %}class="selected"{% endif %} data-id="{{ menu.id }}">{{ menu.name }}</li>
                 {% endif %}
             {% endfor %}
         </ul>
@@ -66,7 +62,7 @@
             <input id="menu-search" type="text" placeholder="Zoeken op naam"/>
             {% for menu in menus %}
                 {% if menu.food.all() %}
-                <div class="menu">
+                <div class="menu" data-id="{{ menu.id }}">
                     <h3>{{ menu.name }}</h3>
                     {% for food in menu.food.all() %}
                         <div class="food" data-id="{{ food.id }}" data-has-ingredients="{{ food.has_ingredients }}">

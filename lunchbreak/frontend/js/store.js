@@ -1019,13 +1019,24 @@
         this.init = function() {
             this.position = this.element.position();
             this.onPositionChange();
+            this.tabs = [];
 
             var self = this;
+
+            this.element.find('ul li').each(function() {
+                self.tabs.push(
+                    new Tab(self, $(this))
+                );
+            });
             $(window).resize(function(event) {
-                self.onPositionChange();
+                self.onPositionChange(event);
             });
             $(window).scroll(function(event) {
-                self.onPositionChange();
+                self.onPositionChange(event);
+            });
+            $(window).on('wheel DOMMouseScroll mousesheel keyup touchmove', function(event) {
+                // Stop the tab scrolling animation if the user interacts with the page
+                $('html, body').stop();
             });
         };
 
@@ -1069,6 +1080,39 @@
                 Inventory.element.css('margin-top', '0px');
                 Order.element.css('margin-top', '0px');
             }
+        };
+
+        this.init();
+    };
+
+    var Tab = function(container, element) {
+        this.container = container;
+        this.element = element;
+
+        this.init = function() {
+            var self = this;
+
+            this.element.on('click', function(event) {
+                self.onClick(event);
+            });
+        };
+
+        this.onClick = function(event) {
+            var menuId = this.element.data('id');
+            var menuElement = $('.menu[data-id="' + menuId + '"]').first();
+
+            $.each(this.container.tabs, function(index) {
+                this.element.removeClass('selected');
+            });
+            this.element.addClass('selected');
+
+            // Scroll to the selected item
+            var fullHeaderHeight = this.container.element.height() + this.container.header.height();
+            var scrollTop = menuElement.offset().top - fullHeaderHeight - 16;
+            $('html, body').stop();
+            $('html, body').animate({
+                'scrollTop': scrollTop
+            }, scrollTop * 1.25);
         };
 
         this.init();

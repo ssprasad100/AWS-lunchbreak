@@ -105,14 +105,6 @@ class IngredientAdmin(admin.ModelAdmin):
     ordering = ('store__name', 'name', 'group__name', 'last_modified',)
 
 
-@admin.register(Menu)
-class MenuAdmin(admin.ModelAdmin):
-    list_display = ('name', 'store', 'priority',)
-    search_fields = ('name', 'store__name',)
-    list_filter = ('store',)
-    ordering = ('store__name', 'priority', 'name',)
-
-
 @admin.register(Quantity)
 class QuantityAdmin(admin.ModelAdmin):
     list_display = ('store', 'foodtype', 'minimum', 'maximum', 'last_modified',)
@@ -161,3 +153,20 @@ class FoodAdmin(admin.ModelAdmin):
 
 class BaseTokenAdmin(admin.ModelAdmin):
     list_display = ('device',)
+
+
+class FoodInline(admin.StackedInline):
+    model = Food
+    extra = 0
+
+    form = FoodForm
+    inlines = (IngredientsRelationInline,)
+
+
+@admin.register(Menu)
+class MenuAdmin(admin.ModelAdmin):
+    list_display = ('name', 'store', 'priority',)
+    search_fields = ('name', 'store__name',)
+    list_filter = ('store',)
+    ordering = ('store__name', 'priority', 'name',)
+    inlines = (FoodInline,)
