@@ -1010,6 +1010,9 @@
         this.init();
     };
 
+    /**
+     * Representation of the tab container on the website.
+     */
     var TabContainer = function() {
         this.element = $('#menu-tabs');
         this.header = $('#header');
@@ -1040,6 +1043,10 @@
             });
         };
 
+        /**
+         * Callback triggered for when the position of the tab container might change.
+         * @param  {Event} event Event that caused this change.
+         */
         this.onPositionChange = function(event) {
             var scrollTop = $(document).scrollTop();
             var headerHeight = this.header.height();
@@ -1085,6 +1092,11 @@
         this.init();
     };
 
+    /**
+     * Representation of a tab in the tab container.
+     * @param {TabContainer} container Parent tab container.
+     * @param {jQuery} element jQuery element.
+     */
     var Tab = function(container, element) {
         this.container = container;
         this.element = element;
@@ -1097,6 +1109,10 @@
             });
         };
 
+        /**
+         * Callback for when the tab is clicked.
+         * @param  {Event} event Click event.
+         */
         this.onClick = function(event) {
             var menuId = this.element.data('id');
             var menuElement = $('.menu[data-id="' + menuId + '"]').first();
