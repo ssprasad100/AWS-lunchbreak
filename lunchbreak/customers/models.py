@@ -31,8 +31,8 @@ from rest_framework.response import Response
 
 from .config import (GROUP_BILLING_SEPARATE, GROUP_BILLINGS,
                      INVITE_STATUS_ACCEPTED, INVITE_STATUS_WAITING,
-                     INVITE_STATUSES, ORDER_STATUS_DENIED, ORDER_STATUS_PLACED,
-                     ORDER_STATUS_WAITING, ORDER_STATUSES,
+                     INVITE_STATUSES, ORDER_STATUS_PLACED,
+                     ORDER_STATUS_SIGNALS, ORDER_STATUSES,
                      ORDER_STATUSES_ACTIVE, ORDER_STATUSES_ENDED,
                      PAYMENT_METHOD_CASH, PAYMENT_METHOD_GOCARDLESS,
                      PAYMENT_METHODS, RESERVATION_STATUS_DENIED,
@@ -703,14 +703,6 @@ class Order(AbstractOrder, DirtyFieldsMixin):
     def save(self, *args, **kwargs):
         self.full_clean()
 
-        if self.pk is None:
-            StaffToken.objects.filter(
-                staff__store_id=self.store_id
-            ).send_message(
-                'Er is een nieuwe bestelling binnengekomen!',
-                sound='default'
-            )
-
         self.total = 0
         orderedfood = self.orderedfood.all()
         for f in orderedfood:
@@ -724,15 +716,10 @@ class Order(AbstractOrder, DirtyFieldsMixin):
             dirty_status = dirty_fields.get('status', dirty_status)
 
             if dirty_status is not None:
-                if self.status == ORDER_STATUS_WAITING:
-                    self.waiting()
-                elif self.status == ORDER_STATUS_DENIED:
-                    UserToken.objects.filter(
-                        user_id=self.user_id
-                    ).send_message(
-                        'Je bestelling is spijtig genoeg geweigerd!',
-                        sound='default'
-                    )
+                ORDER_STATUS_SIGNALS[dirty_status].send(
+                    sender=self.__class__,
+                    order=self
+                )
 
         super(Order, self).save(*args, **kwargs)
 
@@ -756,49 +743,6 @@ class Order(AbstractOrder, DirtyFieldsMixin):
                     f.original.delete()
             except Food.DoesNotExist:
                 pass
-
-    def waiting(self):
-        """Called when status is set to waiting.
-
-        ..note:
-            Does not save the instance.
-        """
-        self.user.usertoken_set.all().send_message(
-            'Je bestelling bij {store} ligt klaar!'.format(
-                store=self.store.name
-            ),
-            sound='default'
-        )
-
-        if self.payment_method == PAYMENT_METHOD_GOCARDLESS:
-            try:
-                paymentlink = self.user.paymentlink_set.select_related(
-                    'redirectflow__mandate'
-                ).get(
-                    store=self.store
-                )
-
-                if paymentlink.redirectflow.is_completed:
-                    mandate = paymentlink.redirectflow.mandate
-                    self.payment = Payment.create(
-                        {
-                            'amount': int(self.total * 100),
-                            'currency': CURRENCY_EUR,
-                            'links': {
-                                'mandate': mandate
-                            },
-                            'description': _(
-                                'Lunchbreak bestelling #%(order_id)s bij %(store)s.'
-                            ) % {
-                                'order_id': self.id,
-                                'store': self.store.name
-                            }
-                        }
-                    )
-            except PaymentLink.DoesNotExist:
-                pass
-            # TODO Send the user an email/text stating the failed transaction.
-            self.payment_method = PAYMENT_METHOD_CASH
 
     def clean_delivery_address(self):
         if self.delivery_address is not None:
@@ -841,6 +785,67 @@ class Order(AbstractOrder, DirtyFieldsMixin):
                     raise PaymentLinkNotConfirmed()
             except PaymentLink.DoesNotExist:
                 raise NoPaymentLink()
+
+    @classmethod
+    def created(cls, sender, order, **kwargs):
+        StaffToken.objects.filter(
+            staff__store_id=order.store_id
+        ).send_message(
+            'Er is een nieuwe bestelling binnengekomen!',
+            sound='default'
+        )
+
+    @classmethod
+    def waiting(cls, sender, order, **kwargs):
+        """Called when status is set to waiting.
+        """
+        order.user.usertoken_set.all().send_message(
+            'Je bestelling bij {store} ligt klaar!'.format(
+                store=order.store.name
+            ),
+            sound='default'
+        )
+
+        if order.payment_method == PAYMENT_METHOD_GOCARDLESS:
+            try:
+                paymentlink = order.user.paymentlink_set.select_related(
+                    'redirectflow__mandate'
+                ).get(
+                    store=order.store
+                )
+
+                if paymentlink.redirectflow.is_completed:
+                    mandate = paymentlink.redirectflow.mandate
+                    order.payment = Payment.create(
+                        {
+                            'amount': int(order.total * 100),
+                            'currency': CURRENCY_EUR,
+                            'links': {
+                                'mandate': mandate
+                            },
+                            'description': _(
+                                'Lunchbreak bestelling #%(order_id)s bij %(store)s.'
+                            ) % {
+                                'order_id': order.id,
+                                'store': order.store.name
+                            }
+                        }
+                    )
+            except PaymentLink.DoesNotExist:
+                pass
+            # TODO Send the user an email/text stating the failed transaction.
+            order.payment_method = PAYMENT_METHOD_CASH
+
+        order.save()
+
+    @classmethod
+    def denied(cls, sender, order, **kwargs):
+        UserToken.objects.filter(
+            user_id=order.user_id
+        ).send_message(
+            _('Je bestelling werd spijtig genoeg geweigerd!'),
+            sound='default'
+        )
 
 
 class TemporaryOrder(AbstractOrder):
