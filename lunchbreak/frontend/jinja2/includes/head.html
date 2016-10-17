@@ -1,8 +1,11 @@
-<title>{{ title | default('Lunchbreak - Je dagelijkse bestelling') }}</title>
+{% set title = title | default('Lunchbreak - Je dagelijkse bestelling') %}
+{% set description = description | default('Ontvang online bestellingen, pas uw aanbod aan wanneer u wil, analyseer realtime statistieken en meer.') %}
+
+<title>{{ title }}</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <meta name="description" content="{{ description }}">
-<meta name="author" content="Cloock">
+<meta name="author" content="Lunchbreak">
 <meta charset="UTF-8">
 
 <meta property="og:title" content="{{ title }}">

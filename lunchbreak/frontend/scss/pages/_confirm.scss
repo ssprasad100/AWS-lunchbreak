@@ -1,0 +1,36 @@
+#confirm {
+    padding: 0;
+}
+
+#confirm-block {
+    background: transparent;
+    pointer-events: none;
+
+    #confirm-box {
+        $width: 400px;
+
+        width: $width;
+        margin: 0 auto;
+        box-sizing: border-box;
+        padding: 24px 16px;
+        background: white;
+        border-radius: $border-radius;
+        text-align: center;
+        box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.20);
+
+        h1 {
+            margin-bottom: 16px;
+        }
+
+        #confirm-receipt {
+            margin-bottom: 4px;
+        }
+
+        #confirm-address {
+            @extend .subscript;
+
+            font-size: $size-small;
+            margin-bottom: 16px;
+        }
+    }
+}

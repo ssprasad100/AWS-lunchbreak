@@ -25,6 +25,11 @@ urlpatterns = patterns(
         name='frontend-order'
     ),
     url(
+        r'^confirm/?$',
+        views.ConfirmView.as_view(),
+        name='frontend-confirm'
+    ),
+    url(
         r'^login/?$',
         views.LoginView.as_view(),
         name='frontend-login'

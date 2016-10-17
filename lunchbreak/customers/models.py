@@ -692,6 +692,10 @@ class Order(AbstractOrder, DirtyFieldsMixin):
         help_text=_('Bestelde etenswaren.')
     )
 
+    @property
+    def paid_online(self):
+        return self.payment_method == PAYMENT_METHOD_GOCARDLESS
+
     class Meta:
         verbose_name = _('bestelling')
         verbose_name_plural = _('bestellingen')

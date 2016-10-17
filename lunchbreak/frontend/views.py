@@ -1,6 +1,6 @@
 import json
 
-from customers.models import PaymentLink, TemporaryOrder
+from customers.models import Order, PaymentLink, TemporaryOrder
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.core.urlresolvers import reverse
@@ -238,6 +238,17 @@ class LoginView(TemplateView):
         return HttpResponseRedirect(
             request.GET.get('next', settings.LOGIN_REDIRECT_URL)
         )
+
+
+class ConfirmView(TemplateView):
+    template_name = 'pages/confirm.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['store'] = Store.objects.get(id=1)
+        context['order'] = Order.objects.all().first()
+
+        return context
 
 
 class LogoutView(View):

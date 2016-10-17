@@ -1,13 +1,33 @@
 {% extends 'base.html' %}
 
+{% block head %}
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_WEB_CREDENTIALS }}&language=nl-BE"></script>
+<script type="text/javascript">
+    var storeLocation = {
+        'lat': {{ store.latitude }},
+        'lng': {{ store.longitude }}
+    };
+</script>
+<script src="{{ static('confirm.js') }}" type="text/javascript"></script>
+{% endblock head %}
+
 {% block content %}
 
 {% set header_class='white' %}
 
 <div id="confirm" class="block fullsize">
-    <div class="container">
+</div>
 
+<div id="confirm-block" class="block fullsize">
+    <div id="confirm-box" class="sticky">
+        <h1>Bestelling geplaatst</h1>
+        <h4 id="confirm-receipt">{{ order.receipt | date('l d F') | capitalize }} om {{ order.receipt | time('H:i') }}</h4>
+        <p id="confirm-address">{{ store.street }} {{ store.number }}, {{ store.postcode }} {{ store.city }}</p>
+
+        <p>Je bestelling bij {{ store.name }} is succesvol geplaatst. Stap binnen vanaf {{ order.receipt | time('H:i') }} en haal je bestelling op! {% if order.paid_online %}De betaling wordt automatisch verwerkt, je portefeuille hoef je niet boven te halen!{% endif  %}</p>
     </div>
 </div>
+
+{% include 'includes/header.html' %}
 
 {% endblock content %}

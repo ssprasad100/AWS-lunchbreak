@@ -2,7 +2,6 @@ import os
 
 from django.core.urlresolvers import reverse_lazy
 from django.utils.translation import ugettext_lazy as _
-from django_jinja.builtins import DEFAULT_EXTENSIONS
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 MEDIA_ROOT = os.environ.get(
@@ -125,59 +124,6 @@ SASS_PROCESSOR_INCLUDE_DIRS = (
     os.path.join(BASE_DIR, 'frontend/scss'),
     os.path.join(BASE_DIR, 'frontend/intl-tel-input/src/css'),
 )
-
-GOOGLE_WEB_CREDENTIALS = 'AIzaSyBb7Bd6r-jTG10gEXH3Tmrasd-qJ4oFHlo'
-TEMPLATES = [
-    {
-        'BACKEND': 'django_jinja.backend.Jinja2',
-        'APP_DIRS': True,
-        'DIRS': [],
-        'OPTIONS': {
-            'context_processors': [
-                'django.contrib.auth.context_processors.auth',
-                'django.template.context_processors.debug',
-                'django.template.context_processors.i18n',
-                'django.template.context_processors.media',
-                'django.template.context_processors.static',
-                'django.template.context_processors.tz',
-                'django.contrib.messages.context_processors.messages',
-            ],
-            'constants': {
-                'GOOGLE_WEB_CREDENTIALS': GOOGLE_WEB_CREDENTIALS
-            },
-            'globals': {
-                'url_query': 'frontend.templatetags.globals.url_query'
-            },
-            'extensions': DEFAULT_EXTENSIONS + [
-                'sass_processor.jinja2.ext.SassSrc',
-                'compressor.contrib.jinja2ext.CompressorExtension',
-            ],
-            'filters': {
-                'list_periods': 'frontend.templatetags.filters.list_periods',
-                'humanize_weekday': 'frontend.templatetags.filters.humanize_weekday',
-                'json_weekday_periods': 'frontend.templatetags.filters.json_weekday_periods',
-            },
-            'match_extension': '.html',
-            'app_dirname': 'jinja2',
-        }
-    },
-    {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.contrib.auth.context_processors.auth',
-                'django.template.context_processors.debug',
-                'django.template.context_processors.i18n',
-                'django.template.context_processors.media',
-                'django.template.context_processors.static',
-                'django.template.context_processors.tz',
-                'django.contrib.messages.context_processors.messages',
-            ],
-        },
-    }
-]
 
 APPEND_SLASH = False
 

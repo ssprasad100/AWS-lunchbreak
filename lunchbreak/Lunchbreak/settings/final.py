@@ -1,5 +1,7 @@
 import os
 
+from django_jinja.builtins import DEFAULT_EXTENSIONS
+
 ALLOWED_HOSTS = globals().get(
     'ALLOWED_HOSTS',
     os.environ.get(
@@ -55,6 +57,13 @@ GOOGLE_CLOUD_SECRET = globals().get(
     'GOOGLE_CLOUD_SECRET',
     os.environ.get(
         'GOOGLE_CLOUD_SECRET'
+    )
+)
+
+GOOGLE_WEB_CREDENTIALS = globals().get(
+    'GOOGLE_WEB_CREDENTIALS',
+    os.environ.get(
+        'GOOGLE_WEB_CREDENTIALS'
     )
 )
 
@@ -177,3 +186,55 @@ OPBEAT = {
         )
     ),
 }
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django_jinja.backend.Jinja2',
+        'APP_DIRS': True,
+        'DIRS': [],
+        'OPTIONS': {
+            'context_processors': [
+                'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.debug',
+                'django.template.context_processors.i18n',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
+                'django.template.context_processors.tz',
+                'django.contrib.messages.context_processors.messages',
+            ],
+            'constants': {
+                'GOOGLE_WEB_CREDENTIALS': GOOGLE_WEB_CREDENTIALS
+            },
+            'globals': {
+                'url_query': 'frontend.templatetags.globals.url_query'
+            },
+            'extensions': DEFAULT_EXTENSIONS + [
+                'sass_processor.jinja2.ext.SassSrc',
+                'compressor.contrib.jinja2ext.CompressorExtension',
+            ],
+            'filters': {
+                'list_periods': 'frontend.templatetags.filters.list_periods',
+                'humanize_weekday': 'frontend.templatetags.filters.humanize_weekday',
+                'json_weekday_periods': 'frontend.templatetags.filters.json_weekday_periods',
+            },
+            'match_extension': '.html',
+            'app_dirname': 'jinja2',
+        }
+    },
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.debug',
+                'django.template.context_processors.i18n',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
+                'django.template.context_processors.tz',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    }
+]
