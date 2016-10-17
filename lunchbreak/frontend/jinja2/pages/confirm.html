@@ -21,7 +21,7 @@
 <div id="confirm-block" class="block fullsize">
     <div id="confirm-box" class="sticky">
         <h1>Bestelling geplaatst</h1>
-        <h4 id="confirm-receipt">{{ order.receipt | date('l d F') | capitalize }} om {{ order.receipt | time('H:i') }}</h4>
+        <h5 id="confirm-receipt">{{ order.receipt | date('l d F') | capitalize }} om {{ order.receipt | time('H:i') }}</h5>
         <p id="confirm-address">{{ store.street }} {{ store.number }}, {{ store.postcode }} {{ store.city }}</p>
 
         <p>Je bestelling bij {{ store.name }} is succesvol geplaatst. Stap binnen vanaf {{ order.receipt | time('H:i') }} en haal je bestelling op! {% if order.paid_online %}De betaling wordt automatisch verwerkt, je portefeuille hoef je niet boven te halen!{% endif  %}</p>

@@ -17,9 +17,10 @@
         border-radius: $border-radius;
         text-align: center;
         box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.20);
+        pointer-events: auto;
 
         h1 {
-            margin-bottom: 16px;
+            margin-bottom: 24px;
         }
 
         #confirm-receipt {
