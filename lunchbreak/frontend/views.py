@@ -1,11 +1,12 @@
 import json
 
+from customers.config import ORDER_STATUSES_ENDED
 from customers.models import Order, PaymentLink, TemporaryOrder
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.core.urlresolvers import reverse
 from django.db.models import Count
-from django.http import HttpResponseRedirect
+from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
@@ -158,32 +159,41 @@ class OrderView(LoginForwardMixin, TemplateView):
         if user_form.is_valid() and order_form.is_valid():
             user_form.save()
 
-            order_form.save(
-                temporary_order=context['order']
-            )
-
-        if order_form.needs_paymentlink:
-            store = context['store']
-            paymentlink = PaymentLink.create(
-                user=self.request.user,
-                store=store,
-                completion_redirect_url=request.build_absolute_uri(
-                    reverse(
-                        'frontend-order',
-                        kwargs={
-                            'store_id': store.id
-                        }
+            if order_form.needs_paymentlink:
+                store = context['store']
+                paymentlink = PaymentLink.create(
+                    user=self.request.user,
+                    store=store,
+                    completion_redirect_url=request.build_absolute_uri(
+                        reverse(
+                            'frontend-order',
+                            kwargs={
+                                'store_id': store.id
+                            }
+                        )
                     )
                 )
+                response = self.create_forward(
+                    request=request,
+                    data=self.data,
+                    response=redirect(
+                        to=paymentlink.redirectflow.redirect_url
+                    )
+                )
+                return response
+
+            placed_order = order_form.save(
+                temporary_order=context['order']
             )
-            response = self.create_forward(
-                request=request,
-                data=self.data,
-                response=redirect(
-                    to=paymentlink.redirectflow.redirect_url
+            return HttpResponseRedirect(
+                reverse(
+                    'frontend-confirm',
+                    kwargs={
+                        'store_id': placed_order.store_id,
+                        'order_id': placed_order.id
+                    }
                 )
             )
-            return response
 
         return render(
             request=request,
@@ -245,10 +255,34 @@ class ConfirmView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['store'] = Store.objects.get(id=1)
-        context['order'] = Order.objects.all().first()
+
+        try:
+            context['store'] = Store.objects.get(
+                id=kwargs['store_id']
+            )
+            context['order'] = Order.objects.get(
+                id=kwargs['order_id']
+            )
+        except (Store.DoesNotExist, Order.DoesNotExist):
+            raise Http404()
+
+        if context['order'].user != self.request.user \
+                or context['order'].status in ORDER_STATUSES_ENDED:
+            raise Http404()
 
         return context
+
+    def get(self, request, store_id, order_id):
+        context = self.get_context_data(
+            store_id=store_id,
+            order_id=order_id
+        )
+
+        return render(
+            request=request,
+            template_name=self.template_name,
+            context=context
+        )
 
 
 class LogoutView(View):

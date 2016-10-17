@@ -25,7 +25,7 @@ urlpatterns = patterns(
         name='frontend-order'
     ),
     url(
-        r'^confirm/?$',
+        r'^store/(?P<store_id>\d+)/order/(?P<order_id>\d+)/?$',
         views.ConfirmView.as_view(),
         name='frontend-confirm'
     ),

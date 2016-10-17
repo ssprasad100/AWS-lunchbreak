@@ -825,7 +825,10 @@ class Order(AbstractOrder, DirtyFieldsMixin):
                 value=self.receipt,
                 store=self.store
             )
-            self.store.is_open(self.receipt)
+            self.store.is_open(
+                self.receipt,
+                now=self.placed
+            )
 
     def clean_payment_method(self):
         if self.payment_method == PAYMENT_METHOD_GOCARDLESS:

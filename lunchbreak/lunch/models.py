@@ -477,13 +477,13 @@ class Store(AbstractAddress):
             postcode=address.postcode
         ).exists()
 
-    def is_open(self, dt, raise_exception=True):
+    def is_open(self, dt, raise_exception=True, now=None):
         """Check whether the store is open at the specified time."""
 
         if isinstance(dt, pendulum.Pendulum):
             dt = dt._datetime
 
-        now = timezone.now()
+        now = timezone.now() if now is None else now
 
         if dt < now:
             if not raise_exception:

@@ -21,13 +21,11 @@ def lunchbreak_exception_handler(exception, context):
         )
 
     response.data = {
-        'error': {
-            'detail': (
-                response.data
-                if response.data is not None
-                else str(exception)
-            )
-        }
+        'error': (
+            response.data
+            if response.data is not None
+            else str(exception)
+        )
     }
     if exception is None:
         return response
@@ -54,6 +52,7 @@ class LunchbreakException(RestValidationError):
 
     def __init__(self, detail=None):
         super().__init__(detail)
+        self.detail = detail
 
     @property
     def response(self):
@@ -61,4 +60,6 @@ class LunchbreakException(RestValidationError):
 
     @property
     def django_validation_error(self):
-        return DjangoValidationError(self.detail)
+        return DjangoValidationError(
+            self.information if self.detail is None else self.detail
+        )
