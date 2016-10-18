@@ -38,6 +38,17 @@ class AbstractPassword(AbstractPasswordReset):
         return check_password(password_raw, self.password)
 
 
+class NotifyModelMixin:
+
+    def notify(self, message, **kwargs):
+        kwargs.setdefault('sound', 'default')
+
+        self.tokens.all().send_message(
+            message,
+            **kwargs
+        )
+
+
 class Staff(AbstractPassword):
     store = models.OneToOneField(
         'lunch.Store',
@@ -100,6 +111,7 @@ class StaffToken(BaseToken):
     staff = models.ForeignKey(
         Staff,
         on_delete=models.CASCADE,
+        related_name='tokens',
         verbose_name=_('personeel'),
         help_text=_('Personeel.')
     )
@@ -141,6 +153,7 @@ class EmployeeToken(BaseToken):
     employee = models.ForeignKey(
         Employee,
         on_delete=models.CASCADE,
+        related_name='tokens',
         verbose_name=_('werknemer'),
         help_text=_('Werknemer.')
     )

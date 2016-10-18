@@ -1,25 +1,32 @@
-from django.contrib.auth.models import BaseUserManager
+from django.apps import apps
+from django.db import models
 
 
-class StaffManager(BaseUserManager):
+class NotifyQuerySet(models.QuerySet):
 
-    def create_user(self, email, password=None):
-        if not password:
-            raise ValueError('A password is required for staff.')
-
-        email = self.normalize_email(email)
-        staff = self.model(
-            email=email
+    def notify(self, message, **kwargs):
+        kwargs.setdefault('sound', 'default')
+        model_name = self.model.__name__
+        token_model = apps.get_model(
+            'business.{model}Token'.format(
+                model=model_name
+            )
         )
-        staff.set_password(password)
-        staff.save()
-        return staff
 
-    def create_superuser(self, email, password):
-        user = self.create_user(
-            email=email,
-            password=password
+        token_model.objects.filter(
+            **{
+                model_name.lower() + '__in': self
+            }
+        ).send_message(
+            message,
+            **kwargs
         )
-        user.is_superuser = True
-        user.save()
-        return user
+
+
+class StaffManager(models.Manager):
+
+    def get_queryset(self):
+        return NotifyQuerySet(
+            self.model,
+            using=self._db
+        )

@@ -1,7 +1,7 @@
 import math
 from decimal import Decimal
 
-from business.models import StaffToken
+from business.models import Staff
 from dirtyfields import DirtyFieldsMixin
 from django.conf import settings
 from django.contrib.auth.base_user import AbstractBaseUser
@@ -122,6 +122,14 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def get_short_name(self):
         return self.name
+
+    def notify(self, message, **kwargs):
+        kwargs.setdefault('sound', 'default')
+
+        self.tokens.all().send_message(
+            message,
+            **kwargs
+        )
 
     @staticmethod
     def register(phone):
@@ -788,22 +796,18 @@ class Order(AbstractOrder, DirtyFieldsMixin):
 
     @classmethod
     def created(cls, sender, order, **kwargs):
-        StaffToken.objects.filter(
-            staff__store_id=order.store_id
-        ).send_message(
-            'Er is een nieuwe bestelling binnengekomen!',
-            sound='default'
+        Staff.objects.filter(
+            store_id=order.store_id
+        ).notify(
+            _('Er is een nieuwe bestelling binnengekomen!')
         )
 
     @classmethod
     def waiting(cls, sender, order, **kwargs):
-        """Called when status is set to waiting.
-        """
-        order.user.usertoken_set.all().send_message(
+        order.user.notify(
             'Je bestelling bij {store} ligt klaar!'.format(
                 store=order.store.name
-            ),
-            sound='default'
+            )
         )
 
         if order.payment_method == PAYMENT_METHOD_GOCARDLESS:
@@ -840,11 +844,8 @@ class Order(AbstractOrder, DirtyFieldsMixin):
 
     @classmethod
     def denied(cls, sender, order, **kwargs):
-        UserToken.objects.filter(
-            user_id=order.user_id
-        ).send_message(
-            _('Je bestelling werd spijtig genoeg geweigerd!'),
-            sound='default'
+        order.user.notify(
+            _('Je bestelling werd spijtig genoeg geweigerd!')
         )
 
 
@@ -1081,6 +1082,7 @@ class UserToken(BaseToken):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
+        related_name='tokens',
         verbose_name=_('gebruiker'),
         help_text=_('Gebruiker.')
     )
