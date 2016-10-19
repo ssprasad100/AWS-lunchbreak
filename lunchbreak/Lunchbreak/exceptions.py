@@ -24,7 +24,7 @@ def lunchbreak_exception_handler(exception, context):
         'error': (
             response.data
             if response.data is not None
-            else str(exception)
+            else {'detail': str(exception)}
         )
     }
     if exception is None:

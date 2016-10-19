@@ -242,6 +242,7 @@ class OrderSerializer(customers_serializers.OrderSerializer):
             'status',
             'total',
             'total_confirmed',
+            'order',
         )
         read_only_fields = (
             'id',
@@ -250,14 +251,14 @@ class OrderSerializer(customers_serializers.OrderSerializer):
             'receipt',
             'total',
             'total_confirmed',
+            'order',
         )
 
 
 class OrderDetailSerializer(OrderSerializer):
     orderedfood = OrderedFoodSerializer(
         many=True,
-        read_only=True,
-        source='orderedfood'
+        read_only=True
     )
 
     class Meta:
@@ -274,6 +275,7 @@ class OrderDetailSerializer(OrderSerializer):
             'total',
             'orderedfood',
             'description',
+            'paid',
         )
 
 

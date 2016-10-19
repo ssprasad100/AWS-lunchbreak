@@ -92,7 +92,6 @@ class OrderedFoodSerializer(serializers.ModelSerializer):
             'id',
             'ingredients',
             'amount',
-            'order',
             'original',
             'ingredientgroups',
             'cost',
@@ -102,7 +101,6 @@ class OrderedFoodSerializer(serializers.ModelSerializer):
         )
         read_only_fields = (
             'id',
-            'order',
             'ingredientgroups',
             'is_original',
             'cost',
@@ -173,12 +171,14 @@ class OrderSerializer(serializers.ModelSerializer):
             'user',
             'payment_method',
             'delivery_address',
+            'paid',
         )
         read_only_fields = (
             'id',
             'total',
             'total_confirmed',
             'status',
+            'paid',
         )
         write_only_fields = (
             'description',
@@ -199,14 +199,14 @@ class OrderDetailSerializer(OrderSerializer):
     )
     orderedfood = OrderedFoodSerializer(
         many=True,
-        read_only=True,
-        source='orderedfood'
+        read_only=True
     )
 
     class Meta(OrderSerializer.Meta):
         fields = OrderSerializer.Meta.fields + (
             'placed',
             'description',
+            'paid',
         )
         read_only_fields = OrderSerializer.Meta.read_only_fields + (
             'store',
@@ -215,6 +215,7 @@ class OrderDetailSerializer(OrderSerializer):
             'orderedfood',
             'description',
             'payment_method',
+            'paid',
         )
         write_only_fields = ()
 

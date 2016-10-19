@@ -14,7 +14,7 @@ from django.db import models
 from django.db.models.signals import post_delete
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
-from django_gocardless.config import CURRENCY_EUR
+from django_gocardless.config import CURRENCY_EUR, PAYMENT_STATUS_PAID_OUT
 from django_gocardless.models import Payment, RedirectFlow
 from django_sms.exceptions import PinTimeout
 from django_sms.models import Phone
@@ -31,8 +31,8 @@ from rest_framework.response import Response
 
 from .config import (GROUP_BILLING_SEPARATE, GROUP_BILLINGS,
                      INVITE_STATUS_ACCEPTED, INVITE_STATUS_WAITING,
-                     INVITE_STATUSES, ORDER_STATUS_PLACED,
-                     ORDER_STATUS_SIGNALS, ORDER_STATUSES,
+                     INVITE_STATUSES, ORDER_STATUS_COMPLETED,
+                     ORDER_STATUS_PLACED, ORDER_STATUS_SIGNALS, ORDER_STATUSES,
                      ORDER_STATUSES_ACTIVE, ORDER_STATUSES_ENDED,
                      PAYMENT_METHOD_CASH, PAYMENT_METHOD_GOCARDLESS,
                      PAYMENT_METHODS, RESERVATION_STATUS_DENIED,
@@ -701,7 +701,15 @@ class Order(AbstractOrder, DirtyFieldsMixin):
     )
 
     @property
-    def paid_online(self):
+    def paid(self):
+        if self.payment_method == PAYMENT_METHOD_CASH:
+            return self.status == ORDER_STATUS_COMPLETED
+        else:
+            return self.payment is None and \
+                self.payment.status == PAYMENT_STATUS_PAID_OUT
+
+    @property
+    def payment_gocardless(self):
         return self.payment_method == PAYMENT_METHOD_GOCARDLESS
 
     class Meta:
@@ -1022,10 +1030,8 @@ class OrderedFood(models.Model):
             if ingredient not in food_ingredients:
                 if ingredient.group.calculation in [COST_GROUP_BOTH, COST_GROUP_ADDITIONS]:
                     cost += ingredient.cost
-                    print('ingredient', ingredient)
                 elif ingredient.group not in food_groups:
                     cost += ingredient.group.cost
-                    print('ingredient.group', ingredient.group)
             if ingredient.group not in groups_ordered:
                 groups_ordered.append(ingredient.group)
 

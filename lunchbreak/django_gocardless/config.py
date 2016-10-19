@@ -36,16 +36,26 @@ MANDATE_STATUSES = (
     ('expired', 'Expired',),
 )
 
+PAYMENT_STATUS_PENDING_SUBMISSION = 'pending_submission'
+PAYMENT_STATUS_SUBMITTED = 'submitted'
+PAYMENT_STATUS_CONFIRMED = 'confirmed'
+PAYMENT_STATUS_FAILED = 'failed'
+PAYMENT_STATUS_CHARGED_BACK = 'charged_back'
+PAYMENT_STATUS_PAID_OUT = 'paid_out'
+PAYMENT_STATUS_CANCELLED = 'cancelled'
+PAYMENT_STATUS_PENDING_CUSTOMER_APPROVAL = 'pending_customer_approval'
+PAYMENT_STATUS_CUSTOMER_APPROVAL_DENIED = 'customer_approval_denied'
+
 PAYMENT_STATUSES = (
-    ('pending_submission', 'Pending submission'),
-    ('submitted', 'Submitted'),
-    ('confirmed', 'Confirmed'),
-    ('failed', 'Failed'),
-    ('charged_back', 'Charged back'),
-    ('paid_out', 'Paid out'),
-    ('cancelled', 'Cancelled'),
-    ('pending_customer_approval', 'Pending customer approval'),
-    ('customer_approval_denied', 'Customer approval denied'),
+    (PAYMENT_STATUS_PENDING_SUBMISSION, 'Pending submission'),
+    (PAYMENT_STATUS_SUBMITTED, 'Submitted'),
+    (PAYMENT_STATUS_CONFIRMED, 'Confirmed'),
+    (PAYMENT_STATUS_FAILED, 'Failed'),
+    (PAYMENT_STATUS_CHARGED_BACK, 'Charged back'),
+    (PAYMENT_STATUS_PAID_OUT, 'Paid out'),
+    (PAYMENT_STATUS_CANCELLED, 'Cancelled'),
+    (PAYMENT_STATUS_PENDING_CUSTOMER_APPROVAL, 'Pending customer approval'),
+    (PAYMENT_STATUS_CUSTOMER_APPROVAL_DENIED, 'Customer approval denied'),
 )
 
 SUBSCRIPTION_DAY_OF_MONTH = (
