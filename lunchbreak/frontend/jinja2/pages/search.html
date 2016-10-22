@@ -18,7 +18,7 @@
             {% endif %}
             {% for store in stores %}
                 <div class="search-result">
-                    <a class="search-result-container" href="{{ url('frontend-store', pk=store.id)}}" alt="Bestel bij {{ store.name }}" style="background-image: url('{{ url('customers-store-header', store_id=store.id, width=548, height=400) }}');">
+                    <a class="search-result-container" href="{{ url('frontend-store', pk=store.id)}}" alt="Bestel bij {{ store.name }}" {% if store.header %}style="background-image: url('{{ url('customers-store-header', store_id=store.id, width=548, height=400) }}');"{% endif %}>
                         <div class="search-result-content">
                             <div class="search-result-hearts">
                                 {{ store.hearts_count }}
