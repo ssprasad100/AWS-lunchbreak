@@ -142,10 +142,21 @@ class StaffSerializer(serializers.ModelSerializer):
 
 
 class StaffTokenSerializer(BusinessTokenSerializer):
+    email = serializers.EmailField(
+        source='staff.email',
+        write_only=True
+    )
 
     class Meta(BusinessTokenSerializer.Meta):
         model = StaffToken
         fields = BusinessTokenSerializer.Meta.fields + (
+            'email',
+            'staff',
+        )
+        write_only_fields = BusinessTokenSerializer.Meta.write_only_fields + (
+            'email',
+        )
+        read_only_fields = BusinessTokenSerializer.Meta.read_only_fields + (
             'staff',
         )
 

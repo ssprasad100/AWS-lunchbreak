@@ -26,14 +26,18 @@ class BusinessAuthentication(TokenAuthentication):
             return BadRequest(serializer_model_token.errors)
 
         password_raw = request.data['password']
-        model_id = request.data[cls.MODEL_NAME]
+        model_id = request.data[cls.SERIALIZER_FIELD]
         device = request.data['device']
         registration_id = request.data.get('registration_id', '')
         service = request.data.get('service', SERVICE_INACTIVE)
         device = request.data['device']
 
         try:
-            model = cls.MODEL.objects.get(id=model_id)
+            model = cls.MODEL.objects.get(
+                **{
+                    cls.MODEL_FIELD: model_id
+                }
+            )
         except cls.MODEL.DoesNotExist:
             return DoesNotExist(
                 '{model_name} does not exist.'.format(
@@ -121,6 +125,8 @@ class BusinessAuthentication(TokenAuthentication):
 class StaffAuthentication(BusinessAuthentication):
     MODEL = Staff
     MODEL_NAME = 'staff'
+    MODEL_FIELD = 'email'
+    SERIALIZER_FIELD = 'email'
     TOKEN_MODEL = StaffToken
     TOKEN_SERIALIZER = StaffTokenSerializer
     REQUEST_SERIALIZER = StaffPasswordRequestSerializer
@@ -129,6 +135,8 @@ class StaffAuthentication(BusinessAuthentication):
 class EmployeeAuthentication(BusinessAuthentication):
     MODEL = Employee
     MODEL_NAME = 'employee'
+    MODEL_FIELD = 'id'
+    SERIALIZER_FIELD = 'employee'
     TOKEN_MODEL = EmployeeToken
     TOKEN_SERIALIZER = EmployeeTokenSerializer
     REQUEST_SERIALIZER = EmployeePasswordRequestSerializer
