@@ -8,7 +8,7 @@
         <div id="header-right">
             <ul>
                 <li><a href="" alt="Contact opnemen">Contact</a></li>
-                {% if request.user.is_authenticated() %}
+                {% if request is defined and request.user.is_authenticated() %}
                     <li>{{ request.user.name }}</li>
                 {% else %}
                     <li><a href="/" alt="Inloggen">Inloggen</a></li>
