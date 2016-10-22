@@ -310,6 +310,23 @@ class IngredientRelationSerializer(serializers.ModelSerializer):
         write_only_fields = fields
 
 
+class PopularFoodSerializer(serializers.ModelSerializer):
+    orderedfood_count = serializers.IntegerField(
+        read_only=True
+    )
+
+    class Meta:
+        model = Food
+        fields = (
+            'id',
+            'orderedfood_count',
+        )
+        read_only_fields = (
+            'id',
+            'orderedfood_count',
+        )
+
+
 class FoodSerializer(serializers.ModelSerializer):
     ingredients = lunch_serializers.IngredientRelationSerializer(
         source='ingredientrelation_set',
@@ -322,9 +339,6 @@ class FoodSerializer(serializers.ModelSerializer):
         many=True,
         required=False,
         write_only=True
-    )
-    orderedfood_count = serializers.IntegerField(
-        read_only=True
     )
     store = serializers.ModelField(
         model_field=Food()._meta.get_field('store'),
@@ -353,14 +367,12 @@ class FoodSerializer(serializers.ModelSerializer):
             'ingredientgroups',
 
             'ingredientrelations',
-            'orderedfood_count',
             'deleted',
             'last_modified',
         )
         read_only_fields = (
             'id',
             'ingredients',
-            'orderedfood_count',
             'store',
             'last_modified',
         )

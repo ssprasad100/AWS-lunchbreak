@@ -30,9 +30,9 @@ from .serializers import (EmployeeSerializer, FoodDetailSerializer,
                           FoodSerializer, IngredientGroupDetailSerializer,
                           IngredientGroupSerializer, IngredientSerializer,
                           OrderDetailSerializer, OrderSerializer,
-                          OrderSpreadSerializer, ReservationSerializer,
-                          StaffSerializer, StoreDetailSerializer,
-                          StoreMerchantSerializer)
+                          OrderSpreadSerializer, PopularFoodSerializer,
+                          ReservationSerializer, StaffSerializer,
+                          StoreDetailSerializer, StoreMerchantSerializer)
 
 AVAILABLE_STATUSES = [
     ORDER_STATUS_PLACED,
@@ -153,6 +153,7 @@ class FoodViewSet(TargettedViewSet,
 
     serializer_class = FoodSerializer
     serializer_class_retrieve = FoodDetailSerializer
+    serializer_class_popular = PopularFoodSerializer
 
     authentication_classes = (EmployeeAuthentication,)
     permission_classes = [StoreOwnerPermission]
