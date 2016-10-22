@@ -242,7 +242,6 @@ class OrderSerializer(customers_serializers.OrderSerializer):
             'status',
             'total',
             'total_confirmed',
-            'order',
         )
         read_only_fields = (
             'id',
@@ -251,7 +250,6 @@ class OrderSerializer(customers_serializers.OrderSerializer):
             'receipt',
             'total',
             'total_confirmed',
-            'order',
         )
 
 

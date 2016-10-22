@@ -80,21 +80,19 @@ def deploy(username=None, password=None, skiptests=False):
 
     if not skiptests:
         local('tox')
-    push(
-        username=username,
-        password=password
-    )
     deployer = Deployer()
+    push(deployer=deployer)
     deployer.update_server()
     deployer.register_opbeat()
 
 
-def push(username=None, password=None):
+def push(username=None, password=None, deployer=None):
     """Only builds and pushes new image."""
-    deployer = Deployer(
-        username=username,
-        password=password
-    )
+    if deployer is None:
+        deployer = Deployer(
+            username=username,
+            password=password
+        )
     deployer.push_images()
 
 
