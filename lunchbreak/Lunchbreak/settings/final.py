@@ -70,16 +70,14 @@ GOOGLE_WEB_CREDENTIALS = globals().get(
 BUSINESS_APNS_CERTIFICATE = globals().get(
     'BUSINESS_APNS_CERTIFICATE',
     os.environ.get(
-        'BUSINESS_APNS_CERTIFICATE',
-        'certificates/apns/business_development.pem'
+        'BUSINESS_APNS_CERTIFICATE'
     )
 )
 
 CUSTOMERS_APNS_CERTIFICATE = globals().get(
     'CUSTOMERS_APNS_CERTIFICATE',
     os.environ.get(
-        'CUSTOMERS_APNS_CERTIFICATE',
-        'certificates/apns/customers_development.pem'
+        'CUSTOMERS_APNS_CERTIFICATE'
     )
 )
 
