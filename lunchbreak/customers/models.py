@@ -848,8 +848,6 @@ class Order(AbstractOrder, DirtyFieldsMixin):
             # TODO Send the user an email/text stating the failed transaction.
             order.payment_method = PAYMENT_METHOD_CASH
 
-        order.save()
-
     @classmethod
     def denied(cls, sender, order, **kwargs):
         order.user.notify(
