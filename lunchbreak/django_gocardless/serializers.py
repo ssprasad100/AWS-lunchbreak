@@ -8,6 +8,7 @@ class RedirectFlowSerializer(serializers.ModelSerializer):
     class Meta:
         model = RedirectFlow
         fields = (
+            'id',
             'redirect_url',
         )
 

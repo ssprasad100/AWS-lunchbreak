@@ -264,10 +264,15 @@ class StoreViewSet(TargettedViewSet,
     @detail_route(methods=['post', 'get'])
     def paymentlink(self, request, pk=None):
         try:
-            paymentlink = PaymentLink.objects.get(
+            paymentlink = PaymentLink.objects.select_related(
+                'redirectflow',
+                'user',
+                'store'
+            ).get(
                 user=request.user,
                 store=self.get_object()
             )
+            paymentlink = paymentlink if paymentlink.redirectflow.is_completed else None
         except PaymentLink.DoesNotExist:
             paymentlink = None
 
