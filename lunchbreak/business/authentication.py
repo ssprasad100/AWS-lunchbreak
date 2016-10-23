@@ -8,6 +8,7 @@ from lunch.responses import BadRequest, DoesNotExist
 from Lunchbreak.exceptions import LunchbreakException
 from push_notifications.models import SERVICE_INACTIVE
 from rest_framework import status
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
 from .exceptions import IncorrectPassword, InvalidEmail
@@ -26,18 +27,13 @@ class BusinessAuthentication(TokenAuthentication):
             return BadRequest(serializer_model_token.errors)
 
         password_raw = request.data['password']
-        model_id = request.data[cls.SERIALIZER_FIELD]
         device = request.data['device']
         registration_id = request.data.get('registration_id', '')
         service = request.data.get('service', SERVICE_INACTIVE)
         device = request.data['device']
 
         try:
-            model = cls.MODEL.objects.get(
-                **{
-                    cls.MODEL_FIELD: model_id
-                }
-            )
+            model = cls.get_model(request.data)
         except cls.MODEL.DoesNotExist:
             return DoesNotExist(
                 '{model_name} does not exist.'.format(
@@ -65,6 +61,15 @@ class BusinessAuthentication(TokenAuthentication):
                 )
             )
         return IncorrectPassword().response
+
+    @classmethod
+    def get_model(cls, data):
+        model_id = data[cls.SERIALIZER_FIELD]
+        return cls.MODEL.objects.get(
+            **{
+                cls.MODEL_FIELD: model_id
+            }
+        )
 
     @classmethod
     def password_reset_request(cls, request):
@@ -130,6 +135,20 @@ class StaffAuthentication(BusinessAuthentication):
     TOKEN_MODEL = StaffToken
     TOKEN_SERIALIZER = StaffTokenSerializer
     REQUEST_SERIALIZER = StaffPasswordRequestSerializer
+
+    @classmethod
+    def get_model(cls, data):
+        if 'email' not in data and 'staff' not in data:
+            raise ValidationError('Email or staff field is required.')
+
+        uses_email = 'email' in data
+        model_field = 'email' if uses_email else 'id'
+        model_id = data['email'] if uses_email else data['staff']
+        return cls.MODEL.objects.get(
+            **{
+                model_field: model_id
+            }
+        )
 
 
 class EmployeeAuthentication(BusinessAuthentication):

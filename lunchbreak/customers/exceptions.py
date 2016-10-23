@@ -20,89 +20,89 @@ ORDEREDFOOD_NOT_ORIGINAL = 715
 
 class PastOrderDenied(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
-    code = PASTORDER_DENIED
-    information = 'Een bestelling moet in de toekomst geplaatst worden.'
+    default_code = PASTORDER_DENIED
+    default_detail = 'Een bestelling moet in de toekomst geplaatst worden.'
 
 
 class CostCheckFailed(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
-    code = COSTCHECK_FAILED
-    information = 'Prijs komt niet overeen met berekende prijs.'
+    default_code = COSTCHECK_FAILED
+    default_detail = 'Prijs komt niet overeen met berekende prijs.'
 
 
 class PreorderTimeExceeded(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
-    code = PREORDERTIME_EXCEEDED
-    information = 'Een bestelling moet vroeger geplaatst worden.'
+    default_code = PREORDERTIME_EXCEEDED
+    default_detail = 'Een bestelling moet vroeger geplaatst worden.'
 
 
 class StoreClosed(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
-    code = STORE_CLOSED
-    information = 'De winkel is gesloten op het gegeven moment.'
+    default_code = STORE_CLOSED
+    default_detail = 'De winkel is gesloten op het gegeven moment.'
 
 
 class AmountInvalid(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
-    code = AMOUNT_INVALID
-    information = 'De hoeveelheid is ongeldig.'
+    default_code = AMOUNT_INVALID
+    default_detail = 'De hoeveelheid is ongeldig.'
 
 
 class MinDaysExceeded(PreorderTimeExceeded):
     status_code = status.HTTP_400_BAD_REQUEST
-    code = MINDAYS_EXCEEDED
+    default_code = MINDAYS_EXCEEDED
     # information see PreorderTimeExceeded
 
 
 class UserDisabled(LunchbreakException):
     status_code = status.HTTP_403_FORBIDDEN
-    code = USER_DISABLED
-    information = 'Deze account werd uitgeschakeld.'
+    default_code = USER_DISABLED
+    default_detail = 'Deze account werd uitgeschakeld.'
 
 
 class MaxSeatsExceeded(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
-    code = MAX_SEATS_EXCEEDED
-    information = 'De winkel heeft niet zoveel plaatsen beschikbaar.'
+    default_code = MAX_SEATS_EXCEEDED
+    default_detail = 'De winkel heeft niet zoveel plaatsen beschikbaar.'
 
 
 class NoInvitePermissions(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
-    code = NO_INVITE_PERMISSIONS
-    information = 'Jij kan geen personen uitnodigen tot de groep.'
+    default_code = NO_INVITE_PERMISSIONS
+    default_detail = 'Jij kan geen personen uitnodigen tot de groep.'
 
 
 class AlreadyMembership(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
-    code = ALREADY_MEMBERSHIP
-    information = 'Gebruiker is al reeds lid van deze groep.'
+    default_code = ALREADY_MEMBERSHIP
+    default_detail = 'Gebruiker is al reeds lid van deze groep.'
 
 
 class InvalidStatusChange(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
-    code = INVALID_STATUS_CHANGE
-    information = 'Foute status aanpassing.'
+    default_code = INVALID_STATUS_CHANGE
+    default_detail = 'Foute status aanpassing.'
 
 
 class OnlinePaymentDisabled(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
-    code = ONLINE_PAYMENTS_DISABLED
-    information = 'Deze winkel heeft online betalingen uitgeschakeld.'
+    default_code = ONLINE_PAYMENTS_DISABLED
+    default_detail = 'Deze winkel heeft online betalingen uitgeschakeld.'
 
 
 class NoPaymentLink(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
-    code = NO_PAYMENT_LINK
-    information = 'Gebruiker heeft geen mandaat met deze winkel getekend.'
+    default_code = NO_PAYMENT_LINK
+    default_detail = 'Gebruiker heeft geen mandaat met deze winkel getekend.'
 
 
 class PaymentLinkNotConfirmed(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
-    code = PAYMENT_LINK_NOT_CONFIRMED
-    information = 'Gebruiker heeft het mandaat nog niet bevestigd.'
+    default_code = PAYMENT_LINK_NOT_CONFIRMED
+    default_detail = 'Gebruiker heeft het mandaat nog niet bevestigd.'
 
 
 class OrderedFoodNotOriginal(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
-    code = ORDEREDFOOD_NOT_ORIGINAL
-    information = 'Het originele waar moet gelijk zijn aan het meest aansluitende waar.'
+    default_code = ORDEREDFOOD_NOT_ORIGINAL
+    default_detail = 'Het originele waar moet gelijk zijn aan het meest aansluitende waar.'

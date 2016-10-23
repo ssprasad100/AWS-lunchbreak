@@ -144,7 +144,8 @@ class StaffSerializer(serializers.ModelSerializer):
 class StaffTokenSerializer(BusinessTokenSerializer):
     email = serializers.EmailField(
         source='staff.email',
-        write_only=True
+        write_only=True,
+        required=False
     )
 
     class Meta(BusinessTokenSerializer.Meta):
@@ -156,9 +157,11 @@ class StaffTokenSerializer(BusinessTokenSerializer):
         write_only_fields = BusinessTokenSerializer.Meta.write_only_fields + (
             'email',
         )
-        read_only_fields = BusinessTokenSerializer.Meta.read_only_fields + (
-            'staff',
-        )
+        extra_kwargs = {
+            'staff': {
+                'required': False
+            }
+        }
 
 
 class EmployeeSerializer(serializers.ModelSerializer):

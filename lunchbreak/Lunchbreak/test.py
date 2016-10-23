@@ -84,7 +84,7 @@ class LunchbreakTestCase(APITestCase):
         except:
             error_message = response.data
         try:
-            self.assertEqual(response.data['error']['code'], exception.code, error_message)
+            self.assertEqual(response.data['error']['code'], exception.default_code, error_message)
         except KeyError:
             self.fail(error_message)
         self.assertEqual(response.status_code, exception.status_code, error_message)

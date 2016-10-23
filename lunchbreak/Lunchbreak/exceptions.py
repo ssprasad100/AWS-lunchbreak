@@ -20,39 +20,39 @@ def lunchbreak_exception_handler(exception, context):
             exception=exception
         )
 
-    response.data = {
-        'error': (
-            response.data
-            if response.data is not None
-            else {'detail': str(exception)}
-        )
+    error = {
+        'detail': None
     }
+    if response.data is not None:
+        if isinstance(response.data, dict) and 'detail' in response.data:
+            error = response.data
+        else:
+            if isinstance(response.data, list) and len(response.data) == 1:
+                error['detail'] = response.data[0]
+            else:
+                error['detail'] = response.data
+    else:
+        error['detail'] = str(exception)
+    response.data = {
+        'error': error
+    }
+
     if exception is None:
         return response
 
-    error_code = exception.code if hasattr(exception, 'code') else -1
-    response.data['error']['code'] = error_code
-    error_information = getattr(exception, 'information', None)
-
-    if error_information is not None:
-        response.data['error']['information'] = error_information
-
-    status_code = getattr(
-        exception.__class__,
-        'status_code',
-        None
-    )
-    if status_code is not None:
-        response.status_code = status_code
+    response.data['error']['code'] = getattr(exception, 'default_code', -1)
 
     return response
 
 
 class LunchbreakException(RestValidationError):
 
+    default_code = -1
+
     def __init__(self, detail=None):
+        if detail is None:
+            detail = self.default_detail
         super().__init__(detail)
-        self.detail = detail
 
     @property
     def response(self):
