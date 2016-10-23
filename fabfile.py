@@ -60,9 +60,9 @@ os.environ.setdefault(
 )
 
 with lcd('lunchbreak'):
-    from django.conf import settings  # NOQA
-    OPBEAT_APP_ID = getattr(settings, 'OPBEAT_APP_ID', None)
-    OPBEAT_SECRET_TOKEN = getattr(settings, 'OPBEAT_SECRET_TOKEN', None)
+    from django.conf import settings as django_settings  # NOQA
+    OPBEAT_APP_ID = getattr(django_settings, 'OPBEAT_APP_ID', None)
+    OPBEAT_SECRET_TOKEN = getattr(django_settings, 'OPBEAT_SECRET_TOKEN', None)
 
     if OPBEAT_APP_ID is None or OPBEAT_SECRET_TOKEN is None:
         OPBEAT_APP_ID = os.environ.get(
@@ -330,7 +330,7 @@ class Deployer:
                 )
 
         # Delete all dangling images
-        with settings(warn_only=True):
+        with settings(warn_only=True), hide('warnings'):
             run('docker images -q -f dangling=true | xargs --no-run-if-empty docker rmi')
 
     def register_opbeat(self):
