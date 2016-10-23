@@ -330,7 +330,8 @@ class Deployer:
                 )
 
         # Delete all dangling images
-        run('docker images -q -f dangling=true | xargs --no-run-if-empty docker rmi')
+        with settings(warn_only=True):
+            run('docker images -q -f dangling=true | xargs --no-run-if-empty docker rmi')
 
     def register_opbeat(self):
         with hide('running'):
