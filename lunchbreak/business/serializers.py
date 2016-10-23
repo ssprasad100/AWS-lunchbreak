@@ -156,12 +156,10 @@ class StaffTokenSerializer(BusinessTokenSerializer):
         )
         write_only_fields = BusinessTokenSerializer.Meta.write_only_fields + (
             'email',
-            'staff',
         )
         extra_kwargs = {
             'staff': {
-                'required': False,
-                'write_only': True
+                'required': False
             }
         }
 
