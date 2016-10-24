@@ -15,6 +15,7 @@ from django.db.models.signals import post_delete
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
 from django_gocardless.config import CURRENCY_EUR, PAYMENT_STATUS_PAID_OUT
+from django_gocardless.exceptions import DjangoGoCardlessException
 from django_gocardless.models import Payment, RedirectFlow
 from django_sms.exceptions import PinTimeout
 from django_sms.models import Phone
@@ -732,7 +733,7 @@ class Order(AbstractOrder, DirtyFieldsMixin):
             dirty_status = dirty_fields.get('status', dirty_status)
 
             if dirty_status is not None:
-                ORDER_STATUS_SIGNALS[dirty_status].send(
+                ORDER_STATUS_SIGNALS[self.status].send(
                     sender=self.__class__,
                     order=self
                 )
@@ -843,10 +844,9 @@ class Order(AbstractOrder, DirtyFieldsMixin):
                             }
                         }
                     )
-            except PaymentLink.DoesNotExist:
-                pass
-            # TODO Send the user an email/text stating the failed transaction.
-            order.payment_method = PAYMENT_METHOD_CASH
+            except (PaymentLink.DoesNotExist, DjangoGoCardlessException):
+                # TODO Send the user an email/text stating the failed transaction.
+                order.payment_method = PAYMENT_METHOD_CASH
 
     @classmethod
     def denied(cls, sender, order, **kwargs):

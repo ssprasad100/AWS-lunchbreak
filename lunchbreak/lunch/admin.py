@@ -52,7 +52,7 @@ class StoreAdmin(admin.ModelAdmin):
     search_fields = ('name', 'city', 'street', 'country')
     list_filter = ('city', 'country',)
     ordering = ('name',)
-    inlines = (StoreHeaderInline, )
+    inlines = (StoreHeaderInline,)
 
 
 @admin.register(Region)

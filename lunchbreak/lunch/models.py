@@ -282,9 +282,9 @@ class Store(AbstractAddress):
 
     online_payments_enabled = models.BooleanField(
         default=True,
-        verbose_name=_('online betalingen inschakelen'),
+        verbose_name=_('online betalingen ingeschakeld'),
         help_text=_(
-            'Online betalingen inschakelen, er moet een GoCardless '
+            'Online betalingen ingeschakeld, er moet een GoCardless '
             'account/merchant gelinked worden voor online betalingen '
             'aanvaard kunnen worden.'
         )
