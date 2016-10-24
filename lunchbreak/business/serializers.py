@@ -38,6 +38,7 @@ class StoreDetailSerializer(serializers.ModelSerializer):
             'wait',
             'preorder_time',
             'enabled',
+            'online_payments_enabled',
         )
         read_only_fields = (
             'id',

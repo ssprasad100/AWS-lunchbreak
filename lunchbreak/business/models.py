@@ -94,7 +94,9 @@ class Staff(AbstractPassword):
 
     @property
     def is_merchant(self):
-        return self.merchant is not None and self.merchant.organisation_id
+        return self.store.online_payments_enabled \
+            and self.merchant is not None \
+            and self.merchant.confirmed
 
     class Meta:
         verbose_name = _('Personeel')

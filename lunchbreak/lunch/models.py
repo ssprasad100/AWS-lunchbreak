@@ -280,6 +280,15 @@ class Store(AbstractAddress):
         help_text=_('Tijdzone.')
     )
 
+    online_payments_enabled = models.BooleanField(
+        default=True,
+        verbose_name=_('online betalingen inschakelen'),
+        help_text=_(
+            'Online betalingen inschakelen, er moet een GoCardless '
+            'account/merchant gelinked worden voor online betalingen '
+            'aanvaard kunnen worden.'
+        )
+    )
     last_modified = models.DateTimeField(
         auto_now=True,
         verbose_name=_('laatst aangepast'),
