@@ -1,10 +1,12 @@
 from collections import defaultdict
 from datetime import datetime, time, timedelta
+from decimal import Decimal
 
 import googlemaps
 import pendulum
 from customers.config import ORDER_STATUSES_ACTIVE
-from customers.exceptions import PreorderTimeExceeded, PastOrderDenied, StoreClosed
+from customers.exceptions import (PastOrderDenied, PreorderTimeExceeded,
+                                  StoreClosed)
 from dirtyfields import DirtyFieldsMixin
 from django.conf import settings
 from django.contrib.auth.hashers import check_password, make_password
@@ -170,10 +172,11 @@ class AbstractAddress(models.Model, DirtyFieldsMixin):
             )
 
         result = results[0]
-        latitude = str(result['geometry']['location']['lat'])
-        longitude = str(result['geometry']['location']['lng'])
+        rounding = Decimal('0.0000001')
+        latitude = Decimal(result['geometry']['location']['lat'])
+        longitude = Decimal(result['geometry']['location']['lng'])
 
-        return latitude, longitude
+        return latitude.quantize(rounding), longitude.quantize(rounding)
 
     def save(self, *args, **kwargs):
         dirty_fields = self.get_dirty_fields()
