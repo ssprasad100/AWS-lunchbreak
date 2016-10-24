@@ -844,7 +844,14 @@ class Order(AbstractOrder, DirtyFieldsMixin):
                             }
                         }
                     )
-            except (PaymentLink.DoesNotExist, DjangoGoCardlessException):
+            except (PaymentLink.DoesNotExist, DjangoGoCardlessException) as e:
+                if isinstance(e, DjangoGoCardlessException):
+                    merchant = order.store.staff.merchant
+                    if merchant is not None:
+                        merchant.delete()
+                        order.store.staff.notify(
+                            _('GoCardless account ontkoppelt wegens fout.')
+                        )
                 # TODO Send the user an email/text stating the failed transaction.
                 order.payment_method = PAYMENT_METHOD_CASH
 

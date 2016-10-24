@@ -1,24 +1,14 @@
-from django.apps import apps
 from django.db import models
+
+from .mixins import NotifyModelMixin
 
 
 class NotifyQuerySet(models.QuerySet):
 
     def notify(self, message, **kwargs):
-        kwargs.setdefault('sound', 'default')
-        model_name = self.model.__name__
-        token_model = apps.get_model(
-            'business.{model}Token'.format(
-                model=model_name
-            )
-        )
-
-        token_model.objects.filter(
-            **{
-                model_name.lower() + '__in': self
-            }
-        ).send_message(
-            message,
+        return NotifyModelMixin._notify(
+            message=message,
+            queryset=self,
             **kwargs
         )
 

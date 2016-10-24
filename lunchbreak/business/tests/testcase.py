@@ -60,6 +60,24 @@ class BusinessTestCase(LunchbreakTestCase):
             service=SERVICE_APNS
         )
 
+        self.other_phone = Phone.objects.create(
+            phone=self.VALID_PHONE,
+            confirmed_at=timezone.now()
+        )
+
+        self.other_user = User.objects.create(
+            phone=self.other_phone,
+            name=self.NAME_ALTERNATE
+        )
+
+        self.other_usertoken = UserToken.objects.create(
+            identifier='something',
+            device='something',
+            user=self.other_user,
+            registration_id='something',
+            service=SERVICE_APNS
+        )
+
         self.store = Store.objects.create(
             name='self',
             country='België',

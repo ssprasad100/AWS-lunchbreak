@@ -7,6 +7,7 @@ from lunch.config import TOKEN_IDENTIFIER_LENGTH
 from lunch.models import BaseToken
 
 from .managers import StaffManager
+from .mixins import NotifyModelMixin
 
 
 class AbstractPasswordReset(models.Model):
@@ -38,18 +39,7 @@ class AbstractPassword(AbstractPasswordReset):
         return check_password(password_raw, self.password)
 
 
-class NotifyModelMixin:
-
-    def notify(self, message, **kwargs):
-        kwargs.setdefault('sound', 'default')
-
-        self.tokens.all().send_message(
-            message,
-            **kwargs
-        )
-
-
-class Staff(AbstractPassword):
+class Staff(AbstractPassword, NotifyModelMixin):
     store = models.OneToOneField(
         'lunch.Store',
         on_delete=models.CASCADE,
@@ -125,7 +115,7 @@ class StaffToken(BaseToken):
         verbose_name_plural = _('personeelstokens')
 
 
-class Employee(AbstractPassword):
+class Employee(AbstractPassword, NotifyModelMixin):
     name = models.CharField(
         max_length=255,
         verbose_name=_('naam'),
