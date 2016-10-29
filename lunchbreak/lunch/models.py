@@ -307,10 +307,7 @@ class Store(AbstractAddress):
         verbose_name_plural = _('winkels')
 
     def __str__(self):
-        return '{name}, {city}'.format(
-            name=self.name,
-            city=self.city
-        )
+        return self.name
 
     @cached_property
     def category(self):

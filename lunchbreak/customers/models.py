@@ -292,6 +292,35 @@ class PaymentLink(models.Model):
     def post_delete(sender, instance, using, **kwargs):
         instance.redirectflow.delete()
 
+        updated_orders = instance.user.order_set.filter(
+            status__in=ORDER_STATUSES_ACTIVE,
+            payment_method=PAYMENT_METHOD_GOCARDLESS
+        ).update(
+            payment_method=PAYMENT_METHOD_CASH
+        )
+        if updated_orders > 0:
+            instance.user.notify(
+                _(
+                    'Uw bankrekening werd door ons systeem geweigerd en '
+                    'verwijderd. Lopende bestellingen zijn nu contant te '
+                    'betalen.'
+                )
+            )
+            instance.store.staff.notify(
+                _(
+                    'De online betaling van %(user)s is geweigerd. De lopende '
+                    'bestellingen hiervan zijn aangepast naar contant.'
+                ) % {
+                    'user': instance.user.name
+                }
+            )
+
+    def __str__(self):
+        return '{user}, {store}'.format(
+            user=self.user,
+            store=self.store
+        )
+
 
 class Invite(models.Model, DirtyFieldsMixin):
     group = models.ForeignKey(

@@ -10,7 +10,7 @@ from .models import (Address, Group, Heart, Invite, Membership, Order,
 
 class PaymentLinkInline(admin.TabularInline):
     model = PaymentLink
-    extra = 2
+    extra = 0
 
 
 @admin.register(User)
@@ -26,6 +26,20 @@ class AddressAdmin(admin.ModelAdmin):
     list_display = ('user', 'city', 'country',)
     search_fields = ('user__name', 'city', 'country',)
     list_filter = ('city', 'country',)
+
+
+@admin.register(PaymentLink)
+class PaymentLinkAdmin(admin.ModelAdmin):
+    list_display = ('user', 'store', 'redirectflow', 'created_at',)
+    readonly_fields = ('redirectflow',)
+    search_fields = ('user__name', 'store__name',)
+    list_filter = ('store',)
+    ordering = ('redirectflow__created_at',)
+
+    def created_at(self, paymentlink):
+        return paymentlink.redirectflow.created_at
+
+    created_at.short_description = _('aangemaakt')
 
 
 @admin.register(Invite)
