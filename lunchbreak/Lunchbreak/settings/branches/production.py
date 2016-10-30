@@ -20,7 +20,7 @@ OPBEAT_RELEASE = True
 
 # TODO Add production access token
 GOCARDLESS_ENVIRONMENT = 'live'
-GOCARDLESS_APP_EXCHANGE_DOMAIN = 'api.lunchbreakapp.be'
+GOCARDLESS_APP_DOMAIN = 'api.lunchbreakapp.be'
 MIDDLEWARE_CLASSES += (
     'opbeat.contrib.django.middleware.OpbeatAPMMiddleware',
 )

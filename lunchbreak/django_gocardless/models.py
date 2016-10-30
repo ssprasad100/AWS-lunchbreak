@@ -61,7 +61,7 @@ class Merchant(models.Model):
     def get_redirect_uri():
         return '{protocol}://{domain}{path}'.format(
             protocol='https' if settings.SSL else 'http',
-            domain=settings.GOCARDLESS['app']['merchant']['exchange_domain'],
+            domain=settings.GOCARDLESS['app']['domain'],
             path=reverse('gocardless-redirect')
         )
 
@@ -495,7 +495,7 @@ class RedirectFlow(models.Model, GCCreateMixin):
         else:
             success_redirect_url = '{scheme}://{domain}{location}'.format(
                 scheme='https' if settings.SSL else 'http',
-                domain=DEFAULT_DOMAIN,
+                domain=settings.GOCARDLESS['app']['domain'],
                 location=reverse(
                     'gocardless-redirectflow-success',
                 )
