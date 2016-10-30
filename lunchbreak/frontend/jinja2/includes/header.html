@@ -7,7 +7,6 @@
         </div>
         <div id="header-right">
             <ul>
-                <li><a href="" alt="Contact opnemen">Contact</a></li>
                 {% if request is defined and request.user.is_authenticated() %}
                     <li>{{ request.user.name }}</li>
                 {% else %}
