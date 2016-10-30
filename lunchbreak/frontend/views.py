@@ -30,6 +30,8 @@ class SearchView(SearchForm.ViewMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         search_form = context['search_form']
+        stores = []
+
         if search_form.is_valid():
             stores_byname = Store.objects.filter(
                 name__icontains=search_form.data['address']
@@ -57,12 +59,14 @@ class SearchView(SearchForm.ViewMixin, TemplateView):
                     store.distance = '{0:.2f} km'.format(
                         store.distance
                     ).replace('.', ',')
-        else:
+
+        if not stores:
             stores = Store.objects.all().annotate(
                 hearts_count=Count('hearts')
             ).order_by(
                 '-hearts_count'
             )
+            context['popular_stores'] = True
         context['stores'] = stores
         return context
 

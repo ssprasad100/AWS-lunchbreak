@@ -13,8 +13,10 @@
 <div id="search-results" class="block">
     <div class="container">
         {% if stores %}
-            {% if search_form.address.errors %}
+            {# Stores will never be empty, popular stores are used as a fallback. #}
+            {% if popular_stores %}
                 <h1>Populaire winkels</h1>
+                <h3>Kon geen winkels vinden voor de zoekopdracht, dit zijn onze populairste winkels.</h3>
             {% endif %}
             {% for store in stores %}
                 <div class="search-result">
@@ -39,7 +41,7 @@
                                 {% endif %}
                                 <div class="search-result-options">
                                     {% if store.does_delivery %}
-                                        <img src="{{ static('icons/truck.png') }}" alt="Levering mogelijk"/>
+                                        <img src="{{ static('icons/truck.png') }}" alt="Levering mogelijk" title="Levering mogelijk"/>
                                     {% endif %}
                                 </div>
                             </div>
