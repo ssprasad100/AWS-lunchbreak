@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib.contenttypes.admin import GenericTabularInline
 from django.utils.translation import ugettext as _
 from lunch.admin import BaseTokenAdmin
 from Lunchbreak.utils import format_decimal
@@ -30,8 +31,8 @@ class AddressAdmin(admin.ModelAdmin):
 
 @admin.register(PaymentLink)
 class PaymentLinkAdmin(admin.ModelAdmin):
-    list_display = ('user', 'store', 'redirectflow', 'created_at',)
-    readonly_fields = ('redirectflow',)
+    list_display = ('user', 'store', 'redirectflow', 'created_at', 'is_completed')
+    readonly_fields = ('store', 'user', 'redirectflow',)
     search_fields = ('user__name', 'store__name',)
     list_filter = ('store',)
     ordering = ('redirectflow__created_at',)
@@ -40,6 +41,13 @@ class PaymentLinkAdmin(admin.ModelAdmin):
         return paymentlink.redirectflow.created_at
 
     created_at.short_description = _('aangemaakt')
+    created_at.admin_order_field = 'redirectflow__created_at'
+
+    def is_completed(self, paymentlink):
+        return paymentlink.redirectflow.is_completed
+
+    is_completed.boolean = True
+    is_completed.short_description = _('afgerond')
 
 
 @admin.register(Invite)
@@ -82,28 +90,6 @@ class ReservationAdmin(admin.ModelAdmin):
     list_filter = ('status', 'store',)
 
 
-@admin.register(Order)
-class OrderAdmin(admin.ModelAdmin):
-    list_display = ('store', 'user', 'placed', 'receipt', 'status', 'total_display',)
-    search_fields = ('store__name', 'user__name',)
-    list_filter = ('store',)
-
-    def total_display(self, instance):
-        total = instance.total_confirmed \
-            if instance.total_confirmed is not None \
-            else instance.total
-        return format_decimal(total)
-
-    total_display.short_description = _('totale prijs')
-
-
-@admin.register(TemporaryOrder)
-class TemporaryOrderAdmin(admin.ModelAdmin):
-    list_display = ('store', 'user',)
-    search_fields = ('store__name', 'user__name',)
-    list_filter = ('store',)
-
-
 @admin.register(OrderedFood)
 class OrderedFoodAdmin(admin.ModelAdmin):
     list_display = ('original', 'order', 'total_display', 'is_original',)
@@ -114,6 +100,44 @@ class OrderedFoodAdmin(admin.ModelAdmin):
         return format_decimal(instance.total)
 
     total_display.short_description = _('totale prijs')
+
+
+class OrderedFoodInline(GenericTabularInline):
+    model = OrderedFood
+    readonly_fields = ('ingredients', 'comment',)
+    extra = 0
+
+
+class AbstractOrderAdmin(admin.ModelAdmin):
+    inlines = (OrderedFoodInline,)
+
+    def total_display(self, instance):
+        total = instance.total_confirmed \
+            if instance.total_confirmed is not None \
+            else instance.total
+        return format_decimal(total)
+
+    total_display.short_description = _('totale prijs')
+
+    def count_display(self, instance):
+        return instance.orderedfood.all().count()
+
+    count_display.short_description = OrderedFood._meta.verbose_name_plural
+
+
+@admin.register(Order)
+class OrderAdmin(AbstractOrderAdmin):
+    list_display = ('store', 'user', 'placed', 'receipt', 'status', 'total_display', 'count_display',)
+    search_fields = ('store__name', 'user__name',)
+    list_filter = ('store', 'status',)
+    ordering = ('-placed', '-receipt',)
+
+
+@admin.register(TemporaryOrder)
+class TemporaryOrderAdmin(AbstractOrderAdmin):
+    list_display = ('store', 'user', 'count_display',)
+    search_fields = ('store__name', 'user__name',)
+    list_filter = ('store',)
 
 
 @admin.register(UserToken)

@@ -102,10 +102,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         verbose_name_plural = _('gebruikers')
 
     def __str__(self):
-        return '{name} {phone}'.format(
-            name=self.name,
-            phone=self.phone
-        )
+        return self.name
 
     def phone_clean(raw_value, model_instance):
         return Phone._meta.get_field('phone').clean(
@@ -627,10 +624,10 @@ class AbstractOrder(CleanModelMixin, models.Model):
         abstract = True
 
     def __str__(self):
-        return '{user} {id}'.format(
-            user=self.user,
-            id=self.id
-        )
+        return _('%(user)s, %(store)s (onbevestigd)') % {
+            'user': self.user.name,
+            'store': self.store
+        }
 
     @classmethod
     def is_valid(cls, orderedfood, **kwargs):
@@ -745,6 +742,13 @@ class Order(AbstractOrder, DirtyFieldsMixin):
     class Meta:
         verbose_name = _('bestelling')
         verbose_name_plural = _('bestellingen')
+
+    def __str__(self):
+        return _('%(user)s, %(store)s op %(receipt)s') % {
+            'user': self.user.name,
+            'store': self.store,
+            'receipt': self.receipt
+        }
 
     def save(self, *args, **kwargs):
         self.full_clean()
