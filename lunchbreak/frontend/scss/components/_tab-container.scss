@@ -24,6 +24,7 @@
             font-size: $size-small;
             font-weight: $weight-medium;
             margin-right: 16px;
+            border-bottom: 3px solid transparent;
 
             &:last-child {
                 margin-right: 0;
