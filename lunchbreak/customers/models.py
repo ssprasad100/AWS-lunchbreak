@@ -806,7 +806,8 @@ class Order(AbstractOrder, DirtyFieldsMixin):
         # TODO: Check whether the store can accept an order if it is
         # for delivery and needs to be delivered asap (receipt=None).
 
-        if self.receipt is None and self.delivery_address is None:
+        dirty_fields = self.get_dirty_fields()
+        if ('receipt' in dirty_fields or self.receipt is None) and self.delivery_address is None:
             if self.receipt is None:
                 raise LunchbreakException(
                     _('Er moet een tijdstip voor het ophalen gegeven worden.')

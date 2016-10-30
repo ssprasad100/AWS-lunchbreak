@@ -1,5 +1,3 @@
-from django.conf import settings
-
 CLIENT_PROPERTIES = {
     'Customer': 'customers',
     'CustomerBankAccount': 'customer_bank_accounts',
@@ -98,9 +96,4 @@ SUBSCRIPTION_STATUSES = (
 PAYOUT_STATUSES = (
     ('pending', 'Pending'),
     ('paid', 'Paid'),
-)
-
-DEFAULT_DOMAIN = settings.GOCARDLESS.get(
-    'default_domain',
-    settings.ALLOWED_HOSTS[0]
 )

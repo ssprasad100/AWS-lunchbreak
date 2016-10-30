@@ -5,7 +5,7 @@
 #    pip-compile --output-file lunchbreak/requirements-dev.txt lunchbreak/requirements-dev.in
 #
 -e git+git://github.com/RacingTadpole/django-private-media.git@7510f2f63ddf0653679b4134a0542cd78317a5c8#egg=django_private_media
--e git+git://github.com/AndreasBackx/django-push-notifications.git@27f44dae5af8b0ee2726281f5b654882fd2888a8#egg=django_push_notifications
+-e git+git://github.com/AndreasBackx/django-push-notifications.git@269816a469c93dfcc8e87e910541c9f517aa540f#egg=django_push_notifications
 -e git+git://github.com/AndreasBackx/google-maps-services-python.git@master#egg=googlemaps
 -e git+git://github.com/AndreasBackx/pendulum@feature/period-exclude-merge#egg=pendulum
 arrow==0.8.0

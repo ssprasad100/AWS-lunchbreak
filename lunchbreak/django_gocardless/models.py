@@ -11,10 +11,10 @@ from django.utils.crypto import get_random_string
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
 
-from .config import (CURRENCIES, DEFAULT_DOMAIN, MANDATE_STATUSES,
-                     PAYMENT_STATUSES, PAYOUT_STATUSES, SCHEMES,
-                     SUBSCRIPTION_DAY_OF_MONTH, SUBSCRIPTION_INTERVAL_UNIT,
-                     SUBSCRIPTION_MONTHS, SUBSCRIPTION_STATUSES)
+from .config import (CURRENCIES, MANDATE_STATUSES, PAYMENT_STATUSES,
+                     PAYOUT_STATUSES, SCHEMES, SUBSCRIPTION_DAY_OF_MONTH,
+                     SUBSCRIPTION_INTERVAL_UNIT, SUBSCRIPTION_MONTHS,
+                     SUBSCRIPTION_STATUSES)
 from .exceptions import ExchangeAuthorisationError
 from .mixins import GCCacheMixin, GCCreateMixin, GCCreateUpdateMixin
 from .utils import model_from_links
