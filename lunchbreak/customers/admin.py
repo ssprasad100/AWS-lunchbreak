@@ -127,7 +127,8 @@ class AbstractOrderAdmin(admin.ModelAdmin):
 
 @admin.register(Order)
 class OrderAdmin(AbstractOrderAdmin):
-    list_display = ('store', 'user', 'placed', 'receipt', 'status', 'total_display', 'count_display',)
+    list_display = ('store', 'user', 'placed', 'receipt',
+                    'status', 'total_display', 'count_display',)
     search_fields = ('store__name', 'user__name',)
     list_filter = ('store', 'status',)
     ordering = ('-placed', '-receipt',)

@@ -15,7 +15,8 @@ from django.db.models.signals import post_delete
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
 from django_gocardless.config import CURRENCY_EUR, PAYMENT_STATUS_PAID_OUT
-from django_gocardless.exceptions import DjangoGoCardlessException
+from django_gocardless.exceptions import (DjangoGoCardlessException,
+                                          MerchantAccessError)
 from django_gocardless.models import Payment, RedirectFlow
 from django_sms.exceptions import PinTimeout
 from django_sms.models import Phone
@@ -878,16 +879,25 @@ class Order(AbstractOrder, DirtyFieldsMixin):
                             }
                         }
                     )
-            except (PaymentLink.DoesNotExist, DjangoGoCardlessException) as e:
-                if isinstance(e, DjangoGoCardlessException):
-                    merchant = order.store.staff.merchant
-                    if merchant is not None:
-                        merchant.delete()
-                        order.store.staff.notify(
-                            _('GoCardless account ontkoppelt wegens fout.')
-                        )
-                # TODO Send the user an email/text stating the failed transaction.
-                order.payment_method = PAYMENT_METHOD_CASH
+                    return
+            except MerchantAccessError:
+                merchant = order.store.staff.merchant
+                if merchant is not None:
+                    merchant.delete()
+                    order.store.staff.notify(
+                        _('GoCardless account ontkoppelt wegens fout.')
+                    )
+            except (PaymentLink.DoesNotExist, DjangoGoCardlessException):
+                pass
+            # Could not create payment
+            # TODO Send the user an email/text stating the failed transaction.
+            order.payment_method = PAYMENT_METHOD_CASH
+            order.user.notify(
+                _(
+                    'Er liep iets fout bij de online betaling. Gelieve '
+                    'contant te betalen bij het ophalen.'
+                )
+            )
 
     @classmethod
     def denied(cls, sender, order, **kwargs):
