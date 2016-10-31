@@ -284,7 +284,6 @@ class OrderDetailSerializer(OrderSerializer):
         model = Order
         fields = OrderSerializer.Meta.fields + (
             'orderedfood',
-            'description',
         )
         read_only_fields = (
             'id',

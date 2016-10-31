@@ -839,7 +839,15 @@ class Order(AbstractOrder, DirtyFieldsMixin):
                 if not paymentlink.redirectflow.is_completed:
                     raise PaymentLinkNotConfirmed()
             except PaymentLink.DoesNotExist:
-                raise NoPaymentLink()
+                if self.pk is None:
+                    raise NoPaymentLink()
+                self.payment_method = PAYMENT_METHOD_CASH
+                self.user.notify(
+                    _(
+                        'Er liep iets fout bij de online betaling. Gelieve '
+                        'contant te betalen bij het ophalen.'
+                    )
+                )
 
     @classmethod
     def created(cls, sender, order, **kwargs):
