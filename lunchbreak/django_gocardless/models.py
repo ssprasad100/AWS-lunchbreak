@@ -540,9 +540,7 @@ class Payout(models.Model, GCCacheMixin):
         primary_key=True,
         max_length=255
     )
-    amount = models.DecimalField(
-        max_digits=12,
-        decimal_places=2,
+    amount = models.PositiveIntegerField(
         null=True
     )
     created_at = models.DateTimeField(
@@ -618,10 +616,7 @@ class Subscription(models.Model, GCCreateUpdateMixin):
         primary_key=True,
         max_length=255
     )
-    amount = models.DecimalField(
-        max_digits=12,
-        decimal_places=2
-    )
+    amount = models.PositiveIntegerField()
     count = models.PositiveIntegerField(
         null=True
     )
@@ -753,14 +748,8 @@ class Payment(models.Model, GCCreateMixin):
         primary_key=True,
         max_length=255
     )
-    amount = models.DecimalField(
-        max_digits=12,
-        decimal_places=2
-    )
-    amount_refunded = models.DecimalField(
-        max_digits=12,
-        decimal_places=2
-    )
+    amount = models.PositiveIntegerField()
+    amount_refunded = models.PositiveIntegerField()
     charge_date = models.DateField(
         null=True
     )
@@ -868,9 +857,7 @@ class Refund(models.Model, GCCacheMixin):
         primary_key=True,
         max_length=255
     )
-    amount = models.DecimalField(
-        max_digits=12,
-        decimal_places=2,
+    amount = models.PositiveIntegerField(
         null=True
     )
     created_at = models.DateTimeField(

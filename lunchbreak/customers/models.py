@@ -894,13 +894,12 @@ class Order(AbstractOrder, DirtyFieldsMixin):
                     )
                     return
             except MerchantAccessError as e:
-                print('e', e)
-                # merchant = order.store.staff.merchant
-                # if merchant is not None:
-                #     merchant.delete()
-                #     order.store.staff.notify(
-                #         _('GoCardless account ontkoppelt wegens fout.')
-                #     )
+                merchant = order.store.staff.merchant
+                if merchant is not None:
+                    merchant.delete()
+                    order.store.staff.notify(
+                        _('GoCardless account ontkoppelt wegens fout.')
+                    )
             except (PaymentLink.DoesNotExist, DjangoGoCardlessException):
                 pass
             # Could not create payment
