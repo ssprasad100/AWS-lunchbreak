@@ -5,7 +5,7 @@ COSTCHECK_FAILED = 700
 PREORDERTIME_EXCEEDED = 701
 PASTORDER_DENIED = 702
 STORE_CLOSED = 704
-AMOUNT_INVALID = 705
+# 705 available
 MINDAYS_EXCEEDED = 706
 USER_DISABLED = 707
 MAX_SEATS_EXCEEDED = 708
@@ -40,12 +40,6 @@ class StoreClosed(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
     default_code = STORE_CLOSED
     default_detail = 'De winkel is gesloten op het gegeven moment.'
-
-
-class AmountInvalid(LunchbreakException):
-    status_code = status.HTTP_400_BAD_REQUEST
-    default_code = AMOUNT_INVALID
-    default_detail = 'De hoeveelheid is ongeldig.'
 
 
 class MinDaysExceeded(PreorderTimeExceeded):

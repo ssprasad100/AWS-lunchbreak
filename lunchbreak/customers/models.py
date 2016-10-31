@@ -12,6 +12,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models.signals import post_delete
+from django.shortcuts import get_object_or_404
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
 from django_gocardless.config import CURRENCY_EUR, PAYMENT_STATUS_PAID_OUT
@@ -22,7 +23,8 @@ from django_sms.exceptions import PinTimeout
 from django_sms.models import Phone
 from lunch.config import (COST_GROUP_ADDITIONS, COST_GROUP_BOTH, INPUT_SI_SET,
                           INPUT_SI_VARIABLE)
-from lunch.exceptions import BadRequest, LinkingError, NoDeliveryToAddress
+from lunch.exceptions import (InvalidFoodTypeAmount, LinkingError,
+                              NoDeliveryToAddress)
 from lunch.models import AbstractAddress, BaseToken, Food, Ingredient, Store
 from lunch.utils import timezone_for_store
 from Lunchbreak.exceptions import LunchbreakException
@@ -40,7 +42,7 @@ from .config import (GROUP_BILLING_SEPARATE, GROUP_BILLINGS,
                      PAYMENT_METHOD_CASH, PAYMENT_METHOD_GOCARDLESS,
                      PAYMENT_METHODS, RESERVATION_STATUS_DENIED,
                      RESERVATION_STATUS_PLACED, RESERVATION_STATUSES)
-from .exceptions import (AlreadyMembership, AmountInvalid, CostCheckFailed,
+from .exceptions import (AlreadyMembership, CostCheckFailed,
                          InvalidStatusChange, MaxSeatsExceeded,
                          MinDaysExceeded, NoInvitePermissions, NoPaymentLink,
                          OnlinePaymentDisabled, PaymentLinkNotConfirmed,
@@ -175,12 +177,10 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     @staticmethod
     def login(phone, pin, name, token):
-        try:
-            user = User.objects.get(
-                phone__phone=phone
-            )
-        except User.DoesNotExist:
-            return None
+        user = get_object_or_404(
+            User,
+            phone__phone=phone
+        )
 
         if not user.enabled:
             raise UserDisabled()
@@ -188,7 +188,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         if name:
             user.name = name
         elif not user.name:
-            raise BadRequest()
+            raise LunchbreakException()
 
         if name:
             user.name = name
@@ -634,7 +634,9 @@ class AbstractOrder(CleanModelMixin, models.Model):
     @classmethod
     def is_valid(cls, orderedfood, **kwargs):
         if orderedfood is None or len(orderedfood) == 0:
-            raise BadRequest('An order requires to have ordered food.')
+            raise LunchbreakException(
+                'Een bestelling moet etenswaren hebben.'
+            )
 
         try:
             for f in orderedfood:
@@ -643,8 +645,8 @@ class AbstractOrder(CleanModelMixin, models.Model):
                         'Order creation requires a list of dicts or OrderedFoods.'
                     )
         except TypeError:
-            raise BadRequest(
-                'Given orderedfood is not iterable'
+            raise LunchbreakException(
+                'Een bestelling moet etenswaren hebben.'
             )
 
 
@@ -1040,7 +1042,7 @@ class OrderedFood(models.Model):
 
     def clean(self):
         if not self.original.is_valid_amount(self.amount):
-            raise AmountInvalid()
+            raise InvalidFoodTypeAmount()
 
         if not self.original.commentable and self.comment:
             self.comment = ''

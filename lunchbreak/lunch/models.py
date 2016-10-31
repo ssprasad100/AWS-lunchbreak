@@ -1091,7 +1091,7 @@ class Quantity(CleanModelMixin, models.Model):
 
     def clean_minimum(self):
         if self.minimum > self.maximum:
-            raise LunchbreakException(
+            raise InvalidFoodTypeAmount(
                 'Het minimum kan niet groter zijn dan het maximum.'
             )
         if not self.foodtype.is_valid_amount(self.minimum):

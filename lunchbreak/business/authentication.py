@@ -4,7 +4,6 @@ from django.core.validators import validate_email
 from django.template.loader import render_to_string
 from lunch.authentication import TokenAuthentication
 from lunch.config import random_token
-from lunch.responses import BadRequest, DoesNotExist
 from Lunchbreak.exceptions import LunchbreakException
 from push_notifications.models import SERVICE_INACTIVE
 from rest_framework import status
@@ -23,8 +22,7 @@ class BusinessAuthentication(TokenAuthentication):
     @classmethod
     def login(cls, request):
         serializer_model_token = cls.TOKEN_SERIALIZER(data=request.data)
-        if not serializer_model_token.is_valid():
-            return BadRequest(serializer_model_token.errors)
+        serializer_model_token.is_valid(raise_exception=True)
 
         password_raw = request.data['password']
         device = request.data['device']
@@ -32,14 +30,7 @@ class BusinessAuthentication(TokenAuthentication):
         service = request.data.get('service', SERVICE_INACTIVE)
         device = request.data['device']
 
-        try:
-            model = cls.get_model(request.data)
-        except cls.MODEL.DoesNotExist:
-            return DoesNotExist(
-                '{model_name} does not exist.'.format(
-                    model_name=cls.MODEL_NAME.capitalize()
-                )
-            )
+        model = cls.get_model(request.data)
 
         if model.check_password(password_raw):
             token, created = cls.TOKEN_MODEL.objects.create_token(
@@ -74,15 +65,11 @@ class BusinessAuthentication(TokenAuthentication):
     @classmethod
     def password_reset_request(cls, request):
         serializer = cls.REQUEST_SERIALIZER(data=request.data)
-        if not serializer.is_valid():
-            return BadRequest(serializer.errors)
+        serializer.is_valid(raise_exception=True)
 
         if cls.MODEL_NAME == 'employee':
-            try:
-                model = cls.MODEL.objects.get(id=request.data['id'])
-                to_email = model.staff.email
-            except cls.MODEL.DoesNotExist:
-                return DoesNotExist()
+            model = cls.MODEL.objects.get(id=request.data['id'])
+            to_email = model.staff.email
         else:
             to_email = request.data['email']
 

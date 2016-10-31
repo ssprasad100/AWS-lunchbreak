@@ -7,8 +7,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_extensions.mixins import NestedViewSetMixin
 
+from .exceptions import UnsupportedAPIVersion
 from .models import HolidayPeriod, OpeningPeriod, StoreCategory
-from .responses import WrongAPIVersion
 from .serializers import (HolidayPeriodSerializer, OpeningPeriodSerializer,
                           StoreCategorySerializer)
 
@@ -103,16 +103,16 @@ class StoreCategoryListViewBase(generics.ListAPIView):
 class WrongAPIVersionView(APIView):
 
     def get(self, request, *args, **kwargs):
-        return WrongAPIVersion()
+        return UnsupportedAPIVersion().response
 
     def post(self, request, *args, **kwargs):
-        return WrongAPIVersion()
+        return UnsupportedAPIVersion().response
 
     def patch(self, request, *args, **kwargs):
-        return WrongAPIVersion()
+        return UnsupportedAPIVersion().response
 
     def delete(self, request, *args, **kwargs):
-        return WrongAPIVersion()
+        return UnsupportedAPIVersion().response
 
     def put(self, request, *args, **kwargs):
-        return WrongAPIVersion()
+        return UnsupportedAPIVersion().response

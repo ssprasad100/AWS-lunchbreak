@@ -60,7 +60,6 @@ class Phone(models.Model):
         return pin
 
     def send_pin(self, new_pin=True):
-
         if self.last_message is not None:
             timeout = self.last_message.replace(
                 tzinfo=timezone.utc

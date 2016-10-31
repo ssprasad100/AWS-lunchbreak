@@ -3,12 +3,10 @@ from django.shortcuts import get_object_or_404
 from lunch.models import Food, IngredientGroup, Menu, Store
 from lunch.pagination import SimplePagination
 from lunch.renderers import JPEGRenderer
-from lunch.responses import BadRequest, DoesNotExist
 from lunch.serializers import (FoodDetailSerializer, FoodSerializer,
                                MenuDetailSerializer, MenuSerializer,
                                StoreSerializer)
 from lunch.views import StoreCategoryListViewBase
-from Lunchbreak.exceptions import LunchbreakException
 from Lunchbreak.views import TargettedViewSet
 from push_notifications.models import SERVICE_INACTIVE
 from rest_framework import filters, generics, mixins, status, viewsets
@@ -401,11 +399,13 @@ class UserViewSet(viewsets.GenericViewSet):
             data=request.data
         )
         phone = request.data.get('phone', False)
-        if serializer.is_valid():
+        try:
+            serializer.is_valid(raise_exception=True)
             return User.register(phone)
-        elif phone == DEMO_PHONE:
-            return Response(status=status.HTTP_200_OK)
-        return BadRequest(serializer.errors)
+        except:
+            if phone == DEMO_PHONE:
+                return Response(status=status.HTTP_200_OK)
+            raise
 
     @list_route(methods=['post'])
     def login(self, request):
@@ -413,38 +413,36 @@ class UserViewSet(viewsets.GenericViewSet):
             data=request.data
         )
         phone = request.data.get('phone', False)
-        if serializer.is_valid():
+
+        try:
+            serializer.is_valid(raise_exception=True)
             pin = request.data['pin']
             name = request.data.get('name', None)
             token = request.data.get('token', None)
-            try:
-                user = User.login(phone, pin, name, token)
-            except LunchbreakException as e:
-                return e.response
-            if user is not None:
-                return UserToken.response(
-                    user=user,
-                    device=token['device'],
-                    service=token.get('service', SERVICE_INACTIVE),
-                    registration_id=token.get('registration_id', '')
-                )
-            return DoesNotExist()
-        elif(phone == DEMO_PHONE and
-                'token' in request.data and
-                'device' in request.data['token'] and
-                'pin' in request.data):
-            try:
-                user_demo = User.objects.get(
-                    phone__phone=phone,
-                    phone__pin=request.data['pin']
-                )
-                return UserToken.response(
-                    user_demo,
-                    request.data['token']['device']
-                )
-            except User.DoesNotExist as e:
-                pass
-        return BadRequest(serializer.errors)
+            user = User.login(phone, pin, name, token)
+            return UserToken.response(
+                user=user,
+                device=token['device'],
+                service=token.get('service', SERVICE_INACTIVE),
+                registration_id=token.get('registration_id', '')
+            )
+        except:
+            if(phone == DEMO_PHONE and
+                    'token' in request.data and
+                    'device' in request.data['token'] and
+                    'pin' in request.data):
+                try:
+                    user_demo = User.objects.get(
+                        phone__phone=phone,
+                        phone__pin=request.data['pin']
+                    )
+                    return UserToken.response(
+                        user_demo,
+                        request.data['token']['device']
+                    )
+                except User.DoesNotExist as e:
+                    pass
+            raise
 
     @list_route(methods=['get', 'put', 'patch'], authentication_classes=[CustomerAuthentication])
     def token(self, request):
@@ -464,20 +462,20 @@ class UserViewSet(viewsets.GenericViewSet):
             serializer = UserTokenUpdateSerializer(
                 data=request.data
             )
-            if serializer.is_valid(raise_exception=True):
-                request.auth.registration_id = request.data.get(
-                    'registration_id',
-                    request.auth.registration_id
-                )
-                request.auth.service = request.data.get(
-                    'service',
-                    request.auth.service
-                )
-                request.auth.save()
-                return Response(
-                    status=status.HTTP_200_OK
-                )
-        return BadRequest(serializer.errors)
+            serializer.is_valid(raise_exception=True)
+
+            request.auth.registration_id = request.data.get(
+                'registration_id',
+                request.auth.registration_id
+            )
+            request.auth.service = request.data.get(
+                'service',
+                request.auth.service
+            )
+            request.auth.save()
+            return Response(
+                status=status.HTTP_200_OK
+            )
 
 
 class GroupView(generics.ListCreateAPIView):

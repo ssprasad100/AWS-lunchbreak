@@ -1,7 +1,6 @@
 import mock
 from django.core.urlresolvers import reverse
 from django_sms.models import Phone
-from lunch.exceptions import BadRequest, DoesNotExist
 from push_notifications.models import SERVICE_APNS, SERVICE_GCM
 from rest_framework import status
 
@@ -66,14 +65,14 @@ class UserTestCase(CustomersTestCase):
 
         request = self.factory.post(url, content)
         response = self.as_view(request, view, view_actions)
-        self.assertEqualException(response, BadRequest)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertFalse(mock_register.called)
 
         content = {}
 
         request = self.factory.post(url, content)
         response = self.as_view(request, view, view_actions)
-        self.assertEqualException(response, BadRequest)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertFalse(mock_register.called)
 
     def test_login(self):
@@ -96,7 +95,7 @@ class UserTestCase(CustomersTestCase):
         # You cannot login without registering first
         request = self.factory.post(url, content)
         response = self.as_view(request, view, view_actions)
-        self.assertEqualException(response, DoesNotExist)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         phone = Phone.objects.create(
             phone=self.VALID_PHONE
@@ -108,7 +107,7 @@ class UserTestCase(CustomersTestCase):
         # A username is required
         request = self.factory.post(url, content)
         response = self.as_view(request, view, view_actions)
-        self.assertEqualException(response, BadRequest)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertFalse(user.name)
 
         content['name'] = self.NAME
@@ -155,7 +154,7 @@ class UserTestCase(CustomersTestCase):
         # Demo account is only allowed when it's in the database
         request = self.factory.post(url, content)
         response = self.as_view(request, view, view_actions)
-        self.assertEqualException(response, BadRequest)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         demo_pin = '1337'
         demo_phone = Phone.objects.create(
@@ -169,7 +168,7 @@ class UserTestCase(CustomersTestCase):
         # Invalid pin
         request = self.factory.post(url, content)
         response = self.as_view(request, view, view_actions)
-        self.assertEqualException(response, BadRequest)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         content['pin'] = demo_pin
         request = self.factory.post(url, content)

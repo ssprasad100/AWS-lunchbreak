@@ -11,7 +11,6 @@ from django_gocardless.models import Merchant
 from django_gocardless.serializers import MerchantSerializer
 from lunch.models import (Food, FoodType, Ingredient, IngredientGroup, Menu,
                           Quantity, Store)
-from lunch.responses import BadRequest
 from lunch.serializers import (FoodTypeSerializer, MenuSerializer,
                                QuantityDetailSerializer)
 from lunch.views import StoreCategoryListViewBase
@@ -71,38 +70,38 @@ class PasswordResetView(generics.CreateAPIView):
 
     def post(self, request, model, token_model, serializer_class, employee=False):
         serializer = serializer_class(data=request.data)
-        if serializer.is_valid():
-            email = request.data['email']
-            password_reset = request.data['password_reset']
+        serializer.is_valid(raise_exception=True)
 
-            try:
-                validate_email(email)
-                if employee:
-                    m = model.objects.get(
-                        staff__email=email,
-                        password_reset=password_reset
-                    )
-                else:
-                    m = model.objects.get(
-                        email=email,
-                        password_reset=password_reset
-                    )
-            except LunchbreakException:
-                return InvalidEmail().response
-            except model.DoesNotExist:
-                return InvalidPasswordReset().response
+        email = request.data['email']
+        password_reset = request.data['password_reset']
 
-            m.password_reset = None
-            m.set_password(request.data['password'])
-            m.save()
+        try:
+            validate_email(email)
+            if employee:
+                m = model.objects.get(
+                    staff__email=email,
+                    password_reset=password_reset
+                )
+            else:
+                m = model.objects.get(
+                    email=email,
+                    password_reset=password_reset
+                )
+        except LunchbreakException:
+            return InvalidEmail().response
+        except model.DoesNotExist:
+            return InvalidPasswordReset().response
 
-            token_model.objects.filter(
-                **{
-                    model.__name__.lower(): m
-                }
-            ).delete()
-            return Response(status=status.HTTP_200_OK)
-        return BadRequest(serializer.errors)
+        m.password_reset = None
+        m.set_password(request.data['password'])
+        m.save()
+
+        token_model.objects.filter(
+            **{
+                model.__name__.lower(): m
+            }
+        ).delete()
+        return Response(status=status.HTTP_200_OK)
 
 
 class ResetRequestView(generics.CreateAPIView):
