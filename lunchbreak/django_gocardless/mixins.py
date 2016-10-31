@@ -43,6 +43,23 @@ class GCCacheMixin(object):
             access_token=access_token
         )
 
+    @staticmethod
+    def client_from_settings(access_token=None, environment=None):
+        """Get GoCardless Client from token and environment.
+
+        Uses access_token and environment by default if nothing was given.
+        """
+        access_token = settings.GOCARDLESS['access_token'] \
+            if access_token is None else access_token
+
+        environment = settings.GOCARDLESS['environment'] \
+            if environment is None else environment
+
+        return gocardless_pro.Client(
+            access_token=access_token,
+            environment=environment
+        )
+
     @cached_property
     def api(self):
         return self.api_from_client(self.client)
@@ -154,23 +171,6 @@ class GCCacheMixin(object):
         instance.save(*args, **kwargs)
 
         return instance
-
-    @staticmethod
-    def client_from_settings(access_token=None, environment=None):
-        """Get GoCardless Client from token and environment.
-
-        Uses access_token and environment by default if nothing was given.
-        """
-        access_token = settings.GOCARDLESS['access_token'] \
-            if access_token is None else access_token
-
-        environment = settings.GOCARDLESS['environment'] \
-            if environment is None else environment
-
-        return gocardless_pro.Client(
-            access_token=access_token,
-            environment=environment
-        )
 
 
 class GCCreateMixin(GCCacheMixin):
@@ -310,7 +310,7 @@ class GCCreateMixin(GCCacheMixin):
             if instance is not None:
                 client = instance.client
             elif 'links' in given and \
-                    not hasattr(cls, 'client_source_create') and \
+                    hasattr(cls, 'client_source_create') and \
                     cls.client_source_create in given['links']:
                 model = model_from_links(given['links'], cls.client_source_create)
                 client = model.client

@@ -878,7 +878,7 @@ class Order(AbstractOrder, DirtyFieldsMixin):
                 if paymentlink.redirectflow.is_completed:
                     mandate = paymentlink.redirectflow.mandate
                     order.payment = Payment.create(
-                        {
+                        given={
                             'amount': int(order.total * 100),
                             'currency': CURRENCY_EUR,
                             'links': {
@@ -893,13 +893,14 @@ class Order(AbstractOrder, DirtyFieldsMixin):
                         }
                     )
                     return
-            except MerchantAccessError:
-                merchant = order.store.staff.merchant
-                if merchant is not None:
-                    merchant.delete()
-                    order.store.staff.notify(
-                        _('GoCardless account ontkoppelt wegens fout.')
-                    )
+            except MerchantAccessError as e:
+                print('e', e)
+                # merchant = order.store.staff.merchant
+                # if merchant is not None:
+                #     merchant.delete()
+                #     order.store.staff.notify(
+                #         _('GoCardless account ontkoppelt wegens fout.')
+                #     )
             except (PaymentLink.DoesNotExist, DjangoGoCardlessException):
                 pass
             # Could not create payment
