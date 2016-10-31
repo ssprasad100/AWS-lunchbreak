@@ -126,16 +126,24 @@ class FoodManager(models.Manager):
 
 class PeriodQuerySet(models.QuerySet):
 
-    def periods(self):
-        return [model.period for model in self]
+    def periods(self, period):
+        queryset = self.select_related(
+            'store',
+        )
+        models = {model for model in queryset}
+        days = period.range('days')
+        for model in models:
+            for day in days:
+                if day.isoweekday() in model.weekdays:
+                    yield model.period(day)
 
-    def merged_periods(self):
+    def merged_periods(self, *args, **kwargs):
         return pendulum.Period.merge_periods(
-            *self.periods()
+            *list(self.periods(*args, **kwargs))
         )
 
     def between(self, period):
-        periods = self.all().merged_periods()
+        periods = self.all().merged_periods(period)
         result = []
 
         for p in periods:
@@ -147,6 +155,9 @@ class PeriodQuerySet(models.QuerySet):
 
 
 class HolidayPeriodQuerySet(PeriodQuerySet):
+
+    def periods(self):
+        return [model.period for model in self]
 
     def between(self, period):
         return self.filter(

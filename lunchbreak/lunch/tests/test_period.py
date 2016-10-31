@@ -38,14 +38,19 @@ class PeriodTestCase(LunchbreakTestCase):
                     store=self.store
                 )
 
+                as_datetime = period.weekday_as_datetime(
+                    weekday=period.day,
+                    time=period.time,
+                    store=period.store
+                )
                 if day_in_week == now.isoweekday():
                     self.assertEqual(
-                        period.time_as_datetime(),
+                        as_datetime,
                         now
                     )
                 else:
                     self.assertGreater(
-                        period.time_as_datetime(),
+                        as_datetime,
                         now
                     )
 
@@ -60,7 +65,7 @@ class PeriodTestCase(LunchbreakTestCase):
             timedelta(days=1),
             timedelta(days=2),
             timedelta(days=3),
-            timedelta(days=7),
+            timedelta(days=6),
         ]
 
         for t in times:
@@ -74,7 +79,13 @@ class PeriodTestCase(LunchbreakTestCase):
                         time=t,
                         duration=delta
                     )
-                    period = openingperiod.period
+                    period = openingperiod.period(
+                        OpeningPeriod.weekday_as_datetime(
+                            weekday=day,
+                            time=t,
+                            store=self.store
+                        )
+                    )
                     period_before = pendulum.Period(
                         start=period.start - timedelta(seconds=2),
                         end=period.start - timedelta(seconds=1),
@@ -101,22 +112,20 @@ class PeriodTestCase(LunchbreakTestCase):
                     )
 
                     for p in [period_before, period_after]:
+                        periods = OpeningPeriod.objects.between(
+                            period=p
+                        )
                         self.assertEqual(
-                            len(
-                                OpeningPeriod.objects.between(
-                                    period=p
-                                )
-                            ),
+                            len(periods),
                             0
                         )
 
                     for p in [period_over_start, period_in, period_over_end, period_over]:
+                        periods = OpeningPeriod.objects.between(
+                            period=p
+                        )
                         self.assertEqual(
-                            len(
-                                OpeningPeriod.objects.between(
-                                    period=p
-                                )
-                            ),
+                            len(periods),
                             1
                         )
 

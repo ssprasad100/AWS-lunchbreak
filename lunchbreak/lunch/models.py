@@ -444,16 +444,6 @@ class Store(AbstractAddress):
                 end=end
             )
 
-        max_period = pendulum.Period(
-            start=pendulum.now(),
-            end=period.end
-        )
-
-        if max_period.days > 7:
-            raise ValueError(
-                _('Bestellingen kunnen maximaal 1 week op voorhand besteld worden.')
-            )
-
         openingperiods = OpeningPeriod.objects.filter(
             store=self
         ).between(
@@ -643,23 +633,62 @@ class Period(models.Model):
         super(Period, self).save(*args, **kwargs)
 
     @property
-    def start(self):
-        return self.time_as_datetime()
+    def weekdays(self):
+        now = pendulum.now().with_time(
+            hour=self.time.hour,
+            minute=self.time.minute,
+            second=self.time.second,
+            microsecond=self.time.microsecond
+        )
+        start = now.subtract(
+            days=now.isoweekday()
+        ).add(
+            days=self.day
+        )
+        period = pendulum.Period(
+            start=start,
+            end=start + self.duration
+        )
 
-    @property
-    def end(self):
-        return self.start + self.duration
+        result = set()
+        for day in period.xrange('days'):
+            weekday = day.isoweekday()
+            if weekday in result:
+                break
+            result.add(weekday)
+        return result
 
-    @property
-    def period(self):
+    def start(self, day):
+        if isinstance(day, datetime):
+            day = pendulum.instance(day)
+        if day.isoweekday() != self.day:
+            day = day.subtract(
+                days=day.isoweekday() + (7 if day.isoweekday() < self.day else 0)
+            ).add(
+                days=self.day
+            )
+
+        return day.with_time(
+            hour=self.time.hour,
+            minute=self.time.minute,
+            second=self.time.second,
+            microsecond=self.time.microsecond
+        ).timezone_(
+            self.store.timezone
+        )
+
+    def end(self, day):
+        return self.start(day) + self.duration
+
+    def period(self, day):
         return pendulum.Period(
-            start=self.start,
-            end=self.end
+            start=self.start(day),
+            end=self.end(day)
         )
 
     @classmethod
     def weekday_as_datetime(cls, weekday, time, store):
-        if weekday is None or time is None:
+        if weekday is None or time is None or store is None:
             return None
 
         now = pendulum.now(store.timezone)
@@ -679,13 +708,6 @@ class Period(models.Model):
                 days=7
             )
         return result
-
-    def time_as_datetime(self):
-        return self.weekday_as_datetime(
-            weekday=self.day,
-            time=self.time,
-            store=self.store
-        )
 
     def __str__(self):
         return '{day} {time} - {duration}'.format(

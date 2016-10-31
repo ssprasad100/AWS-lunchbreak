@@ -1,7 +1,8 @@
 from datetime import datetime, time, timedelta
 
 import mock
-from customers.exceptions import PreorderTimeExceeded, PastOrderDenied, StoreClosed
+from customers.exceptions import (PastOrderDenied, PreorderTimeExceeded,
+                                  StoreClosed)
 from Lunchbreak.test import LunchbreakTestCase
 from pendulum import Pendulum
 
@@ -173,53 +174,54 @@ class StoreTestCase(LunchbreakTestCase):
         hours_closing = 10
         store.wait = wait
 
-        opening = (today + opening_wait)
-        closing = (opening + timedelta(hours=hours_closing))
-        day = opening.isoweekday()
-        OpeningPeriod.objects.create(
-            store=store,
-            day=day,
-            time=opening,
-            duration=timedelta(hours=hours_closing)
-        )
-        mock_now.return_value = opening
-        self.assertRaises(
-            PreorderTimeExceeded,
-            store.is_open,
-            opening + wait - timedelta(minutes=1)
-        )
+        for extra_week in range(3):
+            opening = (today + opening_wait + timedelta(days=7 * extra_week))
+            closing = (opening + timedelta(hours=hours_closing))
+            day = opening.isoweekday()
+            OpeningPeriod.objects.create(
+                store=store,
+                day=day,
+                time=opening,
+                duration=timedelta(hours=hours_closing)
+            )
+            mock_now.return_value = opening
+            self.assertRaises(
+                PreorderTimeExceeded,
+                store.is_open,
+                opening + wait - timedelta(minutes=1)
+            )
 
-        # Before and after opening hours
-        before = opening - timedelta(minutes=1)
-        between = opening + timedelta(hours=hours_closing / 2)
-        after = closing + timedelta(hours=1)
-        end = after + timedelta(hours=1)
+            # Before and after opening hours
+            before = opening - timedelta(minutes=1)
+            between = opening + timedelta(hours=hours_closing / 2)
+            after = closing + timedelta(hours=1)
+            end = after + timedelta(hours=1)
 
-        mock_now.return_value = today
-        self.assertRaises(StoreClosed, store.is_open, before)
-        self.assertTrue(store.is_open(between))
-        self.assertRaises(StoreClosed, store.is_open, after)
+            mock_now.return_value = today
+            self.assertRaises(StoreClosed, store.is_open, before)
+            self.assertTrue(store.is_open(between))
+            self.assertRaises(StoreClosed, store.is_open, after)
 
-        hp = HolidayPeriod.objects.create(
-            store=store,
-            start=today,
-            end=end,
-            closed=True
-        )
-        self.assertRaises(StoreClosed, store.is_open, before)
+            hp = HolidayPeriod.objects.create(
+                store=store,
+                start=today,
+                end=end,
+                closed=True
+            )
+            self.assertRaises(StoreClosed, store.is_open, before)
 
-        self.assertRaises(StoreClosed, store.is_open, between)
-        self.assertRaises(StoreClosed, store.is_open, after)
+            self.assertRaises(StoreClosed, store.is_open, between)
+            self.assertRaises(StoreClosed, store.is_open, after)
 
-        hp.closed = False
-        hp.save()
-        self.assertTrue(store.is_open(before))
-        self.assertTrue(store.is_open(between))
-        self.assertTrue(store.is_open(after))
+            hp.closed = False
+            hp.save()
+            self.assertTrue(store.is_open(before))
+            self.assertTrue(store.is_open(between))
+            self.assertTrue(store.is_open(after))
 
-        hp.closed = True
-        hp.end = between
-        hp.save()
-        self.assertRaises(StoreClosed, store.is_open, before)
-        self.assertRaises(StoreClosed, store.is_open, between)
-        self.assertTrue(store.is_open(between + timedelta(minutes=1)))
+            hp.closed = True
+            hp.end = between
+            hp.save()
+            self.assertRaises(StoreClosed, store.is_open, before)
+            self.assertRaises(StoreClosed, store.is_open, between)
+            self.assertTrue(store.is_open(between + timedelta(minutes=1)))

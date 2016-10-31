@@ -27,6 +27,7 @@ from lunch.models import AbstractAddress, BaseToken, Food, Ingredient, Store
 from lunch.utils import timezone_for_store
 from Lunchbreak.exceptions import LunchbreakException
 from Lunchbreak.mixins import CleanModelMixin
+from pendulum import Pendulum
 from push_notifications.models import SERVICE_INACTIVE
 from rest_framework import status
 from rest_framework.response import Response
@@ -811,8 +812,7 @@ class Order(AbstractOrder, DirtyFieldsMixin):
         # TODO: Check whether the store can accept an order if it is
         # for delivery and needs to be delivered asap (receipt=None).
 
-        dirty_fields = self.get_dirty_fields()
-        if ('receipt' in dirty_fields or self.receipt is None) and self.delivery_address is None:
+        if self.delivery_address is None:
             if self.receipt is None:
                 raise LunchbreakException(
                     _('Er moet een tijdstip voor het ophalen gegeven worden.')
@@ -825,6 +825,9 @@ class Order(AbstractOrder, DirtyFieldsMixin):
                 self.receipt,
                 now=self.placed
             )
+
+        if isinstance(self.receipt, Pendulum):
+            self.receipt = self.receipt._datetime
 
     def clean_payment_method(self):
         if self.payment_method == PAYMENT_METHOD_GOCARDLESS:
