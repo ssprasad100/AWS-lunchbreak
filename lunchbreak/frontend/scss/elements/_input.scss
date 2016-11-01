@@ -24,7 +24,7 @@
             padding: $input-padding;
         }
 
-        $icons: 'telephone' 'lock-white' 'person' 'pin' 'location' ('dropdown', 10px, 5px);
+        $icons: 'telephone' 'lock-white' 'person' 'pin' 'location' 'search' ('dropdown', 10px, 5px);
 
         @each $icon-info in $icons {
             $name: nth($icon-info, 1);
@@ -61,6 +61,7 @@
     padding: $input-padding;
     color: $grey-black;
     width: 350px;
+    border: 1px solid $grey-light;
 
     &.input-icon {
         padding-left: 40px;
@@ -75,6 +76,10 @@
     cursor: pointer;
     color: white;
     text-align: center;
+
+    &:disabled {
+        border: none;
+    }
 
     &:visited {
         color: white;

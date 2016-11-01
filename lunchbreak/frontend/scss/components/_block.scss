@@ -1,6 +1,7 @@
 .block {
     width: 100%;
     background: $grey-white;
+    box-sizing: border-box;
 
     &.white {
         background: white;

@@ -59,7 +59,7 @@
 <div id="inventory" class="block">
     <div class="container">
         <div id="menus">
-            <input id="menu-search" type="text" placeholder="Zoeken op naam"/>
+            <input id="menu-search" class="input-icon icon-search" type="text" placeholder="Zoek snel een product"/>
             {% for menu in menus %}
                 {% if menu.food.all() %}
                 <div class="menu" data-id="{{ menu.id }}">

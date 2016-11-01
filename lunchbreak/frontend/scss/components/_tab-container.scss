@@ -1,6 +1,7 @@
 .tab-container {
     background: white;
     position: relative;
+    border-bottom: 1px solid $grey-light;
 
     &.sticky {
         position: fixed;

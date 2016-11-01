@@ -57,6 +57,16 @@
             float: left;
             width: 67%;
 
+            #menu-search {
+                width: 365px;
+                box-sizing: border-box;
+                transition: .25s ease all;
+
+                &:focus {
+                    border-color: transparentize($red, 0.75);
+                }
+            }
+
             .menu {
                 font-size: 0;
                 margin-top: 24px;
@@ -75,6 +85,7 @@
                     margin: 0 16px 16px 0;
                     overflow: hidden;
                     box-sizing: border-box;
+                    border: 1px solid $grey-light;
 
                     .food-top {
                         .food-text {
@@ -223,6 +234,8 @@
             float: right;
             height: 100%;
             overflow: hidden;
+            border-left: 1px solid $grey-light;
+            border-right: 1px solid $grey-light;
 
             #order {
             padding: 16px;
