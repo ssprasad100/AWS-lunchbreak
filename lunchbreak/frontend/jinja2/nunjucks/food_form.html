@@ -1,6 +1,6 @@
 <div class="food-form">
     <div class="food-amount mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-        <input class="mdl-textfield__input" type="text" value="{{ food.amount | replace('.', ',') }}">
+        <input class="mdl-textfield__input" type="text" value="{{ food.getIntegerAmount() }}">
         <label class="mdl-textfield__label">{{ label }}</label>
         <span class="mdl-textfield__error">Ongeldige hoeveelheid</span>
     </div>

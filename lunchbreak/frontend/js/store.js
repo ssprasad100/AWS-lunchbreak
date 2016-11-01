@@ -388,6 +388,33 @@
         };
 
         /**
+         * Get the amount used for input.
+         * Weights are represented as decimals, but inputted as times e3.
+         * @return {integer} Amount used for data input.
+         */
+        this.getIntegerAmount = function() {
+            if (this.foodtype.inputtype === FoodType.InputType.SIVariable) {
+                return this.amount * 1000;
+            }
+
+            return this.amount;
+        };
+
+        /**
+         * Get amount in decimal form from the input field.
+         * @return {decimal} Amount in decimal form.
+         */
+        this.getDecimalAmount = function() {
+            var amount = parseInt(this.inputField.val());
+
+            if (this.foodtype.inputtype === FoodType.InputType.SIVariable) {
+                amount /= 1000;
+            }
+
+            return amount;
+        };
+
+        /**
          * Initialize all element events.
          */
         this.init = function() {
@@ -418,8 +445,7 @@
          */
         this.addToOrder = function() {
             var clone = jQuery.extend(true, {}, this);
-            var amount = this.inputField.val();
-            var orderedfood = new OrderedFood(clone, parseInt(amount));
+            var orderedfood = new OrderedFood(clone, this.getDecimalAmount());
             this.reset();
             Order.addOrderedFood(orderedfood);
         };
@@ -430,7 +456,7 @@
         this.reset = function() {
             if (this.json)
                 this.update(this.json, true);
-            this.inputField.parent()[0].MaterialTextfield.change('');
+            this.inputField.parent()[0].MaterialTextfield.change(this.getIntegerAmount());
         };
 
         /**
@@ -523,8 +549,8 @@
             this.element.find('.food-top .food-text').append(
                 nunjucks.render(
                     'food_form.html', {
-                        label: this.foodtype.getLabelDisplay(),
-                        food: this
+                        'label': this.foodtype.getLabelDisplay(),
+                        'food': this
                     }
                 )
             );
@@ -533,7 +559,7 @@
                 this.element.append(
                     nunjucks.render(
                         'ingredient_groups.html', {
-                            food: this
+                            'food': this
                         }
                     )
                 );
@@ -562,7 +588,7 @@
          * @return {Validation}
          */
         this.validate = function() {
-            var value = parseInt(this.inputField.val());
+            var value = this.getDecimalAmount();
             if (value === NaN)
                 return new Validation(
                     'Gelieve een geldig nummer in te geven.'
@@ -683,7 +709,7 @@
                     return 'Hoeveelheid';
                     break;
                 case FoodType.InputType.SIVariable:
-                    return 'Gewicht (kg)';
+                    return 'Gewicht (g)';
                     break;
                 case FoodType.InputType.SIAmount:
                     var inputtype = this.inputtype === FoodType.InputType.Amount ? this.inputtype : FoodType.InputType.SIVariable;
@@ -798,7 +824,7 @@
         if (value < 1)
             return (value * 1000) + ' g';
         else
-            return value + ' kg';
+            return String(value).replace('.', ',') + ' kg';
     }
 
     /**
