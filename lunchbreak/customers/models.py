@@ -1,5 +1,5 @@
 import math
-from decimal import Decimal
+from decimal import ROUND_UP, Decimal
 
 from business.models import Staff
 from dirtyfields import DirtyFieldsMixin
@@ -23,11 +23,11 @@ from django_sms.exceptions import PinTimeout
 from django_sms.models import Phone
 from lunch.config import (COST_GROUP_ADDITIONS, COST_GROUP_BOTH, INPUT_SI_SET,
                           INPUT_SI_VARIABLE)
-from lunch.exceptions import (InvalidFoodTypeAmount, LinkingError,
-                              NoDeliveryToAddress)
+from lunch.exceptions import LinkingError, NoDeliveryToAddress
 from lunch.models import AbstractAddress, BaseToken, Food, Ingredient, Store
 from lunch.utils import timezone_for_store
 from Lunchbreak.exceptions import LunchbreakException
+from Lunchbreak.fields import RoundingDecimalField
 from Lunchbreak.mixins import CleanModelMixin
 from pendulum import Pendulum
 from push_notifications.models import SERVICE_INACTIVE
@@ -667,16 +667,18 @@ class Order(AbstractOrder, DirtyFieldsMixin):
         verbose_name=_('status'),
         help_text=_('Status.')
     )
-    total = models.DecimalField(
+    total = RoundingDecimalField(
         decimal_places=2,
         max_digits=7,
+        rounding=ROUND_UP,
         default=0,
         verbose_name=_('totale prijs'),
         help_text=_('Totale prijs.')
     )
-    total_confirmed = models.DecimalField(
+    total_confirmed = RoundingDecimalField(
         decimal_places=2,
         max_digits=7,
+        rounding=ROUND_UP,
         default=None,
         null=True,
         blank=True,
@@ -950,16 +952,18 @@ class OrderedFood(models.Model):
         verbose_name=_('ingrediënten'),
         help_text=_('Ingrediënten.')
     )
-    amount = models.DecimalField(
+    amount = RoundingDecimalField(
         decimal_places=3,
         max_digits=7,
+        rounding=ROUND_UP,
         default=1,
         verbose_name=_('hoeveelheid'),
         help_text=_('Hoeveelheid.')
     )
-    cost = models.DecimalField(
+    cost = RoundingDecimalField(
         decimal_places=2,
         max_digits=7,
+        rounding=ROUND_UP,
         verbose_name=_('kostprijs'),
         help_text=_('Kostprijs.')
     )
@@ -1029,7 +1033,7 @@ class OrderedFood(models.Model):
                 )
             else:
                 return '{value} kg'.format(
-                    value=self.amount.normalize()
+                    value=str(self.amount.normalize()).replace('.', ',')
                 )
         else:
             return int(self.amount)
@@ -1041,8 +1045,7 @@ class OrderedFood(models.Model):
         ).replace('.', ',')
 
     def clean(self):
-        if not self.original.is_valid_amount(self.amount):
-            raise InvalidFoodTypeAmount()
+        self.original.is_valid_amount(self.amount)
 
         if not self.original.commentable and self.comment:
             self.comment = ''

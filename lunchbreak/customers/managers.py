@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.apps import apps
 from django.contrib.auth.base_user import BaseUserManager
 from django.db import models
@@ -82,6 +84,12 @@ class OrderManager(models.Manager):
 class OrderedFoodManager(models.Manager):
 
     def create_for_order(self, original, amount, total, ingredients=None, save=True, **kwargs):
+        if not isinstance(amount, Decimal):
+            amount = Decimal(amount)
+
+        if not isinstance(total, Decimal):
+            total = Decimal(total)
+
         original.foodtype.is_valid_amount(
             amount=amount,
             quantity=original.quantity

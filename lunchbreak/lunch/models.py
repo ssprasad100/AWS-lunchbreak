@@ -1,6 +1,6 @@
 from collections import defaultdict
 from datetime import datetime, time, timedelta
-from decimal import Decimal
+from decimal import ROUND_UP, Decimal
 
 import googlemaps
 import pendulum
@@ -19,6 +19,7 @@ from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from imagekit.models import ImageSpecField
 from Lunchbreak.exceptions import LunchbreakException
+from Lunchbreak.fields import RoundingDecimalField
 from Lunchbreak.mixins import CleanModelMixin
 from openpyxl import load_workbook
 from polaroid.models import Polaroid
@@ -26,8 +27,7 @@ from private_media.storages import PrivateMediaStorage
 from push_notifications.models import BareDevice
 
 from .config import (CCTLDS, COST_GROUP_ALWAYS, COST_GROUP_CALCULATIONS,
-                     COUNTRIES, INPUT_AMOUNT, INPUT_SI_VARIABLE, INPUT_TYPES,
-                     LANGUAGES, WEEKDAYS)
+                     COUNTRIES, INPUT_AMOUNT, INPUT_TYPES, LANGUAGES, WEEKDAYS)
 from .exceptions import (AddressNotFound, IngredientGroupMaxExceeded,
                          IngredientGroupsMinimumNotMet, InvalidFoodTypeAmount,
                          LinkingError)
@@ -134,13 +134,13 @@ class AbstractAddress(models.Model, DirtyFieldsMixin):
         help_text=_('Straatnummer.')
     )
 
-    latitude = models.DecimalField(
+    latitude = RoundingDecimalField(
         decimal_places=7,
         max_digits=10,
         verbose_name=_('breedtegraad'),
         help_text=_('Breedtegraad.')
     )
-    longitude = models.DecimalField(
+    longitude = RoundingDecimalField(
         decimal_places=7,
         max_digits=10,
         verbose_name=_('lengtegraad'),
@@ -172,11 +172,10 @@ class AbstractAddress(models.Model, DirtyFieldsMixin):
             )
 
         result = results[0]
-        rounding = Decimal('0.0000001')
-        latitude = Decimal(result['geometry']['location']['lat'])
-        longitude = Decimal(result['geometry']['location']['lng'])
+        latitude = result['geometry']['location']['lat']
+        longitude = result['geometry']['location']['lng']
 
-        return latitude.quantize(rounding), longitude.quantize(rounding)
+        return latitude, longitude
 
     def save(self, *args, **kwargs):
         dirty_fields = self.get_dirty_fields()
@@ -836,12 +835,20 @@ class FoodType(models.Model):
         verbose_name = _('type etenswaar')
         verbose_name_plural = _('type etenswaren')
 
-    def is_valid_amount(self, amount, quantity=None):
-        return (
-            amount > 0 and
-            (self.inputtype != INPUT_AMOUNT or float(amount).is_integer()) and
-            (quantity is None or quantity.minimum <= amount <= quantity.maximum)
+    def is_valid_amount(self, amount, quantity=None, raise_exception=True):
+        is_valid = (
+            amount > 0 and (
+                self.inputtype != INPUT_AMOUNT or
+                float(amount).is_integer()
+            ) and (
+                quantity is None or
+                quantity.minimum <= amount <= quantity.maximum
+            )
         )
+
+        if not is_valid and raise_exception:
+            raise InvalidFoodTypeAmount()
+        return is_valid
 
     def __str__(self):
         return self.name
@@ -881,13 +888,14 @@ class IngredientGroup(CleanModelMixin, models.Model):
         verbose_name=_('prioriteit'),
         help_text=_('Prioriteit waarop gesorteerd wordt.')
     )
-    cost = models.DecimalField(
+    cost = RoundingDecimalField(
+        max_digits=7,
+        decimal_places=2,
+        rounding=ROUND_UP,
         default=0,
         validators=[
             MinValueValidator(0)
         ],
-        max_digits=7,
-        decimal_places=2,
         verbose_name=_('basisprijs'),
         help_text=_(
             'Basisprijs indien toegevoegd of afgetrokken van het etenswaar.'
@@ -966,10 +974,11 @@ class Ingredient(models.Model, DirtyFieldsMixin):
         verbose_name=_('naam'),
         help_text=('Naam.')
     )
-    cost = models.DecimalField(
-        default=0,
+    cost = RoundingDecimalField(
         max_digits=7,
         decimal_places=2,
+        rounding=ROUND_UP,
+        default=0,
         verbose_name=_('basisprijs'),
         help_text=(
             'Basisprijs diet in rekening wordt gebracht afhankelijk van de '
@@ -1063,14 +1072,14 @@ class Quantity(CleanModelMixin, models.Model):
         help_text=('Winkel.')
     )
 
-    minimum = models.DecimalField(
+    minimum = RoundingDecimalField(
         decimal_places=3,
         max_digits=7,
         default=1,
         verbose_name=_('minimum'),
         help_text=('Minimum hoeveelheid.')
     )
-    maximum = models.DecimalField(
+    maximum = RoundingDecimalField(
         decimal_places=3,
         max_digits=7,
         default=10,
@@ -1090,16 +1099,14 @@ class Quantity(CleanModelMixin, models.Model):
         verbose_name_plural = _('hoeveelheden')
 
     def clean_minimum(self):
+        self.foodtype.is_valid_amount(self.minimum)
         if self.minimum > self.maximum:
             raise InvalidFoodTypeAmount(
                 'Het minimum kan niet groter zijn dan het maximum.'
             )
-        if not self.foodtype.is_valid_amount(self.minimum):
-            raise InvalidFoodTypeAmount()
 
     def clean_maximum(self):
-        if not self.foodtype.is_valid_amount(self.maximum):
-            raise InvalidFoodTypeAmount()
+        self.foodtype.is_valid_amount(self.maximum)
 
     def save(self, *args, **kwargs):
         self.full_clean()
@@ -1123,16 +1130,18 @@ class Food(CleanModelMixin, models.Model):
         verbose_name=_('beschrijving'),
         help_text=('Beschrijving.')
     )
-    amount = models.DecimalField(
+    amount = RoundingDecimalField(
         decimal_places=3,
         max_digits=7,
+        rounding=ROUND_UP,
         default=1,
         verbose_name=_('standaardhoeveelheid'),
         help_text=('Hoeveelheid die standaard is ingevuld.')
     )
-    cost = models.DecimalField(
+    cost = RoundingDecimalField(
         decimal_places=2,
         max_digits=7,
+        rounding=ROUND_UP,
         verbose_name=_('basisprijs'),
         help_text=(
             'Basisprijs, dit is inclusief de gekozen ingrediënten en '
@@ -1271,18 +1280,15 @@ class Food(CleanModelMixin, models.Model):
 
             return difference_day >= preorder_days
 
-    def is_valid_amount(self, amount):
-        return amount > 0 and (
-            float(amount).is_integer() or
-            self.foodtype.inputtype != INPUT_SI_VARIABLE
-        ) and (
-            self.quantity is None or
-            self.quantity.minimum <= amount <= self.quantity.maximum
+    def is_valid_amount(self, amount, raise_exception=True):
+        return self.foodtype.is_valid_amount(
+            amount=amount,
+            quantity=self.quantity,
+            raise_exception=raise_exception
         )
 
     def clean_amount(self):
-        if not self.foodtype.is_valid_amount(self.amount):
-            raise InvalidFoodTypeAmount()
+        self.foodtype.is_valid_amount(self.amount)
 
     def clean_store(self):
         if self.store_id != self.menu.store_id:

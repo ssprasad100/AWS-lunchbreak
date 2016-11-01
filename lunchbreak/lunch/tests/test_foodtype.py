@@ -51,8 +51,20 @@ class FoodTypeTestCase(LunchbreakTestCase):
         for it in inputtypes:
             foodtype.inputtype = it['type']
 
-            self.assertEqual(foodtype.is_valid_amount(1), it['integer'])
-            self.assertEqual(foodtype.is_valid_amount(1.5), it['float'])
+            self.assertEqual(
+                foodtype.is_valid_amount(
+                    1,
+                    raise_exception=False
+                ),
+                it['integer']
+            )
+            self.assertEqual(
+                foodtype.is_valid_amount(
+                    1.5,
+                    raise_exception=False
+                ),
+                it['float']
+            )
 
             quantity.minimum = 1.5
             quantity.maximum = 9.5
