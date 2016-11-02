@@ -88,7 +88,7 @@ LANGUAGE_CODE = 'nl-BE'
 LANGUAGES = [
     ('nl-BE', _('Belgium Dutch')),
 ]
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Brussels'
 USE_I18N = True  # Translate localisation
 USE_L10N = True  # Format localisation
 USE_TZ = True

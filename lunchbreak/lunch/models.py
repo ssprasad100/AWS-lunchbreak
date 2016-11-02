@@ -480,7 +480,8 @@ class Store(AbstractAddress):
         if isinstance(dt, pendulum.Pendulum):
             dt = dt._datetime
 
-        now = timezone.now() if now is None else now
+        if now is None:
+            now = timezone.now()
 
         if dt < now:
             if not raise_exception:
@@ -729,7 +730,7 @@ class DeliveryPeriod(Period):
         verbose_name_plural = _('leveringstijden')
 
 
-class HolidayPeriod(CleanModelMixin, models.Model):
+class HolidayPeriod(CleanModelMixin, models.Model, DirtyFieldsMixin):
     store = models.ForeignKey(
         Store,
         on_delete=models.CASCADE,
@@ -774,15 +775,18 @@ class HolidayPeriod(CleanModelMixin, models.Model):
         return period
 
     def clean_start(self):
-        self.start = timezone_for_store(
-            value=self.start,
-            store=self.store
-        )
-        # Put here because both the start and end need to be set to the same timezone
-        self.end = timezone_for_store(
-            value=self.end,
-            store=self.store
-        )
+        if self.pk is None or 'start' in self.get_dirty_fields():
+            self.start = timezone_for_store(
+                value=self.start,
+                store=self.store
+            )
+
+        if self.pk is None or 'start' in self.get_dirty_fields():
+            # Put here because both the start and end need to be set to the same timezone
+            self.end = timezone_for_store(
+                value=self.end,
+                store=self.store
+            )
 
         if self.start >= self.end:
             raise LunchbreakException(

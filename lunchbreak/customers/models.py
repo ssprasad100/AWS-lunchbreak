@@ -833,10 +833,11 @@ class Order(AbstractOrder, DirtyFieldsMixin):
                 raise LunchbreakException(
                     _('Er moet een tijdstip voor het ophalen gegeven worden.')
                 )
-            self.receipt = timezone_for_store(
-                value=self.receipt,
-                store=self.store
-            )
+            if self.pk is None or 'receipt' in self.get_dirty_fields():
+                self.receipt = timezone_for_store(
+                    value=self.receipt,
+                    store=self.store
+                )
             self.store.is_open(
                 self.receipt,
                 now=self.placed
