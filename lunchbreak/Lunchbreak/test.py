@@ -51,6 +51,8 @@ class LunchbreakTestCase(APITestCase):
     @mock.patch('googlemaps.Client.timezone')
     @mock.patch('googlemaps.Client.geocode')
     def setUp(self, mock_geocode, mock_timezone):
+        super().setUp()
+
         self.mock_geocode_results(mock_geocode)
         self.mock_timezone_result(mock_timezone)
         self.store = Store.objects.create(

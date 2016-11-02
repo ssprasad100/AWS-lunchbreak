@@ -95,6 +95,10 @@ class StoreHeader(Polaroid):
         verbose_name = _('headerafbeelding')
         verbose_name_plural = _('headerafbeeldingen')
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self.store.save()
+
     def __str__(self):
         return _('Headerafbeelding voor %(store)s') % {
             'store': self.store

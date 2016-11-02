@@ -8,6 +8,8 @@ from .specs import HD, HQ, LQ, FullHD
 class PolaroidTestCase(TestCase):
 
     def setUp(self):
+        super().setUp()
+
         test_image_name = 'test.jpg'
         with open(test_image_name, 'rb') as test_image:
             self.image = SimpleUploadedFile(
