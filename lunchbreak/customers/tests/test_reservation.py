@@ -1,7 +1,7 @@
 from datetime import timedelta
 
+import pendulum
 from django.core.urlresolvers import reverse
-from django.utils import timezone
 from rest_framework import status
 
 from . import CustomersTestCase
@@ -25,7 +25,7 @@ class ReservationTestCase(CustomersTestCase):
             'store': self.store.id,
             # No need to check reservation_time, see Store.is_open test
             'reservation_time': (
-                timezone.now() + timedelta(days=1)
+                pendulum.now(self.store.timezone) + timedelta(days=1)
             ).isoformat(),
             'seats': 0
         }
@@ -52,9 +52,14 @@ class ReservationTestCase(CustomersTestCase):
         reservation = Reservation.objects.create(
             user=self.user,
             store=self.store,
-            reservation_time=(timezone.now() + timedelta(days=1)).replace(microsecond=0),
+            reservation_time=(
+                pendulum.now(self.store.timezone) + timedelta(days=1)
+            ).replace(microsecond=0),
             seats=self.store.seats_max
         )
+        print(reservation.reservation_time)
+        reservation.save()
+        print(reservation.reservation_time)
 
         kwargs = {'pk': reservation.id}
         url = reverse('customers-reservation', kwargs=kwargs)
@@ -62,14 +67,14 @@ class ReservationTestCase(CustomersTestCase):
         attributed_denied = {
             'seats': self.store.seats_max - 1,
             'reservation_time': (
-                timezone.now() + timedelta(days=2)
+                pendulum.now(self.store.timezone) + timedelta(days=2)
             ).isoformat(),
             'store': self.store_other.id,
             'user': self.user_other.id
         }
 
         for attribute, value in attributed_denied.items():
-            value_original = getattr(reservation, attribute)
+            original_value = getattr(reservation, attribute)
             content = {
                 attribute: value
             }
@@ -79,7 +84,12 @@ class ReservationTestCase(CustomersTestCase):
             self.assertEqual(response.status_code, status.HTTP_200_OK)
 
             reservation.refresh_from_db()
-            self.assertEqual(getattr(reservation, attribute), value_original)
+            new_value = getattr(reservation, attribute)
+            print('self.store.timezone', self.store.timezone)
+            print('new_value', new_value)
+            print('original_value', original_value)
+            print('reservation.reservation_time', reservation.reservation_time)
+            self.assertEqual(new_value, original_value)
 
         for tuple_allowed in RESERVATION_STATUS_USER:
             status_original = reservation.status

@@ -516,7 +516,7 @@ class Heart(models.Model):
         )
 
 
-class Reservation(CleanModelMixin, models.Model):
+class Reservation(CleanModelMixin, models.Model, DirtyFieldsMixin):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -584,17 +584,12 @@ class Reservation(CleanModelMixin, models.Model):
             raise MaxSeatsExceeded()
 
     def clean_reservation_time(self):
-        self.reservation_time = timezone_for_store(
-            value=self.reservation_time,
-            store=self.store
-        )
-        self.store.is_open(self.reservation_time)
-
-    def clean_suggestion(self):
-        self.reservation_time = timezone_for_store(
-            value=self.reservation_time,
-            store=self.store
-        )
+        if self.pk is None or 'reservation_time' in self.get_dirty_fields():
+            self.reservation_time = timezone_for_store(
+                value=self.reservation_time,
+                store=self.store
+            )
+            self.store.is_open(self.reservation_time)
 
     def clean_status(self):
         if self.suggestion is not None:

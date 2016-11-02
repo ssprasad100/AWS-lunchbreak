@@ -37,5 +37,5 @@ class UtilsTestCase(LunchbreakTestCase):
             Pendulum.instance(
                 timezone_for_store(value, store)
             ).timezone_name,
-            value.timezone_name
+            brussels
         )

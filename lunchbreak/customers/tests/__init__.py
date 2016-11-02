@@ -75,7 +75,8 @@ class CustomersTestCase(LunchbreakTestCase):
             city='Wetteren',
             postcode='9230',
             street='Dendermondesteenweg',
-            number=10
+            number=10,
+            timezone='Europe/Brussels'
         )
 
         self.store_other = Store.objects.create(
@@ -85,7 +86,8 @@ class CustomersTestCase(LunchbreakTestCase):
             city='Wetteren',
             postcode='9230',
             street='Dendermondesteenweg',
-            number=10
+            number=10,
+            timezone='Europe/Brussels'
         )
 
         self.foodtype = FoodType.objects.create(
