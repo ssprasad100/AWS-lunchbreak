@@ -1,5 +1,5 @@
 import math
-from decimal import ROUND_UP, Decimal
+from decimal import Decimal
 
 from business.models import Staff
 from dirtyfields import DirtyFieldsMixin
@@ -665,7 +665,6 @@ class Order(AbstractOrder, DirtyFieldsMixin):
     total = RoundingDecimalField(
         decimal_places=2,
         max_digits=7,
-        rounding=ROUND_UP,
         default=0,
         verbose_name=_('totale prijs'),
         help_text=_('Totale prijs.')
@@ -673,7 +672,6 @@ class Order(AbstractOrder, DirtyFieldsMixin):
     total_confirmed = RoundingDecimalField(
         decimal_places=2,
         max_digits=7,
-        rounding=ROUND_UP,
         default=None,
         null=True,
         blank=True,
@@ -966,7 +964,6 @@ class OrderedFood(models.Model):
     amount = RoundingDecimalField(
         decimal_places=3,
         max_digits=7,
-        rounding=ROUND_UP,
         default=1,
         verbose_name=_('hoeveelheid'),
         help_text=_('Hoeveelheid.')
@@ -974,7 +971,6 @@ class OrderedFood(models.Model):
     cost = RoundingDecimalField(
         decimal_places=2,
         max_digits=7,
-        rounding=ROUND_UP,
         verbose_name=_('kostprijs'),
         help_text=_('Kostprijs.')
     )

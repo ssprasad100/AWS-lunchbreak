@@ -1,6 +1,5 @@
 from collections import defaultdict
 from datetime import datetime, time, timedelta
-from decimal import ROUND_UP
 
 import googlemaps
 import pendulum
@@ -891,7 +890,6 @@ class IngredientGroup(CleanModelMixin, models.Model):
     cost = RoundingDecimalField(
         max_digits=7,
         decimal_places=2,
-        rounding=ROUND_UP,
         default=0,
         validators=[
             MinValueValidator(0)
@@ -977,7 +975,6 @@ class Ingredient(models.Model, DirtyFieldsMixin):
     cost = RoundingDecimalField(
         max_digits=7,
         decimal_places=2,
-        rounding=ROUND_UP,
         default=0,
         verbose_name=_('basisprijs'),
         help_text=(
@@ -1133,7 +1130,6 @@ class Food(CleanModelMixin, models.Model):
     amount = RoundingDecimalField(
         decimal_places=3,
         max_digits=7,
-        rounding=ROUND_UP,
         default=1,
         verbose_name=_('standaardhoeveelheid'),
         help_text=('Hoeveelheid die standaard is ingevuld.')
@@ -1141,7 +1137,6 @@ class Food(CleanModelMixin, models.Model):
     cost = RoundingDecimalField(
         decimal_places=2,
         max_digits=7,
-        rounding=ROUND_UP,
         verbose_name=_('basisprijs'),
         help_text=(
             'Basisprijs, dit is inclusief de gekozen ingrediënten en '
