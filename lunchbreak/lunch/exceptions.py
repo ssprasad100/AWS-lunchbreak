@@ -35,7 +35,7 @@ class LinkingError(LunchbreakException):
 
 
 class UnsupportedAPIVersion(LunchbreakException):
-    status_code = status.HTTP_301_MOVED_PERMANENTLY
+    status_code = status.HTTP_404_NOT_FOUND
     default_code = UNSUPPORTED_API_VERSION
     default_detail = 'API Version not supported.'
 
