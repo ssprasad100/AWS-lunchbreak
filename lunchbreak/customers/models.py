@@ -589,7 +589,10 @@ class Reservation(CleanModelMixin, models.Model, DirtyFieldsMixin):
                 value=self.reservation_time,
                 store=self.store
             )
-            self.store.is_open(self.reservation_time)
+            self.store.is_open(
+                self.reservation_time,
+                now=self.placed
+            )
 
     def clean_status(self):
         if self.suggestion is not None:
