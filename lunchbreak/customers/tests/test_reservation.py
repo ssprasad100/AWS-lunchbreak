@@ -57,9 +57,7 @@ class ReservationTestCase(CustomersTestCase):
             ).replace(microsecond=0),
             seats=self.store.seats_max
         )
-        print(reservation.reservation_time)
         reservation.save()
-        print(reservation.reservation_time)
 
         kwargs = {'pk': reservation.id}
         url = reverse('customers-reservation', kwargs=kwargs)
@@ -85,10 +83,6 @@ class ReservationTestCase(CustomersTestCase):
 
             reservation.refresh_from_db()
             new_value = getattr(reservation, attribute)
-            print('self.store.timezone', self.store.timezone)
-            print('new_value', new_value)
-            print('original_value', original_value)
-            print('reservation.reservation_time', reservation.reservation_time)
             self.assertEqual(new_value, original_value)
 
         for tuple_allowed in RESERVATION_STATUS_USER:
