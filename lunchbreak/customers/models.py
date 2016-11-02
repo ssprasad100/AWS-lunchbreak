@@ -690,8 +690,8 @@ class Order(AbstractOrder, DirtyFieldsMixin):
     )
     description = models.TextField(
         blank=True,
-        verbose_name=_('commentaar'),
-        help_text=_('Commentaar.')
+        verbose_name=_('opmerking bij de bestelling'),
+        help_text=_('Bv: extra extra mayonaise graag!')
     )
     reservation = models.OneToOneField(
         Reservation,
@@ -732,6 +732,22 @@ class Order(AbstractOrder, DirtyFieldsMixin):
         verbose_name=_('bestelde etenswaren'),
         help_text=_('Bestelde etenswaren.')
     )
+
+    @cached_property
+    def get_placed_display(self):
+        return Pendulum.instance(
+            self.placed
+        ).in_timezone(
+            self.store.timezone
+        )
+
+    @cached_property
+    def get_receipt_display(self):
+        return Pendulum.instance(
+            self.receipt
+        ).in_timezone(
+            self.store.timezone
+        )
 
     @property
     def paid(self):

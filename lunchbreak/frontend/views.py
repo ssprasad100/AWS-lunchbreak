@@ -129,14 +129,15 @@ class OrderView(LoginForwardMixin, TemplateView):
             except TemporaryOrder.DoesNotExist:
                 return context
 
-        data = data if 'orderedfood' not in data else None
+        # Only validate the form if it's a post request
+        form_data = data if self.request.method == 'POST' and 'orderedfood' not in data else None
 
         context['user_form'] = UserForm(
-            data=data,
+            data=form_data,
             instance=self.request.user
         )
         context['order_form'] = OrderForm(
-            data=data,
+            data=form_data,
             store=context['store'],
             user=self.request.user
         )
@@ -160,7 +161,7 @@ class OrderView(LoginForwardMixin, TemplateView):
 
         user_form = context['user_form']
         order_form = context['order_form']
-        if user_form.is_valid() and order_form.is_valid():
+        if request.method == 'POST' and user_form.is_valid() and order_form.is_valid():
             user_form.save()
 
             if order_form.needs_paymentlink:

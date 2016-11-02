@@ -72,6 +72,9 @@ class OrderForm(FatModelForm):
             store=self.store
         )
 
+        description = self.fields['description']
+        description.widget.attrs['placeholder'] = description.help_text
+
     def save(self, temporary_order):
         return temporary_order.place(
             **self.cleaned_data

@@ -17,6 +17,8 @@ class ReceiptField(widgets.Widget):
         self.store = store
 
     def render(self, name, value, attrs=None):
+        if value is not None:
+            value = value.in_timezone(self.store.timezone)
         return mark_safe(
             render_to_string(
                 template_name='widgets/receipt_field.html',
@@ -32,14 +34,15 @@ class ReceiptField(widgets.Widget):
 
     def value_from_datadict(self, data, files, name):
         try:
-            a = Period.weekday_as_datetime(
+            time = datetime.strptime(
+                data.get(name + self.name_time),
+                '%H:%M'
+            ).time()
+            pend = Period.weekday_as_datetime(
                 weekday=int(data.get(name + self.name_weekday)),
-                time=datetime.strptime(
-                    data.get(name + self.name_time),
-                    '%H:%M'
-                ).time(),
+                time=time,
                 store=self.store
             )
-            return a
+            return pend
         except TypeError:
             return None

@@ -80,8 +80,8 @@
                     {{ forms.render_errors(order_form.receipt.errors) }}
                 </div>
 
-                <label>Opmerking bij de bestelling
-                    <textarea name="checkout-comment" placeholder="Bv: Extra extra mayonaise graag!"></textarea>
+                <label>{{ order_form.description.label }}
+                    {{ order_form.description }}
                 </label>
 
                 {% set orderedfoods = order.orderedfood.all() %}

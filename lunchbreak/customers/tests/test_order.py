@@ -127,7 +127,8 @@ class OrderTestCase(CustomersTestCase):
         response, order = create_order()
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_order_with_ingredients(self):
+    @mock.patch('lunch.models.Store.is_open')
+    def test_order_with_ingredients(self, mock_is_open):
         selected_ingredientrelations = self.food.ingredientrelation_set.filter(
             selected=True
         )
