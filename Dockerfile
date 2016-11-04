@@ -24,7 +24,7 @@ ENV BUSINESS_APNS_CERTIFICATE "${certificates_path}/business_${certificate_type}
 ENV CUSTOMERS_APNS_CERTIFICATE "${certificates_path}/customers_${certificate_type}.pem"
 ENV DJANGO_SETTINGS_VERSION ${version}
 ENV MEDIA_ROOT ${MEDIA_ROOT}
-ENV MEDIA_PRIVATE_ROOT ${MEDIA_PRIVATE_ROOT}
+ENV PRIVATE_MEDIA_ROOT ${PRIVATE_MEDIA_ROOT}
 
 # uWSGI
 RUN apt-get update

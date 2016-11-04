@@ -44,7 +44,9 @@ def lunchbreak_exception_handler(exception, context):
 
     response.data['error']['code'] = getattr(exception, 'default_code', -1)
 
-    if not settings.DEBUG and not handled and response.data['error']['code'] == -1:
+    if settings.DEBUG:
+        traceback.print_exc()
+    elif not handled and response.data['error']['code'] == -1:
         logger.exception(
             str(exception),
             exc_info=True,
@@ -53,8 +55,6 @@ def lunchbreak_exception_handler(exception, context):
                 'context': context
             }
         )
-    if settings.DEBUG:
-        traceback.print_exc()
 
     return response
 
