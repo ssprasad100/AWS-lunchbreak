@@ -1,3 +1,4 @@
+import logging
 import traceback
 
 from django.conf import settings
@@ -7,14 +8,15 @@ from rest_framework.exceptions import ValidationError as RestValidationError
 from rest_framework.response import Response
 from rest_framework.views import exception_handler
 
+logger = logging.getLogger('lunchbreak')
+
 
 def lunchbreak_exception_handler(exception, context):
     response = exception_handler(exception, context)
 
-    if settings.DEBUG:
-        traceback.print_exc()
+    handled = response is not None
 
-    if response is None:
+    if not handled:
         response = Response(
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             exception=exception
@@ -41,6 +43,18 @@ def lunchbreak_exception_handler(exception, context):
         return response
 
     response.data['error']['code'] = getattr(exception, 'default_code', -1)
+
+    if not settings.DEBUG and not handled and response.data['error']['code'] == -1:
+        logger.exception(
+            str(exception),
+            exc_info=True,
+            extra={
+                'response': response,
+                'context': context
+            }
+        )
+    if settings.DEBUG:
+        traceback.print_exc()
 
     return response
 
