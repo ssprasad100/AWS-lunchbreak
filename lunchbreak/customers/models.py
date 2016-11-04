@@ -1040,7 +1040,7 @@ class OrderedFood(models.Model):
         if self.original.foodtype.inputtype == INPUT_SI_VARIABLE:
             if self.amount < 1:
                 return '{value} g'.format(
-                    value=self.amount * 1000
+                    value=int(self.amount * 1000)
                 )
             else:
                 return '{value} kg'.format(
