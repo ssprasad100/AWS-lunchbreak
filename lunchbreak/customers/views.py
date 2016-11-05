@@ -387,11 +387,13 @@ class StoreHeaderView(APIView):
             image.open()
             return Response(image)
         else:
-            return Response(
+            response = Response(
                 headers={
-                    'X-Accel-Redirect': image.path
+                    'X-Accel-Redirect': image.url
                 }
             )
+            del response['Content-Type']
+            return response
 
 
 class StoreCategoryListView(StoreCategoryListViewBase):

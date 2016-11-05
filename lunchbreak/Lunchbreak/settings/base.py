@@ -13,7 +13,7 @@ PRIVATE_MEDIA_ROOT = os.environ.get(
     'PRIVATE_MEDIA_ROOT',
     os.path.normpath(os.path.join(BASE_DIR, 'media-private'))
 )
-PRIVATE_MEDIA_URL = '/private/'
+PRIVATE_MEDIA_URL = '/internal/'
 PRIVATE_MEDIA_SERVER = 'private_media.servers.NginxXAccelRedirectServer'
 PRIVATE_MEDIA_PERMISSIONS = 'lunch.authentication.PrivateMediaAuthentication'
 IMAGEKIT_DEFAULT_FILE_STORAGE = 'private_media.storages.PrivateMediaStorage'

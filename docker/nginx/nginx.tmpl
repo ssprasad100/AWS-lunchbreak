@@ -197,10 +197,11 @@ server {
         expires     30d;
 	}
 
-	location /media-private/ {
+	location /internal/ {
 		internal;
 		alias /var/lunchbreak/media-private/;
         access_log  off;
+        expires 	30d;
 	}
 }
 
