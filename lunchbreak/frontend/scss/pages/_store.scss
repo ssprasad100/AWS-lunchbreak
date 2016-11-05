@@ -90,13 +90,14 @@
                     .food-top {
                         .food-text {
                             h4 {
-                                margin-bottom: 6px;
+                                margin: 0;
                             }
 
                             p {
                                 color: $grey-dark;
                                 font-size: $size-small;
                                 line-height: 1.5em;
+                                padding: .5em 0 0 0;
 
                                 //position: absolute;
                                 float: left;
@@ -161,8 +162,6 @@
                         }
 
                         .food-top {
-                            margin-bottom: 16px;
-
                             .food-add {
                                 display: none;
                             }
@@ -238,7 +237,7 @@
             border-right: 1px solid $grey-light;
 
             #order {
-                padding: 16px;
+                padding: 16px 0;
                 position: relative;
                 height: 100%;
                 overflow: hidden;
@@ -248,8 +247,12 @@
                     top: 0;
                 }
 
-                input[type='submit'] {
-                    width: 100%;
+                #order-submit {
+                    padding: 0 16px;
+
+                    input[type='submit'] {
+                        width: 100%;
+                    }
                 }
             }
         }
@@ -311,11 +314,11 @@
             color: $red;
             font-size: $size-small;
             font-weight: $weight-medium;
+            padding: 0 ($item-padding / 2);
         }
 
         .orderedfood-text {
             vertical-align: middle;
-            padding: 0 $item-padding;
 
             .orderedfood-name {
                 font-weight: $weight-medium;
@@ -333,7 +336,7 @@
             font-size: $size-xsmall;
             color: $grey-dark;
             text-align: right;
-            padding-right: $item-padding;
+            padding-right: $item-padding * 1.5;
             white-space: nowrap;
         }
 

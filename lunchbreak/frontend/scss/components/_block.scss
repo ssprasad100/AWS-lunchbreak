@@ -5,6 +5,10 @@
 
     &.white {
         background: white;
+
+        & + footer:before {
+            background: white;
+        }
     }
 
     .center {
@@ -15,9 +19,7 @@
         width: 100%;
         height: 100%;
         position: absolute;
-
-        // header height + (top and bottom header padding) + header bottom border + extra padding
-        padding-top: $header-height + 2 * $container-padding + 1 + 32;
+        padding-top: $header-height-total;
         box-sizing: border-box;
 
         .title-split {
@@ -34,5 +36,12 @@
                 padding: 0;
             }
         }
+    }
+
+    & + footer:before {
+        content: '';
+        display: block;
+        height: 192px;
+        background: $grey-white;
     }
 }

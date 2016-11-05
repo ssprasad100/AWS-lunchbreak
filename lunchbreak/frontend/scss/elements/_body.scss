@@ -3,4 +3,6 @@ html, body {
     color: $grey-black;
     background: $grey-light;
     height: 100%;
+    //-webkit-font-smoothing: antialiased;
+    -webkit-font-smoothing: subpixel-antialiased;
 }

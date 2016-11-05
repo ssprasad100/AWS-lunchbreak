@@ -1,6 +1,9 @@
 {% extends 'base.html' %}
 
 {% block content %}
+
+{% include 'includes/header.html' %}
+
 <div id="index-banner" class="block banner">
     <div class="container center">
         <div>
@@ -19,24 +22,23 @@
         <ul>
             <li>
                 <img src="{{ static('store.png') }}" alt="Winkel"/>
-                <h2>Kies je favoriete winkel</h2>
+                <h3>Kies je favoriete winkel</h3>
                 <p>Dagdagelijkse zaken zoals bakkers of hippe broodjeszaken met specialiteiten.</p>
             </li>
             <li>
                 <img src="{{ static('checklist.png') }}" alt="Checklist"/>
-                <h2>Selecteer je favoriete gerechten</h2>
+                <h3>Selecteer je favoriete gerechten</h3>
                 <p>Stel je eigen broodje samen of zondig met die extra slagroom op een lekkere wafel!</p>
             </li>
             <li>
                 <img src="{{ static('bike.png') }}" alt="Fiets"/>
-                <h2>Haal af of laat leveren</h2>
+                <h3>Haal af of laat leveren</h3>
                 <p>Op weg naar je werk of school? Pas je routine niet aan en ga even langs.</p>
             </li>
         </ul>
     </div>
 </div>
 
-{% include 'includes/header.html' %}
 {% include 'includes/footer.html' %}
 
 {% endblock content %}

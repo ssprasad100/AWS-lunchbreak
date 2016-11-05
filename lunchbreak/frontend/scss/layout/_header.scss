@@ -18,6 +18,10 @@
         background: white;
         color: $grey-black;
         border-bottom: 1px solid $grey;
+
+        & + .block {
+            margin-top: $header-height-total;
+        }
     }
 
     &.fixed {
@@ -27,7 +31,7 @@
     #header-left {
         float: left;
         height: $header-height;
-        font-size: $size-large;
+        font-size: $size-medium;
 
         #header-logo {
             width: $header-height;

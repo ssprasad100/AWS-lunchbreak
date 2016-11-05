@@ -1,7 +1,7 @@
-$font: 'Helvetica Neue';
+$font: 'Helvetica Neue', Roboto, Helvetica, Arial;;
 
 $red: rgb(255, 48, 48);
-$grey-black: #4C4C4C;
+$grey-black: #464646;
 $grey-dark: #929292;
 $grey: #BFBFBF;
 $grey-light: #F2F0F0;
@@ -20,15 +20,17 @@ $weight-black: 900;
 $page-width: 1160px;
 $container-padding: 16px;
 $header-height: 40px;
+// header height + (top and bottom header padding) + header bottom border + extra padding
+$header-height-total: $header-height + 2 * $container-padding + 1;
 $banner-height: 500px;
 $banner-height-small: 300px;
 
-$size-xlarge: 40px;
-$size-large: 24px;
-$size-medium: 20px;
-$size-normal: 16px;
-$size-small: 14px;
-$size-xsmall: 13px;
+$size-xlarge: 34pt;
+$size-large: 22pt;
+$size-medium: 18pt;
+$size-normal: 12pt;
+$size-small: 11pt;
+$size-xsmall: 10pt;
 
 $input-height: 40px;
 $input-padding-vertical: 12px;

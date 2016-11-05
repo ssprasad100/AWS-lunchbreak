@@ -1,11 +1,25 @@
 .container {
     height: 100%;
-    width: $page-width;
-    padding: $container-padding;
-    left: 50%;
-    margin-left: -($page-width / 2);
     position: relative;
     box-sizing: border-box;
+    padding: $container-padding;
+    left: 50%;
+    width: $page-width;
+    margin-left: -($page-width / 2);
+
+    &.center-titles {
+        h1, h2, h3, h4 {
+            text-align: center;
+        }
+    }
+
+    &.small {
+        $page-width-small: 680px;
+
+        width: $page-width-small;
+        margin-left: -($page-width-small / 2);
+        padding: ($container-padding * 2) 0;
+    }
 
     .bottom {
         position: absolute;

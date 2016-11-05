@@ -1,8 +1,15 @@
 h1, h2, h3, h4 {
     display: block;
-    margin-bottom: 16px;
+    margin: 1em 0;
     font-weight: $weight-light;
+    color: $grey-black;
     line-height: 1em;
+
+    &.subtitle {
+        margin-top: -0.5em;
+        color: $grey-dark;
+        font-weight: $weight-light;
+    }
 }
 
 h1 {
@@ -15,12 +22,14 @@ h1 {
 }
 
 h2 {
+    font-weight: $weight-normal;
     font-size: $size-large;
+    margin-bottom: 40px;
 }
 
 h3 {
     font-size: $size-medium;
-    margin-bottom: 16px;
+    font-weight: $weight-normal;
 }
 
 h4 {
@@ -29,9 +38,9 @@ h4 {
 }
 
 p {
+    padding: 1em 0;
     font-size: $size-normal;
-    line-height: 1.5em;
-    font-weight: $weight-light;
+    line-height: 1.25em;
 
     a {
         text-decoration: underline;

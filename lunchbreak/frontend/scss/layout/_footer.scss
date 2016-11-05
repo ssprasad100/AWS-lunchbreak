@@ -5,7 +5,6 @@
     .container {
         display: table;
         table-layout: fixed;
-        padding: 32px 16px;
 
         .footer-center {
             display: table-cell;
@@ -25,7 +24,7 @@
 
             li {
                 font-size: $size-small;
-                font-weight: $weight-light;
+                font-weight: $weight-normal;
                 line-height: 1.5em;
 
                 img {
@@ -33,12 +32,5 @@
                 }
             }
         }
-    }
-
-    &:before {
-        content: '';
-        display: block;
-        height: 192px;
-        background: $grey-white;
     }
 }

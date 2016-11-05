@@ -6,6 +6,11 @@
     color: white;
     box-sizing: border-box;
 
+    h1, h2, h3, h4 {
+        color: white;
+        font-weight: $weight-light;
+    }
+
     &.small {
         height: $banner-height-small;
     }

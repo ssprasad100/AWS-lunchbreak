@@ -86,7 +86,9 @@
             <div id="order">
                 <form method="POST" action="{{ url('frontend-order', store_id=store.id) }}">
                     {% csrf_token %}
-                    <input type="submit" value="Afrekenen" disabled/>
+                    <div id="order-submit">
+                        <input type="submit" value="Afrekenen" disabled/>
+                    </div>
                     {% include 'includes/orderedfood.html' %}
                 </form>
             </div>

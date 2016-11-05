@@ -2,30 +2,102 @@
 
 {% block content %}
 
-<div class="block">
-    <div class="container">
-        <h1>Voorwaarden</h1>
-        <h2>In het kort</h2>
+{% set header_class = 'white' %}
+{% include 'includes/header.html' %}
 
-        <ul>
-            <li>Bij het inloggen wordt je telefoonnumer, naam en apparaat opgeslagen.</li>
-            <li>Enkel uw naam is zichtbaar voor het personeel in de winkels waar u een bestelling plaatst.</li>
-            <li>Uw gegevens zullen nooit gedeeld worden met derden, tenzij wettelijk verplicht of bij misbruik.</li>
-            <li>De winkel en niet Lunchbreak is verantwoordelijk voor bestellingen, leveringen en andere mogelijkheden verschaft door Lunchbreak.</li>
-            <li>Bestellingen zijn verplicht te betalen, na meerdere gefaalde betalingspogingen wordt u account beëindigd.</li>
+<div class="block white">
+    <div class="container small center-titles">
+        <h1>Voorwaarden</h1>
+        <h2 class="subtitle">In het kort</h2>
+
+        <ul class="list-items">
+            <li class="list-item">
+                <p>Na het inloggen slaan wij uw telefoonnummer, apparaat en naam op.</p>
+            </li>
+            <li class="list-item">
+                <p>Uw naam is zichtbaar voor het personeel in de winkels waar u een bestelling plaatst.</p>
+            </li>
+            <li class="list-item">
+                <p>Uw telefoonnummer kan enkel bekeken worden als u uw bestelling niet afhaalt.</p>
+            </li>
+            <li class="list-item">
+                <p>Wij delen uw gegevens nooit met derden, tenzij wettelijk verplicht.</p>
+            </li>
+            <li class="list-item">
+                <p>De winkel en niet Lunchbreak is verantwoordelijk voor het leveren van de bestelling.</p>
+            </li>
+            <li class="list-item">
+                <p>De gebruiker is verplicht geplaatste bestellingen te betalen.</p>
+            </li>
         </ul>
     </div>
 </div>
 
 <div class="block">
-    <div class="container">
-        <h1>Algemene voorwaarden</h1>
-        <h2>Consumenten</h2>
+    <div class="container small center-titles">
+        <h1>Algemene voorwaarden en privacy</h1>
+        <h2 class="subtitle">Volledig</h2>
     </div>
 </div>
 
-{% set header_class = 'white' %}
-{% include 'includes/header.html' %}
+<div class="block white">
+    <div class="container small">
+        <h2>Algemeen privacy beleid</h2>
+
+        <p>Wij zijn begaan met de privacy van alle bezoekers van onze website www.lunchbreakapp.be en onze app gebruikers op iOS en Android. Dit privacybeleid geeft u uitleg over hoe wij de informatie die wij van u ter beschikking krijgen, gebruiken en beschermen. Door het bezoeken en/of gebruik maken van de aangeboden diensten op de website en in onze apps, geeft u toestemming tot het opslaan, gebruiken en overdragen van de informatie die wij van u tot onze beschikking krijgen.</p>
+
+        <h3>Verplichtingen</h3>
+
+        <p>Bij het niet afhalen van een bestelling moet de winkel alsnog vergoed worden door de eigenaar van het account die de bestelling plaatste. Hierbij kunnen extra administratieve kosten tot 20 euro in rekening worden gebracht.</p>
+
+        <p>Lunchbreak is slechts een tussenpersoon. De winkel, en niet Lunchbreak, is verantwoordelijk voor het afleveren van de bestelling.</p>
+
+        <p>Valse bestellingen plaatsen is verboden, het bedrag van deze bestellingen moet alsnog worden betaald indien de winkel in kwestie hier schade aan ondervindt.</p>
+
+        <p>Uw account kan worden geblokkeerd als u de algemene voorwaarden overtreedt, of acties onderneemt die schadelijk kunnen zijn voor onze dienst, deelnemende winkels of mede gebruikers.</p>
+
+        <h3>Het opslaan van uw gegevens</h3>
+
+        <p>Wanneer u inlogt of registreert in onze apps, wordt u gevraagd om informatie te geven over uzelf zoals telefoonnummer en naam. Deze zullen worden opgeslagen in een centrale database, zodat u kan beschikken over een eigen account waarmee u telkens kan inloggen. De naam van uw apparaat wordt ook opgeslagen. We kunnen ook informatie opslaan over uw gebruik van de apps zoals de bestellingen die u plaatst en wat uw favoriete winkels zijn. We houden geen locatiegegevens van gebruikers bij.</p>
+
+        <h3>Het gebruik maken van uw gegevens</h3>
+
+        <p>Uw informatie stelt ons in staat om u toegang te geven tot een eigen account waardoor u online kan bestellen bij de aangesloten winkels op onze dienst.</p>
+
+        <p>U heeft steeds het recht om uw gegevens te laten verwijderen in onze database, dit kan door contact met ons op te nemen via e-mail.</p>
+
+        <h3>Het openbaar maken van uw gegevens</h3>
+
+        <p>De informatie die u blootstelt aan ons zal worden bewaard op onze servers in Amsterdam. Wij delen in geen geval uw gegevens met derden, tenzij we wettelijk verplicht zijn om dit te doen.</p>
+
+        <p>Wij kunnen uw informatie gebruiken als we op grond van een wettelijke verplichting uw informatie moeten verstrekken of delen op grond van een wettelijke verplichting of om de rechten van Cloock of anderen te beschermen. Dit omvat het uitwisselen van informatie met andere ondernemingen en andere organisaties met als doel het tegengaan fraude.</p>
+
+        <h3>Cookies</h3>
+
+        <p>Lunchbreak maakt voorlopig geen gebruik van cookies, dit kan in de toekomst wijzigen.</p>
+
+        <h3>Veiligheid en het bewaren van gegevens</h3>
+
+        <p>Wij treffen maatregelen om uw informatie te beschermen tegen niet-geautoriseerde toegang en tegen illegale verwerking, onopzettelijk verlies, vernietiging en beschadiging. We zullen uw informatie bewaren gedurende een redelijke periode of voor zolang als de wet dit voorschrijft.</p>
+
+        <p>Inloggen gebeurt op basis van een SMS verificatiecode die naar uw telefoonnummer verstuurd wordt via de dienst Twitter Digits. Hun privacy policy is van toepassing op uw telefoonnummer, en is inbegrepen in onze policy.</p>
+
+        <p>Uw gegevens worden altijd veilig versleuteld bij communicatie tussen de apps en onze servers. Deze zijn dus veilig voor hackers die uw internetverbinding zouden afluisteren, maar garandeert niet dat dit niet kan gebeuren.</p>
+
+        <h3>Toegang tot en bijwerken van informatie</h3>
+
+        <p>U heeft het recht om de informatie te zien die wij hebben van u en om ons te vragen om aanpassingen te doen om er zeker van te zijn dat de informatie accuraat is en up-to-date. Als u hiervan gebruik wenst te maken, neemt u dan contact met ons op waarbij u gebruik kunt maken van de contactgegevens op de website.</p>
+
+        <h3>Veranderingen aan onze privacy policy</h3>
+
+        <p>Elke verandering aan ons privacybeleid zal worden geplaatst op de website en, waar nodig, middels notificatie per e-mail.</p>
+
+        <h3>Contact</h3>
+
+        <p>Alle opmerkingen, vragen en verzoeken met betrekking tot het gebruik van uw gegevens zijn welkom en dienen te worden gericht aan Cloock VOF, Dendermondesteenweg 10, 9230 Wetteren. Telefonisch bereikbaar op <a href="tel:+32479427866">+32 479 42 78 66</a>. Per e-mail bereikbaar via <a href="mailto:hello@cloock.be">hello@cloock.be</a></p>
+    </div>
+</div>
+
 {% include 'includes/footer.html' %}
 
 {% endblock content %}
