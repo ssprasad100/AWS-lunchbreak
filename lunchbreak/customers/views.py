@@ -2,7 +2,6 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404
 from lunch.models import Food, IngredientGroup, Menu, Store
 from lunch.pagination import SimplePagination
-from lunch.renderers import JPEGRenderer
 from lunch.serializers import (FoodDetailSerializer, FoodSerializer,
                                MenuDetailSerializer, MenuSerializer,
                                StoreSerializer)
@@ -370,8 +369,6 @@ class ReservationSingleView(generics.RetrieveUpdateAPIView):
 
 
 class StoreHeaderView(APIView):
-
-    renderer_classes = (JPEGRenderer,)
 
     def get(self, request, store_id, width, height):
         store = get_object_or_404(Store, id=store_id)
