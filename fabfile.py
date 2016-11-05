@@ -102,6 +102,12 @@ def upload_compose_config():
     deployer.update_compose_config()
 
 
+def upload_docker_folders(everything=True):
+    """Upload new docker folders."""
+    deployer = Deployer()
+    deployer.upload_docker_folders(everything=everything)
+
+
 def setup():
     """Setup the server."""
     deployer = Deployer()
@@ -181,6 +187,26 @@ class Deployer:
             configs=configs
         )
 
+    def upload_docker_folders(self, everything=False):
+        if everything:
+            put(
+                local_path='docker/web',
+                remote_path='/etc/lunchbreak/docker'
+            )
+            put(
+                local_path='docker/nginx',
+                remote_path='/etc/lunchbreak/docker'
+            )
+        else:
+            put(
+                local_path='docker/web/*',
+                remote_path='/etc/lunchbreak/docker/web/'
+            )
+            put(
+                local_path='docker/nginx/*',
+                remote_path='/etc/lunchbreak/docker/nginx/'
+            )
+
     def setup(self, **kwargs):
         """Install all of the required software.
 
@@ -210,14 +236,7 @@ class Deployer:
             self._setup_ufw()
 
         sudo('mkdir /etc/lunchbreak/docker -p')
-        put(
-            local_path='docker/web',
-            remote_path='/etc/lunchbreak/docker'
-        )
-        put(
-            local_path='docker/nginx',
-            remote_path='/etc/lunchbreak/docker'
-        )
+        self.upload_docker_folders(everything=True)
         self.update_compose_config(**kwargs)
 
         if not exists('/swap', use_sudo=True):
@@ -279,6 +298,7 @@ class Deployer:
             configs (:obj:`string`): Configs that need to be used, will be uploaded if found.
             service (:obj:`string`, optional): Specific service that needs to be restarted.
         """
+        self.upload_docker_folders()
         if configs is None:
             configs = [
                 './docker/docker-compose.yml',

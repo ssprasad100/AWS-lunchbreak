@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from lunch.models import Food, IngredientGroup, Menu, Store
@@ -381,8 +382,16 @@ class StoreHeaderView(APIView):
             int(width),
             int(height)
         )
-        image.open()
-        return Response(image)
+
+        if settings.DEBUG:
+            image.open()
+            return Response(image)
+        else:
+            return Response(
+                headers={
+                    'X-Accel-Redirect': image.path
+                }
+            )
 
 
 class StoreCategoryListView(StoreCategoryListViewBase):

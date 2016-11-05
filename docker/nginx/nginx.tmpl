@@ -190,6 +190,18 @@ server {
         access_log  off;
         expires     30d;
 	}
+
+	location /media/ {
+		alias /var/lunchbreak/media/;
+        access_log  off;
+        expires     30d;
+	}
+
+	location /media-private/ {
+		internal;
+		alias /var/lunchbreak/media-private/;
+        access_log  off;
+	}
 }
 
 {{ end }}
