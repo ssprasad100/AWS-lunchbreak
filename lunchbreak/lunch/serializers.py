@@ -167,6 +167,7 @@ class IngredientGroupSerializer(serializers.ModelSerializer):
             'priority',
             'cost',
             'foodtype',
+            'calculation',
         )
         read_only_fields = (
             'id',

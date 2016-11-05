@@ -260,8 +260,8 @@
          * @param {bool} force Force an update.
          * (Interface, doesn't do anything here)
          */
-        this.update = function(json, force) {
-            this.cost = json[0]['cost'];
+        this.update = function(cost, force) {
+            this.cost = cost;
             this.updateCost();
         };
 
@@ -283,31 +283,9 @@
          */
         this.fetch = function() {
             var self = this;
-            var ingredientIds = [];
 
-            for (var i in this.original.ingredients) {
-                var ingredient = this.original.ingredients[i];
-                if (ingredient.selected)
-                    ingredientIds.push(ingredient.id);
-            }
-
-            var data = [{
-                original: this.original.id,
-                ingredients: ingredientIds
-            }];
-
-            $.ajax({
-                type: 'POST',
-                data: JSON.stringify(data),
-                url: '/api/customers/order/price/',
-                contentType: 'application/json; charset=utf-8',
-                dataType: 'json',
-                success: function(json) {
-                    self.update(json);
-                },
-                failure: function(data) {
-                    Inventory.showSnackbar('Een fout trad op, gelieve opnieuw te proberen.');
-                }
+            OrderedFood.fetchCost(this.original, function(cost) {
+                self.update(cost);
             });
         };
 
@@ -318,6 +296,40 @@
         this.attachElement = function(element) {
             this.element = element;
         };
+    };
+
+    /**
+     * Get the updated price from the API.
+     * @param  {Food} food Base food.
+     * @param  {Function} callback Callback function with cost.
+     */
+    OrderedFood.fetchCost = function(food, callback) {
+        var ingredientIds = [];
+
+        for (var i in food.ingredients) {
+            var ingredient = food.ingredients[i];
+            if (ingredient.selected)
+                ingredientIds.push(ingredient.id);
+        }
+
+        var data = [{
+            original: food.id,
+            ingredients: ingredientIds
+        }];
+
+        $.ajax({
+            type: 'POST',
+            data: JSON.stringify(data),
+            url: '/api/customers/order/price/',
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            success: function(json) {
+                callback(json[0]['cost']);
+            },
+            failure: function(data) {
+                Inventory.showSnackbar('Er trad een fout op bij het vernieuwen van de prijs.');
+            }
+        });
     };
 
     /**
@@ -357,7 +369,8 @@
     var Food = function(menu, element) {
         this.menu = menu;
         this.element = element;
-        this.addButton = element.find('.food-add');
+        this.addButton = this.element.find('.food-add');
+        this.confirmButtonSelector = '.food-confirm';
         this.updated = false;
         this.rendered = false;
         this.json = null;
@@ -415,6 +428,20 @@
         };
 
         /**
+         * Get the selected ingredient groups of the food.
+         * @return {IngredientGroup[]} List of ingredient groups
+         */
+        this.getSelectedIngredientGroups = function() {
+            var selectedGroups = [];
+            for (var i in this.ingredientgroups) {
+                var group = this.ingredientgroups[i];
+                if (group.isSelected())
+                    selectedGroups.push(group);
+            }
+            return selectedGroups;
+        };
+
+        /**
          * Initialize all element events.
          */
         this.init = function() {
@@ -432,7 +459,7 @@
             );
             this.element.on(
                 'click',
-                '.food-confirm',
+                this.confirmButtonSelector,
                 function() {
                     self.onConfirm();
                 }
@@ -617,6 +644,15 @@
             return new Validation();
         };
 
+        this.fetchCost = function() {
+            var self = this;
+
+            OrderedFood.fetchCost(this, function(cost) {
+                self.cost = cost;
+                self.onCostChange();
+            });
+        };
+
         /**
          * Holmes onChange callback for showing items.
          */
@@ -686,6 +722,16 @@
             } else {
                 this.setInputError(validation.errorMessage);
             }
+        };
+
+        /**
+         * Callback when the cost changes.
+         * @return {[type]} [description]
+         */
+        this.onCostChange = function() {
+            this.element
+                .find(this.confirmButtonSelector)
+                .html(this.getCostDisplay());
         };
 
         this.init();
@@ -916,7 +962,26 @@
             return selectedIngredients;
         };
 
+        /**
+         * If there are ingredients selected in this ingredient group,
+         * then this ingredient group is selected.
+         * @return {Boolean} Whether this group is selected.
+         */
+        this.isSelected = function() {
+            return this.getSelectedIngredients().length > 0;
+        };
+
         this.init();
+    };
+
+    /**
+     * The different ingredient group calculations.
+     * @type {Object.<integer>}
+     */
+    IngredientGroup.Calculations = {
+        ALWAYS: 0,
+        ADDITIONS: 1,
+        BOTH: 2
     };
 
     /**
@@ -994,8 +1059,9 @@
         /**
          * Callback when toggling the ingredient checkbox.
          */
-        this.onToggle = function() {
+        this.onToggle = function(event) {
             this.selected = this.element.hasClass('is-checked');
+            var wasSelected = this.selected;
             var validation = this.group.validate();
             if (!validation.valid)  {
                 if (this.group.minimum === 1 && this.group.maximum === 1) {
@@ -1017,19 +1083,55 @@
                     this.deselect();
                 }
             }
+
+            // If the toggle was reverted, don't change anything.
+            if (wasSelected != this.selected)
+                return;
+
+            this.onSelectedChange();
         };
 
         /**
-         * Attach an element to the IngredientGroup.
-         * Recursively attaches the elements for the group's ingredients.
+         * Callback for when selected changes.
+         * Changes the cost based on the ingredient price, not the group price.
+         */
+        this.onSelectedChange = function() {
+            if (this.group.calculation == IngredientGroup.Calculations.ADDITIONS) {
+                this.food.fetchCost();
+            } else {
+                this.selected = !this.selected;
+                var groupWasSelected = this.group.isSelected();
+                this.selected = !this.selected;
+                var groupIsSelected = this.group.isSelected();
+
+                if (groupWasSelected != groupIsSelected) {
+                    if (groupIsSelected)
+                        this.food.cost += this.group.cost;
+                    else
+                        this.food.cost -= this.group.cost;
+                }
+
+                if (this.group.calculation == IngredientGroup.Calculations.BOTH) {
+                    if (this.selected)
+                        this.food.cost += this.cost;
+                    else
+                        this.food.cost -= this.cost;
+                }
+
+                this.food.onCostChange();
+            }
+        };
+
+        /**
+         * Attach an element to the ingredient.
          * @param  {jQuery} element jQuery element.
          */
         this.attachElement = function(element) {
             this.element = element;
 
             var self = this;
-            this.element.change(function() {
-                self.onToggle();
+            this.element.change(function(event) {
+                self.onToggle(event);
             });
         };
 
