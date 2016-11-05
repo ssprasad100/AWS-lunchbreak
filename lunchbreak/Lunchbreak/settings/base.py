@@ -17,6 +17,8 @@ PRIVATE_MEDIA_URL = '/internal/'
 PRIVATE_MEDIA_SERVER = 'private_media.servers.NginxXAccelRedirectServer'
 PRIVATE_MEDIA_PERMISSIONS = 'lunch.authentication.PrivateMediaAuthentication'
 IMAGEKIT_DEFAULT_FILE_STORAGE = 'private_media.storages.PrivateMediaStorage'
+SENDFILE_ROOT = PRIVATE_MEDIA_ROOT
+SENDFILE_URL = PRIVATE_MEDIA_URL
 
 SECRET_KEY = 'e2a86@j!uc5@z^yu=%n9)6^%w+-(pk8a6@^i!vnvxe^-w%!q8('
 
@@ -39,6 +41,7 @@ INSTALLED_APPS = [
     'subdomains',
     'django_jinja',
     'opbeat.contrib.django',
+    'sendfile',
 
     'imagekit',
     'polaroid',

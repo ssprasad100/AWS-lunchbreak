@@ -2,6 +2,11 @@ import os
 
 from django_jinja.builtins import DEFAULT_EXTENSIONS
 
+if DEBUG:
+    SENDFILE_BACKEND = 'sendfile.backends.development'
+else:
+    SENDFILE_BACKEND = 'sendfile.backends.nginx'
+
 ALLOWED_HOSTS = globals().get(
     'ALLOWED_HOSTS',
     os.environ.get(

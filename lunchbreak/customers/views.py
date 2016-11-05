@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from lunch.models import Food, IngredientGroup, Menu, Store
@@ -15,6 +14,7 @@ from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_extensions.mixins import NestedViewSetMixin
+from sendfile import sendfile
 
 from .authentication import CustomerAuthentication
 from .config import DEMO_PHONE
@@ -382,18 +382,7 @@ class StoreHeaderView(APIView):
             int(width),
             int(height)
         )
-
-        if settings.DEBUG:
-            image.open()
-            return Response(image)
-        else:
-            response = Response(
-                headers={
-                    'X-Accel-Redirect': image.url
-                }
-            )
-            del response['Content-Type']
-            return response
+        return sendfile(request, image.path)
 
 
 class StoreCategoryListView(StoreCategoryListViewBase):
