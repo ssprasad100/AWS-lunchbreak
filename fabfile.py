@@ -32,13 +32,15 @@ with hide('running', 'output'):
         )
     git_commit = os.environ.get(
         'TRAVIS_COMMIT',
-        local('git rev-parse --verify HEAD', capture=True)
+        local(
+            'git rev-parse --verify HEAD',
+            capture=True
+        )
     )
-    git_branch = os.environ.get(
-        'TRAVIS_BRANCH',
-        local('git rev-parse --abbrev-ref HEAD', capture=True)
+    git_branch = local(
+        'git rev-parse --abbrev-ref HEAD',
+        capture=True
     )
-    git_branch = 'staging' if git_branch not in ['master', 'staging'] else git_branch
 
 if git_tag:
     print('Current git tag: ' + str(git_tag))
