@@ -1,4 +1,10 @@
-BRANCH = 'staging'
+DB_HOST = 'db'
+
+GOCARDLESS_ENVIRONMENT = 'sandbox'
+GOCARDLESS_APP_DOMAIN = 'api.staging.lunchbreakapp.be'
+MIDDLEWARE_CLASSES += (
+    'opbeat.contrib.django.middleware.OpbeatAPMMiddleware',
+)
 
 ALLOWED_HOSTS = [
     'staging.lunchbreakapp.be',
@@ -8,12 +14,3 @@ ALLOWED_HOSTS = [
 
 APNS_HOST = 'gateway.sandbox.push.apple.com'
 APNS_FEEDBACK_HOST = 'feedback.sandbox.push.apple.com'
-
-DB_HOST = 'db'
-
-GOCARDLESS_ENVIRONMENT = 'sandbox'
-GOCARDLESS_APP_DOMAIN = 'api.staging.lunchbreakapp.be'
-
-MIDDLEWARE_CLASSES += (
-    'opbeat.contrib.django.middleware.OpbeatAPMMiddleware',
-)

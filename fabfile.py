@@ -128,20 +128,16 @@ class Deployer:
         docker_tags = [
             # Each commit will have a history in the registry
             git_commit,
-            # Tagged commits are meant for production
-            'production' if is_production else 'latest'
+            'latest'
         ]
         # Each tag will have a history in the registry
         if git_tag:
             docker_tags.append(git_tag)
+        if is_production:
+            docker_tags.append('production')
 
         # Generate all the image names from the tags
-        image_names = []
-        for tag in docker_tags:
-            image_name = self._image_name(
-                tag=tag
-            )
-            image_names.append(image_name)
+        image_names = [self._image_name(tag=tag) for tag in docker_tags]
 
         build_args = {
             'version': version,

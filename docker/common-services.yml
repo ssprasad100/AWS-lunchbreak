@@ -1,0 +1,12 @@
+version: '2'
+services:
+  lunchbreak:
+    image: 'andreasbackx/lunchbreak:latest'
+    container_name: lunchbreak
+    restart: always
+    expose:
+      - '49152'
+    env_file:
+      - ./base.env
+    volumes:
+      - ./web/keys/apns:/etc/lunchbreak/certificates/apns:ro

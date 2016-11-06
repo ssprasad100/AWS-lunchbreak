@@ -1,4 +1,10 @@
-BRANCH = 'master'
+DB_HOST = 'db'
+
+GOCARDLESS_ENVIRONMENT = 'live'
+GOCARDLESS_APP_DOMAIN = 'api.lunchbreakapp.be'
+MIDDLEWARE_CLASSES += (
+    'opbeat.contrib.django.middleware.OpbeatAPMMiddleware',
+)
 
 ALLOWED_HOSTS = [
     'lunchbreakapp.be',
@@ -13,14 +19,3 @@ ALLOWED_HOSTS = [
     'www.lunchbreak.fr',
     'api.lunchbreak.fr',
 ]
-
-DB_HOST = 'db'
-
-OPBEAT_RELEASE = True
-
-# TODO Add production access token
-GOCARDLESS_ENVIRONMENT = 'live'
-GOCARDLESS_APP_DOMAIN = 'api.lunchbreakapp.be'
-MIDDLEWARE_CLASSES += (
-    'opbeat.contrib.django.middleware.OpbeatAPMMiddleware',
-)

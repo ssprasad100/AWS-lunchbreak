@@ -186,20 +186,20 @@ server {
 	}
 
 	location /static/ {
-		alias /var/lunchbreak/static/;
+		alias /var/{{ .Container.Name }}/static/;
         access_log  off;
         expires     30d;
 	}
 
 	location /media/ {
-		alias /var/lunchbreak/media/;
+		alias /var/{{ .Container.Name }}/media/;
         access_log  off;
         expires     30d;
 	}
 
 	location /internal/ {
 		internal;
-		alias /var/lunchbreak/media-private/;
+		alias /var/{{ .Container.Name }}/media-private/;
         access_log  off;
         expires 	30d;
 	}
@@ -239,9 +239,22 @@ server {
 	}
 
 	location /static/ {
-		alias /var/lunchbreak/static/;
+		alias /var/{{ .Container.Name }}/static/;
         access_log  off;
         expires     30d;
+	}
+
+	location /media/ {
+		alias /var/{{ .Container.Name }}/media/;
+        access_log  off;
+        expires     30d;
+	}
+
+	location /internal/ {
+		internal;
+		alias /var/{{ .Container.Name }}/media-private/;
+        access_log  off;
+        expires 	30d;
 	}
 }
 

@@ -1,26 +1,48 @@
 version: '2'
 services:
-  nginx:
-    volumes:
-      - /var/lunchbreak/staging/static:/var/lunchbreak/static:ro
-      - /var/lunchbreak/staging/media:/var/lunchbreak/media:ro
-      - /var/lunchbreak/staging/media-private:/var/lunchbreak/media-private:ro
   lunchbreak_staging:
-    image: 'andreasbackx/lunchbreak:latest'
+    extends:
+      file: common-services.yml
+      service: lunchbreak
     container_name: lunchbreak_staging
-    restart: always
     links:
       - db
-    expose:
-      - '49152'
-    env_file:
-      - ./base.env
-      - ./staging.env
     depends_on:
       - db
+      - nginx
+    env_file:
+      - ./staging.env
     volumes:
-      - ./web/keys/apns:/etc/lunchbreak/certificates/apns:ro
       - ./web/secrets/staging:/var/secrets:ro
       - /var/lunchbreak/staging/static:/var/lunchbreak/static:rw
       - /var/lunchbreak/staging/media:/var/lunchbreak/media:rw
       - /var/lunchbreak/staging/media-private:/var/lunchbreak/media-private:rw
+  nginx:
+    volumes:
+      - /var/lunchbreak/staging/static:/var/lunchbreak_staging/static:ro
+      - /var/lunchbreak/staging/media:/var/lunchbreak_staging/media:ro
+      - /var/lunchbreak/staging/media-private:/var/lunchbreak_staging/media-private:ro
+
+  lunchbreak_production:
+    extends:
+      file: common-services.yml
+      service: lunchbreak
+    image: 'andreasbackx/lunchbreak:production'
+    container_name: lunchbreak_production
+    links:
+      - db
+    depends_on:
+      - db
+      - nginx
+    env_file:
+      - ./production.env
+    volumes:
+      - ./web/secrets/production:/var/secrets:ro
+      - /var/lunchbreak/production/static:/var/lunchbreak/static:rw
+      - /var/lunchbreak/production/media:/var/lunchbreak/media:rw
+      - /var/lunchbreak/production/media-private:/var/lunchbreak/media-private:rw
+  nginx:
+    volumes:
+      - /var/lunchbreak/production/static:/var/lunchbreak_production/static:ro
+      - /var/lunchbreak/production/media:/var/lunchbreak_production/media:ro
+      - /var/lunchbreak/production/media-private:/var/lunchbreak_production/media-private:ro
