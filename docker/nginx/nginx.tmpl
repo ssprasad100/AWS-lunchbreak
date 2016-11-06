@@ -239,20 +239,20 @@ server {
 	}
 
 	location /static/ {
-		alias /var/{{ .Container.Name }}/static/;
+		alias /var/{{ $host }}/static/;
         access_log  off;
         expires     30d;
 	}
 
 	location /media/ {
-		alias /var/{{ .Container.Name }}/media/;
+		alias /var/{{ $host }}/media/;
         access_log  off;
         expires     30d;
 	}
 
 	location /internal/ {
 		internal;
-		alias /var/{{ .Container.Name }}/media-private/;
+		alias /var/{{ $host }}/media-private/;
         access_log  off;
         expires 	30d;
 	}
