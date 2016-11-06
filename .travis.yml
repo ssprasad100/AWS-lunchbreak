@@ -21,3 +21,5 @@ notifications:
 branches:
   only:
     - master
+    # Version tags and branches x.x.x*
+    - /^(\d(.\d(.\d(.*)?)?)?)$/

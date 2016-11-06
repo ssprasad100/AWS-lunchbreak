@@ -113,6 +113,10 @@ def setup():
     deployer = Deployer()
     deployer.setup()
 
+def test():
+    """Test constant initialisation."""
+    pass
+
 
 class Deployer:
 
