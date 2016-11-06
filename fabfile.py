@@ -37,20 +37,26 @@ with hide('running', 'output'):
             capture=True
         )
     )
-    git_branch = local(
-        'git rev-parse --abbrev-ref HEAD',
-        capture=True
+    git_branch = os.environ.get(
+        'TRAVIS_BRANCH',
+        local(
+            'git rev-parse --abbrev-ref HEAD',
+            capture=True
+        )
     )
 
 if git_tag:
     print('Current git tag: ' + str(git_tag))
+    # TRAVIS_BRANCH is set to TRAVIS_TAG when a build is created for a tag
+    # This is a bug: https://github.com/travis-ci/travis-ci/issues/4745
+    git_branch = 'master'
 else:
     print('No current git tag.')
 print('Current git commit: ' + str(git_commit))
 print('Current git branch: ' + str(git_branch))
 
 
-is_production = git_tag and git_branch == 'master'
+is_production = bool(git_tag)
 if is_production:
     print('We\'re currently on production!')
 version = 'production' if is_production else 'staging'
