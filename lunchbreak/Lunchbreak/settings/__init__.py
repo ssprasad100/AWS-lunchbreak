@@ -4,17 +4,19 @@ from split_settings.tools import include
 
 TRAVIS_BRANCH = os.environ.get('TRAVIS_BRANCH')
 
+version = os.environ.get('DJANGO_SETTINGS_VERSION')
+
 
 if TRAVIS_BRANCH is None:
     includes = [
         'base.py',
-        'branches/%s.py' % os.environ.get('DJANGO_SETTINGS_VERSION'),
+        'branches/%s.py' % version,
         'final.py',
     ]
 else:
     includes = [
         'base.py',
-        'branches/%s.py' % os.environ.get('DJANGO_SETTINGS_VERSION'),
+        'branches/%s.py' % version,
         'travis.py',
         'final.py',
     ]

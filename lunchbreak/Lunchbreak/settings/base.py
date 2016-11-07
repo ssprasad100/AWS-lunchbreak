@@ -22,7 +22,7 @@ SENDFILE_URL = PRIVATE_MEDIA_URL
 
 SECRET_KEY = 'e2a86@j!uc5@z^yu=%n9)6^%w+-(pk8a6@^i!vnvxe^-w%!q8('
 
-DEBUG = False
+DEBUG = True
 SSL = True
 
 INSTALLED_APPS = [

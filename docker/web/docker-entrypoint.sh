@@ -49,7 +49,7 @@ uwsgi \
     --env OPBEAT_APP_ID="${OPBEAT_APP_ID}" \
     --env OPBEAT_SECRET_TOKEN="${OPBEAT_SECRET_TOKEN}" \
     --master \
-    --pidfile=/tmp/lunchbreak-master.pid \
+    --pidfile=/tmp/lunchbreak.pid \
     --socket=0.0.0.0:49152 \
     --processes=5 \
     --harakiri=20 \
