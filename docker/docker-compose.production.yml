@@ -1,5 +1,14 @@
 version: '2'
 services:
+  nginx:
+    volumes:
+      - /var/lunchbreak/staging/static:/var/lunchbreak_staging/static:ro
+      - /var/lunchbreak/staging/media:/var/lunchbreak_staging/media:ro
+      - /var/lunchbreak/staging/media-private:/var/lunchbreak_staging/media-private:ro
+      - /var/lunchbreak/production/static:/var/lunchbreak_production/static:ro
+      - /var/lunchbreak/production/media:/var/lunchbreak_production/media:ro
+      - /var/lunchbreak/production/media-private:/var/lunchbreak_production/media-private:ro
+
   lunchbreak_staging:
     extends:
       file: common-services.yml
@@ -17,11 +26,6 @@ services:
       - /var/lunchbreak/staging/static:/var/lunchbreak/static:rw
       - /var/lunchbreak/staging/media:/var/lunchbreak/media:rw
       - /var/lunchbreak/staging/media-private:/var/lunchbreak/media-private:rw
-  nginx:
-    volumes:
-      - /var/lunchbreak/staging/static:/var/lunchbreak_staging/static:ro
-      - /var/lunchbreak/staging/media:/var/lunchbreak_staging/media:ro
-      - /var/lunchbreak/staging/media-private:/var/lunchbreak_staging/media-private:ro
 
   lunchbreak_production:
     extends:
@@ -41,8 +45,3 @@ services:
       - /var/lunchbreak/production/static:/var/lunchbreak/static:rw
       - /var/lunchbreak/production/media:/var/lunchbreak/media:rw
       - /var/lunchbreak/production/media-private:/var/lunchbreak/media-private:rw
-  nginx:
-    volumes:
-      - /var/lunchbreak/production/static:/var/lunchbreak_production/static:ro
-      - /var/lunchbreak/production/media:/var/lunchbreak_production/media:ro
-      - /var/lunchbreak/production/media-private:/var/lunchbreak_production/media-private:ro

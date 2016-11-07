@@ -17,6 +17,32 @@
 	{{ end }}
 {{ end }}
 
+{{ define "routes" }}
+	{{ $containersLen := len .Containers }}
+	{{ if ge $containersLen 1 }}
+		{{ $container := index .Containers 0 }}
+
+		location /static/ {
+			alias /var/{{ $container.Name }}/static/;
+	        access_log  off;
+	        expires     30d;
+		}
+
+		location /media/ {
+			alias /var/{{ $container.Name }}/media/;
+	        access_log  off;
+	        expires     30d;
+		}
+
+		location /internal/ {
+			internal;
+			alias /var/{{ $container.Name }}/media-private/;
+	        access_log  off;
+	        expires 	30d;
+		}
+	{{ end }}
+{{ end }}
+
 # If we receive X-Forwarded-Proto, pass it through; otherwise, pass along the
 # scheme used to connect to this server
 map $http_x_forwarded_proto $proxy_x_forwarded_proto {
@@ -185,24 +211,7 @@ server {
                 {{ end }}
 	}
 
-	location /static/ {
-		alias /var/{{ .Container.Name }}/static/;
-        access_log  off;
-        expires     30d;
-	}
-
-	location /media/ {
-		alias /var/{{ .Container.Name }}/media/;
-        access_log  off;
-        expires     30d;
-	}
-
-	location /internal/ {
-		internal;
-		alias /var/{{ .Container.Name }}/media-private/;
-        access_log  off;
-        expires 	30d;
-	}
+	{{ template "routes" (dict "Containers" $containers) }}
 }
 
 {{ end }}
@@ -238,24 +247,7 @@ server {
                 {{ end }}
 	}
 
-	location /static/ {
-		alias /var/{{ $host }}/static/;
-        access_log  off;
-        expires     30d;
-	}
-
-	location /media/ {
-		alias /var/{{ $host }}/media/;
-        access_log  off;
-        expires     30d;
-	}
-
-	location /internal/ {
-		internal;
-		alias /var/{{ $host }}/media-private/;
-        access_log  off;
-        expires 	30d;
-	}
+	{{ template "routes" (dict "Containers" $containers) }}
 }
 
 {{ if (and (not $is_https) (exists "/etc/nginx/certs/default.crt") (exists "/etc/nginx/certs/default.key")) }}
