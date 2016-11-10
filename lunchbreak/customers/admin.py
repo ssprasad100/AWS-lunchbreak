@@ -18,7 +18,7 @@ class PaymentLinkInline(admin.TabularInline):
 class UserAdmin(admin.ModelAdmin):
     list_display = ('name', 'phone', 'email',)
     inlines = (PaymentLinkInline,)
-    search_fields = ('name', 'phone', 'email',)
+    search_fields = ('name', 'phone__phone', 'email',)
     list_filter = ('enabled',)
 
 
