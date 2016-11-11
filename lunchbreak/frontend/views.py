@@ -43,8 +43,7 @@ class SearchView(SearchForm.ViewMixin, TemplateView):
                 stores_nearby = Store.objects.nearby(
                     latitude=search_form.latitude,
                     longitude=search_form.longitude,
-                    proximity=10,
-                    enabled=True
+                    proximity=10
                 )
 
                 stores += list(stores_nearby)
