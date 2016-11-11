@@ -1,6 +1,6 @@
-<div class="ingredientgroups flexcolumn-container">
+<div class="ingredientgroups">
     {% for ingredientgroup in food.ingredientgroups %}
-    <div class="ingredientgroup flexcolumn">
+    <div class="ingredientgroup">
         <h4>{{ ingredientgroup.name }}</h4>
         <div class="ingredients">
             {% for ingredient in ingredientgroup.ingredients %}

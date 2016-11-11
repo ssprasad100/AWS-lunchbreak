@@ -493,8 +493,9 @@
             if (this.element.hasClass('expanded'))  {
                 this.element.removeClass('expanded');
                 this.reset();
-            } else
+            } else {
                 this.element.addClass('expanded');
+            }
         };
 
         /**
@@ -590,6 +591,17 @@
                         }
                     )
                 );
+
+                var ingredientgroupsElement = this.element.find('.ingredientgroups');
+
+                ingredientgroupsElement.find('table, thead, tbody, tfoot, colgroup, caption, label, legend, script, style, textarea, button, object, embed, tr, th, td, li, h1, h2, h3, h4, h5, h6, form, .ingredientgroup').addClass('dontsplit');
+                ingredientgroupsElement.find('h1, h2, h3, h4, h5, h6').addClass('dontend');
+                ingredientgroupsElement.find('br').addClass('removeiflast').addClass('removeiffirst');
+                ingredientgroupsElement.columnize({
+                    'columns': 2,
+                    'buildOnce': false,
+                    'lastNeverTallest': true
+                });
 
                 var self = this;
                 this.element.find('.ingredientgroups .ingredientgroup').each(function(index) {
@@ -1077,7 +1089,6 @@
                             }
                         }
                     }
-                    Inventory.showSnackbar(validation.errorMessage);
                 } else {
                     Inventory.showSnackbar(validation.errorMessage);
                     this.deselect();
