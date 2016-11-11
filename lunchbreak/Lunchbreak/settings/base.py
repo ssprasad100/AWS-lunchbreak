@@ -75,6 +75,8 @@ SUBDOMAIN_URLCONFS = {
 }
 SUBDOMAIN_DEFAULT = 'www'
 
+JINJA2_MUTE_URLRESOLVE_EXCEPTIONS = True
+
 WSGI_APPLICATION = 'Lunchbreak.wsgi.application'
 
 AUTH_USER_MODEL = 'customers.User'
