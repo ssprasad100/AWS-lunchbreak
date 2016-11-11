@@ -27,3 +27,12 @@
         }
     }
 }
+
+@media (max-width: $page-width) {
+    #tutorial {
+        li {
+            display: block;
+            width: 100%;
+        }
+    }
+}

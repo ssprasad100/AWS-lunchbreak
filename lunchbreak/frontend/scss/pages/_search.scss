@@ -94,3 +94,11 @@
         }
     }
 }
+
+@media (max-width: $page-width) {
+    #search-results {
+        .search-result {
+            width: 100%;
+        }
+    }
+}

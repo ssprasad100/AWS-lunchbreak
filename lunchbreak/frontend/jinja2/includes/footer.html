@@ -1,86 +1,88 @@
 <footer id="footer" class="block">
     <div class="container">
-        <ul class="footer-item">
-            <li>
-                <h4>Plaatsen</h4>
-            </li>
-            <a href="{{ url_query('frontend-search', address='Gent') }}">
+        <div>
+            <ul class="footer-item">
                 <li>
-                    Gent
+                    <h4>Plaatsen</h4>
                 </li>
-            </a>
-            <a href="{{ url_query('frontend-search', address='Mechelen') }}">
+                <a href="{{ url_query('frontend-search', address='Gent') }}">
+                    <li>
+                        Gent
+                    </li>
+                </a>
+                <a href="{{ url_query('frontend-search', address='Mechelen') }}">
+                    <li>
+                        Mechelen
+                    </li>
+                </a>
+                <a href="{{ url_query('frontend-search', address='Wetteren') }}">
+                    <li>
+                        Wetteren
+                    </li>
+                </a>
+                <a href="{{ url_query('frontend-search', address='Antwerpen') }}">
+                    <li>
+                        Antwerpen
+                    </li>
+                </a>
+                <a href="{{ url_query('frontend-search', address='Brussel') }}">
+                    <li>
+                        Brussel
+                    </li>
+                </a>
+            </ul>
+            <ul class="footer-item">
                 <li>
-                    Mechelen
+                    <h4>Lunchbreak</h4>
                 </li>
-            </a>
-            <a href="{{ url_query('frontend-search', address='Wetteren') }}">
-                <li>
-                    Wetteren
-                </li>
-            </a>
-            <a href="{{ url_query('frontend-search', address='Antwerpen') }}">
-                <li>
-                    Antwerpen
-                </li>
-            </a>
-            <a href="{{ url_query('frontend-search', address='Brussel') }}">
-                <li>
-                    Brussel
-                </li>
-            </a>
-        </ul>
-        <ul class="footer-item">
-            <li>
-                <h4>Lunchbreak</h4>
-            </li>
-            <a href="mailto:hello@cloock.be">
-                <li>
-                    Voeg je zaak toe
-                </li>
-            </a>
-            <a href="{{ url('frontend-terms') }}">
-                <li>
-                    Privacybeleid
-                </li>
-            </a>
-            <a href="{{ url('frontend-terms') }}">
-                <li>
-                    Algemene voorwaarden
-                </li>
-            </a>
-            <a href="mailto:hello@cloock.be">
-                <li>
-                    Contact
-                </li>
-            </a>
-        </ul>
+                <a href="mailto:hello@cloock.be">
+                    <li>
+                        Voeg je zaak toe
+                    </li>
+                </a>
+                <a href="{{ url('frontend-terms') }}">
+                    <li>
+                        Privacybeleid
+                    </li>
+                </a>
+                <a href="{{ url('frontend-terms') }}">
+                    <li>
+                        Algemene voorwaarden
+                    </li>
+                </a>
+                <a href="mailto:hello@cloock.be">
+                    <li>
+                        Contact
+                    </li>
+                </a>
+            </ul>
 
-        <div class="footer-center">
-            <h3>Interesse als zaak?</h3>
-            <a class="button transparent" href="mailto:hello@cloock.be" alt="Zaak toevoegen aan Lunchbreak">
-                Zaak toevoegen aan Lunchbreak
-            </a>
+            <div class="footer-center">
+                <h3>Interesse als zaak?</h3>
+                <a class="button transparent" href="mailto:hello@cloock.be" alt="Zaak toevoegen aan Lunchbreak">
+                    Zaak toevoegen aan Lunchbreak
+                </a>
+            </div>
+            <ul class="footer-item">
+                <li>
+                    <h4>Apps</h4>
+                </li>
+                <a href="https://itunes.apple.com/app/id949238693">
+                    <li>
+                        <img src="{{ static('badges/app-store.png') }}" alt="Download Lunchbreak op App Store."/>
+                    </li>
+                </a>
+            </ul>
+            <ul class="footer-item">
+                <li>
+                    <h4>&nbsp;</h4>
+                </li>
+                <a href="https://play.google.com/store/apps/details?id=be.lunchbreakapp.lunchbreak">
+                    <li>
+                        <img src="{{ static('badges/google-play.png') }}" alt="Download Lunchbreak op Google Play."/>
+                    </li>
+                </a>
+            </ul>
         </div>
-        <ul class="footer-item">
-            <li>
-                <h4>Apps</h4>
-            </li>
-            <a href="https://itunes.apple.com/app/id949238693">
-                <li>
-                    <img src="{{ static('badges/app-store.png') }}" alt="Download Lunchbreak op App Store."/>
-                </li>
-            </a>
-        </ul>
-        <ul class="footer-item">
-            <li>
-                <h4>&nbsp;</h4>
-            </li>
-            <a href="https://play.google.com/store/apps/details?id=be.lunchbreakapp.lunchbreak">
-                <li>
-                    <img src="{{ static('badges/google-play.png') }}" alt="Download Lunchbreak op Google Play."/>
-                </li>
-            </a>
-        </ul>
     </div>
 </footer>

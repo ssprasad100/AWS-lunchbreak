@@ -3,32 +3,68 @@
     position: relative;
 
     .container {
-        display: table;
-        table-layout: fixed;
+        div {
+            display: table;
+            table-layout: fixed;
+            width: 100%;
 
-        .footer-center {
-            display: table-cell;
-            width: 33%;
-            height: 100%;
-            text-align: center;
+            .footer-center {
+                display: table-cell;
+                width: 33%;
+                height: 100%;
+                text-align: center;
 
-            .button {
-                display: block;
-                margin: 0 32px;
+                .button {
+                    margin: 0 32px;
+                    height: auto;
+                }
+            }
+
+            .footer-item {
+                display: table-cell;
+                width: auto;
+
+                li {
+                    font-size: $size-small;
+                    font-weight: $weight-normal;
+                    line-height: 1.5em;
+
+                    img {
+                        width: 135px;
+                    }
+                }
             }
         }
+    }
+}
 
-        .footer-item {
-            display: table-cell;
-            width: auto;
+@media (max-width: $page-width) {
+    #footer {
+        .container {
+            div {
+                display: block;
+                width: 100%;
+                text-align: center;
 
-            li {
-                font-size: $size-small;
-                font-weight: $weight-normal;
-                line-height: 1.5em;
+                .footer-center {
+                    display: block;
+                    width: 100%;
+                }
 
-                img {
-                    width: 135px;
+                .footer-item {
+                    display: block;
+                    width: 100%;
+
+                    li {
+                        display: block;
+                        width: 100%;
+                    }
+
+                    &:last-of-type {
+                        > li:first-child {
+                            display: none;
+                        }
+                    }
                 }
             }
         }

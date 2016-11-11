@@ -3,9 +3,9 @@
     position: relative;
     box-sizing: border-box;
     padding: $container-padding;
-    left: 50%;
+    //left: 50%;
     width: $page-width;
-    margin-left: -($page-width / 2);
+    //margin-left: -($page-width / 2);
 
     &.center-titles {
         h1, h2, h3, h4 {
@@ -14,15 +14,36 @@
     }
 
     &.small {
-        $page-width-small: 680px;
+        max-width: $page-width-small;
+        //margin-left: -($page-width-small / 2);
+        padding: ($container-padding * 2);
+    }
 
-        width: $page-width-small;
-        margin-left: -($page-width-small / 2);
-        padding: ($container-padding * 2) 0;
+    &.center {
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 
     .bottom {
         position: absolute;
         bottom: 0;
+    }
+}
+
+@media (max-width: $page-width) {
+    .container {
+        left: 0;
+        width: 100%;
+        margin-left: 0;
+    }
+}
+
+@media (max-width: $page-width-small) {
+    .container {
+        &.small {
+            width: 100%;
+            margin-left: 0;
+        }
     }
 }

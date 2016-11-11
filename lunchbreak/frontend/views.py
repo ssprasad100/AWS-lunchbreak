@@ -79,13 +79,14 @@ class StoreView(TemplateView):
 
     def get_context_data(self, pk, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['store'] = Store.objects.select_related(
-            'header',
-        ).prefetch_related(
-            'categories',
-            'regions',
-            'menus__food',
-        ).get(
+        context['store'] = get_object_or_404(
+            Store.objects.select_related(
+                'header',
+            ).prefetch_related(
+                'categories',
+                'regions',
+                'menus__food',
+            ),
             pk=pk,
             enabled=True
         )

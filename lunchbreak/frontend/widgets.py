@@ -17,8 +17,6 @@ class ReceiptField(widgets.Widget):
         self.store = store
 
     def render(self, name, value, attrs=None):
-        if value is not None:
-            value = value.in_timezone(self.store.timezone)
         return mark_safe(
             render_to_string(
                 template_name='widgets/receipt_field.html',
@@ -38,11 +36,10 @@ class ReceiptField(widgets.Widget):
                 data.get(name + self.name_time),
                 '%H:%M'
             ).time()
-            pend = Period.weekday_as_datetime(
+            return Period.weekday_as_datetime(
                 weekday=int(data.get(name + self.name_weekday)),
                 time=time,
                 store=self.store
-            )
-            return pend
+            )._datetime
         except TypeError:
             return None

@@ -6,12 +6,11 @@
     font-weight: $weight-light;
     line-height: $header-height;
     background: none;
-    box-sizing: content-box;
+    box-sizing: border-box;
     z-index: 2;
 
     .container {
-        box-sizing: content-box;
-        height: $header-height;
+        height: $header-height + ($container-padding);
     }
 
     &.white {

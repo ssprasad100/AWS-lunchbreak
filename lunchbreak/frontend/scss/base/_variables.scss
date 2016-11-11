@@ -18,12 +18,13 @@ $weight-extra-bold: 800;
 $weight-black: 900;
 
 $page-width: 1160px;
+$page-width-small: 680px;
 $container-padding: 16px;
 $header-height: 40px;
-// header height + (top and bottom header padding) + header bottom border + extra padding
-$header-height-total: $header-height + 2 * $container-padding + 1;
+// header height + (top and bottom header padding)
+$header-height-total: $header-height + 2 * $container-padding;
 $banner-height: 500px;
-$banner-height-small: 300px;
+$banner-height-small: 350px;
 
 $size-xlarge: 34pt;
 $size-large: 22pt;

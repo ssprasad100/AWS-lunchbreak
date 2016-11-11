@@ -19,7 +19,7 @@
 </div>
 
 <div id="confirm-block" class="block fullsize">
-    <div id="confirm-box" class="sticky">
+    <div id="confirm-box">
         <h1>Bestelling geplaatst</h1>
         <h5 id="confirm-receipt">{{ order.receipt | date('l d F') | capitalize }} om {{ order.receipt | time('H:i') }}</h5>
         <p id="confirm-address">{{ store.street }} {{ store.number }}, {{ store.postcode }} {{ store.city }}</p>

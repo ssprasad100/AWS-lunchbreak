@@ -1,11 +1,13 @@
 .tab-container {
+    @extend .block;
+
     background: white;
     position: relative;
     border-bottom: 1px solid $grey-light;
 
     &.sticky {
         position: fixed;
-        top: $header-height + (2 * $container-padding);
+        top: $header-height-total - 1;
         width: 100%;
         z-index: 2;
     }

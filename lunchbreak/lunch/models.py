@@ -466,11 +466,11 @@ class Store(AbstractAddress):
 
         result = []
         for openingperiod in openingperiods:
-            result.extend(
-                openingperiod.exclude(
-                    *closingperiods
-                )
+            adjusted_openingperiod = openingperiod.exclude(
+                *closingperiods
             )
+            if adjusted_openingperiod is not None:
+                result.extend(adjusted_openingperiod)
         return result
 
     def delivers_to(self, address):
