@@ -34,7 +34,8 @@ class SearchView(SearchForm.ViewMixin, TemplateView):
 
         if search_form.is_valid():
             stores_byname = Store.objects.filter(
-                name__icontains=search_form.data['address']
+                name__icontains=search_form.data['address'],
+                enabled=True
             )
             stores = list(stores_byname)
 
@@ -42,7 +43,8 @@ class SearchView(SearchForm.ViewMixin, TemplateView):
                 stores_nearby = Store.objects.nearby(
                     latitude=search_form.latitude,
                     longitude=search_form.longitude,
-                    proximity=10
+                    proximity=10,
+                    enabled=True
                 )
 
                 stores += list(stores_nearby)
@@ -61,7 +63,9 @@ class SearchView(SearchForm.ViewMixin, TemplateView):
                     ).replace('.', ',')
 
         if not stores:
-            stores = Store.objects.all().annotate(
+            stores = Store.objects.filter(
+                enabled=True
+            ).annotate(
                 hearts_count=Count('hearts')
             ).order_by(
                 '-hearts_count'
@@ -83,7 +87,8 @@ class StoreView(TemplateView):
             'regions',
             'menus__food',
         ).get(
-            pk=pk
+            pk=pk,
+            enabled=True
         )
         return context
 
@@ -105,7 +110,8 @@ class OrderView(LoginForwardMixin, TemplateView):
         data = self.data
         context['store'] = get_object_or_404(
             Store,
-            pk=kwargs['store_id']
+            pk=kwargs['store_id'],
+            enabled=True
         )
 
         if 'orderedfood' in data:
@@ -263,7 +269,8 @@ class ConfirmView(TemplateView):
 
         try:
             context['store'] = Store.objects.get(
-                id=kwargs['store_id']
+                id=kwargs['store_id'],
+                enabled=True
             )
             context['order'] = Order.objects.get(
                 id=kwargs['order_id']
