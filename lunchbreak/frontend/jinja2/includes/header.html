@@ -10,7 +10,7 @@
                 {% if request is defined and request.user.is_authenticated() %}
                     <li>{{ request.user.name }}</li>
                 {% else %}
-                    <li><a href="/" alt="Inloggen">Inloggen</a></li>
+                    <li><a href="{{ url('frontend-login') }}" alt="Inloggen">Inloggen</a></li>
                 {% endif %}
             </ul>
         </div>
