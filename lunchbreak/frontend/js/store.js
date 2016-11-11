@@ -1076,7 +1076,7 @@
             var wasSelected = this.selected;
             var validation = this.group.validate();
             if (!validation.valid)  {
-                if (this.group.minimum === 1 && this.group.maximum === 1) {
+                if (this.group.maximum === 1) {
                     if (!this.selected) {
                         this.select();
                     } else {
@@ -1267,7 +1267,7 @@
             $('html, body').stop();
             $('html, body').animate({
                 'scrollTop': scrollTop
-            }, scrollTop * 1.25);
+            }, 1000);
         };
 
         this.init();
