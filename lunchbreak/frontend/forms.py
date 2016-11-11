@@ -42,8 +42,9 @@ class UserForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['name'].required = True
+
         for field_name in ['name', 'email']:
-            self.fields[field_name].required = True
             self.fields[field_name].widget.attrs['placeholder'] = self.fields[field_name].label
 
 
