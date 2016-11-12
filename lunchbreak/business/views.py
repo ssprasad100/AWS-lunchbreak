@@ -158,10 +158,6 @@ class FoodViewSet(TargettedViewSet,
     permission_classes = [StoreOwnerPermission]
 
     @property
-    def pagination_class_list(self):
-        return None
-
-    @property
     def queryset(self):
         return Food.objects.filter(
             store=self.request.user.staff.store
