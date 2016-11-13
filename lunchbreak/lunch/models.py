@@ -25,7 +25,7 @@ from polaroid.models import Polaroid
 from private_media.storages import PrivateMediaStorage
 from push_notifications.models import BareDevice
 
-from .config import (CCTLDS, COST_GROUP_ALWAYS, COST_GROUP_CALCULATIONS,
+from .config import (CCTLDS, COST_GROUP_BOTH, COST_GROUP_CALCULATIONS,
                      COUNTRIES, INPUT_AMOUNT, INPUT_TYPES, LANGUAGES, WEEKDAYS)
 from .exceptions import (AddressNotFound, IngredientGroupMaxExceeded,
                          IngredientGroupsMinimumNotMet, InvalidFoodTypeAmount,
@@ -909,7 +909,7 @@ class IngredientGroup(CleanModelMixin, models.Model):
     )
     calculation = models.PositiveIntegerField(
         choices=COST_GROUP_CALCULATIONS,
-        default=COST_GROUP_ALWAYS,
+        default=COST_GROUP_BOTH,
         verbose_name=_('prijsberekening'),
         help_text=_(
             'Manier waarop de prijs moet berekened worden indien '
