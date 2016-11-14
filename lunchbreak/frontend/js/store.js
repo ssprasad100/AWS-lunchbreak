@@ -938,10 +938,6 @@
          * @return {Validation}
          */
         this.validate = function() {
-            var validation = {
-                valid: true,
-                errorMessage: null
-            };
             if (this.minimum === 0 && this.maximum === 0)
                 return Validation();
 
@@ -1072,7 +1068,10 @@
          * Callback when toggling the ingredient checkbox.
          */
         this.onToggle = function(event) {
-            this.selected = this.element.hasClass('is-checked');
+            if (this.selected)
+                this.deselect();
+            else
+                this.select();
             var wasSelected = this.selected;
             var validation = this.group.validate();
             if (!validation.valid)  {
