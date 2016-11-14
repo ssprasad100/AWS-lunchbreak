@@ -92,7 +92,7 @@ class PasswordResetView(generics.CreateAPIView):
         except model.DoesNotExist:
             return InvalidPasswordReset().response
 
-        m.password_reset = None
+        m.password_reset = ''
         m.set_password(request.data['password'])
         m.save()
 
