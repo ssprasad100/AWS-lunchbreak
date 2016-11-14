@@ -375,6 +375,6 @@ class Deployer:
                     app=OPBEAT_APP_ID,
                     secret_token=OPBEAT_SECRET_TOKEN,
                     revision=revision,
-                    branch=git_branch
+                    branch=git_tag if git_tag else git_commit
                 )
             )
