@@ -17,10 +17,9 @@ from sendfile import sendfile
 
 from .authentication import CustomerAuthentication
 from .config import DEMO_PHONE
-from .models import (Heart, Order, OrderedFood, PaymentLink, Reservation, User,
-                     UserToken)
-from .serializers import (GroupSerializer, InviteSerializer,
-                          InviteUpdateSerializer, OrderDetailSerializer,
+from .models import (Group, Heart, Order, OrderedFood, PaymentLink,
+                     Reservation, User, UserToken)
+from .serializers import (GroupSerializer, OrderDetailSerializer,
                           OrderedFoodPriceSerializer, OrderSerializer,
                           PaymentLinkSerializer, ReservationSerializer,
                           StoreHeartSerializer, UserLoginSerializer,
@@ -357,6 +356,19 @@ class StoreMenuViewSet(TargettedViewSet,
         )
 
 
+class StoreGroupViewSet(viewsets.GenericViewSet,
+                        NestedViewSetMixin,
+                        mixins.ListModelMixin,
+                        mixins.RetrieveModelMixin):
+
+    serializer_class = GroupSerializer
+
+    def get_queryset(self):
+        return Group.objects.filter(
+            store_id=self.kwargs['parent_lookup_pk']
+        )
+
+
 class ReservationSingleView(generics.RetrieveUpdateAPIView):
 
     authentication_classes = (CustomerAuthentication,)
@@ -473,33 +485,6 @@ class UserViewSet(viewsets.GenericViewSet):
             return Response(
                 status=status.HTTP_200_OK
             )
-
-
-class GroupView(generics.ListCreateAPIView):
-
-    authentication_classes = (CustomerAuthentication,)
-    serializer_class = GroupSerializer
-    authenticated_user = 'leader'
-
-    def get_queryset(self):
-        return self.request.user.group_set.all()
-
-
-class InviteView(object):
-
-    authentication_classes = (CustomerAuthentication,)
-    serializer_class = InviteSerializer
-
-    def get_queryset(self):
-        return self.request.user.invite_set.all()
-
-
-class InviteMultiView(InviteView, generics.ListCreateAPIView):
-    pass
-
-
-class InviteSingleView(InviteView, generics.UpdateAPIView):
-    serializer_class = InviteUpdateSerializer
 
 
 class ReservationMultiView(generics.ListCreateAPIView):

@@ -2,7 +2,8 @@ import arrow
 from customers.config import (ORDER_STATUS_COMPLETED, ORDER_STATUS_PLACED,
                               ORDER_STATUS_RECEIVED, ORDER_STATUS_STARTED,
                               ORDER_STATUS_WAITING)
-from customers.models import Order, Reservation
+from customers.models import Group, Order, Reservation
+from customers.serializers import GroupSerializer
 from django.core.validators import validate_email
 from django.db.models import Count
 from django.http import Http404
@@ -20,6 +21,7 @@ from rest_framework import generics, mixins, status, viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.exceptions import MethodNotAllowed
 from rest_framework.response import Response
+from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from .authentication import EmployeeAuthentication, StaffAuthentication
 from .exceptions import InvalidDatetime, InvalidEmail, InvalidPasswordReset
@@ -482,3 +484,19 @@ class StaffDetailView(generics.RetrieveAPIView):
 
 class StoreCategoryView(StoreCategoryListViewBase):
     authentication_classes = (EmployeeAuthentication,)
+
+
+class StoreGroupViewSet(TargettedViewSet,
+                        NestedViewSetMixin,
+                        mixins.ListModelMixin,
+                        mixins.CreateModelMixin,
+                        mixins.RetrieveModelMixin,
+                        mixins.UpdateModelMixin,
+                        mixins.DestroyModelMixin):
+    authentication_classes = (EmployeeAuthentication,)
+    serializer_class = GroupSerializer
+
+    def get_queryset(self):
+        return Group.objects.filter(
+            store_id=self.kwargs['parent_lookup_pk']
+        )

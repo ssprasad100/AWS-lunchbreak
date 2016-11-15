@@ -135,7 +135,7 @@ class Employee(AbstractPassword, NotifyModelMixin):
 
     class Meta:
         verbose_name = _('werknemer')
-        verbose_name_plural = _('weknemers')
+        verbose_name_plural = _('werknemers')
 
     def __str__(self):
         return self.name

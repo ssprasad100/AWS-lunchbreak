@@ -2,14 +2,15 @@ from django_gocardless.serializers import RedirectFlowSerializer
 from django_sms.models import Phone
 from lunch import serializers as lunch_serializers
 from lunch.models import Store
-from Lunchbreak.serializers import PrimaryModelSerializer
+from Lunchbreak.serializers import (PrimaryModelSerializer,
+                                    RequestAttributeDefault)
 from phonenumber_field.validators import validate_international_phonenumber
 from rest_framework import serializers
 
 from .config import (PAYMENTLINK_COMPLETION_REDIRECT_URL,
                      RESERVATION_STATUS_PLACED, RESERVATION_STATUS_USER)
-from .models import (Address, Group, Invite, Membership, Order, OrderedFood,
-                     PaymentLink, Reservation, User, UserToken)
+from .models import (Address, Group, Order, OrderedFood, PaymentLink,
+                     Reservation, User, UserToken)
 
 
 class StoreHeartSerializer(lunch_serializers.StoreDetailSerializer):
@@ -298,100 +299,6 @@ class UserSerializer(serializers.ModelSerializer):
         )
 
 
-class MembershipSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
-
-    class Meta:
-        model = Membership
-        fields = (
-            'id',
-            'leader',
-            'user',
-        )
-
-
-class GroupSerializer(serializers.ModelSerializer):
-    memberships = MembershipSerializer(
-        source='membership_set',
-        many=True,
-        read_only=True
-    )
-    user = serializers.HiddenField(
-        default=serializers.CreateOnlyDefault(serializers.CurrentUserDefault())
-    )
-
-    class Meta:
-        model = Group
-        fields = (
-            'id',
-            'name',
-            'billing',
-            'memberships',
-            'user',
-        )
-        read_only_fields = (
-            'memberships',
-        )
-        write_only_fields = (
-            'user',
-        )
-
-    def create(self, validated_data):
-        values = {
-            'name': validated_data['name'],
-            'user': validated_data['user']
-        }
-        if 'billing' in validated_data:
-            values['billing'] = validated_data['billing']
-
-        return Group.create(
-            **values
-        )
-
-
-class GroupInviteSerializer(PrimaryModelSerializer):
-
-    class Meta:
-        model = Group
-        fields = (
-            'id',
-            'name',
-        )
-
-
-class InviteSerializer(serializers.ModelSerializer):
-    group = GroupInviteSerializer(
-        queryset=Group.objects.all()
-    )
-    invited_by = UserSerializer(
-        read_only=True,
-        default=serializers.CreateOnlyDefault(serializers.CurrentUserDefault())
-    )
-
-    class Meta:
-        model = Invite
-        fields = (
-            'id',
-            'group',
-            'user',
-            'invited_by',
-            'status',
-        )
-        read_only_fields = (
-            'invited_by',
-            'status',
-        )
-
-
-class InviteUpdateSerializer(InviteSerializer):
-
-    class Meta:
-        model = Invite
-        fields = (
-            'status',
-        )
-
-
 class UserDetailSerializer(serializers.ModelSerializer):
     pin = serializers.CharField(
         required=False,
@@ -490,4 +397,31 @@ class PaymentLinkSerializer(serializers.ModelSerializer):
             store=self.context['store'],
             instance=instance,
             completion_redirect_url=PAYMENTLINK_COMPLETION_REDIRECT_URL
+        )
+
+
+class GroupSerializer(serializers.ModelSerializer):
+    store = serializers.PrimaryKeyRelatedField(
+        read_only=True,
+        default=serializers.CreateOnlyDefault(
+            RequestAttributeDefault(
+                attribute='user.staff.store'
+            )
+        )
+    )
+
+    class Meta:
+        model = Group
+        fields = (
+            'id',
+            'name',
+            'store',
+            'email',
+            'deadline',
+            'delay',
+            'discount',
+        )
+        read_only_fields = (
+            'id',
+            'store',
         )

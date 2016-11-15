@@ -63,6 +63,18 @@ router_extended.register(
         'pk'
     ]
 )
+router_extended.register(
+    r'store',
+    views.StoreViewSet,
+    base_name='customers-store'
+).register(
+    r'groups',
+    views.StoreGroupViewSet,
+    base_name='customers-store-groups',
+    parents_query_lookups=[
+        'pk'
+    ]
+)
 
 urlpatterns = patterns(
     '',

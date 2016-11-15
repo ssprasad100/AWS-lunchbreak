@@ -89,6 +89,18 @@ router_extended.register(
         'pk'
     ]
 )
+router_extended.register(
+    r'store',
+    views.StoreViewSet,
+    base_name='customers-store'
+).register(
+    r'groups',
+    views.StoreGroupViewSet,
+    base_name='customers-store-groups',
+    parents_query_lookups=[
+        'pk'
+    ]
+)
 
 urlpatterns = patterns(
     '',
@@ -105,20 +117,6 @@ urlpatterns = patterns(
     url(
         r'^menu/(?P<pk>\d+)/?$',
         views.MenuRetrieveView.as_view()
-    ),
-
-    url(
-        r'^group/?$',
-        views.GroupView.as_view()
-    ),
-
-    url(
-        r'^invite/?$',
-        views.InviteMultiView.as_view()
-    ),
-    url(
-        r'^invite/(?P<pk>\d+)/?$',
-        views.InviteSingleView.as_view()
     ),
 
     url(

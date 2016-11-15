@@ -1,3 +1,4 @@
+import datetime
 import math
 from decimal import Decimal
 
@@ -9,7 +10,7 @@ from django.contrib.auth.models import PermissionsMixin
 from django.contrib.contenttypes.fields import (GenericForeignKey,
                                                 GenericRelation)
 from django.contrib.contenttypes.models import ContentType
-from django.core.validators import MinValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models.signals import post_delete
 from django.shortcuts import get_object_or_404
@@ -34,19 +35,15 @@ from push_notifications.models import SERVICE_INACTIVE
 from rest_framework import status
 from rest_framework.response import Response
 
-from .config import (GROUP_BILLING_SEPARATE, GROUP_BILLINGS,
-                     INVITE_STATUS_ACCEPTED, INVITE_STATUS_WAITING,
-                     INVITE_STATUSES, ORDER_STATUS_COMPLETED,
-                     ORDER_STATUS_PLACED, ORDER_STATUS_SIGNALS, ORDER_STATUSES,
+from .config import (ORDER_STATUS_COMPLETED, ORDER_STATUS_PLACED,
+                     ORDER_STATUS_SIGNALS, ORDER_STATUSES,
                      ORDER_STATUSES_ACTIVE, ORDER_STATUSES_ENDED,
                      PAYMENT_METHOD_CASH, PAYMENT_METHOD_GOCARDLESS,
                      PAYMENT_METHODS, RESERVATION_STATUS_DENIED,
                      RESERVATION_STATUS_PLACED, RESERVATION_STATUSES)
-from .exceptions import (AlreadyMembership, CostCheckFailed,
-                         InvalidStatusChange, MaxSeatsExceeded,
-                         MinDaysExceeded, NoInvitePermissions, NoPaymentLink,
-                         OnlinePaymentDisabled, PaymentLinkNotConfirmed,
-                         UserDisabled)
+from .exceptions import (CostCheckFailed, MaxSeatsExceeded, MinDaysExceeded,
+                         NoPaymentLink, OnlinePaymentDisabled,
+                         PaymentLinkNotConfirmed, UserDisabled)
 from .managers import OrderedFoodManager, OrderManager, UserManager
 
 
@@ -321,168 +318,47 @@ class PaymentLink(models.Model):
         )
 
 
-class Invite(models.Model, DirtyFieldsMixin):
-    group = models.ForeignKey(
-        'Group',
-        on_delete=models.CASCADE,
-        verbose_name=_('groep'),
-        help_text=_('Groep.')
-    )
-    user = models.ForeignKey(
-        'User',
-        on_delete=models.CASCADE,
-        verbose_name=_('gebruiker'),
-        help_text=_('Gebruiker.')
-    )
-    invited_by = models.ForeignKey(
-        'User',
-        on_delete=models.CASCADE,
-        related_name='sent_invites',
-        verbose_name=_('uitgenodigd door'),
-        help_text=_('Gebruiker die de uitnodiging heeft verstuurd.')
-    )
-    membership = models.ForeignKey(
-        'Membership',
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True,
-        verbose_name=_('lidmaatschap'),
-        help_text=_('Lidmaatschap.')
-    )
-    status = models.IntegerField(
-        default=INVITE_STATUS_WAITING,
-        choices=INVITE_STATUSES,
-        verbose_name=_('status'),
-        help_text=_('Status.')
-    )
-
-    class Meta:
-        unique_together = ('group', 'user',)
-        verbose_name = _('uitnodiging')
-        verbose_name_plural = _('uitnodigingen')
-
-    def save(self, *args, **kwargs):
-        dirty_fields = self.get_dirty_fields()
-        changed_invited_group = 'invited_by' in dirty_fields or 'group' in dirty_fields
-
-        if self.pk is None or changed_invited_group:
-            leadership = Membership.objects.filter(
-                user=self.invited_by,
-                group=self.group,
-                leader=True
-            )
-            if not leadership.exists():
-                raise NoInvitePermissions()
-
-        if self.pk is None or 'user' in dirty_fields:
-            membership = Membership.objects.filter(
-                user=self.user,
-                group=self.group
-            )
-            if membership.exists():
-                raise AlreadyMembership()
-
-        if 'status' in dirty_fields:
-            status_dirty = dirty_fields['status']
-
-            if status_dirty != INVITE_STATUS_WAITING:
-                raise InvalidStatusChange()
-
-            if self.status == INVITE_STATUS_ACCEPTED:
-                self.membership = Membership.objects.create(
-                    group=self.group,
-                    user=self.user
-                )
-
-        super(Invite, self).save(*args, **kwargs)
-
-    def delete(self, *args, **kwargs):
-        if self.status != INVITE_STATUS_ACCEPTED:
-            super(Invite, self).delete(*args, **kwargs)
-
-    def __str__(self):
-        return '{user} -> {group}, {status}'.format(
-            user=self.user,
-            group=self.group,
-            status=self.get_status_display()
-        )
-
-
 class Group(models.Model):
     name = models.CharField(
         max_length=255,
         verbose_name=_('naam'),
         help_text=_('Naam.')
     )
-    billing = models.IntegerField(
-        default=GROUP_BILLING_SEPARATE,
-        choices=GROUP_BILLINGS,
-        verbose_name=_('betalingswijze'),
-        help_text=_('Wijze van betaling.')
+    store = models.ForeignKey(
+        Store,
+        related_name='groups',
+        verbose_name=_('winkel'),
+        help_text=_('Winkel verbonden met deze groep.'),
     )
-    users = models.ManyToManyField(
-        User,
-        through='Membership',
-        through_fields=('group', 'user',),
-        verbose_name=_('leden'),
-        help_text=_('Leden.')
+    email = models.EmailField(
+        verbose_name=_('e-mailadres'),
+        help_text=_('E-mailadres gebruikt voor informatie naartoe te sturen.')
     )
 
-    @classmethod
-    def create(cls, name, user, billing=None):
-        group = cls.objects.create(
-            name=name
-        )
-        if billing is not None:
-            group.billing = billing
-        group.save()
-        Membership.objects.create(
-            user=user,
-            group=group,
-            leader=True
-        )
-
-        return group
+    deadline = models.TimeField(
+        default=datetime.time(hour=12),
+        verbose_name=_('deadline bestelling'),
+        help_text=('Deadline voor het plaatsen van bestellingen elke dag.')
+    )
+    delay = models.DurationField(
+        default=datetime.timedelta(minutes=30),
+        verbose_name=_('geschatte vertraging'),
+        help_text=_('Geschatte vertraging na plaatsen bestelling.')
+    )
+    discount = RoundingDecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=0,
+        validators=[
+            MinValueValidator(0),
+            MaxValueValidator(100)
+        ],
+        verbose_name=_('korting'),
+        help_text=_('Korting bij het plaatsen van een bestelling.')
+    )
 
     def __str__(self):
         return self.name
-
-
-class Membership(models.Model):
-    group = models.ForeignKey(
-        Group,
-        on_delete=models.CASCADE,
-        related_name='memberships',
-        verbose_name=_('groep'),
-        help_text=_('Groep.')
-    )
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='memberships',
-        verbose_name=_('gebruiker'),
-        help_text=_('Gebruiker.')
-    )
-
-    # TODO: Check whether it's the only leader
-    # Perhaps by adding a unique_together:
-    # ['group', 'leader']
-    leader = models.BooleanField(
-        default=False,
-        verbose_name=_('leider'),
-        help_text=_('Of dit de leider van de groep is.')
-    )
-
-    class Meta:
-        unique_together = ['group', 'user']
-        verbose_name = _('lidmaatschap')
-        verbose_name_plural = _('lidmaatschappen')
-
-    def __str__(self):
-        return '{group}: {user}'.format(
-            group=self.group,
-            user=self.user
-        )
 
 
 class Heart(models.Model):
@@ -728,6 +604,15 @@ class Order(AbstractOrder, DirtyFieldsMixin):
         verbose_name=_('bestelde etenswaren'),
         help_text=_('Bestelde etenswaren.')
     )
+    group = models.ForeignKey(
+        Group,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='orders',
+        verbose_name=_('groep'),
+        help_text=_('Group waartoe bestelling behoort.')
+    )
 
     @cached_property
     def get_placed_display(self):
@@ -814,6 +699,14 @@ class Order(AbstractOrder, DirtyFieldsMixin):
 
     def clean_delivery_address(self):
         if self.delivery_address is not None:
+            if self.group is not None:
+                raise LunchbreakException(
+                    _(
+                        'Er kan geen leveringsadres gegeven worden als een '
+                        'bestelling op een groep is geplaatst.'
+                    )
+                )
+
             is_user_address = self.user.address_set.filter(
                 id=self.delivery_address.id
             ).exists()
@@ -827,6 +720,11 @@ class Order(AbstractOrder, DirtyFieldsMixin):
     def clean_receipt(self):
         # TODO: Check whether the store can accept an order if it is
         # for delivery and needs to be delivered asap (receipt=None).
+
+        if self.group is not None and self.receipt is not None:
+            raise LunchbreakException(
+                _('Een bestelling kan geen afgave tijd hebben als die gelinkt is aan een groep.')
+            )
 
         if self.delivery_address is None:
             if self.receipt is None:
@@ -864,6 +762,13 @@ class Order(AbstractOrder, DirtyFieldsMixin):
                         'Er liep iets fout bij de online betaling. Gelieve '
                         'contant te betalen bij het ophalen.'
                     )
+                )
+
+    def clean_group(self):
+        if self.group is not None:
+            if self.group.store != self.store:
+                raise LinkingError(
+                    _('De winkel van de groep moet dezelde zijn als die van de bestelling.')
                 )
 
     @classmethod

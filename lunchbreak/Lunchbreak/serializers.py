@@ -23,3 +23,36 @@ class PrimaryModelSerializer(serializers.ModelSerializer):
             self.fail('does_not_exist', pk_value=data)
         except (TypeError, ValueError):
             self.fail('incorrect_type', data_type=type(data).__name__)
+
+
+class RequestAttributeDefault():
+
+    def __init__(self, attribute, raise_exception=True, fallback=None):
+        if not isinstance(attribute, str):
+            raise ValueError('Given attribute needs to be a string.')
+
+        self.attribute = attribute
+        self.raise_exception = raise_exception
+        self.fallback = fallback
+
+    def set_context(self, serializer_field):
+        try:
+            attributes = self.attribute.split('.')
+            self.value = serializer_field.context['request']
+            for attribute in attributes:
+                self.value = getattr(self.value, attribute)
+        except AttributeError:
+            if self.raise_exception:
+                raise
+            self.value = self.fallback
+
+    def __call__(self):
+        return self.value
+
+    def __repr__(self):
+        return '{class_name}({attribute}, {raise_exception}, {fallback})'.format(
+            class_name=self.__class__.__name__,
+            attribute=self.attribute,
+            raise_exception=self.raise_exception,
+            fallback=self.fallback
+        )

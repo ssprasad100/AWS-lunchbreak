@@ -9,9 +9,9 @@ STORE_CLOSED = 704
 MINDAYS_EXCEEDED = 706
 USER_DISABLED = 707
 MAX_SEATS_EXCEEDED = 708
-NO_INVITE_PERMISSIONS = 709
-ALREADY_MEMBERSHIP = 710
-INVALID_STATUS_CHANGE = 711
+# 709 available
+# 710 available
+# 711 available
 ONLINE_PAYMENTS_DISABLED = 712
 NO_PAYMENT_LINK = 713
 PAYMENT_LINK_NOT_CONFIRMED = 714
@@ -58,24 +58,6 @@ class MaxSeatsExceeded(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
     default_code = MAX_SEATS_EXCEEDED
     default_detail = 'De winkel heeft niet zoveel plaatsen beschikbaar.'
-
-
-class NoInvitePermissions(LunchbreakException):
-    status_code = status.HTTP_400_BAD_REQUEST
-    default_code = NO_INVITE_PERMISSIONS
-    default_detail = 'Jij kan geen personen uitnodigen tot de groep.'
-
-
-class AlreadyMembership(LunchbreakException):
-    status_code = status.HTTP_400_BAD_REQUEST
-    default_code = ALREADY_MEMBERSHIP
-    default_detail = 'Gebruiker is al reeds lid van deze groep.'
-
-
-class InvalidStatusChange(LunchbreakException):
-    status_code = status.HTTP_400_BAD_REQUEST
-    default_code = INVALID_STATUS_CHANGE
-    default_detail = 'Foute status aanpassing.'
 
 
 class OnlinePaymentDisabled(LunchbreakException):

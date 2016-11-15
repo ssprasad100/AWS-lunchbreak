@@ -4,9 +4,8 @@ from django.utils.translation import ugettext as _
 from lunch.admin import BaseTokenAdmin
 from Lunchbreak.utils import format_decimal
 
-from .models import (Address, Group, Heart, Invite, Membership, Order,
-                     OrderedFood, PaymentLink, Reservation, TemporaryOrder,
-                     User, UserToken)
+from .models import (Address, Group, Heart, Order, OrderedFood, PaymentLink,
+                     Reservation, TemporaryOrder, User, UserToken)
 
 
 class PaymentLinkInline(admin.TabularInline):
@@ -50,30 +49,11 @@ class PaymentLinkAdmin(admin.ModelAdmin):
     is_completed.short_description = _('afgerond')
 
 
-@admin.register(Invite)
-class InviteAdmin(admin.ModelAdmin):
-    list_display = ('group', 'user', 'invited_by',)
-    search_fields = ('group__name', 'user__name',)
-    list_filter = ('status',)
-
-
-class MembershipInline(admin.TabularInline):
-    model = Membership
-    extra = 2
-
-
 @admin.register(Group)
 class GroupAdmin(admin.ModelAdmin):
-    list_display = ('name', 'billing',)
-    search_fields = ('name', 'users_name',)
-    inlines = (MembershipInline,)
-
-
-@admin.register(Membership)
-class MembershipAdmin(admin.ModelAdmin):
-    list_display = ('group', 'user', 'leader',)
-    search_fields = ('group__name', 'user__name',)
-    list_filter = ('leader',)
+    list_display = ('name', 'store', 'email',)
+    search_fields = ('name', 'store__name', 'email',)
+    list_filter = ('store',)
 
 
 @admin.register(Heart)
