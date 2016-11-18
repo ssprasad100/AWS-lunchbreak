@@ -83,7 +83,7 @@ class OrderManager(models.Manager):
 
 class OrderedFoodManager(models.Manager):
 
-    def create_for_order(self, original, amount, total, ingredients=None, save=True, **kwargs):
+    def create_for_order(self, original, amount, total, ingredients=None, **kwargs):
         if not isinstance(amount, Decimal):
             amount = Decimal(amount)
 
@@ -139,13 +139,14 @@ class OrderedFoodManager(models.Manager):
                 amount=amount,
                 given_total=total
             )
-            instance = self.model(
+            instance = self.create(
                 amount=amount,
                 original=original,
                 cost=base_cost,
                 is_original=False,
                 **kwargs
             )
+            instance.ingredients = ingredients
         else:
             self.model.check_total(
                 base_cost=original.cost,
@@ -161,7 +162,6 @@ class OrderedFoodManager(models.Manager):
                 **kwargs
             )
 
-        if save:
-            instance.save()
+        instance.save()
 
         return instance

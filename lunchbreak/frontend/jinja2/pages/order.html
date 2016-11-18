@@ -33,22 +33,6 @@
                     {{ forms.render_errors(user_form.email.errors) }}
                 </label>
 
-                {% set memberships = request.user.memberships.select_related(
-                        'group'
-                    ).all()
-                %}
-
-                {% if memberships %}
-                <label>Bestelling plaatsen in een groep
-                    <select name="checkout-group">
-                        <option>Bestelling niet in een groep plaatsen</option>
-                        {% for membership in request.user.memberships.all() %}
-                        <option>{{ membership.group.name }}</option>
-                        {% endfor %}
-                    </select>
-                </label>
-                {% endif %}
-
                 <div class="radio-container">
                     <label>Betaalmethode</label>
                     <div>
