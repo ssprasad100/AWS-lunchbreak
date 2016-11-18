@@ -1,6 +1,5 @@
 from django.conf.urls import patterns, url
-from lunch.views import (StoreHolidayPeriodViewSet, StoreOpeningPeriodViewSet,
-                         StorePeriodsViewSet)
+from lunch import views as lunch_views
 from rest_framework.routers import SimpleRouter
 from rest_framework_extensions.routers import ExtendedSimpleRouter
 
@@ -33,7 +32,7 @@ router_extended.register(
     base_name='customers-store'
 ).register(
     r'openingperiods',
-    StoreOpeningPeriodViewSet,
+    views.StoreOpeningPeriodViewSet,
     base_name='customers-store-openingperiods',
     parents_query_lookups=[
         'pk'
@@ -45,7 +44,7 @@ router_extended.register(
     base_name='customers-store'
 ).register(
     r'holidayperiods',
-    StoreHolidayPeriodViewSet,
+    views.StoreHolidayPeriodViewSet,
     base_name='customers-store-holidayperiods',
     parents_query_lookups=[
         'pk'
@@ -57,7 +56,7 @@ router_extended.register(
     base_name='customers-store'
 ).register(
     r'periods',
-    StorePeriodsViewSet,
+    lunch_views.StorePeriodsViewSet,
     base_name='customers-store-periods',
     parents_query_lookups=[
         'pk'

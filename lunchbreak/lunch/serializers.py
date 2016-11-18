@@ -1,3 +1,4 @@
+from Lunchbreak.serializers import RequestAttributeDefault
 from rest_framework import serializers
 
 from .fields import CurrentUserAttributeDefault
@@ -72,6 +73,14 @@ class StoreDetailSerializer(StoreSerializer):
 
 
 class OpeningPeriodSerializer(serializers.ModelSerializer):
+    store = serializers.HiddenField(
+        write_only=True,
+        default=serializers.CreateOnlyDefault(
+            RequestAttributeDefault(
+                attribute='user.staff.store'
+            )
+        )
+    )
 
     class Meta:
         model = OpeningPeriod
@@ -80,13 +89,25 @@ class OpeningPeriodSerializer(serializers.ModelSerializer):
             'day',
             'time',
             'duration',
+            'store',
         )
         read_only_fields = (
             'id',
         )
+        write_only_fields = (
+            'store',
+        )
 
 
 class HolidayPeriodSerializer(serializers.ModelSerializer):
+    store = serializers.HiddenField(
+        write_only=True,
+        default=serializers.CreateOnlyDefault(
+            RequestAttributeDefault(
+                attribute='user.staff.store'
+            )
+        )
+    )
 
     class Meta:
         model = HolidayPeriod
@@ -96,9 +117,13 @@ class HolidayPeriodSerializer(serializers.ModelSerializer):
             'start',
             'end',
             'closed',
+            'store',
         )
         read_only_fields = (
             'id',
+        )
+        write_only_fields = (
+            'store',
         )
 
 

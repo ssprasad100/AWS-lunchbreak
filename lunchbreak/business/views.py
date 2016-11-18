@@ -10,11 +10,11 @@ from django.http import Http404
 from django.utils import timezone
 from django_gocardless.models import Merchant
 from django_gocardless.serializers import MerchantSerializer
-from lunch.models import (Food, FoodType, Ingredient, IngredientGroup, Menu,
-                          Quantity, Store)
+from lunch import views as lunch_views
+from lunch.models import (Food, FoodType, HolidayPeriod, Ingredient,
+                          IngredientGroup, Menu, Quantity, Store)
 from lunch.serializers import (FoodTypeSerializer, MenuSerializer,
                                QuantityDetailSerializer)
-from lunch.views import StoreCategoryListViewBase
 from Lunchbreak.exceptions import LunchbreakException
 from Lunchbreak.views import TargettedViewSet
 from rest_framework import generics, mixins, status, viewsets
@@ -482,7 +482,7 @@ class StaffDetailView(generics.RetrieveAPIView):
         )
 
 
-class StoreCategoryView(StoreCategoryListViewBase):
+class StoreCategoryView(lunch_views.StoreCategoryListViewBase):
     authentication_classes = (EmployeeAuthentication,)
 
 
@@ -499,4 +499,28 @@ class StoreGroupViewSet(TargettedViewSet,
     def get_queryset(self):
         return Group.objects.filter(
             store_id=self.kwargs['parent_lookup_pk']
+        )
+
+
+class StoreOpeningPeriodViewSet(lunch_views.StoreOpeningPeriodViewSet,
+                                mixins.CreateModelMixin,
+                                mixins.RetrieveModelMixin,
+                                mixins.UpdateModelMixin,
+                                mixins.DestroyModelMixin):
+    authentication_classes = (EmployeeAuthentication,)
+    permission_classes = (StoreOwnerPermission,)
+
+
+class StoreHolidayPeriodViewSet(lunch_views.StoreHolidayPeriodViewSet,
+                                mixins.CreateModelMixin,
+                                mixins.RetrieveModelMixin,
+                                mixins.UpdateModelMixin,
+                                mixins.DestroyModelMixin):
+    authentication_classes = (EmployeeAuthentication,)
+    permission_classes = (StoreOwnerPermission,)
+
+    @classmethod
+    def _get_queryset(cls, parent_pk):
+        return HolidayPeriod.objects.filter(
+            store_id=parent_pk
         )
