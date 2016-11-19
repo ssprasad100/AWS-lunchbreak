@@ -20,6 +20,7 @@ from Lunchbreak.views import TargettedViewSet
 from rest_framework import generics, mixins, status, viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.exceptions import MethodNotAllowed
+from rest_framework.parsers import FileUploadParser
 from rest_framework.response import Response
 from rest_framework_extensions.mixins import NestedViewSetMixin
 
@@ -33,7 +34,8 @@ from .serializers import (EmployeeSerializer, FoodDetailSerializer,
                           OrderDetailSerializer, OrderSerializer,
                           OrderSpreadSerializer, PopularFoodSerializer,
                           ReservationSerializer, StaffSerializer,
-                          StoreDetailSerializer, StoreMerchantSerializer)
+                          StoreDetailSerializer, StoreHeaderSerializer,
+                          StoreMerchantSerializer)
 
 AVAILABLE_STATUSES = [
     ORDER_STATUS_PLACED,
@@ -117,8 +119,17 @@ class StoreViewSet(TargettedViewSet,
                    mixins.UpdateModelMixin):
     authentication_classes = (EmployeeAuthentication,)
     permission_classes = (StoreOwnerPermission,)
+
     serializer_class = StoreDetailSerializer
     serializer_class_merchant = MerchantSerializer
+    serializer_class_header = StoreHeaderSerializer
+
+    @property
+    def parser_classes(self):
+        parser_classes = super().parser_classes
+        parser_classes.append(FileUploadParser)
+        return parser_classes
+
     queryset = Store.objects.all()
 
     @detail_route(methods=['get'], permission_classes=[StoreOwnerOnlyPermission])
@@ -144,6 +155,31 @@ class StoreViewSet(TargettedViewSet,
         return Response(
             StoreMerchantSerializer(url).data
         )
+
+    @detail_route(methods=['get', 'post'])
+    def header(self, request, pk=None):
+        if request.method == 'GET':
+            return lunch_views.StoreHeaderView.as_view()(
+                request=request,
+                store_id=pk
+            )
+        else:
+            self.kwargs['filename'] = 'attachment; filename=storeheader{store_id}.jpg'.format(
+                store_id=pk
+            )
+            request.data['original'] = request.data.pop('file')
+            serializer = self.get_serializer_class()(
+                data=request.data,
+                context={
+                    'request': request
+                }
+            )
+            if serializer.is_valid(raise_exception=True):
+                store = request.user.staff.store
+                if hasattr(store, 'header'):
+                    store.header.delete()
+                serializer.save()
+                return Response(status=status.HTTP_200_OK)
 
 
 class FoodViewSet(TargettedViewSet,

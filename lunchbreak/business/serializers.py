@@ -5,7 +5,8 @@ from lunch import serializers as lunch_serializers
 from lunch.config import TOKEN_IDENTIFIER_LENGTH
 from lunch.fields import CurrentUserAttributeDefault
 from lunch.models import (Food, Ingredient, IngredientGroup,
-                          IngredientRelation, Store)
+                          IngredientRelation, Store, StoreHeader)
+from Lunchbreak.serializers import RequestAttributeDefault
 from rest_framework import serializers
 
 from .models import (AbstractPassword, Employee, EmployeeToken, Staff,
@@ -503,4 +504,25 @@ class ReservationSerializer(serializers.ModelSerializer):
             'placed',
             'reservation_time',
             'comment',
+        )
+
+
+class StoreHeaderSerializer(serializers.ModelSerializer):
+    store = serializers.HiddenField(
+        write_only=True,
+        default=serializers.CreateOnlyDefault(
+            RequestAttributeDefault(
+                attribute='user.staff.store'
+            )
+        )
+    )
+
+    class Meta:
+        model = StoreHeader
+        fields = (
+            'store',
+            'original',
+        )
+        write_only_fields = (
+            'store',
         )

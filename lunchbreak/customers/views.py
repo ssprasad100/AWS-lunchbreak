@@ -11,9 +11,7 @@ from push_notifications.models import SERVICE_INACTIVE
 from rest_framework import filters, generics, mixins, status, viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
-from rest_framework.views import APIView
 from rest_framework_extensions.mixins import NestedViewSetMixin
-from sendfile import sendfile
 
 from .authentication import CustomerAuthentication
 from .config import DEMO_PHONE
@@ -378,20 +376,6 @@ class ReservationSingleView(generics.RetrieveUpdateAPIView):
         return Reservation.objects.filter(
             user=self.request.user
         )
-
-
-class StoreHeaderView(APIView):
-
-    def get(self, request, store_id, width, height):
-        store = get_object_or_404(Store, id=store_id)
-        if store.header is None:
-            raise Http404('That store does not have a header.')
-        image = store.header.retrieve_from_source(
-            'original',
-            int(width),
-            int(height)
-        )
-        return sendfile(request, image.path)
 
 
 class StoreCategoryListView(StoreCategoryListViewBase):

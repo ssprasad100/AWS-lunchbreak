@@ -1,14 +1,17 @@
 import datetime
 
+from django.http import Http404
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from Lunchbreak.views import TargettedViewSet
 from rest_framework import generics, mixins, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_extensions.mixins import NestedViewSetMixin
+from sendfile import sendfile
 
 from .exceptions import UnsupportedAPIVersion
-from .models import HolidayPeriod, OpeningPeriod, StoreCategory
+from .models import HolidayPeriod, OpeningPeriod, Store, StoreCategory
 from .serializers import (HolidayPeriodSerializer, OpeningPeriodSerializer,
                           StoreCategorySerializer)
 
@@ -87,6 +90,28 @@ class StorePeriodsViewSet(TargettedViewSet,
             data=data,
             status=status.HTTP_200_OK
         )
+
+
+class StoreHeaderView(APIView):
+
+    def get(self, request, store_id, width=None, height=None):
+        store = get_object_or_404(Store, id=store_id)
+
+        width = width if width is not None else request.query_params.get('width')
+        height = height if height is not None else request.query_params.get('height')
+
+        if height is None or width is None:
+                raise Http404()
+
+        if not hasattr(store, 'header'):
+            raise Http404('That store does not have a header.')
+
+        image = store.header.retrieve_from_source(
+            'original',
+            int(width),
+            int(height)
+        )
+        return sendfile(request, image.path)
 
 
 class StoreCategoryListViewBase(generics.ListAPIView):

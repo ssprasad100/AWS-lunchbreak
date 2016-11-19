@@ -1,6 +1,7 @@
 from django.conf.urls import patterns, url
-from lunch.views import (StoreHolidayPeriodViewSet, StorePeriodsViewSet,
-                         StoreOpeningPeriodViewSet)
+from lunch import views as lunch_views
+from lunch.views import (StoreHolidayPeriodViewSet, StoreOpeningPeriodViewSet,
+                         StorePeriodsViewSet)
 from rest_framework.routers import SimpleRouter
 from rest_framework_extensions.routers import ExtendedSimpleRouter
 
@@ -132,7 +133,7 @@ urlpatterns = patterns(
 
     url(
         r'^store/(?P<store_id>\d+)/header/(?P<width>\d+)/(?P<height>\d+)/?$',
-        views.StoreHeaderView.as_view(),
+        lunch_views.StoreHeaderView.as_view(),
         name='customers-store-header'
     ),
     url(
