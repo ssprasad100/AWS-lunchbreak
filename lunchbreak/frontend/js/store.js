@@ -1106,30 +1106,7 @@
          * Changes the cost based on the ingredient price, not the group price.
          */
         this.onSelectedChange = function() {
-            if (this.group.calculation == IngredientGroup.Calculations.ADDITIONS) {
-                this.food.fetchCost();
-            } else {
-                this.selected = !this.selected;
-                var groupWasSelected = this.group.isSelected();
-                this.selected = !this.selected;
-                var groupIsSelected = this.group.isSelected();
-
-                if (groupWasSelected != groupIsSelected) {
-                    if (groupIsSelected)
-                        this.food.cost += this.group.cost;
-                    else
-                        this.food.cost -= this.group.cost;
-                }
-
-                if (this.group.calculation == IngredientGroup.Calculations.BOTH) {
-                    if (this.selected)
-                        this.food.cost += this.cost;
-                    else
-                        this.food.cost -= this.cost;
-                }
-
-                this.food.onCostChange();
-            }
+            this.food.fetchCost();
         };
 
         /**

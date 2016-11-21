@@ -239,7 +239,7 @@ class Deployer:
             sudo('systemctl enable docker')
 
             # Docker compose installation
-            sudo('apt-get install python-pip')
+            sudo('apt-get install python-pip -y')
             sudo('pip install --no-input docker-compose')
 
             self._setup_ufw()
