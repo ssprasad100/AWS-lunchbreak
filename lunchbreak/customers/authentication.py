@@ -1,5 +1,6 @@
 from lunch.authentication import TokenAuthentication
 from Lunchbreak.exceptions import LunchbreakException
+from rest_framework.exceptions import AuthenticationFailed
 
 from .exceptions import UserDisabled
 from .models import User, UserToken
@@ -30,7 +31,7 @@ class CustomerBackend(CustomerAuthentication):
                     'user__phone__phone': phone
                 }
             )
-        except LunchbreakException:
+        except (LunchbreakException, AuthenticationFailed):
             return None
         return user
 
