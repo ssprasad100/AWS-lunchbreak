@@ -114,7 +114,7 @@
 
     /**
      * Show a snackbar with a message.
-     * @param  {strign} message The message to be shown.
+     * @param  {string} message The message to be shown.
      */
     Inventory.showSnackbar = function(message) {
         var data = {
@@ -481,8 +481,10 @@
          * Reset the food back to its original content.
          */
         this.reset = function() {
-            if (this.json)
+            if (this.json) {
                 this.update(this.json, true);
+                this.render(true)
+            }
             this.inputField.parent()[0].MaterialTextfield.change(this.getIntegerAmount());
         };
 
@@ -492,9 +494,10 @@
         this.toggle = function() {
             if (this.element.hasClass('expanded'))  {
                 this.element.removeClass('expanded');
-                this.reset();
             } else {
                 this.element.addClass('expanded');
+                if (this.json)
+                    this.reset();
             }
         };
 
@@ -503,14 +506,16 @@
          * Afterwards call `update` and `render` the Food.
          */
         this.fetch = function() {
-            var self = this;
-            $.getJSON(
-                '/api/customers/food/' + this.id + '/',
-                function(json) {
-                    self.update(json);
-                    self.render();
-                }
-            );
+            if (!this.json) {
+                var self = this;
+                $.getJSON(
+                    '/api/customers/food/' + this.id + '/',
+                    function(json) {
+                        self.update(json);
+                        self.render();
+                    }
+                );
+            }
         };
 
         /**
@@ -570,27 +575,29 @@
         /**
          * Render the Food with a template into Food.element.
          */
-        this.render = function() {
-            if (this.rendered)
+        this.render = function(force) {
+            if (this.rendered && !force)
                 return;
 
-            this.element.find('.food-top .food-text').append(
-                nunjucks.render(
+            this.element.find('.food-top .food-text .food-form').remove();
+            if (!this.foodFormRender)
+                this.foodFormRender = nunjucks.render(
                     'food_form.html', {
                         'label': this.foodtype.getLabelDisplay(),
                         'food': this
                     }
-                )
-            );
+                );
+            this.element.find('.food-top .food-text').append(this.foodFormRender);
 
             if (this.hasIngredients) {
-                this.element.append(
-                    nunjucks.render(
+                this.element.find('.ingredientgroups').remove();
+                if(!this.ingredientGroupsRender)
+                    this.ingredientGroupsRender = nunjucks.render(
                         'ingredient_groups.html', {
                             'food': this
                         }
-                    )
-                );
+                    );
+                this.element.append(this.ingredientGroupsRender);
 
                 var ingredientgroupsElement = this.element.find('.ingredientgroups');
 
@@ -608,6 +615,7 @@
                     var ingredientgroup = self.ingredientgroups[index];
                     ingredientgroup.attachElement($(this));
                 });
+
             }
 
             componentHandler.upgradeAllRegistered();
