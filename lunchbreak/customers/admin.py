@@ -5,7 +5,7 @@ from lunch.admin import BaseTokenAdmin
 from Lunchbreak.utils import format_decimal
 
 from .models import (Address, Group, Heart, Order, OrderedFood, PaymentLink,
-                     Reservation, TemporaryOrder, User, UserToken)
+                     TemporaryOrder, User, UserToken)
 
 
 class PaymentLinkInline(admin.TabularInline):
@@ -61,13 +61,6 @@ class HeartAdmin(admin.ModelAdmin):
     list_display = ('store', 'user', 'added',)
     search_fields = ('store__name', 'user__name',)
     list_filter = ('store',)
-
-
-@admin.register(Reservation)
-class ReservationAdmin(admin.ModelAdmin):
-    list_display = ('store', 'user', 'seats', 'status',)
-    search_fields = ('store__name', 'user__name',)
-    list_filter = ('status', 'store',)
 
 
 @admin.register(OrderedFood)

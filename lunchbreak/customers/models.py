@@ -39,11 +39,10 @@ from .config import (ORDER_STATUS_COMPLETED, ORDER_STATUS_PLACED,
                      ORDER_STATUS_SIGNALS, ORDER_STATUSES,
                      ORDER_STATUSES_ACTIVE, ORDER_STATUSES_ENDED,
                      PAYMENT_METHOD_CASH, PAYMENT_METHOD_GOCARDLESS,
-                     PAYMENT_METHODS, RESERVATION_STATUS_DENIED,
-                     RESERVATION_STATUS_PLACED, RESERVATION_STATUSES)
-from .exceptions import (CostCheckFailed, MaxSeatsExceeded, MinDaysExceeded,
-                         NoPaymentLink, OnlinePaymentDisabled,
-                         PaymentLinkNotConfirmed, UserDisabled)
+                     PAYMENT_METHODS)
+from .exceptions import (CostCheckFailed, MinDaysExceeded, NoPaymentLink,
+                         OnlinePaymentDisabled, PaymentLinkNotConfirmed,
+                         UserDisabled)
 from .managers import OrderedFoodManager, OrderManager, UserManager
 
 
@@ -392,94 +391,6 @@ class Heart(models.Model):
         )
 
 
-class Reservation(CleanModelMixin, models.Model, DirtyFieldsMixin):
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        verbose_name=_('gebruiker'),
-        help_text=_('Gebruiker.')
-    )
-    store = models.ForeignKey(
-        Store,
-        on_delete=models.CASCADE,
-        verbose_name=_('winkel'),
-        help_text=_('Winkel.')
-    )
-
-    seats = models.PositiveIntegerField(
-        default=1,
-        validators=[
-            MinValueValidator(1)
-        ],
-        verbose_name=_('plaatsen'),
-        help_text=_('Plaatsen.')
-    )
-    placed = models.DateTimeField(
-        auto_now_add=True,
-        verbose_name=_('geplaatst'),
-        help_text=_('Tijd waarop reservatie werd geplaatst.')
-    )
-    reservation_time = models.DateTimeField(
-        verbose_name=_('tijd van reservatie'),
-        help_text=_('Tijd van reservatie.')
-    )
-    comment = models.TextField(
-        blank=True,
-        verbose_name=_('commentaar'),
-        help_text=_('Commentaar.')
-    )
-
-    suggestion = models.DateTimeField(
-        null=True,
-        blank=True,
-        verbose_name=_('suggestie'),
-        help_text=_(
-            'Indien de reservatie werd afgewezen wordt, kan er een andere '
-            'datum worden voorgesteld.'
-        )
-    )
-    response = models.TextField(
-        blank=True,
-        verbose_name=_('antwoord'),
-        help_text=_('Antwoord van de winkel.')
-    )
-
-    status = models.IntegerField(
-        choices=RESERVATION_STATUSES,
-        default=RESERVATION_STATUS_PLACED,
-        verbose_name=_('status'),
-        help_text=_('Status.')
-    )
-
-    class Meta:
-        verbose_name = _('reservatie')
-        verbose_name_plural = _('reservaties')
-
-    def clean_seats(self):
-        if self.seats > self.store.seats_max:
-            raise MaxSeatsExceeded()
-
-    def clean_reservation_time(self):
-        if self.pk is None or 'reservation_time' in self.get_dirty_fields():
-            self.reservation_time = timezone_for_store(
-                value=self.reservation_time,
-                store=self.store
-            )
-            self.store.is_open(
-                self.reservation_time,
-                now=self.placed
-            )
-
-    def clean_status(self):
-        if self.suggestion is not None:
-            self.status = RESERVATION_STATUS_DENIED
-
-    def save(self, *args, **kwargs):
-        self.full_clean()
-
-        super(Reservation, self).save(*args, **kwargs)
-
-
 class AbstractOrder(CleanModelMixin, models.Model):
     user = models.ForeignKey(
         User,
@@ -564,17 +475,6 @@ class Order(AbstractOrder, DirtyFieldsMixin):
         blank=True,
         verbose_name=_('opmerking bij de bestelling'),
         help_text=_('Bv: extra extra mayonaise graag!')
-    )
-    reservation = models.OneToOneField(
-        Reservation,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        verbose_name=_('reservatie'),
-        help_text=_(
-            'Reservaties kunnen gekoppeld worden met een bestelling zodat '
-            'men kan de bestelling bij de winkel kunnen opeten.'
-        )
     )
     payment = models.ForeignKey(
         Payment,

@@ -121,17 +121,6 @@ urlpatterns = patterns(
     ),
 
     url(
-        r'^reservation/?$',
-        views.ReservationMultiView.as_view(),
-        name='customers-user-reservation'
-    ),
-    url(
-        r'^reservation/(?P<pk>\d+)/?$',
-        views.ReservationSingleView.as_view(),
-        name='customers-reservation'
-    ),
-
-    url(
         r'^store/(?P<store_id>\d+)/header/(?P<width>\d+)/(?P<height>\d+)/?$',
         lunch_views.StoreHeaderView.as_view(),
         name='customers-store-header'

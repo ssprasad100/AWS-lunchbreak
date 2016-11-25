@@ -8,7 +8,7 @@ STORE_CLOSED = 704
 # 705 available
 MINDAYS_EXCEEDED = 706
 USER_DISABLED = 707
-MAX_SEATS_EXCEEDED = 708
+# 708 available
 # 709 available
 # 710 available
 # 711 available
@@ -52,12 +52,6 @@ class UserDisabled(LunchbreakException):
     status_code = status.HTTP_403_FORBIDDEN
     default_code = USER_DISABLED
     default_detail = 'Deze account werd uitgeschakeld.'
-
-
-class MaxSeatsExceeded(LunchbreakException):
-    status_code = status.HTTP_400_BAD_REQUEST
-    default_code = MAX_SEATS_EXCEEDED
-    default_detail = 'De winkel heeft niet zoveel plaatsen beschikbaar.'
 
 
 class OnlinePaymentDisabled(LunchbreakException):

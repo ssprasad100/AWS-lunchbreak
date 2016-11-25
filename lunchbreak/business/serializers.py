@@ -1,6 +1,5 @@
 from customers import serializers as customers_serializers
-from customers.config import RESERVATION_STATUS_EMPLOYEE
-from customers.models import Order, OrderedFood, Reservation
+from customers.models import Order, OrderedFood
 from lunch import serializers as lunch_serializers
 from lunch.config import TOKEN_IDENTIFIER_LENGTH
 from lunch.fields import CurrentUserAttributeDefault
@@ -474,36 +473,6 @@ class FoodDetailSerializer(lunch_serializers.FoodDetailSerializer):
     class Meta(lunch_serializers.FoodDetailSerializer.Meta):
         fields = lunch_serializers.FoodDetailSerializer.Meta.fields + (
             'deleted',
-        )
-
-
-class ReservationSerializer(serializers.ModelSerializer):
-    user = customers_serializers.UserSerializer(
-        read_only=True
-    )
-    status = serializers.ChoiceField(
-        choices=RESERVATION_STATUS_EMPLOYEE
-    )
-
-    class Meta:
-        model = Reservation
-        fields = (
-            'id',
-            'user',
-            'seats',
-            'placed',
-            'reservation_time',
-            'comment',
-            'suggestion',
-            'response',
-            'status',
-        )
-        read_only_fields = (
-            'id',
-            'user',
-            'placed',
-            'reservation_time',
-            'comment',
         )
 
 

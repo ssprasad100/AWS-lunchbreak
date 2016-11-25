@@ -149,15 +149,6 @@ urlpatterns = patterns(
     ),
 
     url(
-        r'^reservation/?$',
-        views.ReservationView.as_view()
-    ),
-    url(
-        r'^reservation/(?P<pk>\d+)/?$',
-        views.ReservationDetailView.as_view()
-    ),
-
-    url(
         r'^staff/?$',
         views.StaffView.as_view()
     ),

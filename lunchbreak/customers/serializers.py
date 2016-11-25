@@ -7,10 +7,9 @@ from Lunchbreak.serializers import (PrimaryModelSerializer,
 from phonenumber_field.validators import validate_international_phonenumber
 from rest_framework import serializers
 
-from .config import (PAYMENTLINK_COMPLETION_REDIRECT_URL,
-                     RESERVATION_STATUS_PLACED, RESERVATION_STATUS_USER)
-from .models import (Address, Group, Order, OrderedFood, PaymentLink,
-                     Reservation, User, UserToken)
+from .config import PAYMENTLINK_COMPLETION_REDIRECT_URL
+from .models import (Address, Group, Order, OrderedFood, PaymentLink, User,
+                     UserToken)
 
 
 class StoreHeartSerializer(lunch_serializers.StoreDetailSerializer):
@@ -23,57 +22,6 @@ class StoreHeartSerializer(lunch_serializers.StoreDetailSerializer):
         )
         read_only_fields = lunch_serializers.StoreDetailSerializer.Meta.fields + (
             'hearted',
-        )
-
-
-class ReservationSerializer(serializers.ModelSerializer):
-    user = serializers.ModelField(
-        model_field=Reservation()._meta.get_field('user'),
-        read_only=True,
-        default=serializers.CreateOnlyDefault(serializers.CurrentUserDefault())
-    )
-    status = serializers.ChoiceField(
-        choices=RESERVATION_STATUS_USER,
-        default=serializers.CreateOnlyDefault(RESERVATION_STATUS_PLACED)
-    )
-
-    class Meta:
-        model = Reservation
-        fields = (
-            'id',
-            'user',
-            'store',
-            'seats',
-            'placed',
-            'reservation_time',
-            'comment',
-            'suggestion',
-            'response',
-            'status',
-        )
-        read_only_fields = (
-            'id',
-            'placed',
-            'suggestion',
-            'response',
-        )
-        write_only_fields = (
-            'store',
-            'reservation_time',
-        )
-
-    def update(self, instance, validated_data):
-        return super(ReservationSerializer, self).update(
-            instance,
-            validated_data={
-                'status': validated_data.get(
-                    'status',
-                    instance.status
-                ),
-                'comment': validated_data.get(
-                    'comment', instance.comment
-                )
-            }
         )
 
 

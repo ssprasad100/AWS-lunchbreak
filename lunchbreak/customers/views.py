@@ -15,14 +15,13 @@ from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from .authentication import CustomerAuthentication
 from .config import DEMO_PHONE
-from .models import (Group, Heart, Order, OrderedFood, PaymentLink,
-                     Reservation, User, UserToken)
+from .models import (Group, Heart, Order, OrderedFood, PaymentLink, User,
+                     UserToken)
 from .serializers import (GroupSerializer, OrderDetailSerializer,
                           OrderedFoodPriceSerializer, OrderSerializer,
-                          PaymentLinkSerializer, ReservationSerializer,
-                          StoreHeartSerializer, UserLoginSerializer,
-                          UserRegisterSerializer, UserTokenSerializer,
-                          UserTokenUpdateSerializer)
+                          PaymentLinkSerializer, StoreHeartSerializer,
+                          UserLoginSerializer, UserRegisterSerializer,
+                          UserTokenSerializer, UserTokenUpdateSerializer)
 
 
 class FoodViewSet(TargettedViewSet,
@@ -367,17 +366,6 @@ class StoreGroupViewSet(viewsets.GenericViewSet,
         )
 
 
-class ReservationSingleView(generics.RetrieveUpdateAPIView):
-
-    authentication_classes = (CustomerAuthentication,)
-    serializer_class = ReservationSerializer
-
-    def get_queryset(self):
-        return Reservation.objects.filter(
-            user=self.request.user
-        )
-
-
 class StoreCategoryListView(StoreCategoryListViewBase):
     authentication_classes = (CustomerAuthentication,)
 
@@ -469,14 +457,3 @@ class UserViewSet(viewsets.GenericViewSet):
             return Response(
                 status=status.HTTP_200_OK
             )
-
-
-class ReservationMultiView(generics.ListCreateAPIView):
-
-    authentication_classes = (CustomerAuthentication,)
-    serializer_class = ReservationSerializer
-
-    def get_queryset(self):
-        return Reservation.objects.filter(
-            user=self.request.user
-        )

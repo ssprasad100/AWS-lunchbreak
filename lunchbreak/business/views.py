@@ -2,7 +2,7 @@ import arrow
 from customers.config import (ORDER_STATUS_COMPLETED, ORDER_STATUS_PLACED,
                               ORDER_STATUS_RECEIVED, ORDER_STATUS_STARTED,
                               ORDER_STATUS_WAITING)
-from customers.models import Group, Order, Reservation
+from customers.models import Group, Order
 from customers.serializers import GroupSerializer
 from django.core.validators import validate_email
 from django.db.models import Count
@@ -33,9 +33,8 @@ from .serializers import (EmployeeSerializer, FoodDetailSerializer,
                           IngredientGroupSerializer, IngredientSerializer,
                           OrderDetailSerializer, OrderSerializer,
                           OrderSpreadSerializer, PopularFoodSerializer,
-                          ReservationSerializer, StaffSerializer,
-                          StoreDetailSerializer, StoreHeaderSerializer,
-                          StoreMerchantSerializer)
+                          StaffSerializer, StoreDetailSerializer,
+                          StoreHeaderSerializer, StoreMerchantSerializer)
 
 AVAILABLE_STATUSES = [
     ORDER_STATUS_PLACED,
@@ -463,26 +462,6 @@ class QuantityDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         return Quantity.objects.filter(
-            store_id=self.request.user.staff.store_id
-        )
-
-
-class ReservationView(generics.ListAPIView):
-    authentication_classes = (EmployeeAuthentication,)
-    serializer_class = ReservationSerializer
-
-    def get_queryset(self):
-        return Reservation.objects.filter(
-            store_id=self.request.user.staff.store_id
-        )
-
-
-class ReservationDetailView(generics.UpdateAPIView):
-    authentication_classes = (EmployeeAuthentication,)
-    serializer_class = ReservationSerializer
-
-    def get_queryset(self):
-        return Reservation.objects.filter(
             store_id=self.request.user.staff.store_id
         )
 
