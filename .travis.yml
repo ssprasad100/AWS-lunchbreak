@@ -24,7 +24,9 @@ notifications:
     rooms:
       - cloock:SXLRwJ3UHzH4R4sZwycCnt9J#lunchbreak-backend
 deploy:
-  provider: script
-  script: 'fab deploy:skiptests=True'
-  on:
-    branch: master
+    provider: script
+    script: 'fab deploy:skiptests=True,check_deploy=True'
+    on:
+      all_branches: true
+      tags: true
+      repo: AndreasBackx/Lunchbreak-Backend

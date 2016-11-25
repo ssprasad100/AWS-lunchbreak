@@ -323,6 +323,9 @@ class Group(models.Model):
         verbose_name=_('naam'),
         help_text=_('Naam.')
     )
+    description = models.TextField(
+        blank=True
+    )
     store = models.ForeignKey(
         Store,
         related_name='groups',
@@ -337,7 +340,7 @@ class Group(models.Model):
     deadline = models.TimeField(
         default=datetime.time(hour=12),
         verbose_name=_('deadline bestelling'),
-        help_text=('Deadline voor het plaatsen van bestellingen elke dag.')
+        help_text=_('Deadline voor het plaatsen van bestellingen elke dag.')
     )
     delay = models.DurationField(
         default=datetime.timedelta(minutes=30),
@@ -621,12 +624,9 @@ class Order(AbstractOrder, DirtyFieldsMixin):
         # TODO: Check whether the store can accept an order if it is
         # for delivery and needs to be delivered asap (receipt=None).
 
-        if self.group is not None and self.receipt is not None:
-            raise LunchbreakException(
-                _('Een bestelling kan geen afgave tijd hebben als die gelinkt is aan een groep.')
-            )
-
-        if self.delivery_address is None:
+        if self.group is not None:
+            self.receipt = None
+        elif self.delivery_address is None:
             if self.receipt is None:
                 raise LunchbreakException(
                     _('Er moet een tijdstip voor het ophalen gegeven worden.')

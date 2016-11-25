@@ -86,12 +86,18 @@ def test():
     local('tox')
 
 
-def deploy(username=None, password=None, skiptests=False):
+def deploy(username=None, password=None, skiptests=False, check_deploy=False):
     """The regular deployment.
 
     Tests, pushes new image and updates server."""
+
     if not skiptests:
-        test(skiptests=skiptests)
+        test()
+
+    if check_deploy and (not git_tag or git_branch != 'master'):
+        print('Not deploying, no tag attached and not on the master branch.')
+        return
+
     deployer = Deployer()
     push(deployer=deployer)
     deployer.update_server()
