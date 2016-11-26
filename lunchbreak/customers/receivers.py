@@ -1,4 +1,4 @@
-from .models import Order
+from .models import GroupOrder, Order
 from .signals import *  # NOQA
 
 order_created.connect(
@@ -12,4 +12,9 @@ order_waiting.connect(
 order_denied.connect(
     Order.denied,
     dispatch_uid='customers_order_denied'
+)
+
+group_order_created.connect(
+    GroupOrder.created,
+    dispatch_uid='customers_group_order_created'
 )

@@ -1,3 +1,4 @@
+import datetime
 from decimal import Decimal
 
 from django.apps import apps
@@ -165,3 +166,19 @@ class OrderedFoodManager(models.Manager):
         instance.save()
 
         return instance
+
+
+class GroupManager(models.Manager):
+
+    def get_orders_for(self, timestamp):
+        if isinstance(timestamp, datetime.datetime):
+            date = timestamp.date()
+        elif isinstance(timestamp, datetime.date):
+            date = timestamp
+        else:
+            raise TypeError('"timestamp" needs to be of the type datetime.date.')
+
+        return apps.get_model('Order').objects.filter(
+            group__in=self,
+            receipt__date=date
+        )

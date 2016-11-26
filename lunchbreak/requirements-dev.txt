@@ -8,9 +8,12 @@
 -e git+git://github.com/AndreasBackx/django-push-notifications.git@269816a469c93dfcc8e87e910541c9f517aa540f#egg=django_push_notifications
 -e git+git://github.com/AndreasBackx/google-maps-services-python.git@master#egg=googlemaps
 -e git+git://github.com/AndreasBackx/pendulum@feature/period-exclude-merge#egg=pendulum
+amqp==2.1.1               # via kombu
 arrow==0.8.0
 bcrypt==1.1.0
 beautifulsoup4==4.5.1     # via django-livereload-server
+billiard==3.5.0.2         # via celery
+celery==4.0.0
 cffi==1.8.2               # via bcrypt
 click==6.6                # via pip-tools
 django-appconf==1.0.2     # via django-compressor, django-imagekit
@@ -38,6 +41,7 @@ flake8==3.0.3
 gocardless-pro==0.2.0
 jdcal==1.2                # via openpyxl
 Jinja2==2.8               # via django-jinja
+kombu==4.0.0              # via celery
 libsass==0.11.1           # via django-sass-processor
 MarkupSafe==0.23          # via jinja2
 mccabe==0.5.2             # via flake8
@@ -59,7 +63,7 @@ pycparser==2.14           # via cffi
 pycrypto==2.6.1           # via paramiko
 pyflakes==1.2.3           # via flake8
 python-dateutil==2.5.3    # via arrow
-pytz==2016.6.1            # via tzlocal
+pytz==2016.6.1            # via celery, tzlocal
 pyyaml==3.11
 rcssmin==1.0.6            # via django-compressor
 requests==2.9.1
@@ -71,4 +75,5 @@ tzlocal==1.2.2
 ua-parser==0.7.1
 user-agents==1.0.1
 uwsgidecorators==1.1.0
+vine==1.1.3               # via amqp
 virtualenv==15.0.3        # via tox

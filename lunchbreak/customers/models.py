@@ -43,7 +43,10 @@ from .config import (ORDER_STATUS_COMPLETED, ORDER_STATUS_PLACED,
 from .exceptions import (CostCheckFailed, MinDaysExceeded, NoPaymentLink,
                          OnlinePaymentDisabled, PaymentLinkNotConfirmed,
                          UserDisabled)
-from .managers import OrderedFoodManager, OrderManager, UserManager
+from .managers import (GroupManager, OrderedFoodManager, OrderManager,
+                       UserManager)
+from .signals import group_order_created
+from .tasks import send_group_order_email
 
 
 class User(AbstractBaseUser, PermissionsMixin):
@@ -359,12 +362,70 @@ class Group(models.Model):
         help_text=_('Korting bij het plaatsen van een bestelling.')
     )
 
+    objects = GroupManager()
+
     class Meta:
         verbose_name = _('groep')
         verbose_name_plural = _('groepen')
 
     def __str__(self):
         return self.name
+
+
+class GroupOrder(models.Model):
+
+    class Meta:
+        unique_together = ('group', 'date',)
+        verbose_name = _('groepsbestelling')
+        verbose_name_plural = _('groepsbestellingen')
+
+    group = models.ForeignKey(
+        Group,
+        related_name='group_orders',
+        verbose_name=_('groep'),
+        help_text=_('Groep.')
+    )
+    date = models.DateField(
+        verbose_name=_('datum'),
+        help_text=_('Datum van groepsbestelling.')
+    )
+
+    @cached_property
+    def orders(self):
+        return Group.objects.filter(
+            id=self.group_id
+        ).orders_for(
+            timestamp=self.date
+        )
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+
+        if self.pk is None:
+            group_order_created.send(
+                sender=self.__class__,
+                group_order=self
+            )
+
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def created(cls, sender, group_order, **kwargs):
+        send_group_order_email.apply_async(
+            kwargs={
+                'group_order_id': group_order.id,
+            },
+            eta=Pendulum.create_from_date(
+                year=group_order.date.year,
+                month=group_order.date.month,
+                day=group_order.date.day,
+                tz=group_order.group.store.timezone
+            ).with_time(
+                hour=group_order.group.deadline.hour,
+                minute=group_order.group.deadline.minute,
+                second=group_order.group.deadline.second
+            )._datetime
+        )
 
 
 class Heart(models.Model):
@@ -683,6 +744,12 @@ class Order(AbstractOrder, DirtyFieldsMixin):
         ).notify(
             _('Er is een nieuwe bestelling binnengekomen!')
         )
+
+        if order.group is not None:
+            group_order, created = GroupOrder.objects.get_or_create(
+                group=order.group,
+                date=order.receipt.date()
+            )
 
     @classmethod
     def waiting(cls, sender, order, **kwargs):

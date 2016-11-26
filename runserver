@@ -1,0 +1,12 @@
+#!/bin/bash -e
+
+lunchbreak/manage.py runserver 0.0.0.0:8000 &
+PIDS[0]=$!
+rabbitmq-server &
+PIDS[1]=$!
+cd lunchbreak && celery -A Lunchbreak worker -l info &
+PIDS[2]=$!
+
+trap "kill ${PIDS[*]}" SIGINT
+
+wait

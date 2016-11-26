@@ -35,3 +35,9 @@ order_not_collected = Signal(
         'order',
     ]
 )
+
+group_order_created = Signal(
+    providing_args=[
+        'group_order',
+    ]
+)

@@ -1,8 +1,9 @@
+import mock
 from lunch.exceptions import LinkingError
 from pendulum import Pendulum
 
 from . import CustomersTestCase
-from ..models import Group, Order
+from ..models import Group, GroupOrder, Order
 
 
 class GroupOrderTestCase(CustomersTestCase):
@@ -39,3 +40,14 @@ class GroupOrderTestCase(CustomersTestCase):
             group=self.group,
             user=self.user
         )
+
+    @mock.patch('customers.tasks.send_group_order_email.apply_async')
+    def test_email_task_triggered(self, mock_task):
+        """Test whether the Celery emailt ask is triggered on creation."""
+
+        GroupOrder.objects.create(
+            group=self.group,
+            date=Pendulum.today().date()
+        )
+
+        self.assertTrue(mock_task.called)
