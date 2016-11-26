@@ -1,5 +1,5 @@
 from customers import serializers as customers_serializers
-from customers.models import Order, OrderedFood
+from customers.models import Group, Order, OrderedFood
 from lunch import serializers as lunch_serializers
 from lunch.config import TOKEN_IDENTIFIER_LENGTH
 from lunch.fields import CurrentUserAttributeDefault
@@ -243,8 +243,42 @@ class OrderSpreadSerializer(serializers.BaseSerializer):
         }
 
 
+class GroupSerializer(serializers.ModelSerializer):
+    store = serializers.PrimaryKeyRelatedField(
+        write_only=True,
+        queryset=Store.objects.all(),
+        default=serializers.CreateOnlyDefault(
+            RequestAttributeDefault(
+                attribute='user.staff.store'
+            )
+        )
+    )
+
+    class Meta:
+        model = Group
+        fields = (
+            'id',
+            'name',
+            'description',
+            'email',
+            'deadline',
+            'delay',
+            'discount',
+            'store',
+        )
+        read_only_fields = (
+            'id',
+        )
+        write_only_fields = (
+            'store',
+        )
+
+
 class OrderSerializer(customers_serializers.OrderSerializer):
     user = customers_serializers.UserSerializer(
+        read_only=True
+    )
+    group = GroupSerializer(
         read_only=True
     )
 
@@ -260,6 +294,7 @@ class OrderSerializer(customers_serializers.OrderSerializer):
             'description',
             'payment_method',
             'paid',
+            'group',
         )
         read_only_fields = (
             'id',
@@ -271,6 +306,7 @@ class OrderSerializer(customers_serializers.OrderSerializer):
             'description',
             'payment_method',
             'paid',
+            'group',
         )
 
 

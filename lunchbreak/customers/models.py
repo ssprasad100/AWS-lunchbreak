@@ -359,6 +359,10 @@ class Group(models.Model):
         help_text=_('Korting bij het plaatsen van een bestelling.')
     )
 
+    class Meta:
+        verbose_name = _('groep')
+        verbose_name_plural = _('groepen')
+
     def __str__(self):
         return self.name
 
@@ -445,6 +449,7 @@ class Order(AbstractOrder, DirtyFieldsMixin):
         help_text=_('Tijdstip waarop de bestelling werd geplaatst.')
     )
     receipt = models.DateTimeField(
+        blank=True,
         null=True,
         verbose_name=_('tijd afgave'),
         help_text=_('Tijd van afhalen of levering.')
