@@ -17,18 +17,6 @@ class GroupOrderTestCase(CustomersTestCase):
             email='andreas@cloock.be'
         )
 
-    def test_order_receipt(self):
-        """Test whether Order.receipt is set to None on group orders."""
-
-        order = Order.objects.create(
-            store=self.store,
-            receipt=Pendulum.now()._datetime,
-            group=self.group,
-            user=self.user
-        )
-
-        self.assertIsNone(order.receipt)
-
     def test_same_store(self):
         """Test whether Order.store == Order.group.store."""
 
@@ -51,3 +39,50 @@ class GroupOrderTestCase(CustomersTestCase):
         )
 
         self.assertTrue(mock_task.called)
+
+    @mock.patch('customers.tasks.send_group_order_email.apply_async')
+    def test_create_group_order(self, mock_task):
+        """Test whether creating an Order with a group creates a group Order."""
+
+        order = Order.objects.create(
+            store=self.store,
+            receipt=Pendulum.now()._datetime,
+            group=self.group,
+            user=self.user
+        )
+
+        # Creating an order with a group should create a GroupOrder
+        self.assertEqual(
+            self.group.group_orders.all().count(),
+            1
+        )
+        self.assertEqual(
+            self.group.group_orders.first().date,
+            order.receipt.date()
+        )
+
+        # It shouldn't create a duplicate for the same date
+        Order.objects.create(
+            store=self.store,
+            receipt=Pendulum.now()._datetime,
+            group=self.group,
+            user=self.user
+        )
+
+        self.assertEqual(
+            self.group.group_orders.all().count(),
+            1
+        )
+
+        # It should create a new GroupOrder if the receipt is for a different date
+        Order.objects.create(
+            store=self.store,
+            receipt=Pendulum.tomorrow()._datetime,
+            group=self.group,
+            user=self.user
+        )
+
+        self.assertEqual(
+            self.group.group_orders.all().count(),
+            2
+        )

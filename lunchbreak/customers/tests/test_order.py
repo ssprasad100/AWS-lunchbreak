@@ -5,11 +5,15 @@ from django.core.urlresolvers import reverse
 from django.utils import timezone
 from lunch.exceptions import LinkingError, NoDeliveryToAddress
 from lunch.models import Food
+from pendulum import Pendulum
 from rest_framework import status
 
 from . import CustomersTestCase
 from .. import views
-from ..config import ORDER_STATUS_COMPLETED
+from ..config import (ORDER_STATUS_COMPLETED, ORDER_STATUS_DENIED,
+                      ORDER_STATUS_NOT_COLLECTED, ORDER_STATUS_PLACED,
+                      ORDER_STATUS_RECEIVED, ORDER_STATUS_STARTED,
+                      ORDER_STATUS_WAITING)
 from ..exceptions import OrderedFoodNotOriginal
 from ..models import Address, Order, OrderedFood
 
@@ -183,3 +187,41 @@ class OrderTestCase(CustomersTestCase):
             store=self.store,
             receipt=timezone.now() + timedelta(hours=1)
         )
+
+    def test_order_signals(self):
+        """Test whether all order status signals are sent."""
+
+        mocks = {
+            ORDER_STATUS_PLACED: 'customers.signals.order_created.send',
+            ORDER_STATUS_DENIED: 'customers.signals.order_denied.send',
+            ORDER_STATUS_RECEIVED: 'customers.signals.order_received.send',
+            ORDER_STATUS_STARTED: 'customers.signals.order_started.send',
+            ORDER_STATUS_WAITING: 'customers.signals.order_waiting.send',
+            ORDER_STATUS_COMPLETED: 'customers.signals.order_completed.send',
+            ORDER_STATUS_NOT_COLLECTED: 'customers.signals.order_not_collected.send'
+        }
+
+        created_signal = mocks.pop(ORDER_STATUS_PLACED)
+        with mock.patch(created_signal) as mock_signal:
+            self.assertEqual(mock_signal.call_count, 0)
+            order = Order.objects.create(
+                store=self.store,
+                receipt=Pendulum.tomorrow()._datetime,
+                user=self.user
+            )
+            self.assertEqual(mock_signal.call_count, 1)
+
+        for order_status, status_signal in mocks.items():
+            with mock.patch(status_signal) as mock_signal:
+                self.assertEqual(mock_signal.call_count, 0)
+                Order.objects.create(
+                    store=self.store,
+                    receipt=Pendulum.tomorrow()._datetime,
+                    user=self.user,
+                    status=order_status
+                )
+                self.assertEqual(mock_signal.call_count, 1)
+                mock_signal.reset_mock()
+                order.status = order_status
+                order.save()
+                self.assertEqual(mock_signal.call_count, 1)

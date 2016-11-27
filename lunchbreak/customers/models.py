@@ -504,6 +504,11 @@ class AbstractOrder(CleanModelMixin, models.Model):
 
 
 class Order(AbstractOrder, DirtyFieldsMixin):
+
+    class Meta:
+        verbose_name = _('bestelling')
+        verbose_name_plural = _('bestellingen')
+
     placed = models.DateTimeField(
         auto_now_add=True,
         verbose_name=_('tijd van plaatsing'),
@@ -611,10 +616,6 @@ class Order(AbstractOrder, DirtyFieldsMixin):
     def payment_gocardless(self):
         return self.payment_method == PAYMENT_METHOD_GOCARDLESS
 
-    class Meta:
-        verbose_name = _('bestelling')
-        verbose_name_plural = _('bestellingen')
-
     def __str__(self):
         return _('%(user)s, %(store)s op %(receipt)s') % {
             'user': self.user.name,
@@ -637,7 +638,7 @@ class Order(AbstractOrder, DirtyFieldsMixin):
             dirty_fields = self.get_dirty_fields()
             dirty_status = dirty_fields.get('status', dirty_status)
 
-            if dirty_status is not None:
+            if self.pk is None or dirty_status is not None:
                 ORDER_STATUS_SIGNALS[self.status].send(
                     sender=self.__class__,
                     order=self
@@ -690,12 +691,10 @@ class Order(AbstractOrder, DirtyFieldsMixin):
         # TODO: Check whether the store can accept an order if it is
         # for delivery and needs to be delivered asap (receipt=None).
 
-        if self.group is not None:
-            self.receipt = None
-        elif self.delivery_address is None:
+        if self.group is None and self.delivery_address is None:
             if self.receipt is None:
                 raise LunchbreakException(
-                    _('Er moet een tijdstip voor het ophalen gegeven worden.')
+                    _('Er moet een tijdstip voor het ophalen opgegeven worden.')
                 )
             if self.pk is None or 'receipt' in self.get_dirty_fields():
                 self.receipt = timezone_for_store(
