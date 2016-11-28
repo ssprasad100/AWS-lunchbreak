@@ -1,4 +1,4 @@
-<li class="orderedfood">
+<li class="orderedfood {% if deletable %}deletable{% endif %}">
     <div class="orderedfood-amount">
         {{ orderedfood.get_amount_display() }}
     </div>
@@ -6,8 +6,10 @@
         <div class="orderedfood-name">{{ orderedfood.original.name }}</div>
         <div class="orderedfood-description">{{ orderedfood.original.description }}</div>
     </div>
-    <div class="orderedfood-cost">
-        &euro; {{ orderedfood.get_total_display() }}
+    <div class="orderedfood-cost-wrapper">
+        <span class="orderedfood-cost">
+            &euro; {{ orderedfood.get_total_display() }}
+        </span>
     </div>
     {% if not orderedfoods %}
     <input class="orderedfood-data" type="hidden" name="orderedfood" value="{{ orderedfood.json() }}"/>

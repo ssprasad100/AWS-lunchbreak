@@ -272,6 +272,19 @@
         }
     }
 
+    .orderedfood {
+        &.deletable:hover {
+            .orderedfood-cost {
+                cursor: pointer;
+                color: transparent;
+                background: url('icons/close.png');
+                background-repeat: no-repeat;
+                background-size: 14px;
+                background-position: center;
+            }
+        }
+    }
+
     .orderedfood, .order-total {
         $item-padding: 16px;
         $cost-amount-width: 48px;
@@ -285,7 +298,7 @@
             height: 64px;
         }
 
-        .orderedfood-amount, .orderedfood-cost {
+        .orderedfood-amount, .orderedfood-cost-wrapper {
             width: $cost-amount-width;
             text-align: center;
             vertical-align: middle;
@@ -313,7 +326,7 @@
             }
         }
 
-        .orderedfood-cost {
+        .orderedfood-cost-wrapper {
             font-size: $size-xsmall;
             color: $grey-dark;
             text-align: right;
@@ -334,7 +347,7 @@
         }
 
         .order-total-cost {
-            @extend .orderedfood-cost;
+            @extend .orderedfood-cost-wrapper;
         }
     }
 }

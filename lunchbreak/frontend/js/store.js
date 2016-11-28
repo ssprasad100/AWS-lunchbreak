@@ -132,6 +132,7 @@
     Order.init = function() {
         Order.element = $('#order');
         Order.itemsElement = $('#orderedfood-list');
+        Order.submitButton = Order.element.find('input[type="submit"]').first();
     };
 
     /**
@@ -139,10 +140,26 @@
      * @param {OrderedFood} orderedfood Orderedfood.
      */
     Order.addOrderedFood = function(orderedfood) {
-        Order.element.find('input[type="submit"]').attr('disabled', false);
+        Order.submitButton.attr('disabled', false);
         Order.orderedfood.push(orderedfood);
         this.renderOrderedFood(orderedfood);
         orderedfood.fetch();
+    };
+
+    /**
+     * Remove an orderedfood from the order and update the Order total.
+     * @param  {OrderedFood} orderedfood OrderedFood to be removed.
+     */
+    Order.removeOrderedFood = function(orderedfood) {
+        var index = Order.orderedfood.indexOf(orderedfood);
+        if (index != -1) {
+            Order.orderedfood.splice(index, 1);
+            Order.onCostUpdate();
+
+            if (Order.orderedfood.length == 0) {
+                Order.submitButton.attr('disabled', true);
+            }
+        }
     };
 
     /**
@@ -158,6 +175,7 @@
         Order.itemsElement.prepend(
             nunjucks.render(
                 'orderedfood.html', {
+                    'deletable': true,
                     'orderedfood': orderedfood,
                     'index': index
                 }
@@ -295,6 +313,19 @@
          */
         this.attachElement = function(element) {
             this.element = element;
+
+            var self = this;
+            this.element.find('.orderedfood-cost').on('click', function(event) {
+                self.onDelete();
+            });
+        };
+
+        /**
+         * Delete the OrderedFood from the list of orders.
+         */
+        this.onDelete = function() {
+            this.element.remove();
+            Order.removeOrderedFood(this);
         };
     };
 
@@ -591,7 +622,7 @@
 
             if (this.hasIngredients) {
                 this.element.find('.ingredientgroups').remove();
-                if(!this.ingredientGroupsRender)
+                if (!this.ingredientGroupsRender)
                     this.ingredientGroupsRender = nunjucks.render(
                         'ingredient_groups.html', {
                             'food': this
