@@ -11,7 +11,7 @@ class Forward(models.Model):
         editable=False
     )
     group = models.CharField(
-        max_length=255
+        max_length=191
     )
     json = jsonfield.JSONField(
         null=True

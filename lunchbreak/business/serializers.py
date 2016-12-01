@@ -67,7 +67,7 @@ class EmployeePasswordRequestSerializer(serializers.ModelSerializer):
 
 class StaffPasswordRequestSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
-        max_length=255
+        max_length=191
     )
 
     class Meta:
@@ -78,7 +78,7 @@ class StaffPasswordRequestSerializer(serializers.ModelSerializer):
 
 class PasswordSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
-        max_length=255,
+        max_length=191,
         write_only=True
     )
     password_reset = serializers.CharField(
@@ -110,7 +110,7 @@ class StaffPasswordSerializer(PasswordSerializer):
 
 class BusinessTokenSerializer(lunch_serializers.TokenDetailSerializer):
     password = serializers.CharField(
-        max_length=255,
+        max_length=191,
         write_only=True
     )
 

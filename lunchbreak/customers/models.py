@@ -54,7 +54,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         help_text=_('Telefoonnummer.')
     )
     name = models.CharField(
-        max_length=255,
+        max_length=191,
         verbose_name=_('naam'),
         help_text=_('Naam.')
     )
@@ -319,7 +319,7 @@ class PaymentLink(models.Model):
 
 class Group(models.Model):
     name = models.CharField(
-        max_length=255,
+        max_length=191,
         verbose_name=_('naam'),
         help_text=_('Naam.')
     )

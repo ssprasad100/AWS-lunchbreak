@@ -34,11 +34,11 @@ class Merchant(models.Model):
     """
 
     access_token = models.CharField(
-        max_length=255,
+        max_length=191,
         blank=True
     )
     organisation_id = models.CharField(
-        max_length=255,
+        max_length=191,
         blank=True
     )
     state = models.CharField(
@@ -158,26 +158,26 @@ class Customer(models.Model, GCCacheMixin):
 
     id = models.CharField(
         primary_key=True,
-        max_length=255
+        max_length=191
     )
     address_line1 = models.CharField(
-        max_length=255,
+        max_length=191,
         blank=True
     )
     address_line2 = models.CharField(
-        max_length=255,
+        max_length=191,
         blank=True
     )
     address_line3 = models.CharField(
-        max_length=255,
+        max_length=191,
         blank=True
     )
     city = models.CharField(
-        max_length=255,
+        max_length=191,
         blank=True
     )
     company_name = models.CharField(
-        max_length=255,
+        max_length=191,
         blank=True,
         help_text='Required unless family_name and given_name are provided.'
     )
@@ -192,11 +192,11 @@ class Customer(models.Model, GCCacheMixin):
         blank=True
     )
     family_name = models.CharField(
-        max_length=255,
+        max_length=191,
         blank=True
     )
     first_name = models.CharField(
-        max_length=255,
+        max_length=191,
         blank=True
     )
     language = models.CharField(
@@ -204,15 +204,15 @@ class Customer(models.Model, GCCacheMixin):
         blank=True
     )
     postal_code = models.CharField(
-        max_length=255,
+        max_length=191,
         blank=True
     )
     region = models.CharField(
-        max_length=255,
+        max_length=191,
         blank=True
     )
     swedish_identity_number = models.CharField(
-        max_length=255,
+        max_length=191,
         blank=True
     )
 
@@ -243,7 +243,7 @@ class CustomerBankAccount(models.Model, GCCacheMixin):
 
     id = models.CharField(
         primary_key=True,
-        max_length=255
+        max_length=191
     )
     account_holder_name = models.CharField(
         max_length=18
@@ -252,7 +252,7 @@ class CustomerBankAccount(models.Model, GCCacheMixin):
         max_length=2
     )
     bank_name = models.CharField(
-        max_length=255
+        max_length=191
     )
     country_code = models.CharField(
         max_length=2
@@ -295,7 +295,7 @@ class Mandate(models.Model, GCCacheMixin):
     id = models.CharField(
         primary_key=True,
         blank=True,
-        max_length=255
+        max_length=191
     )
     created_at = models.DateTimeField(
         null=True
@@ -304,16 +304,16 @@ class Mandate(models.Model, GCCacheMixin):
         null=True
     )
     reference = models.CharField(
-        max_length=255,
+        max_length=191,
         blank=True
     )
     scheme = models.CharField(
-        max_length=255,
+        max_length=191,
         blank=True,
         choices=SCHEMES
     )
     status = models.CharField(
-        max_length=255,
+        max_length=191,
         choices=MANDATE_STATUSES,
         default=MANDATE_STATUSES[0][0]
     )
@@ -412,7 +412,7 @@ class RedirectFlow(models.Model, GCCreateMixin):
 
     id = models.CharField(
         primary_key=True,
-        max_length=255
+        max_length=191
     )
     created_at = models.DateTimeField(
         null=True
@@ -421,13 +421,13 @@ class RedirectFlow(models.Model, GCCreateMixin):
         blank=True
     )
     scheme = models.CharField(
-        max_length=255,
+        max_length=191,
         blank=True,
         null=True,
         choices=SCHEMES
     )
     session_token = models.CharField(
-        max_length=255,
+        max_length=191,
         blank=True
     )
     redirect_url = models.URLField(
@@ -538,7 +538,7 @@ class Payout(models.Model, GCCacheMixin):
 
     id = models.CharField(
         primary_key=True,
-        max_length=255
+        max_length=191
     )
     amount = models.PositiveIntegerField(
         null=True
@@ -556,7 +556,7 @@ class Payout(models.Model, GCCacheMixin):
         blank=True
     )
     status = models.CharField(
-        max_length=255,
+        max_length=191,
         choices=PAYOUT_STATUSES,
         default=PAYOUT_STATUSES[0][0]
     )
@@ -614,7 +614,7 @@ class Subscription(models.Model, GCCreateUpdateMixin):
 
     id = models.CharField(
         primary_key=True,
-        max_length=255
+        max_length=191
     )
     amount = models.PositiveIntegerField()
     count = models.PositiveIntegerField(
@@ -638,16 +638,16 @@ class Subscription(models.Model, GCCreateUpdateMixin):
         default=1
     )
     interval_unit = models.CharField(
-        max_length=255,
+        max_length=191,
         choices=SUBSCRIPTION_INTERVAL_UNIT
     )
     month = models.CharField(
-        max_length=255,
+        max_length=191,
         choices=SUBSCRIPTION_MONTHS,
         blank=True
     )
     name = models.CharField(
-        max_length=255,
+        max_length=191,
         blank=True
     )
     payment_reference = models.CharField(
@@ -658,7 +658,7 @@ class Subscription(models.Model, GCCreateUpdateMixin):
         null=True
     )
     status = models.CharField(
-        max_length=255,
+        max_length=191,
         choices=SUBSCRIPTION_STATUSES,
         default=SUBSCRIPTION_STATUSES[0][0]
     )
@@ -746,7 +746,7 @@ class Payment(models.Model, GCCreateMixin):
 
     id = models.CharField(
         primary_key=True,
-        max_length=255
+        max_length=191
     )
     amount = models.PositiveIntegerField()
     amount_refunded = models.PositiveIntegerField()
@@ -768,7 +768,7 @@ class Payment(models.Model, GCCreateMixin):
         blank=True
     )
     status = models.CharField(
-        max_length=255,
+        max_length=191,
         choices=PAYMENT_STATUSES,
         default=PAYMENT_STATUSES[0][0]
     )
@@ -855,7 +855,7 @@ class Refund(models.Model, GCCacheMixin):
 
     id = models.CharField(
         primary_key=True,
-        max_length=255
+        max_length=191
     )
     amount = models.PositiveIntegerField(
         null=True

@@ -208,7 +208,7 @@ class UserLoginSerializer(serializers.ModelSerializer):
         write_only=True
     )
     name = serializers.CharField(
-        max_length=255,
+        max_length=191,
         required=False,
         write_only=True
     )

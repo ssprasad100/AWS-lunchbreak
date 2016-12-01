@@ -38,7 +38,7 @@ from .utils import timezone_for_store
 
 class StoreCategory(models.Model):
     name = models.CharField(
-        max_length=255,
+        max_length=191,
         verbose_name=_('naam'),
         help_text=_('Naam.')
     )
@@ -107,17 +107,17 @@ class StoreHeader(Polaroid):
 
 class AbstractAddress(models.Model, DirtyFieldsMixin):
     country = models.CharField(
-        max_length=255,
+        max_length=191,
         verbose_name=_('land'),
         help_text=_('Land.')
     )
     province = models.CharField(
-        max_length=255,
+        max_length=191,
         verbose_name=_('provincie'),
         help_text=_('Provincie.')
     )
     city = models.CharField(
-        max_length=255,
+        max_length=191,
         verbose_name=_('stad'),
         help_text=_('Stad.')
     )
@@ -127,7 +127,7 @@ class AbstractAddress(models.Model, DirtyFieldsMixin):
         help_text=_('Postcode.')
     )
     street = models.CharField(
-        max_length=255,
+        max_length=191,
         verbose_name=_('straat'),
         help_text=_('Straat.')
     )
@@ -231,7 +231,7 @@ class AbstractAddress(models.Model, DirtyFieldsMixin):
 
 class Store(AbstractAddress):
     name = models.CharField(
-        max_length=255,
+        max_length=191,
         verbose_name=_('naam'),
         help_text=_('Naam.')
     )
@@ -276,7 +276,7 @@ class Store(AbstractAddress):
         help_text=_('Regio\'s waaraan geleverd wordt.')
     )
     timezone = models.CharField(
-        max_length=255,
+        max_length=191,
         default='UTC',
         verbose_name=_('tijdzone'),
         help_text=_('Tijdzone.')
@@ -534,7 +534,7 @@ class Store(AbstractAddress):
 
 class Region(models.Model):
     name = models.CharField(
-        max_length=255,
+        max_length=191,
         verbose_name=_('naam'),
         help_text=_('Naam.')
     )
@@ -544,7 +544,7 @@ class Region(models.Model):
         help_text=_('Land.')
     )
     postcode = models.CharField(
-        max_length=255,
+        max_length=191,
         verbose_name=_('postcode'),
         help_text=_('Postcode.')
     )
@@ -742,7 +742,7 @@ class HolidayPeriod(CleanModelMixin, models.Model, DirtyFieldsMixin):
         help_text=_('Winkel.')
     )
     description = models.CharField(
-        max_length=255,
+        max_length=191,
         blank=True,
         verbose_name=_('beschrijving'),
         help_text=_('Beschrijving met een reden.')
@@ -812,12 +812,12 @@ class HolidayPeriod(CleanModelMixin, models.Model, DirtyFieldsMixin):
 
 class FoodType(models.Model):
     name = models.CharField(
-        max_length=255,
+        max_length=191,
         verbose_name=_('naam'),
         help_text=_('Naam.')
     )
     quantifier = models.CharField(
-        max_length=255,
+        max_length=191,
         blank=True,
         null=True,
         verbose_name=_('eenheid'),
@@ -863,7 +863,7 @@ class FoodType(models.Model):
 
 class IngredientGroup(CleanModelMixin, models.Model):
     name = models.CharField(
-        max_length=255,
+        max_length=191,
         verbose_name=_('naam'),
         help_text=_('Naam.')
     )
@@ -976,7 +976,7 @@ class IngredientGroup(CleanModelMixin, models.Model):
 
 class Ingredient(models.Model, DirtyFieldsMixin):
     name = models.CharField(
-        max_length=255,
+        max_length=191,
         verbose_name=_('naam'),
         help_text=('Naam.')
     )
@@ -1037,7 +1037,7 @@ class Ingredient(models.Model, DirtyFieldsMixin):
 
 class Menu(models.Model):
     name = models.CharField(
-        max_length=255,
+        max_length=191,
         verbose_name=_('naam'),
         help_text=('Naam.')
     )
@@ -1126,7 +1126,7 @@ class Quantity(CleanModelMixin, models.Model):
 
 class Food(CleanModelMixin, models.Model):
     name = models.CharField(
-        max_length=255,
+        max_length=191,
         verbose_name=_('naam'),
         help_text=('Naam.')
     )
@@ -1504,12 +1504,12 @@ class IngredientRelation(models.Model, DirtyFieldsMixin):
 
 class BaseToken(BareDevice, DirtyFieldsMixin):
     device = models.CharField(
-        max_length=255,
+        max_length=191,
         verbose_name=_('apparaat'),
         help_text=_('Naam van het apparaat.')
     )
     identifier = models.CharField(
-        max_length=255,
+        max_length=191,
         verbose_name=_('idenfitifcatie'),
         help_text=_('Idenfitifcatie code die toegang geeft to Lunchbreak.')
     )

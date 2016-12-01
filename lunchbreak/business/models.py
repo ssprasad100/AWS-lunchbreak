@@ -24,7 +24,7 @@ class AbstractPasswordReset(models.Model):
 
 class AbstractPassword(AbstractPasswordReset):
     password = models.CharField(
-        max_length=255,
+        max_length=191,
         verbose_name=_('wachtwoord'),
         help_text=_('Geëncrypteerd wachtwoord.')
     )
@@ -49,18 +49,17 @@ class Staff(AbstractPassword, NotifyModelMixin):
         help_text=_('Winkel.')
     )
     email = models.EmailField(
-        max_length=255,
         unique=True,
         verbose_name=_('e-mailadres'),
         help_text=_('E-mailadres.')
     )
     first_name = models.CharField(
-        max_length=255,
+        max_length=191,
         verbose_name=_('voornaam'),
         help_text=_('Voornaam.')
     )
     last_name = models.CharField(
-        max_length=255,
+        max_length=191,
         verbose_name=_('familienaam'),
         help_text=_('Familienaam.')
     )
@@ -117,7 +116,7 @@ class StaffToken(BaseToken):
 
 class Employee(AbstractPassword, NotifyModelMixin):
     name = models.CharField(
-        max_length=255,
+        max_length=191,
         verbose_name=_('naam'),
         help_text=_('Naam.')
     )
