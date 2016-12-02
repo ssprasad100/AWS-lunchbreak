@@ -11,6 +11,9 @@ from django.db import migrations, models
 # False: utf8mb4_unicode_ci
 reverse_performance = False
 database_query_template = 'ALTER DATABASE {database_name} CHARACTER SET = {encoding} COLLATE = {collation};'
+# For InnoDB on MySQL:
+# innodb_large_prefix must be enabled for indexes > 191 in utf8mb4, this is enabled by default from 5.7.7 onward.
+# More info: http://dev.mysql.com/doc/refman/5.7/en/innodb-restrictions.html
 table_query_template = 'ALTER TABLE {table_name} CONVERT TO CHARACTER SET {encoding} COLLATE {collation};'
 repair_table_query_template = 'REPAIR TABLE {table_name};'
 optimize_table_query_template = 'OPTIMIZE TABLE {table_name};'
@@ -141,7 +144,6 @@ def utf8mb4_migration(apps, schema_editor, forward):
     try:
         schema_editor.execute('SET foreign_key_checks = 0;')
         for query in queries:
-            print('query', query)
             schema_editor.execute(query)
     except:
         schema_editor.execute('SET foreign_key_checks = 1;')

@@ -4,22 +4,27 @@ services:
   - docker
 language: python
 python:
-  - "3.5"
+  - '3.5'
 # Have to install MySQL: https://github.com/travis-ci/travis-ci/issues/4870
 install:
-  - sudo rm -Rf /var/lib/apt/lists/*
-  - sudo apt-get update -qq
-  - sudo apt-get install -y mysql-server-5.6 mysql-client-5.6 mysql-client-core-5.6
+  # MySQL 5.7 installation
+  - echo mysql-apt-config mysql-apt-config/select-server select mysql-5.7 | sudo debconf-set-selections
+  - wget http://dev.mysql.com/get/mysql-apt-config_0.7.3-1_all.deb
+  - sudo dpkg --install mysql-apt-config_0.7.3-1_all.deb
+  - sudo apt-get update -q
+  - sudo apt-get install -q -y -o Dpkg::Options::=--force-confnew mysql-server
+  - sudo mysql_upgrade
+  # Lunchbreak requirements
   - pip install -r lunchbreak/requirements-dev.txt --exists-action w
 script:
-  - "fab deploy"
+  - fab test
 notifications:
   email: false
   slack:
     rooms:
       - cloock:SXLRwJ3UHzH4R4sZwycCnt9J#lunchbreak-backend
-branches:
-  only:
-    # Version tags and branches x.x.x*
-    - /^(\d(.\d(.\d(.*)?)?)?)$/
-    - master
+deploy:
+  provider: script
+  script: 'fab deploy:skiptests=True'
+  on:
+    branch: master

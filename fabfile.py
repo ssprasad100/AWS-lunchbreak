@@ -81,13 +81,17 @@ with lcd('lunchbreak'):
         )
 
 
+def test():
+    """Run tox tests."""
+    local('tox')
+
+
 def deploy(username=None, password=None, skiptests=False):
     """The regular deployment.
 
     Tests, pushes new image and updates server."""
-
     if not skiptests:
-        local('tox')
+        test(skiptests=skiptests)
     deployer = Deployer()
     push(deployer=deployer)
     deployer.update_server()
@@ -122,7 +126,7 @@ def setup():
     deployer.setup()
 
 
-def test():
+def nothing():
     """Test constant initialisation."""
     pass
 
