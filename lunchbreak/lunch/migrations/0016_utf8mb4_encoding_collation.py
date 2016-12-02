@@ -3,7 +3,7 @@
 from __future__ import unicode_literals
 
 from django.conf import settings
-from django.db import connection, migrations, models
+from django.db import migrations, models
 
 # For reverting the migration, should the more speedy collation 'utf8mb4_general_ci' be used
 # or the slower, but 'utf8 compatible' 'utf8mb4_unicode_ci' be used?
@@ -54,7 +54,7 @@ def create_queries(apps, schema_editor, forward):
     # Add database query
     append_query(
         database_query_template,
-        database_name=settings.DB_NAME
+        database_name=settings.DATABASES['default']['NAME']
     )
 
     # Add table queries
@@ -66,7 +66,7 @@ def create_queries(apps, schema_editor, forward):
         'django_gocardless',
         'frontend',
     ]
-    table_names = connection.introspection.table_names()
+    table_names = schema_editor.connection.introspection.table_names()
     append_query(
         table_query_template,
         table_name='django_admin_log'
