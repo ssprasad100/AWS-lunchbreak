@@ -54,6 +54,13 @@ uwsgi \
     --processes=5 \
     --harakiri=20 \
     --max-requests=5000 \
-    --vacuum
+    --vacuum &
+PIDS[0]=$!
+celery -A Lunchbreak worker -l info --workdir lunchbreak &
+PIDS[1]=$!
+
+trap "kill ${PIDS[*]}" SIGINT
+
+wait
 
 exec "$@"

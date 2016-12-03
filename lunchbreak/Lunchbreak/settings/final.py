@@ -147,3 +147,12 @@ TEMPLATES = [
         },
     }
 ]
+
+# AMQP environment variables are currently unused. The defaults are used for production.
+# These defaults are defined in docker-compose.yml.
+CELERY_BROKER_URL = 'amqp://{AMQP_USER}:{AMQP_PASSWORD}@{AMQP_HOST}:5672'.format(
+    AMQP_USER=get_variable('AMQP_USER', 'lunchbreak'),
+    AMQP_PASSWORD=get_variable('AMQP_PASSWORD', 'lunchbreak'),
+    AMQP_HOST=get_variable('AMQP_HOST', 'rabbitmq')
+)
+CELERY_IGNORE_RESULT = True

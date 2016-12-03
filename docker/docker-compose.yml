@@ -49,6 +49,19 @@ services:
     volumes:
       - ./nginx/certs:/etc/nginx/certs:rw
       - /var/run/docker.sock:/var/run/docker.sock:ro
+  rabbitmq:
+    image: rabbitmq:3.6.6
+    container_name: rabbitmq
+    # RabbitMQ stores data based on the hostname so this should remain the same
+    hostname: rabbitmq
+    restart: always
+    environment:
+      - RABBITMQ_DEFAULT_USER=lunchbreak
+      - RABBITMQ_DEFAULT_PASS=lunchbreak
+    ports:
+      - '5672'
+    volumes:
+      - /var/lib/rabbitmq
 
 volumes:
   mysql:
