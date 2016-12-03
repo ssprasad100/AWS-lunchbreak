@@ -261,6 +261,7 @@ class GroupSerializer(serializers.ModelSerializer):
             'name',
             'description',
             'email',
+            'delivery',
             'deadline',
             'delay',
             'discount',

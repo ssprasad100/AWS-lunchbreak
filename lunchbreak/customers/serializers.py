@@ -97,6 +97,7 @@ class GroupSerializer(PrimaryModelSerializer):
             'id',
             'name',
             'description',
+            'delivery',
             'deadline',
             'delay',
             'discount',

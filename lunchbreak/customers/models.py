@@ -340,6 +340,11 @@ class Group(models.Model):
         help_text=_('E-mailadres gebruikt voor informatie naartoe te sturen.')
     )
 
+    delivery = models.BooleanField(
+        default=False,
+        verbose_name=_('levering'),
+        help_text=_('Bestellingen worden geleverd.')
+    )
     deadline = models.TimeField(
         default=datetime.time(hour=12),
         verbose_name=_('deadline bestelling'),
