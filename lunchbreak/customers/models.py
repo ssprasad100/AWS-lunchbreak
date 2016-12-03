@@ -531,7 +531,7 @@ class Order(AbstractOrder, DirtyFieldsMixin):
         max_digits=7,
         default=0,
         verbose_name=_('totale prijs'),
-        help_text=_('Totale prijs.')
+        help_text=_('Totale prijs inclusief korting.')
     )
     total_confirmed = RoundingDecimalField(
         decimal_places=2,
@@ -542,8 +542,20 @@ class Order(AbstractOrder, DirtyFieldsMixin):
         verbose_name=_('totale gecorrigeerde prijs'),
         help_text=_(
             'Totale prijs na correctie van de winkel indien een afgewogen '
-            'hoeveelheid licht afwijkt van de bestelde hoeveelheid.'
+            'hoeveelheid licht afwijkt van de bestelde hoeveelheid. Dit is '
+            'al inclusief het kortingspercentage.'
         )
+    )
+    discount = RoundingDecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=0,
+        validators=[
+            MinValueValidator(0),
+            MaxValueValidator(100)
+        ],
+        verbose_name=_('korting'),
+        help_text=_('Korting gegeven op deze bestelling.')
     )
     description = models.TextField(
         blank=True,
@@ -626,11 +638,6 @@ class Order(AbstractOrder, DirtyFieldsMixin):
     def save(self, *args, **kwargs):
         self.full_clean()
 
-        self.total = 0
-        orderedfood = self.orderedfood.all()
-        for f in orderedfood:
-            self.total += f.total
-
         dirty = self.is_dirty()
         dirty_status = None
 
@@ -666,6 +673,19 @@ class Order(AbstractOrder, DirtyFieldsMixin):
                     f.original.delete()
             except Food.DoesNotExist:
                 pass
+
+    def clean_total(self):
+        self.total = 0
+        orderedfood = self.orderedfood.all()
+        for f in orderedfood:
+            self.total += f.total
+
+        if self.group is not None:
+            self.total *= Decimal(100 - self.group.discount) / Decimal(100)
+
+    def clean_discount(self):
+        if self.group is not None:
+            self.discount = self.group.discount
 
     def clean_delivery_address(self):
         if self.delivery_address is not None:
