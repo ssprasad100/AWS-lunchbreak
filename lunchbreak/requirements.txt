@@ -8,7 +8,6 @@
 -e git+git://github.com/AndreasBackx/django-push-notifications.git@269816a469c93dfcc8e87e910541c9f517aa540f#egg=django_push_notifications
 -e git+git://github.com/AndreasBackx/google-maps-services-python.git@master#egg=googlemaps
 -e git+git://github.com/AndreasBackx/pendulum@feature/period-exclude-merge#egg=pendulum
-arrow==0.8.0
 bcrypt==1.1.0
 cffi==1.8.2               # via bcrypt
 django-appconf==1.0.2     # via django-compressor, django-imagekit
@@ -40,7 +39,7 @@ pilkit==1.1.13            # via django-imagekit
 Pillow==3.2.0
 plivo==0.11.1
 pycparser==2.14           # via cffi
-python-dateutil==2.5.3    # via arrow
+python-dateutil==2.5.3
 pytz==2016.6.1            # via tzlocal
 pyyaml==3.11
 rcssmin==1.0.6            # via django-compressor

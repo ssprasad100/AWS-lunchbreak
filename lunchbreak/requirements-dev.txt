@@ -8,7 +8,6 @@
 -e git+git://github.com/AndreasBackx/django-push-notifications.git@269816a469c93dfcc8e87e910541c9f517aa540f#egg=django_push_notifications
 -e git+git://github.com/AndreasBackx/google-maps-services-python.git@master#egg=googlemaps
 -e git+git://github.com/AndreasBackx/pendulum@feature/period-exclude-merge#egg=pendulum
-arrow==0.8.0
 bcrypt==1.1.0
 beautifulsoup4==4.5.1     # via django-livereload-server
 cffi==1.8.2               # via bcrypt
@@ -58,7 +57,7 @@ pycodestyle==2.0.0        # via flake8
 pycparser==2.14           # via cffi
 pycrypto==2.6.1           # via paramiko
 pyflakes==1.2.3           # via flake8
-python-dateutil==2.5.3    # via arrow
+python-dateutil==2.5.3
 pytz==2016.6.1            # via tzlocal
 pyyaml==3.11
 rcssmin==1.0.6            # via django-compressor
