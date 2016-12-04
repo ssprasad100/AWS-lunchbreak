@@ -144,6 +144,7 @@ class OrderSerializer(serializers.ModelSerializer):
             'delivery_address',
             'paid',
             'group',
+            'group_order',
         )
         read_only_fields = (
             'id',
@@ -153,6 +154,7 @@ class OrderSerializer(serializers.ModelSerializer):
             'status',
             'paid',
             'group',
+            'group_order',
         )
         write_only_fields = (
             'description',

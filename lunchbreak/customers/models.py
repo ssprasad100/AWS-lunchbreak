@@ -580,7 +580,7 @@ class Order(AbstractOrder, DirtyFieldsMixin):
         help_text=_('Bv: extra extra mayonaise graag!')
     )
     payment = models.ForeignKey(
-        Payment,
+        'django_gocardless.Payment',
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
@@ -594,7 +594,7 @@ class Order(AbstractOrder, DirtyFieldsMixin):
         help_text=_('Betalingswijze.')
     )
     delivery_address = models.ForeignKey(
-        Address,
+        'Address',
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
@@ -607,14 +607,14 @@ class Order(AbstractOrder, DirtyFieldsMixin):
         verbose_name=_('bestelde etenswaren'),
         help_text=_('Bestelde etenswaren.')
     )
-    group = models.ForeignKey(
-        Group,
+    group_order = models.ForeignKey(
+        'GroupOrder',
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name='orders',
-        verbose_name=_('groep'),
-        help_text=_('Group waartoe bestelling behoort.')
+        verbose_name=_('groepsbestelling'),
+        help_text=_('Groepsbestelling waartoe bestelling behoort.')
     )
 
     @cached_property
@@ -632,6 +632,10 @@ class Order(AbstractOrder, DirtyFieldsMixin):
         ).in_timezone(
             self.store.timezone
         )
+
+    @cached_property
+    def group(self):
+        return self.group_order.group if self.group_order is not None else None
 
     @property
     def paid(self):
@@ -766,7 +770,7 @@ class Order(AbstractOrder, DirtyFieldsMixin):
                     )
                 )
 
-    def clean_group(self):
+    def clean_group_order(self):
         if self.group is not None:
             if self.group.store != self.store:
                 raise LinkingError(
