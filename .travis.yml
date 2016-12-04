@@ -25,6 +25,8 @@ notifications:
       - cloock:SXLRwJ3UHzH4R4sZwycCnt9J#lunchbreak-backend
 deploy:
   provider: script
-  script: 'fab deploy:skiptests=True'
+  script: 'fab deploy:skiptests=True,check_deploy=True'
   on:
-    branch: master
+    all_branches: true
+    tags: true
+    repo: AndreasBackx/Lunchbreak-Backend
