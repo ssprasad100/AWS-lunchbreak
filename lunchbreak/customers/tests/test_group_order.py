@@ -5,6 +5,7 @@ from lunch.exceptions import LinkingError
 from pendulum import Pendulum
 
 from . import CustomersTestCase
+from ..config import ORDER_STATUS_COMPLETED, ORDER_STATUS_RECEIVED
 from ..models import Group, GroupOrder, Order
 
 
@@ -160,3 +161,68 @@ class GroupOrderTestCase(CustomersTestCase):
             order.total_confirmed,
             total_confirmed
         )
+
+    @mock.patch('customers.tasks.send_group_order_email.apply_async')
+    def test_synced_status(self, mock_task):
+        """Test whether changing the status on the GroupOrder changes the statuses on the orders.
+
+        Also test whether changing the status of an Order with a GroupOrder
+        doesn't affect the status because that should always be the same as the GroupOrder.
+        """
+
+        group_order = GroupOrder.objects.create(
+            group=self.group,
+            date=Pendulum.now().date()
+        )
+
+        def create_order():
+            return Order.objects.create(
+                store=self.store,
+                receipt=Pendulum.now()._datetime,
+                group_order=group_order,
+                user=self.user
+            )
+
+        create_order()
+        create_order()
+        self.assertEqual(
+            group_order.orders.count(),
+            2
+        )
+
+        def assert_same_status():
+            for order in group_order.orders.all():
+                self.assertEqual(
+                    group_order.status,
+                    order.status
+                )
+
+        # On creation all of the statuses should be the same
+        assert_same_status()
+
+        # Changing the order status of the group order should
+        # also change the status on all of the orders.
+        group_order.status = ORDER_STATUS_RECEIVED
+        group_order.save()
+        assert_same_status()
+
+        # Creating a new order should change the status to the one of the GroupOrder.
+        order3 = create_order()
+        self.assertEqual(
+            group_order.orders.count(),
+            3
+        )
+        self.assertEqual(
+            group_order.status,
+            order3.status
+        )
+        assert_same_status()
+
+        # Changing the status on an order should be ignored
+        order3.status = ORDER_STATUS_COMPLETED
+        order3.save()
+        self.assertEqual(
+            order3.status,
+            ORDER_STATUS_RECEIVED
+        )
+        assert_same_status()

@@ -38,6 +38,16 @@ ORDER_STATUS_SIGNALS = {
     ORDER_STATUS_NOT_COLLECTED: order_not_collected
 }
 
+GROUP_ORDER_STATUS_SIGNALS = {
+    ORDER_STATUS_PLACED: group_order_created,
+    ORDER_STATUS_DENIED: group_order_denied,
+    ORDER_STATUS_RECEIVED: group_order_received,
+    ORDER_STATUS_STARTED: group_order_started,
+    ORDER_STATUS_WAITING: group_order_waiting,
+    ORDER_STATUS_COMPLETED: group_order_completed,
+    ORDER_STATUS_NOT_COLLECTED: group_order_not_collected
+}
+
 DEMO_PHONE = '+32411111111'
 
 PAYMENT_METHOD_CASH = 0

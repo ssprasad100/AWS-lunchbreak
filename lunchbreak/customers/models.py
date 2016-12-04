@@ -11,7 +11,7 @@ from django.contrib.contenttypes.fields import (GenericForeignKey,
                                                 GenericRelation)
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MaxValueValidator, MinValueValidator
-from django.db import models
+from django.db import models, transaction
 from django.db.models.signals import post_delete
 from django.shortcuts import get_object_or_404
 from django.utils.functional import cached_property
@@ -36,8 +36,8 @@ from push_notifications.models import SERVICE_INACTIVE
 from rest_framework import status
 from rest_framework.response import Response
 
-from .config import (ORDER_STATUS_COMPLETED, ORDER_STATUS_PLACED,
-                     ORDER_STATUS_SIGNALS, ORDER_STATUSES,
+from .config import (GROUP_ORDER_STATUS_SIGNALS, ORDER_STATUS_COMPLETED,
+                     ORDER_STATUS_PLACED, ORDER_STATUS_SIGNALS, ORDER_STATUSES,
                      ORDER_STATUSES_ACTIVE, ORDER_STATUSES_ENDED,
                      PAYMENT_METHOD_CASH, PAYMENT_METHOD_GOCARDLESS,
                      PAYMENT_METHODS)
@@ -46,7 +46,6 @@ from .exceptions import (CostCheckFailed, MinDaysExceeded, NoPaymentLink,
                          UserDisabled)
 from .managers import (GroupManager, OrderedFoodManager, OrderManager,
                        UserManager)
-from .signals import group_order_created
 from .tasks import send_group_order_email
 
 
@@ -389,7 +388,7 @@ class Group(models.Model):
         return self.name
 
 
-class GroupOrder(models.Model):
+class GroupOrder(models.Model, DirtyFieldsMixin):
 
     class Meta:
         unique_together = ('group', 'date',)
@@ -406,6 +405,12 @@ class GroupOrder(models.Model):
         verbose_name=_('datum'),
         help_text=_('Datum van groepsbestelling.')
     )
+    status = models.PositiveIntegerField(
+        choices=ORDER_STATUSES,
+        default=ORDER_STATUS_PLACED,
+        verbose_name=_('status'),
+        help_text=_('Status.')
+    )
 
     @cached_property
     def orders(self):
@@ -418,11 +423,20 @@ class GroupOrder(models.Model):
     def save(self, *args, **kwargs):
         self.full_clean()
 
-        if self.pk is None:
-            group_order_created.send(
+        dirty_fields = self.get_dirty_fields()
+        dirty_status = dirty_fields.get('status', None)
+
+        if self.pk is None or dirty_status is not None:
+            GROUP_ORDER_STATUS_SIGNALS[self.status].send(
                 sender=self.__class__,
                 group_order=self
             )
+            # We update this way so Order.save() is called.
+            # Updating a queryset does not call each object's save.
+            with transaction.atomic():
+                for order in self.orders.all():
+                    order.status = self.status
+                    order.save()
 
         super().save(*args, **kwargs)
 
@@ -694,6 +708,11 @@ class Order(AbstractOrder, DirtyFieldsMixin):
                     f.original.delete()
             except Food.DoesNotExist:
                 pass
+
+    def clean_status(self):
+        if self.group_order is not None \
+                and self.group_order.status != self.status:
+            self.status = self.group_order.status
 
     def clean_total(self):
         self.total = 0
