@@ -70,7 +70,7 @@ class HeartAdmin(admin.ModelAdmin):
 class OrderedFoodAdmin(admin.ModelAdmin):
     list_display = ('original', 'order', 'total_display', 'is_original',)
     search_fields = ('order', 'order__user', 'original',)
-    list_filter = ('is_original',)
+    list_filter = ('is_original', 'status',)
 
     def total_display(self, instance):
         return format_decimal(instance.total)

@@ -20,10 +20,11 @@ from ..models import Address, Order, OrderedFood
 
 class OrderTestCase(CustomersTestCase):
 
+    @mock.patch('customers.models.User.notify')
     @mock.patch('lunch.models.Store.is_open')
     @mock.patch('googlemaps.Client.timezone')
     @mock.patch('googlemaps.Client.geocode')
-    def test_order(self, mock_geocode, mock_timezone, mock_is_open):
+    def test_order(self, mock_geocode, mock_timezone, mock_is_open, mock_notify):
         """
         Test an order's total and whether marked Food's are deleted on save.
         """

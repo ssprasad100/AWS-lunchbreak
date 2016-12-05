@@ -1,3 +1,5 @@
+from django.utils.translation import ugettext as _
+
 from .signals import *  # NOQA
 
 ORDER_STATUS_PLACED = 0
@@ -8,13 +10,23 @@ ORDER_STATUS_WAITING = 4
 ORDER_STATUS_COMPLETED = 5
 ORDER_STATUS_NOT_COLLECTED = 6
 ORDER_STATUSES = (
-    (ORDER_STATUS_PLACED, 'Geplaatst'),
-    (ORDER_STATUS_DENIED, 'Afgewezen'),
-    (ORDER_STATUS_RECEIVED, 'Ontvangen'),
-    (ORDER_STATUS_STARTED, 'Aan begonnen'),
-    (ORDER_STATUS_WAITING, 'Ligt klaar'),
-    (ORDER_STATUS_COMPLETED, 'Voltooid'),
-    (ORDER_STATUS_NOT_COLLECTED, 'Niet opgehaald')
+    (ORDER_STATUS_PLACED, _('Geplaatst'), order_created),
+    (ORDER_STATUS_DENIED, _('Afgewezen'), order_denied),
+    (ORDER_STATUS_RECEIVED, _('Ontvangen'), order_received),
+    (ORDER_STATUS_STARTED, _('Aan begonnen'), order_started),
+    (ORDER_STATUS_WAITING, _('Ligt klaar'), order_waiting),
+    (ORDER_STATUS_COMPLETED, _('Voltooid'), order_completed),
+    (ORDER_STATUS_NOT_COLLECTED, _('Niet opgehaald'), order_not_collected)
+)
+
+GROUP_ORDER_STATUSES = (
+    (ORDER_STATUS_PLACED, _('Geplaatst'), group_order_created),
+    (ORDER_STATUS_DENIED, _('Afgewezen'), group_order_denied),
+    (ORDER_STATUS_RECEIVED, _('Ontvangen'), group_order_received),
+    (ORDER_STATUS_STARTED, _('Aan begonnen'), group_order_started),
+    (ORDER_STATUS_WAITING, _('Ligt klaar'), group_order_waiting),
+    (ORDER_STATUS_COMPLETED, _('Voltooid'), group_order_completed),
+    (ORDER_STATUS_NOT_COLLECTED, _('Niet opgehaald'), group_order_not_collected)
 )
 ORDER_STATUSES_ENDED = [
     ORDER_STATUS_COMPLETED,
@@ -28,25 +40,12 @@ ORDER_STATUSES_ACTIVE = [
     ORDER_STATUS_WAITING
 ]
 
-ORDER_STATUS_SIGNALS = {
-    ORDER_STATUS_PLACED: order_created,
-    ORDER_STATUS_DENIED: order_denied,
-    ORDER_STATUS_RECEIVED: order_received,
-    ORDER_STATUS_STARTED: order_started,
-    ORDER_STATUS_WAITING: order_waiting,
-    ORDER_STATUS_COMPLETED: order_completed,
-    ORDER_STATUS_NOT_COLLECTED: order_not_collected
-}
-
-GROUP_ORDER_STATUS_SIGNALS = {
-    ORDER_STATUS_PLACED: group_order_created,
-    ORDER_STATUS_DENIED: group_order_denied,
-    ORDER_STATUS_RECEIVED: group_order_received,
-    ORDER_STATUS_STARTED: group_order_started,
-    ORDER_STATUS_WAITING: group_order_waiting,
-    ORDER_STATUS_COMPLETED: group_order_completed,
-    ORDER_STATUS_NOT_COLLECTED: group_order_not_collected
-}
+ORDEREDFOOD_STATUS_OK = 0
+ORDEREDFOOD_STATUS_OUT_OF_STOCK = 1
+ORDEREDFOOD_STATUSES = (
+    (ORDEREDFOOD_STATUS_OK, _('Oké'), orderedfood_created),
+    (ORDEREDFOOD_STATUS_OUT_OF_STOCK, _('Uit voorraad'), orderedfood_out_of_stock),
+)
 
 DEMO_PHONE = '+32411111111'
 
@@ -54,8 +53,8 @@ PAYMENT_METHOD_CASH = 0
 PAYMENT_METHOD_GOCARDLESS = 1
 
 PAYMENT_METHODS = (
-    (PAYMENT_METHOD_CASH, 'Cash'),
-    (PAYMENT_METHOD_GOCARDLESS, 'Online (veilig via GoCardless)'),
+    (PAYMENT_METHOD_CASH, _('Cash')),
+    (PAYMENT_METHOD_GOCARDLESS, _('Online (veilig via GoCardless)')),
 )
 
 PAYMENTLINK_COMPLETION_REDIRECT_URL = 'lunchbreak://gocardless/redirectflow/'

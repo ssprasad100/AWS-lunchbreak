@@ -3,7 +3,6 @@ import math
 from decimal import Decimal
 
 from business.models import Staff
-from dirtyfields import DirtyFieldsMixin
 from django.conf import settings
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
@@ -29,16 +28,18 @@ from lunch.exceptions import LinkingError, NoDeliveryToAddress
 from lunch.models import AbstractAddress, BaseToken, Food, Ingredient, Store
 from lunch.utils import timezone_for_store
 from Lunchbreak.exceptions import LunchbreakException
-from Lunchbreak.fields import RoundingDecimalField
+from Lunchbreak.fields import RoundingDecimalField, StatusSignalField
 from Lunchbreak.mixins import CleanModelMixin
+from Lunchbreak.models import StatusSignalModel
 from pendulum import Pendulum
 from push_notifications.models import SERVICE_INACTIVE
 from rest_framework import status
 from rest_framework.response import Response
 
-from .config import (GROUP_ORDER_STATUS_SIGNALS, ORDER_STATUS_COMPLETED,
-                     ORDER_STATUS_PLACED, ORDER_STATUS_SIGNALS, ORDER_STATUSES,
-                     ORDER_STATUSES_ACTIVE, ORDER_STATUSES_ENDED,
+from .config import (GROUP_ORDER_STATUSES, ORDER_STATUS_COMPLETED,
+                     ORDER_STATUS_PLACED, ORDER_STATUSES,
+                     ORDER_STATUSES_ACTIVE, ORDEREDFOOD_STATUS_OK,
+                     ORDEREDFOOD_STATUS_OUT_OF_STOCK, ORDEREDFOOD_STATUSES,
                      PAYMENT_METHOD_CASH, PAYMENT_METHOD_GOCARDLESS,
                      PAYMENT_METHODS)
 from .exceptions import (CostCheckFailed, MinDaysExceeded, NoPaymentLink,
@@ -50,6 +51,11 @@ from .tasks import send_group_order_email
 
 
 class User(AbstractBaseUser, PermissionsMixin):
+
+    class Meta:
+        verbose_name = _('gebruiker')
+        verbose_name_plural = _('gebruikers')
+
     phone = models.OneToOneField(
         'django_sms.Phone',
         on_delete=models.CASCADE,
@@ -99,10 +105,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     ]
 
     objects = UserManager()
-
-    class Meta:
-        verbose_name = _('gebruiker')
-        verbose_name_plural = _('gebruikers')
 
     def __str__(self):
         return self.name
@@ -198,6 +200,11 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class Address(AbstractAddress):
+
+    class Meta:
+        verbose_name = _('adres')
+        verbose_name_plural = _('adressen')
+
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -215,10 +222,6 @@ class Address(AbstractAddress):
         )
     )
 
-    class Meta:
-        verbose_name = _('adres')
-        verbose_name_plural = _('adressen')
-
     def delete(self, *args, **kwargs):
         active_orders = self.order_set.filter(
             status__in=ORDER_STATUSES_ACTIVE
@@ -232,6 +235,12 @@ class Address(AbstractAddress):
 
 
 class PaymentLink(models.Model):
+
+    class Meta:
+        unique_together = ('user', 'store',)
+        verbose_name = _('betalingskoppeling')
+        verbose_name_plural = _('betalingskoppelingen')
+
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -253,11 +262,6 @@ class PaymentLink(models.Model):
             'GoCardless doorverwijzing voor het tekenen van een mandaat.'
         )
     )
-
-    class Meta:
-        unique_together = ('user', 'store',)
-        verbose_name = _('betalingskoppeling')
-        verbose_name_plural = _('betalingskoppelingen')
 
     @classmethod
     def create(cls, user, store, instance=None, **kwargs):
@@ -321,6 +325,11 @@ class PaymentLink(models.Model):
 
 
 class Group(models.Model):
+
+    class Meta:
+        verbose_name = _('groep')
+        verbose_name_plural = _('groepen')
+
     name = models.CharField(
         max_length=191,
         verbose_name=_('naam'),
@@ -380,15 +389,11 @@ class Group(models.Model):
 
     objects = GroupManager()
 
-    class Meta:
-        verbose_name = _('groep')
-        verbose_name_plural = _('groepen')
-
     def __str__(self):
         return self.name
 
 
-class GroupOrder(models.Model, DirtyFieldsMixin):
+class GroupOrder(StatusSignalModel):
 
     class Meta:
         unique_together = ('group', 'date',)
@@ -405,8 +410,8 @@ class GroupOrder(models.Model, DirtyFieldsMixin):
         verbose_name=_('datum'),
         help_text=_('Datum van groepsbestelling.')
     )
-    status = models.PositiveIntegerField(
-        choices=ORDER_STATUSES,
+    status = StatusSignalField(
+        choices=GROUP_ORDER_STATUSES,
         default=ORDER_STATUS_PLACED,
         verbose_name=_('status'),
         help_text=_('Status.')
@@ -422,23 +427,15 @@ class GroupOrder(models.Model, DirtyFieldsMixin):
 
     def save(self, *args, **kwargs):
         self.full_clean()
-
-        dirty_fields = self.get_dirty_fields()
-        dirty_status = dirty_fields.get('status', None)
-
-        if self.pk is None or dirty_status is not None:
-            GROUP_ORDER_STATUS_SIGNALS[self.status].send(
-                sender=self.__class__,
-                group_order=self
-            )
-            # We update this way so Order.save() is called.
-            # Updating a queryset does not call each object's save.
-            with transaction.atomic():
-                for order in self.orders.all():
-                    order.status = self.status
-                    order.save()
-
         super().save(*args, **kwargs)
+
+    def status_changed(self):
+        # We update this way so Order.save() is called.
+        # Updating a queryset does not call each object's save.
+        with transaction.atomic():
+            for order in self.orders.all():
+                order.status = self.status
+                order.save()
 
     @classmethod
     def created(cls, sender, group_order, **kwargs):
@@ -460,6 +457,12 @@ class GroupOrder(models.Model, DirtyFieldsMixin):
 
 
 class Heart(models.Model):
+
+    class Meta:
+        unique_together = ('user', 'store',)
+        verbose_name = _('hart')
+        verbose_name_plural = _('hartjes')
+
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -478,11 +481,6 @@ class Heart(models.Model):
         help_text=_('Datum waarop deze persoon deze winkel "geheart" heeft.')
     )
 
-    class Meta:
-        unique_together = ('user', 'store',)
-        verbose_name = _('hart')
-        verbose_name_plural = _('hartjes')
-
     def __str__(self):
         return '{user}, {store}'.format(
             user=self.user,
@@ -490,7 +488,11 @@ class Heart(models.Model):
         )
 
 
-class AbstractOrder(CleanModelMixin, models.Model):
+class AbstractOrder(CleanModelMixin, StatusSignalModel):
+
+    class Meta:
+        abstract = True
+
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -505,9 +507,6 @@ class AbstractOrder(CleanModelMixin, models.Model):
     )
 
     objects = OrderManager()
-
-    class Meta:
-        abstract = True
 
     def __str__(self):
         return _('%(user)s, %(store)s (onbevestigd)') % {
@@ -534,7 +533,7 @@ class AbstractOrder(CleanModelMixin, models.Model):
             )
 
 
-class Order(AbstractOrder, DirtyFieldsMixin):
+class Order(AbstractOrder):
 
     class Meta:
         verbose_name = _('bestelling')
@@ -551,7 +550,7 @@ class Order(AbstractOrder, DirtyFieldsMixin):
         verbose_name=_('tijd afgave'),
         help_text=_('Tijd van afhalen of levering.')
     )
-    status = models.PositiveIntegerField(
+    status = StatusSignalField(
         choices=ORDER_STATUSES,
         default=ORDER_STATUS_PLACED,
         verbose_name=_('status'),
@@ -672,24 +671,7 @@ class Order(AbstractOrder, DirtyFieldsMixin):
 
     def save(self, *args, **kwargs):
         self.full_clean()
-
-        dirty = self.is_dirty()
-        dirty_status = None
-
-        if dirty:
-            dirty_fields = self.get_dirty_fields()
-            dirty_status = dirty_fields.get('status', dirty_status)
-
-            if self.pk is None or dirty_status is not None:
-                ORDER_STATUS_SIGNALS[self.status].send(
-                    sender=self.__class__,
-                    order=self
-                )
-
         super(Order, self).save(*args, **kwargs)
-
-        if dirty_status is not None and self.status in ORDER_STATUSES_ENDED:
-            self.update_staged_deletion()
 
     def delete(self, *args, **kwargs):
         super(Order, self).delete(*args, **kwargs)
@@ -864,24 +846,34 @@ class Order(AbstractOrder, DirtyFieldsMixin):
             )
 
     @classmethod
+    def completed(cls, sender, order, **kwargs):
+        order.update_staged_deletion()
+
+    @classmethod
     def denied(cls, sender, order, **kwargs):
         order.user.notify(
             _('Je bestelling werd spijtig genoeg geweigerd!')
         )
+        order.update_staged_deletion()
+
+    @classmethod
+    def not_collected(cls, sender, order, **kwargs):
+        order.update_staged_deletion()
 
 
 class TemporaryOrder(AbstractOrder):
+
+    class Meta:
+        unique_together = ['user', 'store']
+        verbose_name = _('tijdelijke bestelling')
+        verbose_name_plural = _('tijdelijke bestellingen')
+
     orderedfood = GenericRelation(
         'OrderedFood',
         related_query_name='temporary_order',
         verbose_name=_('bestelde etenswaren'),
         help_text=_('Bestelde etenswaren.')
     )
-
-    class Meta:
-        unique_together = ['user', 'store']
-        verbose_name = _('tijdelijke bestelling')
-        verbose_name_plural = _('tijdelijke bestellingen')
 
     def place(self, **kwargs):
         order = Order.objects.create_with_orderedfood(
@@ -894,7 +886,12 @@ class TemporaryOrder(AbstractOrder):
         return order
 
 
-class OrderedFood(models.Model):
+class OrderedFood(CleanModelMixin, StatusSignalModel):
+
+    class Meta:
+        verbose_name = _('besteld etenswaar')
+        verbose_name_plural = _('bestelde etenswaren')
+
     ingredients = models.ManyToManyField(
         Ingredient,
         blank=True,
@@ -946,12 +943,14 @@ class OrderedFood(models.Model):
         verbose_name=_('commentaar'),
         help_text=_('Commentaar.')
     )
+    status = StatusSignalField(
+        choices=ORDEREDFOOD_STATUSES,
+        default=ORDEREDFOOD_STATUS_OK,
+        verbose_name=_('status'),
+        help_text=_('Status.')
+    )
 
     objects = OrderedFoodManager()
-
-    class Meta:
-        verbose_name = _('besteld etenswaar')
-        verbose_name_plural = _('bestelde etenswaren')
 
     @cached_property
     def ingredientgroups(self):
@@ -965,11 +964,17 @@ class OrderedFood(models.Model):
     @property
     def total(self):
         """Calculate the total cost of the OrderedFood."""
+        if self.status == ORDEREDFOOD_STATUS_OUT_OF_STOCK:
+            return Decimal(0)
         return Decimal(
             math.ceil(
                 (self.cost * self.amount * self.amount_food) * 100
             ) / 100.0
         )
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
 
     def get_amount_display(self):
         """Get the amount formatted in a correct format."""
@@ -999,10 +1004,6 @@ class OrderedFood(models.Model):
 
         if isinstance(self.order, Order) and not self.original.is_orderable(self.order.receipt):
             raise MinDaysExceeded()
-
-    def save(self, *args, **kwargs):
-        self.full_clean()
-        super().save(*args, **kwargs)
 
     @staticmethod
     def calculate_cost(ingredients, food):
@@ -1097,6 +1098,11 @@ class OrderedFood(models.Model):
 
 
 class UserToken(BaseToken):
+
+    class Meta:
+        verbose_name = _('gebruikerstoken')
+        verbose_name_plural = _('gebruikerstokens')
+
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -1104,10 +1110,6 @@ class UserToken(BaseToken):
         verbose_name=_('gebruiker'),
         help_text=_('Gebruiker.')
     )
-
-    class Meta:
-        verbose_name = _('gebruikerstoken')
-        verbose_name_plural = _('gebruikerstokens')
 
     @staticmethod
     def response(user, device, service=SERVICE_INACTIVE, registration_id=''):

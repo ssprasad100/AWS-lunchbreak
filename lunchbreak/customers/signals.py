@@ -71,3 +71,14 @@ group_order_not_collected = Signal(
         'group_order',
     ]
 )
+
+orderedfood_created = Signal(
+    providing_args=[
+        'orderedfood',
+    ]
+)
+orderedfood_out_of_stock = Signal(
+    providing_args=[
+        'orderedfood',
+    ]
+)

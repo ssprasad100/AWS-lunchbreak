@@ -46,12 +46,14 @@ class OrderedFoodSerializer(serializers.ModelSerializer):
             'total',
             'is_original',
             'comment',
+            'status',
         )
         read_only_fields = (
             'id',
             'ingredientgroups',
             'is_original',
             'cost',
+            'status',
         )
         extra_kwargs = {
             'amount': {

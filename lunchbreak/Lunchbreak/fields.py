@@ -2,6 +2,7 @@ from decimal import Decimal
 
 from django.conf import settings
 from django.db import models
+from django.utils.functional import curry
 from pendulum import Pendulum
 from rest_framework import serializers
 
@@ -31,3 +32,33 @@ class DefaultTimeZoneDateTimeField(serializers.DateTimeField):
             settings.TIME_ZONE
         )._datetime
         return super().to_representation(value)
+
+
+class StatusSignalField(models.PositiveIntegerField):
+
+    def __init__(self, choices, *args, **kwargs):
+        # Check if choices contain signals.
+        # Because this function is also called in migrations.
+        if choices and len(choices[0]) > 2:
+            self.signals = {value: signal for value, display, signal in choices}
+            choices = ((value, display,) for value, display, signal in choices)
+        super().__init__(*args, choices=choices, **kwargs)
+
+    def contribute_to_class(self, cls, *args, **kwargs):
+        """Add get_{field}_signal methods to class."""
+        # Cannot load models when the app hasn't loaded yet.
+        # When importing here, it's definitely loaded.
+        from .models import StatusSignalModel
+
+        super().contribute_to_class(cls, *args, **kwargs)
+        if issubclass(cls, StatusSignalModel):
+            setattr(
+                cls,
+                'get_{name}_signal'.format(
+                    name=self.name
+                ),
+                curry(
+                    cls._get_FIELD_signal,
+                    field=self
+                )
+            )

@@ -204,8 +204,18 @@ class OrderedFoodSerializer(serializers.ModelSerializer):
             'cost',
             'is_original',
             'comment',
+            'status',
         )
-        read_only_fields = fields
+        read_only_fields = (
+            'id',
+            'ingredients',
+            'amount',
+            'original',
+            'cost',
+            'is_original',
+            'comment',
+            # 'status',
+        )
 
 
 class OrderSpreadSerializer(serializers.BaseSerializer):
