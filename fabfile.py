@@ -242,6 +242,13 @@ class Deployer:
             sudo('apt-get install linux-image-extra-$(uname -r) linux-image-extra-virtual -y')
             sudo('apt-get install docker-engine -y')
 
+            # Disable docker service iptables before starting
+            sudo('mkdir -p /etc/systemd/system/docker.service.d')
+            put(
+                local_path='docker/docker.service.d/disable-iptables.conf',
+                remote_path='/etc/systemd/system/docker.service.d/disable-iptables.conf'
+            )
+            sudo('systemctl daemon-reload')
             sudo('service docker start')
             sudo('systemctl enable docker')
 
@@ -274,6 +281,11 @@ class Deployer:
 
     def _setup_ufw(self):
         """Firewall settings."""
+        # Allow UFW forwarding for docker
+        put(
+            local_path='docker/default/ufw',
+            remote_path='/etc/default/ufw'
+        )
         sudo('ufw default deny incoming')
         sudo('ufw default allow outgoing')
         sudo('ufw allow ssh')
