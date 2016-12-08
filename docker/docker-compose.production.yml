@@ -16,9 +16,11 @@ services:
     container_name: lunchbreak_staging
     links:
       - db
+      - rabbitmq
     depends_on:
       - db
       - nginx
+      - rabbitmq
     env_file:
       - ./staging.env
     volumes:
@@ -35,9 +37,11 @@ services:
     container_name: lunchbreak_production
     links:
       - db
+      - rabbitmq
     depends_on:
       - db
       - nginx
+      - rabbitmq
     env_file:
       - ./production.env
     volumes:

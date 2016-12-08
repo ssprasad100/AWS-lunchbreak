@@ -4,7 +4,7 @@ from split_settings.tools import include
 
 TRAVIS_BRANCH = os.environ.get('TRAVIS_BRANCH')
 
-version = os.environ.get('DJANGO_SETTINGS_VERSION')
+version = os.environ.get('DJANGO_SETTINGS_VERSION', 'development')
 
 
 if TRAVIS_BRANCH is None:

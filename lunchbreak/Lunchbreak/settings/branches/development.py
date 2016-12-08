@@ -29,3 +29,6 @@ QUERY_INSPECT_LOG_TRACEBACKS = True
 
 APNS_HOST = 'gateway.sandbox.push.apple.com'
 APNS_FEEDBACK_HOST = 'feedback.sandbox.push.apple.com'
+AMQP_USER = 'guest'
+AMQP_PASSWORD = 'guest'
+AMQP_HOST = '127.0.0.1'

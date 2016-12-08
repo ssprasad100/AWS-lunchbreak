@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+import mock
 from customers.config import ORDER_STATUS_COMPLETED
 from customers.models import Order, OrderedFood
 from django.core.urlresolvers import reverse
@@ -13,7 +14,8 @@ from .testcase import BusinessTestCase
 
 class StagedDeleteTestCase(BusinessTestCase):
 
-    def test_food_delete(self):
+    @mock.patch('customers.models.User.notify')
+    def test_food_delete(self, mock_notify):
         food = Food.objects.get(id=self.food.id)
         food.pk = None
         food.save()

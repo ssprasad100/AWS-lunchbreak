@@ -1,3 +1,4 @@
+import datetime
 from decimal import Decimal
 
 from django.apps import apps
@@ -50,7 +51,7 @@ class UserManager(BaseUserManager):
 
 class OrderManager(models.Manager):
 
-    def create_with_orderedfood(self, orderedfood, **kwargs):
+    def create_with_orderedfood(self, orderedfood, group=None, **kwargs):
         self.model.is_valid(orderedfood, **kwargs)
 
         Order = apps.get_model('customers.Order')
@@ -60,6 +61,17 @@ class OrderManager(models.Manager):
             instance, created = self.get_or_create(**kwargs)
             if not created:
                 instance.orderedfood.all().delete()
+
+        if group is not None:
+            GroupOrder = apps.get_model('customers.GroupOrder')
+            group_order, created = GroupOrder.objects.get_or_create(
+                group=group,
+                date=instance.receipt.date()
+            )
+            if created:
+                # Reset the Order.group cached_property so it's not None when returned
+                del instance.group
+            instance.group_order = group_order
 
         OrderedFood = apps.get_model('customers.OrderedFood')
 
@@ -74,6 +86,9 @@ class OrderManager(models.Manager):
                     f.order = instance
                     f.save()
         except:
+            if instance.group_order is not None \
+                    and instance.group_order.orders.count() == 1:
+                instance.group_order.delete()
             instance.delete()
             raise
 
@@ -165,3 +180,19 @@ class OrderedFoodManager(models.Manager):
         instance.save()
 
         return instance
+
+
+class GroupManager(models.Manager):
+
+    def get_orders_for(self, timestamp):
+        if isinstance(timestamp, datetime.datetime):
+            date = timestamp.date()
+        elif isinstance(timestamp, datetime.date):
+            date = timestamp
+        else:
+            raise TypeError('"timestamp" needs to be of the type datetime.date.')
+
+        return apps.get_model('Order').objects.filter(
+            group__in=self,
+            receipt__date=date
+        )

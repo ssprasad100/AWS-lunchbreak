@@ -90,6 +90,7 @@ def deploy(username=None, password=None, skiptests=False, check_deploy=False):
     """The regular deployment.
 
     Tests, pushes new image and updates server."""
+
     if not skiptests:
         test()
     if check_deploy and git_branch != 'master':

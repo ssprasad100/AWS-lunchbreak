@@ -1,10 +1,17 @@
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 
 
 class PrimaryModelSerializer(serializers.ModelSerializer):
 
     """Enables writing via the primary key and reading with ModelSerializer."""
+
+    default_error_messages = {
+        'required': _('This field is required.'),
+        'does_not_exist': _('Invalid pk "{pk_value}" - object does not exist.'),
+        'incorrect_type': _('Incorrect type. Expected pk value, received {data_type}.'),
+    }
 
     def __init__(self, **kwargs):
         self.pk_field = kwargs.pop('pk_field', None)

@@ -2,8 +2,7 @@ from django_gocardless.serializers import RedirectFlowSerializer
 from django_sms.models import Phone
 from lunch import serializers as lunch_serializers
 from lunch.models import Store
-from Lunchbreak.serializers import (PrimaryModelSerializer,
-                                    RequestAttributeDefault)
+from Lunchbreak.serializers import PrimaryModelSerializer
 from phonenumber_field.validators import validate_international_phonenumber
 from rest_framework import serializers
 
@@ -47,12 +46,14 @@ class OrderedFoodSerializer(serializers.ModelSerializer):
             'total',
             'is_original',
             'comment',
+            'status',
         )
         read_only_fields = (
             'id',
             'ingredientgroups',
             'is_original',
             'cost',
+            'status',
         )
         extra_kwargs = {
             'amount': {
@@ -90,6 +91,24 @@ class PrimaryAddressSerializer(PrimaryModelSerializer):
         read_only = fields
 
 
+class GroupSerializer(PrimaryModelSerializer):
+
+    class Meta:
+        model = Group
+        fields = (
+            'id',
+            'name',
+            'description',
+            'delivery',
+            'deadline',
+            'delay',
+            'discount',
+        )
+        read_only_fields = (
+            'id',
+        )
+
+
 class OrderSerializer(serializers.ModelSerializer):
 
     """Used after placing an order for confirmation."""
@@ -105,6 +124,10 @@ class OrderSerializer(serializers.ModelSerializer):
     user = serializers.HiddenField(
         default=serializers.CurrentUserDefault()
     )
+    group = GroupSerializer(
+        queryset=Group.objects.all(),
+        required=False
+    )
 
     class Meta:
         model = Order
@@ -114,6 +137,7 @@ class OrderSerializer(serializers.ModelSerializer):
             'receipt',
             'total',
             'total_confirmed',
+            'discount',
             'orderedfood',
             'status',
             'description',
@@ -121,13 +145,18 @@ class OrderSerializer(serializers.ModelSerializer):
             'payment_method',
             'delivery_address',
             'paid',
+            'group',
+            'group_order',
         )
         read_only_fields = (
             'id',
             'total',
             'total_confirmed',
+            'discount',
             'status',
             'paid',
+            'group',
+            'group_order',
         )
         write_only_fields = (
             'description',
@@ -345,31 +374,4 @@ class PaymentLinkSerializer(serializers.ModelSerializer):
             store=self.context['store'],
             instance=instance,
             completion_redirect_url=PAYMENTLINK_COMPLETION_REDIRECT_URL
-        )
-
-
-class GroupSerializer(serializers.ModelSerializer):
-    store = serializers.PrimaryKeyRelatedField(
-        read_only=True,
-        default=serializers.CreateOnlyDefault(
-            RequestAttributeDefault(
-                attribute='user.staff.store'
-            )
-        )
-    )
-
-    class Meta:
-        model = Group
-        fields = (
-            'id',
-            'name',
-            'store',
-            'email',
-            'deadline',
-            'delay',
-            'discount',
-        )
-        read_only_fields = (
-            'id',
-            'store',
         )

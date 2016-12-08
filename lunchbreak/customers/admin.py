@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib.auth.models import Group as DjangoGroup
 from django.contrib.contenttypes.admin import GenericTabularInline
 from django.utils.translation import ugettext as _
 from lunch.admin import BaseTokenAdmin
@@ -6,6 +7,8 @@ from Lunchbreak.utils import format_decimal
 
 from .models import (Address, Group, Heart, Order, OrderedFood, PaymentLink,
                      TemporaryOrder, User, UserToken)
+
+admin.site.unregister(DjangoGroup)
 
 
 class PaymentLinkInline(admin.TabularInline):
@@ -67,7 +70,7 @@ class HeartAdmin(admin.ModelAdmin):
 class OrderedFoodAdmin(admin.ModelAdmin):
     list_display = ('original', 'order', 'total_display', 'is_original',)
     search_fields = ('order', 'order__user', 'original',)
-    list_filter = ('is_original',)
+    list_filter = ('is_original', 'status',)
 
     def total_display(self, instance):
         return format_decimal(instance.total)
