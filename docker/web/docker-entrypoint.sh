@@ -56,7 +56,7 @@ uwsgi \
     --max-requests=5000 \
     --vacuum &
 PIDS[0]=$!
-celery -A Lunchbreak worker -l info --workdir lunchbreak &
+celery -A Lunchbreak worker -l info &
 PIDS[1]=$!
 
 trap "kill ${PIDS[*]}" SIGINT
