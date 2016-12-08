@@ -3,6 +3,17 @@ ENV PYTHONUNBUFFERED 1
 
 MAINTAINER Andreas Backx
 
+RUN mkdir /code
+WORKDIR /code
+
+# uWSGI
+RUN apt-get update
+RUN apt-get install -y \
+    libpcre3 \
+    libpcre3-dev
+RUN pip install uwsgi
+
+# Arguments
 ARG version
 ARG certificate_type
 ARG requirements_file=requirements.txt
@@ -26,21 +37,11 @@ ENV DJANGO_SETTINGS_VERSION ${version}
 ENV MEDIA_ROOT ${MEDIA_ROOT}
 ENV PRIVATE_MEDIA_ROOT ${PRIVATE_MEDIA_ROOT}
 
-# uWSGI
-RUN apt-get update
-RUN apt-get install -y \
-    libpcre3 \
-    libpcre3-dev
-RUN pip install uwsgi
-
 # Setting up entrypoint
 ADD ./docker/web/docker-entrypoint.sh /
 RUN chmod +x /docker-entrypoint.sh
+ENTRYPOINT ["/docker-entrypoint.sh"]
 
 # Code
-RUN mkdir /code
-WORKDIR /code
-ADD ./lunchbreak /code/
 RUN pip install -r ${requirements_file} --exists-action w
-
-ENTRYPOINT ["/docker-entrypoint.sh"]
+ADD ./lunchbreak /code/

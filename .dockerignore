@@ -1,0 +1,5 @@
+lunchbreak/media/
+lunchbreak/media-private/
+lunchbreak/static/
+.git/
+.tox/
