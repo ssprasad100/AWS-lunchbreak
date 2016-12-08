@@ -24,6 +24,11 @@ router.register(
     views.MenuViewSet,
     base_name='business-menu'
 )
+router.register(
+    r'orderedfood',
+    views.OrderedFoodViewSet,
+    base_name='business-orderedfood'
+)
 
 router_extended = ExtendedSimpleRouter()
 router_extended.register(

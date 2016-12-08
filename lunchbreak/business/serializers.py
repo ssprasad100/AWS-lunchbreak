@@ -191,7 +191,8 @@ class EmployeeTokenSerializer(BusinessTokenSerializer):
 class OrderedFoodSerializer(serializers.ModelSerializer):
     cost = serializers.DecimalField(
         decimal_places=2,
-        max_digits=7
+        max_digits=7,
+        read_only=True
     )
 
     class Meta:

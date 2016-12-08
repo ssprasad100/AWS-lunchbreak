@@ -2,7 +2,7 @@ import pendulum
 from customers.config import (ORDER_STATUS_COMPLETED, ORDER_STATUS_PLACED,
                               ORDER_STATUS_RECEIVED, ORDER_STATUS_STARTED,
                               ORDER_STATUS_WAITING)
-from customers.models import Group, Order
+from customers.models import Group, Order, OrderedFood
 from django.conf import settings
 from django.core.validators import validate_email
 from django.db.models import Count
@@ -32,10 +32,11 @@ from .serializers import (EmployeeSerializer, FoodDetailSerializer,
                           FoodSerializer, GroupSerializer,
                           IngredientGroupDetailSerializer,
                           IngredientGroupSerializer, IngredientSerializer,
-                          OrderDetailSerializer, OrderSerializer,
-                          OrderSpreadSerializer, PopularFoodSerializer,
-                          StaffSerializer, StoreDetailSerializer,
-                          StoreHeaderSerializer, StoreMerchantSerializer)
+                          OrderDetailSerializer, OrderedFoodSerializer,
+                          OrderSerializer, OrderSpreadSerializer,
+                          PopularFoodSerializer, StaffSerializer,
+                          StoreDetailSerializer, StoreHeaderSerializer,
+                          StoreMerchantSerializer)
 
 AVAILABLE_STATUSES = [
     ORDER_STATUS_PLACED,
@@ -445,6 +446,18 @@ class OrderSpreadView(viewsets.ReadOnlyModelViewSet):
         '''.format(
             unit=unit
         ), [frm, to, store_id, ORDER_STATUS_COMPLETED])
+
+
+class OrderedFoodViewSet(TargettedViewSet,
+                         mixins.RetrieveModelMixin,
+                         mixins.UpdateModelMixin):
+    authentication_classes = (EmployeeAuthentication,)
+    serializer_class = OrderedFoodSerializer
+
+    def get_queryset(self):
+        return OrderedFood.objects.filter(
+            original__store_id=self.request.user.staff.store_id
+        )
 
 
 class QuantityView(PerformCreateStore, generics.ListAPIView):
