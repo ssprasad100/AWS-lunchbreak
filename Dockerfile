@@ -44,5 +44,7 @@ RUN chmod +x /docker-entrypoint.sh
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
 # Code
+COPY ./lunchbreak/${requirements_file} /code/${requirements_file}
 RUN pip install -r ${requirements_file} --exists-action w
+
 COPY ./lunchbreak /code/
