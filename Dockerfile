@@ -7,11 +7,12 @@ RUN mkdir /code
 WORKDIR /code
 
 # uWSGI
-RUN apt-get update
-RUN apt-get install -y \
+# apt-get update and install on same line to prevent caching issues
+RUN apt-get update && apt-get install -y \
     libpcre3 \
-    libpcre3-dev
-RUN pip install uwsgi
+    libpcre3-dev \
+&& rm -rf /var/lib/apt/lists/* \
+&& pip install uwsgi
 
 # Arguments
 ARG version
@@ -38,10 +39,10 @@ ENV MEDIA_ROOT ${MEDIA_ROOT}
 ENV PRIVATE_MEDIA_ROOT ${PRIVATE_MEDIA_ROOT}
 
 # Setting up entrypoint
-ADD ./docker/web/docker-entrypoint.sh /
+COPY ./docker/web/docker-entrypoint.sh /
 RUN chmod +x /docker-entrypoint.sh
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
 # Code
 RUN pip install -r ${requirements_file} --exists-action w
-ADD ./lunchbreak /code/
+COPY ./lunchbreak /code/
