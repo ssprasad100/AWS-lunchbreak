@@ -92,8 +92,8 @@ def deploy(username=None, password=None, skiptests=False, check_deploy=False):
     Tests, pushes new image and updates server."""
     if not skiptests:
         test()
-    if check_deploy and (not git_tag or git_branch != 'master'):
-        print('Not deploying, no tag attached and not on the master branch.')
+    if check_deploy and git_branch != 'master':
+        print('Not deploying, not on the master branch.')
         return
     deployer = Deployer()
     push(deployer=deployer)

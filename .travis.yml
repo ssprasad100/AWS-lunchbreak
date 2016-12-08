@@ -17,16 +17,8 @@ install:
   # Lunchbreak requirements
   - pip install -r lunchbreak/requirements-dev.txt --exists-action w
 script:
-  - fab test
+  - 'fab deploy:check_deploy=True'
 notifications:
   email: false
   slack:
-    rooms:
-      - cloock:SXLRwJ3UHzH4R4sZwycCnt9J#lunchbreak-backend
-deploy:
-  provider: script
-  script: 'fab deploy:skiptests=True,check_deploy=True'
-  on:
-    all_branches: true
-    tags: true
-    repo: AndreasBackx/Lunchbreak-Backend
+    secure: AzW1GgPc/mY0ITMO/fsS4FJ6RPJTWOE+5Gh4gklqY9UqxB3N8CXwD53wRx1Gf2vn2lbLVWAAQ9y0/o11b5chzgqxQT2ijhPFnIQFVSRzWwUzQYK1s6chOWQeSLI/h0jxMp8gj3DmXKSvWCmnBuuortDTopAcDPxOxPH0aqEXyJE=
