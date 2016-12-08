@@ -1,8 +1,11 @@
 from datetime import timedelta
 
 import mock
+from business.models import Staff
 from django.core.urlresolvers import reverse
 from django.utils import timezone
+from django_gocardless.exceptions import MerchantAccessError
+from django_gocardless.models import Merchant, RedirectFlow
 from lunch.exceptions import LinkingError, NoDeliveryToAddress
 from lunch.models import Food
 from pendulum import Pendulum
@@ -13,9 +16,10 @@ from .. import views
 from ..config import (ORDER_STATUS_COMPLETED, ORDER_STATUS_DENIED,
                       ORDER_STATUS_NOT_COLLECTED, ORDER_STATUS_PLACED,
                       ORDER_STATUS_RECEIVED, ORDER_STATUS_STARTED,
-                      ORDER_STATUS_WAITING)
+                      ORDER_STATUS_WAITING, PAYMENT_METHOD_CASH,
+                      PAYMENT_METHOD_GOCARDLESS)
 from ..exceptions import OrderedFoodNotOriginal
-from ..models import Address, Order, OrderedFood
+from ..models import Address, Order, OrderedFood, PaymentLink
 
 
 class OrderTestCase(CustomersTestCase):
@@ -226,3 +230,66 @@ class OrderTestCase(CustomersTestCase):
                 order.status = order_status
                 order.save()
                 self.assertEqual(mock_signal.call_count, 1)
+
+    @mock.patch('business.models.Staff.notify')
+    @mock.patch('customers.models.User.notify')
+    @mock.patch('customers.models.PaymentLink.delete')
+    @mock.patch('django_gocardless.models.RedirectFlow.is_completed', new_callable=mock.PropertyMock)
+    @mock.patch('django_gocardless.models.Payment.create')
+    def test_create_payment(self, mock_payment, mock_is_completed,
+                            mock_pl_delete, mock_user_notify, mock_staff_notify):
+        """Test whether the statuses completed and not collected trigger the
+        creation of a payment."""
+
+        mock_payment.return_value = None
+        mock_is_completed.return_value = True
+        merchant = Merchant.objects.create()
+        Staff.objects.create(
+            store=self.store,
+            email='andreas@cloock.be',
+            first_name='Andreas',
+            last_name='Backx',
+            merchant=merchant
+        )
+        redirectflow = RedirectFlow.objects.create(
+            id='RED12345',
+            merchant=merchant
+        )
+        PaymentLink.objects.create(
+            user=self.user,
+            store=self.store,
+            redirectflow=redirectflow
+        )
+        order = Order.objects.create(
+            store=self.store,
+            receipt=Pendulum.tomorrow()._datetime,
+            user=self.user,
+            payment_method=PAYMENT_METHOD_GOCARDLESS
+        )
+
+        for order_status in [ORDER_STATUS_COMPLETED, ORDER_STATUS_NOT_COLLECTED]:
+            order.status = order_status
+            order.save()
+            self.assertTrue(mock_payment.called)
+            mock_payment.reset_mock()
+            self.assertFalse(mock_user_notify.called)
+            mock_user_notify.reset_mock()
+
+        mock_payment.side_effect = MerchantAccessError()
+        order.status = ORDER_STATUS_COMPLETED
+        order.save()
+
+        self.assertEqual(
+            order.payment_method,
+            PAYMENT_METHOD_CASH
+        )
+        self.assertRaises(
+            Merchant.DoesNotExist,
+            merchant.refresh_from_db
+        )
+        self.assertTrue(mock_pl_delete.called)
+        mock_pl_delete.reset_mock()
+        self.assertTrue(mock_staff_notify.called)
+        mock_staff_notify.reset_mock()
+        self.assertTrue(mock_user_notify.called)
+        mock_user_notify.reset_mock()

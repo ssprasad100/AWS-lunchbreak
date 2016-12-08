@@ -10,7 +10,7 @@ order_waiting.connect(
     dispatch_uid='customers_order_waiting'
 )
 order_completed.connect(
-    Order.denied,
+    Order.completed,
     dispatch_uid='customers_order_completed'
 )
 order_denied.connect(
@@ -18,7 +18,7 @@ order_denied.connect(
     dispatch_uid='customers_order_denied'
 )
 order_not_collected.connect(
-    Order.denied,
+    Order.not_collected,
     dispatch_uid='customers_order_not_collected'
 )
 

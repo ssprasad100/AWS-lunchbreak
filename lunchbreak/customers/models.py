@@ -778,6 +778,55 @@ class Order(AbstractOrder):
                     _('De winkel van de groep moet dezelde zijn als die van de bestelling.')
                 )
 
+    def create_payment(self):
+        if self.payment_method == PAYMENT_METHOD_GOCARDLESS:
+            try:
+                paymentlink = self.user.paymentlink_set.select_related(
+                    'redirectflow__mandate'
+                ).get(
+                    store=self.store
+                )
+
+                if paymentlink.redirectflow.is_completed:
+                    mandate = paymentlink.redirectflow.mandate
+                    self.payment = Payment.create(
+                        given={
+                            'amount': int(self.total * 100),
+                            'currency': CURRENCY_EUR,
+                            'links': {
+                                'mandate': mandate
+                            },
+                            'description': _(
+                                'Lunchbreak bestelling #%(order_id)s bij %(store)s.'
+                            ) % {
+                                'order_id': self.id,
+                                'store': self.store.name
+                            }
+                        }
+                    )
+                    self.save()
+                    return
+            except MerchantAccessError as e:
+                merchant = self.store.staff.merchant
+                if merchant is not None:
+                    merchant.delete()
+                    self.store.staff.notify(
+                        _('GoCardless account ontkoppelt wegens fout.')
+                    )
+            except (PaymentLink.DoesNotExist, DjangoGoCardlessException):
+                pass
+            # Could not create payment
+            if paymentlink is not None:
+                paymentlink.delete()
+            self.payment_method = PAYMENT_METHOD_CASH
+            self.user.notify(
+                _(
+                    'Er liep iets fout bij de online betaling. Gelieve '
+                    'contant te betalen bij het ophalen.'
+                )
+            )
+            self.save()
+
     @classmethod
     def created(cls, sender, order, **kwargs):
         Staff.objects.filter(
@@ -800,53 +849,9 @@ class Order(AbstractOrder):
             )
         )
 
-        if order.payment_method == PAYMENT_METHOD_GOCARDLESS:
-            try:
-                paymentlink = order.user.paymentlink_set.select_related(
-                    'redirectflow__mandate'
-                ).get(
-                    store=order.store
-                )
-
-                if paymentlink.redirectflow.is_completed:
-                    mandate = paymentlink.redirectflow.mandate
-                    order.payment = Payment.create(
-                        given={
-                            'amount': int(order.total * 100),
-                            'currency': CURRENCY_EUR,
-                            'links': {
-                                'mandate': mandate
-                            },
-                            'description': _(
-                                'Lunchbreak bestelling #%(order_id)s bij %(store)s.'
-                            ) % {
-                                'order_id': order.id,
-                                'store': order.store.name
-                            }
-                        }
-                    )
-                    return
-            except MerchantAccessError as e:
-                merchant = order.store.staff.merchant
-                if merchant is not None:
-                    merchant.delete()
-                    order.store.staff.notify(
-                        _('GoCardless account ontkoppelt wegens fout.')
-                    )
-            except (PaymentLink.DoesNotExist, DjangoGoCardlessException):
-                pass
-            # Could not create payment
-            # TODO Send the user an email/text stating the failed transaction.
-            order.payment_method = PAYMENT_METHOD_CASH
-            order.user.notify(
-                _(
-                    'Er liep iets fout bij de online betaling. Gelieve '
-                    'contant te betalen bij het ophalen.'
-                )
-            )
-
     @classmethod
     def completed(cls, sender, order, **kwargs):
+        order.create_payment()
         order.update_staged_deletion()
 
     @classmethod
@@ -858,6 +863,7 @@ class Order(AbstractOrder):
 
     @classmethod
     def not_collected(cls, sender, order, **kwargs):
+        order.create_payment()
         order.update_staged_deletion()
 
 
