@@ -3,6 +3,7 @@ services:
   - mysql
   - docker
 language: python
+cache: pip
 python:
   - '3.5'
 # Have to install MySQL: https://github.com/travis-ci/travis-ci/issues/4870
