@@ -19,18 +19,18 @@
 
 {{ define "routes" }}
 	location / {
-		{{ if eq $proto "uwsgi" }}
+		{{ if eq .Proto "uwsgi" }}
 		include uwsgi_params;
-		uwsgi_pass {{ trim $proto }}://{{ trim $host }};
+		uwsgi_pass {{ trim .Proto }}://{{ trim .Host }};
 		{{ else }}
-		proxy_pass {{ trim $proto }}://{{ trim $host }};
+		proxy_pass {{ trim .Proto }}://{{ trim .Host }};
 		{{ end }}
-		{{ if (exists (printf "/etc/nginx/htpasswd/%s" $host)) }}
-		auth_basic	"Restricted {{ $host }}";
-		auth_basic_user_file	{{ (printf "/etc/nginx/htpasswd/%s" $host) }};
+		{{ if (exists (printf "/etc/nginx/htpasswd/%s" .Host)) }}
+		auth_basic	"Restricted {{ .Host }}";
+		auth_basic_user_file	{{ (printf "/etc/nginx/htpasswd/%s" .Host) }};
 		{{ end }}
-                {{ if (exists (printf "/etc/nginx/vhost.d/%s_location" $host)) }}
-                include {{ printf "/etc/nginx/vhost.d/%s_location" $host}};
+                {{ if (exists (printf "/etc/nginx/vhost.d/%s_location" .Host)) }}
+                include {{ printf "/etc/nginx/vhost.d/%s_location" .Host}};
                 {{ else if (exists "/etc/nginx/vhost.d/default_location") }}
                 include /etc/nginx/vhost.d/default_location;
                 {{ end }}
@@ -226,7 +226,7 @@ server {
 	include /etc/nginx/vhost.d/default;
 	{{ end }}
 
-	{{ template "routes" (dict "Containers" $containers) }}
+	{{ template "routes" (dict "Containers" $containers "Host" $host "Proto" $proto) }}
 }
 
 {{ end }}
@@ -245,7 +245,7 @@ server {
 	include /etc/nginx/vhost.d/default;
 	{{ end }}
 
-	{{ template "routes" (dict "Containers" $containers) }}
+	{{ template "routes" (dict "Containers" $containers "Host" $host "Proto" $proto) }}
 }
 
 {{ if (and (not $is_https) (exists "/etc/nginx/certs/default.crt") (exists "/etc/nginx/certs/default.key")) }}
