@@ -4,21 +4,12 @@ import mock
 from lunch.exceptions import LinkingError
 from pendulum import Pendulum
 
-from . import CustomersTestCase
 from ..config import ORDER_STATUS_COMPLETED, ORDER_STATUS_RECEIVED
 from ..models import Group, GroupOrder, Order
+from .test_group import GroupTestCase
 
 
-class GroupOrderTestCase(CustomersTestCase):
-
-    def setUp(self):
-        super().setUp()
-
-        self.group = Group.objects.create(
-            name='Test Group',
-            store=self.store,
-            email='andreas@cloock.be'
-        )
+class GroupOrderTestCase(GroupTestCase):
 
     @mock.patch('customers.tasks.send_group_order_email.apply_async')
     @mock.patch('lunch.models.Store.is_open')

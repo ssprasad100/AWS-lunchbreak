@@ -13,10 +13,10 @@ class PrimaryModelSerializer(serializers.ModelSerializer):
         'incorrect_type': _('Incorrect type. Expected pk value, received {data_type}.'),
     }
 
-    def __init__(self, **kwargs):
+    def __init__(self, *args, **kwargs):
         self.pk_field = kwargs.pop('pk_field', None)
         self.queryset = kwargs.pop('queryset', None)
-        super(PrimaryModelSerializer, self).__init__(**kwargs)
+        super(PrimaryModelSerializer, self).__init__(*args, **kwargs)
 
     def get_queryset(self):
         return self.queryset

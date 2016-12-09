@@ -359,10 +359,13 @@ class StoreGroupViewSet(viewsets.GenericViewSet,
                         mixins.RetrieveModelMixin):
 
     serializer_class = GroupSerializer
+    authentication_classes = (CustomerAuthentication,)
 
     def get_queryset(self):
+        print(self.kwargs)
         return Group.objects.filter(
-            store_id=self.kwargs['parent_lookup_pk']
+            store_id=self.kwargs['parent_lookup_pk'],
+            members__in=[self.request.user]
         )
 
 
