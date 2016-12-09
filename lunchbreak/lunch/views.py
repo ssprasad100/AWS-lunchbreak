@@ -12,6 +12,7 @@ from sendfile import sendfile
 
 from .exceptions import UnsupportedAPIVersion
 from .models import HolidayPeriod, OpeningPeriod, Store, StoreCategory
+from .renderers import JPEGRenderer
 from .serializers import (HolidayPeriodSerializer, OpeningPeriodSerializer,
                           StoreCategorySerializer)
 
@@ -94,6 +95,8 @@ class StorePeriodsViewSet(TargettedViewSet,
 
 class StoreHeaderView(APIView):
 
+    renderer_classes = (JPEGRenderer,)
+
     def get(self, request, store_id, width=None, height=None):
         store = get_object_or_404(Store, id=store_id)
 
@@ -101,7 +104,7 @@ class StoreHeaderView(APIView):
         height = height if height is not None else request.query_params.get('height')
 
         if height is None or width is None:
-                raise Http404()
+            raise Http404()
 
         if not hasattr(store, 'header'):
             raise Http404('That store does not have a header.')
