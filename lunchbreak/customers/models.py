@@ -1011,6 +1011,10 @@ class OrderedFood(CleanModelMixin, StatusSignalModel):
         if isinstance(self.order, Order) and not self.original.is_orderable(self.order.receipt):
             raise MinDaysExceeded()
 
+    def status_changed(self):
+        # Update the order total
+        self.order.save()
+
     @staticmethod
     def calculate_cost(ingredients, food):
         """Calculate the base cost of the given ingredients and food.

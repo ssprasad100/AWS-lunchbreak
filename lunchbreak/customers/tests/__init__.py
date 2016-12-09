@@ -201,7 +201,7 @@ class CustomersTestCase(LunchbreakTestCase):
         ])
 
     def clone_model(self, model):
-        oldPk = model.pk
+        old_pk = model.pk
         model.pk = None
         model.save()
-        return (model, model.__class__.objects.get(pk=oldPk),)
+        return (model, model.__class__.objects.get(pk=old_pk),)

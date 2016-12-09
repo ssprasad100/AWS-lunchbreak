@@ -1,13 +1,16 @@
+import mock
 from lunch.config import (COST_GROUP_ADDITIONS, COST_GROUP_ALWAYS,
                           COST_GROUP_BOTH)
+from pendulum import Pendulum
 
 from . import CustomersTestCase
-from ..models import OrderedFood
+from ..config import ORDEREDFOOD_STATUS_OK, ORDEREDFOOD_STATUS_OUT_OF_STOCK
+from ..models import Order, OrderedFood
 
 
 class OrderedFoodTestCase(CustomersTestCase):
 
-    def test_orderedfood_calculate_cost(self):
+    def test_calculate_cost(self):
         self.ingredientgroup.calculation = COST_GROUP_ALWAYS
         self.ingredientgroup.save()
 
@@ -162,4 +165,41 @@ class OrderedFoodTestCase(CustomersTestCase):
                 self.food
             ),
             self.food.cost - cost_separate_ingredients
+        )
+
+    @mock.patch('lunch.models.Store.is_open')
+    def test_status(self, mock_is_open):
+        """Test whether updating the status updates the order's total."""
+
+        orderedfood_data = [
+            {
+                'original': self.food,
+                'amount': 1,
+                'total': self.food.cost
+            }
+        ]
+
+        order = Order.objects.create_with_orderedfood(
+            orderedfood=orderedfood_data,
+            user=self.user,
+            store=self.store,
+            receipt=Pendulum.now()._datetime
+        )
+
+        orderedfood = order.orderedfood.first()
+        self.assertEqual(
+            orderedfood.status,
+            ORDEREDFOOD_STATUS_OK
+        )
+        self.assertEqual(
+            order.total,
+            orderedfood.total
+        )
+
+        orderedfood.status = ORDEREDFOOD_STATUS_OUT_OF_STOCK
+        orderedfood.save()
+        order.refresh_from_db()
+        self.assertEqual(
+            order.total,
+            0
         )
