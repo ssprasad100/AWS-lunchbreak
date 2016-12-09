@@ -18,6 +18,24 @@
 {{ end }}
 
 {{ define "routes" }}
+	location / {
+		{{ if eq $proto "uwsgi" }}
+		include uwsgi_params;
+		uwsgi_pass {{ trim $proto }}://{{ trim $host }};
+		{{ else }}
+		proxy_pass {{ trim $proto }}://{{ trim $host }};
+		{{ end }}
+		{{ if (exists (printf "/etc/nginx/htpasswd/%s" $host)) }}
+		auth_basic	"Restricted {{ $host }}";
+		auth_basic_user_file	{{ (printf "/etc/nginx/htpasswd/%s" $host) }};
+		{{ end }}
+                {{ if (exists (printf "/etc/nginx/vhost.d/%s_location" $host)) }}
+                include {{ printf "/etc/nginx/vhost.d/%s_location" $host}};
+                {{ else if (exists "/etc/nginx/vhost.d/default_location") }}
+                include /etc/nginx/vhost.d/default_location;
+                {{ end }}
+	}
+
 	{{ $containersLen := len .Containers }}
 	{{ if ge $containersLen 1 }}
 		{{ $container := index .Containers 0 }}
@@ -56,6 +74,8 @@ map $http_upgrade $proxy_connection {
   default upgrade;
   '' close;
 }
+
+client_max_body_size 15m;
 
 gzip on;
 gzip_disable "msie6";
@@ -206,24 +226,6 @@ server {
 	include /etc/nginx/vhost.d/default;
 	{{ end }}
 
-	location / {
-		{{ if eq $proto "uwsgi" }}
-		include uwsgi_params;
-		uwsgi_pass {{ trim $proto }}://{{ trim $host }};
-		{{ else }}
-		proxy_pass {{ trim $proto }}://{{ trim $host }};
-		{{ end }}
-		{{ if (exists (printf "/etc/nginx/htpasswd/%s" $host)) }}
-		auth_basic	"Restricted {{ $host }}";
-		auth_basic_user_file	{{ (printf "/etc/nginx/htpasswd/%s" $host) }};
-		{{ end }}
-                {{ if (exists (printf "/etc/nginx/vhost.d/%s_location" $host)) }}
-                include {{ printf "/etc/nginx/vhost.d/%s_location" $host}};
-                {{ else if (exists "/etc/nginx/vhost.d/default_location") }}
-                include /etc/nginx/vhost.d/default_location;
-                {{ end }}
-	}
-
 	{{ template "routes" (dict "Containers" $containers) }}
 }
 
@@ -242,24 +244,6 @@ server {
 	{{ else if (exists "/etc/nginx/vhost.d/default") }}
 	include /etc/nginx/vhost.d/default;
 	{{ end }}
-
-	location / {
-		{{ if eq $proto "uwsgi" }}
-		include uwsgi_params;
-		uwsgi_pass {{ trim $proto }}://{{ trim $host }};
-		{{ else }}
-		proxy_pass {{ trim $proto }}://{{ trim $host }};
-		{{ end }}
-		{{ if (exists (printf "/etc/nginx/htpasswd/%s" $host)) }}
-		auth_basic	"Restricted {{ $host }}";
-		auth_basic_user_file	{{ (printf "/etc/nginx/htpasswd/%s" $host) }};
-		{{ end }}
-                {{ if (exists (printf "/etc/nginx/vhost.d/%s_location" $host)) }}
-                include {{ printf "/etc/nginx/vhost.d/%s_location" $host}};
-                {{ else if (exists "/etc/nginx/vhost.d/default_location") }}
-                include /etc/nginx/vhost.d/default_location;
-                {{ end }}
-	}
 
 	{{ template "routes" (dict "Containers" $containers) }}
 }
