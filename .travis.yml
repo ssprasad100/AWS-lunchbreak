@@ -3,10 +3,18 @@ services:
   - mysql
   - docker
 language: python
-cache: pip
+cache:
+  pip: true
+  directories:
+    - /home/travis/docker/
 python:
   - '3.5'
+env:
+  global:
+    - DOCKER_CACHE_FILE=/home/travis/docker/cache.tar.gz
 # Have to install MySQL: https://github.com/travis-ci/travis-ci/issues/4870
+before_install:
+  - if [ -f ${DOCKER_CACHE_FILE} ]; then gunzip -c ${DOCKER_CACHE_FILE} | docker load; fi
 install:
   # MySQL 5.7 installation
   - echo mysql-apt-config mysql-apt-config/select-server select mysql-5.7 | sudo debconf-set-selections
@@ -19,6 +27,8 @@ install:
   - pip install -r lunchbreak/requirements-dev.txt --exists-action w
 script:
   - 'fab deploy:check_deploy=True'
+  # Save built images to Travis cache directory only if building master branch and not a pull request.
+  - if [[ ${TRAVIS_BRANCH} == "master" ]] && [[ ${TRAVIS_PULL_REQUEST} == "false" ]]; then mkdir -p $(dirname ${DOCKER_CACHE_FILE}) ; docker save $(docker history -q andreasbackx/lunchbreak:${TRAVIS_COMMIT} | grep -v '<missing>') | gzip > ${DOCKER_CACHE_FILE}; fi
 notifications:
   email: false
   slack:
