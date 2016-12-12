@@ -1,20 +1,22 @@
 import json
 
 from customers.config import ORDER_STATUSES_ENDED
-from customers.models import Order, PaymentLink, TemporaryOrder
+from customers.models import Group, Order, PaymentLink, TemporaryOrder
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
-from django.core.urlresolvers import reverse
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.db.models import Count
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.decorators import method_decorator
+from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView, View
 from lunch.models import Food, Store
 from user_agents import parse as parse_user_agent
 
-from .forms import OrderForm, SearchForm, UserForm
+from .forms import GroupForm, OrderForm, SearchForm, UserForm
 from .mixins import LoginForwardMixin
 
 
@@ -308,3 +310,54 @@ class LogoutView(View):
 
 class TermsView(TemplateView):
     template_name = 'pages/terms.html'
+
+
+class GroupView(LoginRequiredMixin, TemplateView):
+    template_name = 'pages/group.html'
+    login_url = reverse_lazy('frontend-login')
+
+    def get_context_data(self, request, pk, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['group'] = get_object_or_404(
+            Group.objects.prefetch_related(
+                'members'
+            ),
+            pk=pk
+        )
+        context['joined'] = 'joined' in request.GET
+        context['title'] = _('Lunchbreak: Groep %(group_name)s') % {
+            'group_name': context['group'].name
+        }
+        context['group_form'] = GroupForm(
+            data=request.GET,
+            group=context['group']
+        )
+        return context
+
+    def get(self, request, pk, **kwargs):
+        context = self.get_context_data(request, pk, **kwargs)
+        group = context['group']
+        token = kwargs.get('token')
+
+        if token is not None:
+            if group.token != token:
+                raise Http404()
+            # Redirect the user to the same page without the token.
+            # So if the link is shared, not token is shared.
+            return redirect(
+                to=reverse(
+                    'frontend-group',
+                    kwargs={
+                        'pk': pk
+                    }
+                )
+            )
+
+        if request.user not in group.members.all():
+            raise Http404()
+
+        return render(
+            request=request,
+            template_name=self.template_name,
+            context=context
+        )

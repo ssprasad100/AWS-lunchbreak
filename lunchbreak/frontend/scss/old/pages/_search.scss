@@ -1,5 +1,5 @@
 #search-banner {
-    background-image: url('banners/search/edited.jpg');
+    background-image: url('../banners/search/edited.jpg');
 }
 
 #search-results {
@@ -23,7 +23,7 @@
         .search-result-container {
             display: block;
             margin: 16px;
-            background-image: url('banners/store/item.jpg');
+            background-image: url('../banners/store/item.jpg');
             background-position: center;
             background-size: cover;
             height: 400px;
@@ -51,7 +51,7 @@
                 }
 
                 .search-result-hearts {
-                    background-image: url('icons/heart.png');
+                    background-image: url('../icons/heart.png');
                     background-size: 24px;
                     padding-bottom: 3px;
                     background-repeat: no-repeat;

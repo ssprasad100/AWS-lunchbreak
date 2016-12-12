@@ -57,8 +57,35 @@
      * @param  {number} value Money value.
      * @return {string} Foramtted money string.
      */
-    var getMoneyDisplay = function(value) {
+    var moneyFilter = function(value) {
         return ('&euro; ' + Math.ceil10(value, -2).toFixed(2)).replace('.', ',');
+    };
+
+
+    /**
+     * Get a representation for a value based on an inputtype.
+     * @param  {FoodType.InputType} inputtype Input type of the value.
+     * @param  {number} value Amount/weight value.
+     * @return {string} Representation of the given value and input type.
+     */
+    var amountFilter = function(value, inputtype) {
+        if (inputtype === FoodType.InputType.SIVariable) {
+            return weightFilter(value);
+        } else {
+            return Math.round(value);
+        }
+    };
+
+    /**
+     * A weight representation of a value in kg or g.
+     * @param  {number} value Weight in kg.
+     * @return {string} SI unit representation.
+     */
+    var weightFilter = function(value) {
+        if (value < 1)
+            return (value * 1000) + ' g';
+        else
+            return String(value).replace('.', ',') + ' kg';
     };
 
     /**
@@ -198,7 +225,7 @@
             total += orderedfood.getTotal();
         }
 
-        costElement.html(getMoneyDisplay(total));
+        costElement.html(moneyFilter(total));
     };
 
     /**
@@ -221,8 +248,8 @@
          * Get a formatted amount for use in the order list.
          * @return {string} Formatted amount.
          */
-        this.get_amount_display = function() {
-            return Quantity.get_amount_display(this.original.foodtype.inputtype, this.amount);
+        this.amountFilter = function() {
+            return amountFilter(this.amount, this.original.foodtype.inputtype);
         };
 
         /**
@@ -231,18 +258,18 @@
          * @return {number} Total cost.
          */
         this.getTotal = function() {
-            var amount_food = this.original.foodtype.inputtype === FoodType.InputType.SIAmount ? this.original.amount : 1;
-            return Math.ceil10(this.cost * this.amount * amount_food, -2);
+            var amountFood = this.original.foodtype.inputtype === FoodType.InputType.SIAmount ? this.original.amount : 1;
+            return Math.ceil10(this.cost * this.amount * amountFood, -2);
         };
 
         /**
          * Get the total cost displayed in an appropriate money format.
          * @return {string} Total cost formatted.
          */
-        this.get_total_display = function() {
+        this.getTotalDisplay = function() {
             if (this.cost === undefined)
                 return '...';
-            return getMoneyDisplay(this.getTotal());
+            return moneyFilter(this.getTotal());
         };
 
         /**
@@ -289,7 +316,7 @@
          */
         this.updateCost = function() {
             var costElement = this.element.find('.orderedfood-cost').first();
-            costElement.html(this.get_total_display());
+            costElement.html(this.getTotalDisplay());
             this.element.find('.orderedfood-data').first().val(this.json());
 
             Order.onCostUpdate();
@@ -414,7 +441,7 @@
          * @return {string} Example: "&euro; 3,50".
          */
         this.getCostDisplay = function() {
-            return getMoneyDisplay(this.cost);
+            return moneyFilter(this.cost);
         };
 
         /**
@@ -810,7 +837,7 @@
                     break;
                 case FoodType.InputType.SIAmount:
                     var inputtype = this.inputtype === FoodType.InputType.Amount ? this.inputtype : FoodType.InputType.SIVariable;
-                    return 'Aantal (elk ' + Quantity.get_amount_display(inputtype, this.food.amount) + ')';
+                    return 'Aantal (elk ' + amountFilter(this.food.amount, inputtype) + ')';
                     break;
             }
         };
@@ -861,16 +888,16 @@
         this.food = food;
 
         this.getMinimumDisplay = function() {
-            return Quantity.get_amount_display(
-                this.food.foodtype.inputtype,
-                this.minimum
+            return amountFilter(
+                this.minimum,
+                this.food.foodtype.inputtype
             );
         };
 
         this.getMaximumDisplay = function() {
-            return Quantity.get_amount_display(
-                this.food.foodtype.inputtype,
-                this.maximum
+            return amountFilter(
+                this.maximum,
+                this.food.foodtype.inputtype
             );
         };
 
@@ -897,32 +924,6 @@
 
         this.init();
     };
-
-    /**
-     * Get a representation for a value based on an inputtype.
-     * @param  {FoodType.InputType} inputtype Input type of the value.
-     * @param  {number} value Amount/weight value.
-     * @return {string} Representation of the given value and input type.
-     */
-    Quantity.get_amount_display = function(inputtype, value) {
-        if (inputtype === FoodType.InputType.SIVariable) {
-            return Quantity.getWeightDisplay(value);
-        } else {
-            return Math.round(value);
-        }
-    };
-
-    /**
-     * A weight representation of a value in kg or g.
-     * @param  {number} value Weight in kg.
-     * @return {string} SI unit representation.
-     */
-    Quantity.getWeightDisplay = function(value) {
-        if (value < 1)
-            return (value * 1000) + ' g';
-        else
-            return String(value).replace('.', ',') + ' kg';
-    }
 
     /**
      * IngredientGroup of a food.
@@ -1289,9 +1290,12 @@
     };
 
     $(document).ready(function() {
-        nunjucks.configure('/static', {
+        var env = nunjucks.configure('/static', {
             autoescape: true
         });
+        env.addFilter('amount', amountFilter);
+        env.addFilter('money', moneyFilter);
+
         Order.init();
         Inventory.init();
         new TabContainer();

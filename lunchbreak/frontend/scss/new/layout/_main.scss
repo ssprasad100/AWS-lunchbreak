@@ -1,0 +1,22 @@
+main {
+    padding-top: $menu-height;
+    background: $color-background-gray;
+    display: block;
+    -ms-flex: 1 0 0;
+    -webkit-flex: 1;
+    flex: 1 0 0;
+
+    & > section {
+        padding: 75px 20px;
+
+        &:nth-child(even) {
+            background: white;
+        }
+    }
+}
+
+@media screen and (max-width: 800px) {
+    main > section {
+        padding: 50px 0px;
+    }
+}

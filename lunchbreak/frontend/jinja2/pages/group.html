@@ -1,0 +1,144 @@
+{% extends 'base.html' %} {% block css %}
+<link type="text/css" rel="stylesheet" href="{% sass_src 'new/main.scss' %}">
+<link type="text/css" rel="stylesheet" href="{% sass_src 'new/print.scss' %}" media="print"> {% endblock css %} {% block head %}
+<link href="https://fonts.googleapis.com/css?family=Roboto:400,500" rel="stylesheet"> {% endblock head %} {% block content %}
+<nav id="menu">
+    <a href="/" class="logo">Lunchbreak</a>
+    <div class="items">
+        <div class="hidden">
+            <a href="#overeenkomst">Overeenkomst</a>
+            <a href="#bestelling-plaatsen">Bestelling plaatsen</a>
+        </div>
+        <div class="visible">
+            <a href="#overeenkomst">Overeenkomst</a>
+            <a href="#bestelling-plaatsen">Bestelling plaatsen</a>
+        </div>
+    </div>
+</nav>
+<main>
+    <section>
+        <div class="bundle segments">
+            <a href="/" class="selected">Groepeer per persoon</a>
+            <a href="/">Groepeer per product</a>
+        </div>
+        <div class="bundle table groups">
+            <header>
+                <div class="split popup container">
+                    <div class="max column">
+                        {{ group_form.day }}
+                        <p>Dit is het betaaloverzicht van de groep {{ group.name }}.</p>
+                    </div>
+                    <div class="bottom column">
+                        <a href="javascript:window.print()" class="red button">Afdrukken</a>
+                    </div>
+                </div>
+            </header>
+            {% set group_order = group_form.group_order %} {% if group_order %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Naam</th>
+                        <th class="hide-on-small">Product</th>
+                        <th class="hide-on-small">Prijs</th>
+                        <th>Totaal</th>
+                    </tr>
+                </thead>
+                {% set orders = group_order.orders.order_by('user__name') %}
+                {% for order in orders %}
+                <tbody>
+                    {% for orderedfood in order.orderedfood.all() %} {% if loop.first %}
+                    <tr>
+                        <td>
+                            <h2>{{ order.user.name }}</h2>
+                            <p>{{ order.user.phone.phone }}</p>
+                        </td>
+                        {% else %}
+                        <tr class="hide-on-small">
+                            <td></td>
+                            {% endif %}
+                            <td class="hide-on-small">
+                                <h3>{{ orderedfood.original.name }} ({{ orderedfood.amount | amount(orderedfood.original.foodtype.inputtype) }})</h3>
+                                {% if orderedfood.original.description %}
+                                <p>{{ orderedfood.original.description }}</p>
+                                {% endif %}
+                            </td>
+                            <td class="hide-on-small">{{ orderedfood.total | money }}</td>
+                            {% if loop.first %}
+                            <td>
+                                <h3>{{ order.total | money }}</h3>
+                                <p>{% if order.payment_gocardless %}Online betaald{% else %}Te betalen{% endif %}</p>
+                            </td>
+                            {% else %}
+                            <td></td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %} {% endfor %}
+                        <tfoot>
+                            <tr>
+                                <td class="hide-on-small"></td>
+                                <td class="hide-on-small"></td>
+                                <td>Totaal</td>
+                                <td>{{ group_order.total_no_discount | money }}</td>
+                            </tr>
+                            <tr>
+                                <td class="hide-on-small"></td>
+                                <td class="hide-on-small"></td>
+                                <td>Korting ({{ group.discount | percentage }})</td>
+                                <td>{{ -group_order.discounted_amount | money }}</td>
+                            </tr>
+                            {% if group_order.paid_total > 0 %}
+                            <tr>
+                                <td class="hide-on-small"></td>
+                                <td class="hide-on-small"></td>
+                                <td>Online betaald</td>
+                                <td>{{ group_order.paid_total | money }}</td>
+                            </tr>
+                            {% endif %}
+                            <tr>
+                                <td class="hide-on-small"></td>
+                                <td class="hide-on-small"></td>
+                                <td>Te betalen</td>
+                                <td>{{ (group_order.total - group_order.paid_total) | money }}</td>
+                            </tr>
+                        </tfoot>
+            </table>
+            {% endif %}
+        </div>
+    </section>
+    <section id="overeenkomst" class="noprint">
+        <article class="text bundle">
+            <h1>Overeenkomst met Petit Pain</h1>
+            <ul>
+                <li>Bestel voor {{ group.deadline | time('H:i') }}
+                </li>
+                <li>{% if group.delivery %}Afhaling{% else %}Levering{% endif %} om {{ group.receipt | time('H:i') }}*</li>
+                <li>{{ group.discount | percentage }} korting op alle bestellingen</li>
+            </ul>
+            <p>* Afhankelijk van de (mondelinge) overeenkomst met de winkel</p>
+            <p>Aanpassingen moeten worden aangevraagd bij de winkel in kwestie.</p>
+        </article>
+    </section>
+    <section id="bestelling-plaatsen" class="noprint">
+        <article class="text bundle">
+            <h1>Hoe kan je een bestelling plaatsen?</h1>
+            <p>Gebruik de Lunchbreak app of website om een bestelling te plaatsen bij de winkel waarmee een overeenkomst is gesloten. Wanneer gevraagd wordt naar een afhaalmethode, moet “bestel in groep” gekozen worden. Daarna krijgt men keuze uit de beschikbare groepen. Kies de groep waarbij je wilt bestellen (dit is dus het bedrijf of de school). Bestellingen worden hierna automatisch in de lijst hierboven geplaatst zodat u alle bestellingen kan afrekenen voor de bestelling geleverd of afgehaald wordt.</p>
+            <footer class="split">
+                <div class="column max">
+                    <a href="" class="button image"><img src="{{ static('new/android-badge.png') }}" alt="Google Play"></a>
+                    <a href="" class="button image"><img src="{{ static('new/ios-badge.png') }}" alt="App Store"></a>
+                </div>
+                <div class="column">
+                    <a href="/" class="red button">Bestel via de website</a>
+                </div>
+            </footer>
+        </article>
+    </section>
+</main>
+<footer id="footer">
+    <div class="bundle">
+        <a href="/terms">Voorwaarden</a>
+        <a href="mailto:hi@lunchbreakapp.be">Contact</a>
+    </div>
+</footer>
+<script type="text/javascript" src="{{ static('new/scroll-to-id.js')}}"></script>
+{% endblock content %}

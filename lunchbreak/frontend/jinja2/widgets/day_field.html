@@ -1,0 +1,14 @@
+<a class="popup anchor">
+    <h1>{{ value | humanize_date }}</h1>
+    <div class="popup arrow"></div>
+</a>
+<div class="popup box">
+    {% for day in days %}
+    <a href="{{ url('frontend-group') }}?{{ query_param }}={{ day }}" {% if value == day %}class="selected"{% endif %}>
+        <time>{{ day | humanize_weekday }}</time>
+        <time>{{ day | date('j F Y') }}</time>
+    </a>
+    {% endfor %}
+</div>
+
+<script type="text/javascript" src="{{ static('new/popup.js')}}"></script>

@@ -4,6 +4,9 @@
 <html>
 <head>
     {% include 'includes/head.html' %}
+    {% block css %}
+    <link type="text/css" rel="stylesheet" href="{% sass_src 'old/main.scss' %}">
+    {% endblock css %}
     {% block head %}
 
     {% endblock head %}
@@ -11,6 +14,6 @@
 <body>
     {% block content %}
 
-    {% endblock %}
+    {% endblock content %}
 </body>
 </html>

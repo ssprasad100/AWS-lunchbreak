@@ -22,8 +22,7 @@ from django_gocardless.models import Payment, RedirectFlow
 from django_sms.exceptions import PinTimeout
 from django_sms.models import Phone
 from lunch.config import (COST_GROUP_ADDITIONS, COST_GROUP_BOTH, INPUT_SI_SET,
-                          INPUT_SI_VARIABLE, TOKEN_IDENTIFIER_LENGTH,
-                          random_token)
+                          TOKEN_IDENTIFIER_LENGTH, random_token)
 from lunch.exceptions import LinkingError, NoDeliveryToAddress
 from lunch.models import AbstractAddress, BaseToken, Food, Ingredient, Store
 from lunch.utils import timezone_for_store
@@ -330,6 +329,11 @@ class Group(models.Model):
         verbose_name = _('groep')
         verbose_name_plural = _('groepen')
 
+    def __str__(self):
+        return self.name
+
+    objects = GroupManager()
+
     name = models.CharField(
         max_length=191,
         verbose_name=_('naam'),
@@ -387,10 +391,15 @@ class Group(models.Model):
         default=random_token
     )
 
-    objects = GroupManager()
-
-    def __str__(self):
-        return self.name
+    @property
+    def receipt(self):
+        return Pendulum.now().with_time(
+            hour=self.deadline.hour,
+            minute=self.deadline.minute,
+            second=self.deadline.second
+        ).add_timedelta(
+            self.delay
+        ).time()
 
 
 class GroupOrder(StatusSignalModel):
@@ -399,6 +408,12 @@ class GroupOrder(StatusSignalModel):
         unique_together = ('group', 'date',)
         verbose_name = _('groepsbestelling')
         verbose_name_plural = _('groepsbestellingen')
+
+    def __str__(self):
+        return _('%(group_name)s %(date)s') % {
+            'group_name': self.group.name,
+            'date': self.date
+        }
 
     group = models.ForeignKey(
         Group,
@@ -424,6 +439,44 @@ class GroupOrder(StatusSignalModel):
         ).orders_for(
             timestamp=self.date
         )
+
+    @property
+    def total(self):
+        if not hasattr(self, '_total'):
+            self._calculate_totals()
+        return self._total
+
+    @property
+    def paid_total(self):
+        if not hasattr(self, '_paid_total'):
+            self._calculate_totals()
+        return self._paid_total
+
+    @property
+    def total_no_discount(self):
+        """Total without discount"""
+        if not hasattr(self, '_total_no_discount'):
+            self._calculate_totals()
+        return self._total_no_discount
+
+    @property
+    def discounted_amount(self):
+        """Shortcut for self.total_no_discount - self.total"""
+        if not hasattr(self, '_discounted_amount'):
+            self._calculate_totals()
+        return self._discounted_amount
+
+    def _calculate_totals(self):
+        self._total = Decimal(0)
+        self._paid_total = Decimal(0)
+        self._total_no_discount = Decimal(0)
+        self._discounted_amount = Decimal(0)
+        for order in self.orders.all():
+            self._total += order.total
+            self._total_no_discount += order.total_no_discount
+            self._discounted_amount += order.discounted_amount
+            if order.payment_gocardless:
+                self._paid_total += order.total
 
     def save(self, *args, **kwargs):
         self.full_clean()
@@ -488,7 +541,7 @@ class Heart(models.Model):
         )
 
 
-class AbstractOrder(CleanModelMixin, StatusSignalModel):
+class AbstractOrder(CleanModelMixin, models.Model):
 
     class Meta:
         abstract = True
@@ -533,7 +586,7 @@ class AbstractOrder(CleanModelMixin, StatusSignalModel):
             )
 
 
-class Order(AbstractOrder):
+class Order(StatusSignalModel, AbstractOrder):
 
     class Meta:
         verbose_name = _('bestelling')
@@ -649,6 +702,16 @@ class Order(AbstractOrder):
     @cached_property
     def group(self):
         return self.group_order.group if self.group_order is not None else None
+
+    @cached_property
+    def total_no_discount(self):
+        """Total without discount"""
+        return self.total * Decimal(100) / (Decimal(100) - self.discount)
+
+    @cached_property
+    def discounted_amount(self):
+        """Shortcut for self.total_no_discount - self.total"""
+        return self.total_no_discount - self.total
 
     @property
     def paid(self):
@@ -974,33 +1037,13 @@ class OrderedFood(CleanModelMixin, StatusSignalModel):
             return Decimal(0)
         return Decimal(
             math.ceil(
-                (self.cost * self.amount * self.amount_food) * 100
-            ) / 100.0
+                (self.cost * self.amount * self.amount_food) * Decimal(100)
+            ) / Decimal(100)
         )
 
     def save(self, *args, **kwargs):
         self.full_clean()
         super().save(*args, **kwargs)
-
-    def get_amount_display(self):
-        """Get the amount formatted in a correct format."""
-        if self.original.foodtype.inputtype == INPUT_SI_VARIABLE:
-            if self.amount < 1:
-                return '{value} g'.format(
-                    value=int(self.amount * 1000)
-                )
-            else:
-                return '{value} kg'.format(
-                    value=str(self.amount.normalize()).replace('.', ',')
-                )
-        else:
-            return int(self.amount)
-
-    def get_total_display(self):
-        """Get the total amount displayed in a correct format."""
-        return '{:.2f}'.format(
-            self.total
-        ).replace('.', ',')
 
     def clean(self):
         self.original.is_valid_amount(self.amount)

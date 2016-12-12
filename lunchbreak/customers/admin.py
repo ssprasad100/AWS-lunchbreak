@@ -5,8 +5,8 @@ from django.utils.translation import ugettext as _
 from lunch.admin import BaseTokenAdmin
 from Lunchbreak.utils import format_decimal
 
-from .models import (Address, Group, Heart, Order, OrderedFood, PaymentLink,
-                     TemporaryOrder, User, UserToken)
+from .models import (Address, Group, GroupOrder, Heart, Order, OrderedFood,
+                     PaymentLink, TemporaryOrder, User, UserToken)
 
 admin.site.unregister(DjangoGroup)
 
@@ -57,6 +57,19 @@ class GroupAdmin(admin.ModelAdmin):
     list_display = ('name', 'store', 'email',)
     search_fields = ('name', 'store__name', 'email',)
     list_filter = ('store',)
+
+
+class OrderInline(admin.TabularInline):
+    model = Order
+    extra = 0
+
+
+@admin.register(GroupOrder)
+class GroupOrderAdmin(admin.ModelAdmin):
+    list_display = ('group', 'date', 'status',)
+    inlines = (OrderInline,)
+    search_fields = ('group__name',)
+    list_filter = ('status', 'date', 'group',)
 
 
 @admin.register(Heart)

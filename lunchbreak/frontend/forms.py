@@ -1,11 +1,11 @@
 from customers.config import PAYMENT_METHOD_GOCARDLESS, PAYMENT_METHODS
-from customers.models import Order, User
+from customers.models import Group, GroupOrder, Order, User
 from django import forms
 from lunch.exceptions import AddressNotFound
 from lunch.models import AbstractAddress
 from Lunchbreak.forms import FatModelForm
 
-from .widgets import ReceiptField
+from .widgets import DayWidget, ReceiptWidget
 
 
 class SearchForm(forms.Form):
@@ -69,7 +69,7 @@ class OrderForm(FatModelForm):
             choices=PAYMENT_METHODS
         )
         self.fields['receipt'].required = True
-        self.fields['receipt'].widget = ReceiptField(
+        self.fields['receipt'].widget = ReceiptWidget(
             store=self.store
         )
 
@@ -88,3 +88,33 @@ class OrderForm(FatModelForm):
             return is_gocardless and 'payment_method' in self.errors.as_data()
         except (ValueError, TypeError):
             return False
+
+
+class GroupForm(forms.ModelForm):
+    day = forms.DateField(
+        required=True
+    )
+
+    class Meta:
+        model = Group
+        fields = ('day',)
+
+    def __init__(self, *args, **kwargs):
+        self.group = kwargs.pop('group')
+        super().__init__(*args, **kwargs)
+
+        group_orders = self.group.group_orders.all().values(
+            'date'
+        )
+        group_order_days = [group_order['date'] for group_order in group_orders]
+
+        self.fields['day'].widget = DayWidget(
+            days=group_order_days
+        )
+
+    @property
+    def group_order(self):
+        return GroupOrder.objects.get(
+            group=self.group,
+            date=self['day'].value()
+        )

@@ -4,9 +4,10 @@ from django.forms import widgets
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 from lunch.models import Period
+from pendulum import Pendulum
 
 
-class ReceiptField(widgets.Widget):
+class ReceiptWidget(widgets.Widget):
 
     supports_microseconds = False
     name_weekday = '-weekday'
@@ -43,3 +44,46 @@ class ReceiptField(widgets.Widget):
             )._datetime
         except TypeError:
             return None
+
+
+class DayWidget(widgets.Widget):
+
+    supports_microseconds = False
+    query_param = 'day'
+
+    def __init__(self, days, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.days = days
+
+    def render(self, name, value, attrs=None):
+        return mark_safe(
+            render_to_string(
+                template_name='widgets/day_field.html',
+                context={
+                    'days': self.days,
+                    'query_param': self.query_param,
+                    'value': value
+                }
+            )
+        )
+
+    def value_from_datadict(self, data, files, name):
+        try:
+            result = Pendulum.parse(
+                data.get(self.query_param)
+            ).date()
+            if result in self.days:
+                return result
+        except (ValueError, OverflowError):
+            pass
+        now = Pendulum.now()
+        return min(
+            self.days,
+            key=lambda date: now.diff(
+                Pendulum.create_from_date(
+                    year=date.year,
+                    month=date.month,
+                    day=date.day
+                )
+            )
+        )

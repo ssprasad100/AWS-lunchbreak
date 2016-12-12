@@ -1,0 +1,15 @@
+// Reset padding
+$table-padding: 20px;
+
+@import '../components/table';
+
+table {
+    max-width: none;
+    width: 100%;
+}
+
+.table.groups {
+    tfoot {
+        display: table-row-group !important;
+    }
+}

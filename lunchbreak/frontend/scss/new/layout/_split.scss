@@ -1,0 +1,43 @@
+.split {
+    display: table;
+    width: 100%;
+
+    .column {
+        display: table-cell;
+        vertical-align: middle;
+        padding: 0 10px;
+
+        &.bottom {
+            vertical-align: bottom;
+        }
+
+        &:first-child {
+            padding-left: 0;
+        }
+
+        &:last-child {
+            padding-right: 0;
+        }
+
+        &.max {
+            width: 100%;
+        }
+    }
+
+    @media screen and (max-width: 700px) {
+        display: block;
+
+        .column {
+            display: block;
+            padding: 10px 0;
+
+            &:first-child {
+                padding-top: 0;
+            }
+
+            &:last-child {
+                padding-bottom: 0;
+            }
+        }
+    }
+}

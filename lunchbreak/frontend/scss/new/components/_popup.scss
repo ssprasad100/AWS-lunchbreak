@@ -1,0 +1,49 @@
+// The popup container defines the max width for the popover
+.popup.container {
+    position: relative;
+
+    // Anchor is used to place the popup arrow on the correct position
+    .popup.anchor {
+        cursor: pointer;
+        padding-right: 30px;
+        position: relative;
+        background: url('../new/dropdown.png') no-repeat right center;
+        display: inline-block;
+
+        .popup.arrow {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            width: 30px;
+            height: 11px;
+            background: url('../new/popover-arrow-top.png') no-repeat center top;
+            z-index: 11;
+        }
+    }
+
+    .popup.box {
+        position: absolute;
+        left: 0;
+        width: 100%;
+        max-width: 400px;
+        background: white;
+        border: 2px solid $color-line-gray;
+        margin-top: -2px;
+        z-index: 10;
+        border-radius: 5px;
+        box-sizing: border-box;
+        max-height: 400px;
+        overflow: auto;
+    }
+
+    // hide it
+    .popup.box, .popup.arrow {
+        display: none;
+    }
+
+    &.open {
+        .popup.box, .popup.arrow {
+            display: block;
+        }
+    }
+}

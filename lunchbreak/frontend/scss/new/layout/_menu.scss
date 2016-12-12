@@ -1,0 +1,68 @@
+#menu {
+    overflow: hidden;
+    height: $menu-height;
+    background: white;
+    border-bottom: 2px solid $color-line-gray;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    right: 0;
+    top: 0;
+    padding: 0 20px;
+
+    .logo {
+        float: left;
+        height: $menu-height;
+        line-height: $menu-height;
+        padding-right: 20px;
+        background: url('../new/menu-logo.png') no-repeat left center;
+        background-size: 40px 40px;
+        padding-left: 60px;
+        font-size: 14pt;
+    }
+
+    .items {
+        // CSS trick: met overflow: hidden; neemt deze automatisch de resterende plaats in
+        overflow: hidden;
+        position: relative;
+        text-align: right;
+        line-height: $menu-height;
+        color: $color-red;
+
+        a {
+            margin: 10px 5px;
+            padding: 7px 12px;
+
+            &:hover {
+                background: #ececec;
+                border-radius: 3px;
+            }
+        }
+
+        .visible {
+            height: $menu-height;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
+
+        // .hidden bepaalt de hoogte van .items, aangezien alle andere elementen position absolute hebben
+        .hidden {
+            visibility: hidden;
+            max-height: 2 * $menu-height;
+        }
+
+        .smartphone-menu {
+            position: absolute;
+            bottom: $menu-height;
+            left: 0;
+            right: 0;
+            height: $menu-height;
+
+            button {
+                vertical-align: middle;
+            }
+        }
+    }
+}

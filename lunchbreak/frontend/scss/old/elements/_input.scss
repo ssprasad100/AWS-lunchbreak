@@ -32,7 +32,7 @@
             $height: nth($icon-info, 1);
 
             &.icon-#{$name} {
-                background-image: url('icons/#{$name}.png');
+                background-image: url('../icons/#{$name}.png');
 
                 @if length($icon-info) == 1 {
                     background-size: 14px auto;

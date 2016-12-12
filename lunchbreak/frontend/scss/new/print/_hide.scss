@@ -1,0 +1,35 @@
+// hide all elements we don't want to print
+
+body {
+    page-break-after: auto;
+    display: block !important;
+    min-height: 0 !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+main > section {
+    padding: 0;
+}
+
+#menu {
+    display: none;
+}
+
+#footer {
+    display: none;
+}
+
+main {
+    padding: 0 !important;
+    flex: 0 !important;
+}
+
+.button, .popup.box, .popup.arrow, .bundle.segments {
+    display: none !important;
+}
+
+.noprint {
+    display: none !important;
+}

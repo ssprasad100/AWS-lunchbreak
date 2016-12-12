@@ -1,0 +1,23 @@
+#footer {
+    background: white;
+    border-top: 2px solid $color-line-gray;
+    padding: 20px 0;
+    overflow: visible;
+    text-align: right;
+    color: $color-text-gray;
+
+    a {
+        padding: 10px;
+        display: inline-block;
+
+        &:hover {
+            color: $color-text;
+        }
+    }
+
+    .bundle {
+        @media screen and (max-width: 800px) {
+            padding: 0 20px;
+        }
+    }
+}

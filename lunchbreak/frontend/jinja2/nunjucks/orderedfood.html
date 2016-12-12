@@ -1,6 +1,6 @@
 <li class="orderedfood {% if deletable %}deletable{% endif %}">
     <div class="orderedfood-amount">
-        {{ orderedfood.get_amount_display() }}
+        {{ orderedfood.amount | amount(orderedfood.original.foodtype.inputtype) }}
     </div>
     <div class="orderedfood-text">
         <div class="orderedfood-name">{{ orderedfood.original.name }}</div>
@@ -8,7 +8,7 @@
     </div>
     <div class="orderedfood-cost-wrapper">
         <span class="orderedfood-cost">
-            &euro; {{ orderedfood.get_total_display() }}
+            {{ orderedfood.total | money }}
         </span>
     </div>
     {% if not orderedfoods %}

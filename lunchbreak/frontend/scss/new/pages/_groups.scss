@@ -1,0 +1,100 @@
+.table.groups {
+    .popup.box {
+        padding: 10px 0;
+
+        a {
+            clear: both;
+            display: block;
+            height: 50px;
+            padding: 0 20px;
+            line-height: 50px;
+            overflow: hidden;
+
+            &:hover {
+                background: $color-white-gray;
+            }
+
+            time {
+                display: block;
+
+                &:first-child {
+                    float: left;
+                    font-size: $font-size-table;
+                    padding-right: 10px;
+                    color: $color-text-title;
+                }
+
+                &:last-child {
+                    overflow: hidden;
+                    position: relative;
+                    text-align: right;
+                }
+            }
+
+            &.selected time:first-child {
+                color: $color-red;
+            }
+        }
+    }
+
+    table {
+        tbody {
+            color: $color-text-title;
+
+            h2, h3 {
+                font-size: $font-size-table;
+                margin: 0;
+            }
+
+            p {
+                font-size: $font-size-default;
+                color: $color-text;
+                margin-bottom: 0;
+
+                mark {
+                    color: $color-red;
+                    background: none;
+                }
+            }
+
+            td {
+                &:nth-child(2) {
+                    width: 100%;
+
+                    h3 {
+                        white-space: normal;
+                    }
+                }
+            }
+
+            td:last-child {
+                h3 {
+                    font-weight: 500;
+                }
+            }
+        }
+
+        tfoot {
+            tr {
+                td {
+                    padding-top: 10px;
+                    padding-bottom: 10px;
+                }
+
+                &:first-child {
+                    td {
+                        padding-top: 30px;
+                    }
+                }
+
+                &:last-child {
+                    td {
+                        padding-bottom: 30px;
+                        font-weight: 500;
+                        font-size: $font-size-title;
+                    }
+                }
+            }
+        }
+    }
+}

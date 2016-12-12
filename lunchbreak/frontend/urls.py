@@ -30,6 +30,11 @@ urlpatterns = patterns(
         name='frontend-confirm'
     ),
     url(
+        r'^group/(?P<pk>\d+)(/(?P<token>.*))?/?$',
+        views.GroupView.as_view(),
+        name='frontend-group'
+    ),
+    url(
         r'^login/?$',
         views.LoginView.as_view(),
         name='frontend-login'

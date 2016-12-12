@@ -1,5 +1,5 @@
 #store-banner {
-    background-image: url('banners/store/edited.jpg');
+    background-image: url('../banners/store/edited.jpg');
     position: fixed;
     top: 0;
 }
@@ -25,11 +25,11 @@
         }
 
         &.openingperiods {
-            background-image: url('icons/clock.png');
+            background-image: url('../icons/clock.png');
         }
 
         &.deliveryperiods {
-            background-image: url('icons/truck.png');
+            background-image: url('../icons/truck.png');
         }
 
         &:last-child {
@@ -277,7 +277,7 @@
             .orderedfood-cost {
                 cursor: pointer;
                 color: transparent;
-                background: url('icons/close.png');
+                background: url('../icons/close.png');
                 background-repeat: no-repeat;
                 background-size: 14px;
                 background-position: center;
