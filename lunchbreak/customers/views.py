@@ -41,7 +41,7 @@ class FoodViewSet(TargettedViewSet,
             'foodtype',
             'menu',
         ).prefetch_related(
-            'ingredientrelation_set__ingredient',
+            'ingredientrelations__ingredient',
             'ingredientgroups',
         )
 

@@ -33,7 +33,7 @@ from .exceptions import (AddressNotFound, IngredientGroupMaxExceeded,
 from .managers import (BaseTokenManager, FoodManager, HolidayPeriodQuerySet,
                        PeriodQuerySet, StoreManager)
 from .specs import HDPI, LDPI, MDPI, XHDPI, XXHDPI, XXXHDPI
-from .utils import timezone_for_store
+from .utils import timezone_for_store, uggettext_summation
 
 
 class StoreCategory(models.Model):
@@ -1240,9 +1240,19 @@ class Food(CleanModelMixin, models.Model):
         except Quantity.DoesNotExist:
             return None
 
+    def get_ingredients_display(self):
+
+        def to_representation(ingredient):
+            return ingredient.name
+
+        return uggettext_summation(
+            self.ingredients.all(),
+            to_representation
+        ).capitalize() + '.'
+
     def update_typical(self):
         ingredientgroups = self.ingredientgroups.all()
-        ingredientrelations = self.ingredientrelation_set.select_related(
+        ingredientrelations = self.ingredientrelations.select_related(
             'ingredient__group'
         ).all()
 
@@ -1465,12 +1475,14 @@ class IngredientRelation(models.Model, DirtyFieldsMixin):
     food = models.ForeignKey(
         Food,
         on_delete=models.CASCADE,
+        related_name='ingredientrelations',
         verbose_name=_('etenswaar'),
         help_text=_('Etenswaar.')
     )
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
+        related_name='ingredientrelations',
         verbose_name=_('ingrediënt'),
         help_text=_('Ingrediënt.')
     )

@@ -332,7 +332,7 @@ class FoodSerializer(BaseFoodSerializer):
 
 class FoodDetailSerializer(BaseFoodSerializer):
     ingredients = IngredientRelationDetailSerializer(
-        source='ingredientrelation_set',
+        source='ingredientrelations',
         many=True
     )
 

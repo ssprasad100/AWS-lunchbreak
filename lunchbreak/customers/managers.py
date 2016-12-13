@@ -119,7 +119,7 @@ class OrderedFoodManager(models.Manager):
         # It's still the original if the ingredients are the same
         is_original = ingredients is None
         if not is_original:
-            selected_ingredientrelations = original.ingredientrelation_set.filter(
+            selected_ingredientrelations = original.ingredientrelations.filter(
                 selected=True
             ).select_related(
                 'ingredient'

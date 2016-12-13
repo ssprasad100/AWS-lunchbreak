@@ -43,7 +43,10 @@
                         <th>Totaal</th>
                     </tr>
                 </thead>
-                {% set orders = group_order.orders.order_by('user__name') %}
+                {% set orders = group_order.orders.prefetch_related(
+                    'orderedfood__original',
+                ).order_by('user__name')
+                %}
                 {% for order in orders %}
                 <tbody>
                     {% for orderedfood in order.orderedfood.all() %} {% if loop.first %}
@@ -58,9 +61,7 @@
                             {% endif %}
                             <td class="hide-on-small">
                                 <h3>{{ orderedfood.original.name }} ({{ orderedfood.amount | amount(orderedfood.original.foodtype.inputtype) }})</h3>
-                                {% if orderedfood.original.description %}
-                                <p>{{ orderedfood.original.description }}</p>
-                                {% endif %}
+                                <p>{{ orderedfood.changes }}</p>
                             </td>
                             <td class="hide-on-small">{{ orderedfood.total | money }}</td>
                             {% if loop.first %}

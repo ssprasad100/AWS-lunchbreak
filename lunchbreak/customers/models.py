@@ -11,7 +11,6 @@ from django.contrib.contenttypes.fields import (GenericForeignKey,
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models, transaction
-from django.db.models.signals import post_delete
 from django.shortcuts import get_object_or_404
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
@@ -25,7 +24,7 @@ from lunch.config import (COST_GROUP_ADDITIONS, COST_GROUP_BOTH, INPUT_SI_SET,
                           TOKEN_IDENTIFIER_LENGTH, random_token)
 from lunch.exceptions import LinkingError, NoDeliveryToAddress
 from lunch.models import AbstractAddress, BaseToken, Food, Ingredient, Store
-from lunch.utils import timezone_for_store
+from lunch.utils import timezone_for_store, uggettext_summation
 from Lunchbreak.exceptions import LunchbreakException
 from Lunchbreak.fields import RoundingDecimalField, StatusSignalField
 from Lunchbreak.mixins import CleanModelMixin
@@ -51,9 +50,19 @@ from .tasks import send_group_order_email
 
 class User(AbstractBaseUser, PermissionsMixin):
 
+    USERNAME_FIELD = 'phone'
+    REQUIRED_FIELDS = [
+        'name',
+    ]
+
     class Meta:
         verbose_name = _('gebruiker')
         verbose_name_plural = _('gebruikers')
+
+    def __str__(self):
+        return self.name
+
+    objects = UserManager()
 
     phone = models.OneToOneField(
         'django_sms.Phone',
@@ -98,23 +107,6 @@ class User(AbstractBaseUser, PermissionsMixin):
         )
     )
 
-    USERNAME_FIELD = 'phone'
-    REQUIRED_FIELDS = [
-        'name',
-    ]
-
-    objects = UserManager()
-
-    def __str__(self):
-        return self.name
-
-    def phone_clean(raw_value, model_instance):
-        return Phone._meta.get_field('phone').clean(
-            raw_value, model_instance
-        )
-
-    phone.clean = phone_clean
-
     @property
     def phonenumber(self):
         return self.phone.phone
@@ -132,6 +124,13 @@ class User(AbstractBaseUser, PermissionsMixin):
             message,
             **kwargs
         )
+
+    def phone_clean(raw_value, model_instance):
+        return Phone._meta.get_field('phone').clean(
+            raw_value, model_instance
+        )
+
+    phone.clean = phone_clean
 
     @staticmethod
     def register(phone):
@@ -516,6 +515,12 @@ class Heart(models.Model):
         verbose_name = _('hart')
         verbose_name_plural = _('hartjes')
 
+    def __str__(self):
+        return '{user}, {store}'.format(
+            user=self.user,
+            store=self.store
+        )
+
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -534,17 +539,19 @@ class Heart(models.Model):
         help_text=_('Datum waarop deze persoon deze winkel "geheart" heeft.')
     )
 
-    def __str__(self):
-        return '{user}, {store}'.format(
-            user=self.user,
-            store=self.store
-        )
-
 
 class AbstractOrder(CleanModelMixin, models.Model):
 
     class Meta:
         abstract = True
+
+    def __str__(self):
+        return _('%(user)s, %(store)s (onbevestigd)') % {
+            'user': self.user.name,
+            'store': self.store
+        }
+
+    objects = OrderManager()
 
     user = models.ForeignKey(
         User,
@@ -558,14 +565,6 @@ class AbstractOrder(CleanModelMixin, models.Model):
         verbose_name=_('winkel'),
         help_text=_('Winkel.')
     )
-
-    objects = OrderManager()
-
-    def __str__(self):
-        return _('%(user)s, %(store)s (onbevestigd)') % {
-            'user': self.user.name,
-            'store': self.store
-        }
 
     @classmethod
     def is_valid(cls, orderedfood, **kwargs):
@@ -591,6 +590,13 @@ class Order(StatusSignalModel, AbstractOrder):
     class Meta:
         verbose_name = _('bestelling')
         verbose_name_plural = _('bestellingen')
+
+    def __str__(self):
+        return _('%(user)s, %(store)s op %(receipt)s') % {
+            'user': self.user.name,
+            'store': self.store,
+            'receipt': self.receipt
+        }
 
     placed = models.DateTimeField(
         auto_now_add=True,
@@ -706,6 +712,8 @@ class Order(StatusSignalModel, AbstractOrder):
     @cached_property
     def total_no_discount(self):
         """Total without discount"""
+        if self.discount == Decimal(100):
+            return Decimal(0)
         return self.total * Decimal(100) / (Decimal(100) - self.discount)
 
     @cached_property
@@ -724,13 +732,6 @@ class Order(StatusSignalModel, AbstractOrder):
     @property
     def payment_gocardless(self):
         return self.payment_method == PAYMENT_METHOD_GOCARDLESS
-
-    def __str__(self):
-        return _('%(user)s, %(store)s op %(receipt)s') % {
-            'user': self.user.name,
-            'store': self.store,
-            'receipt': self.receipt
-        }
 
     def save(self, *args, **kwargs):
         self.full_clean()
@@ -961,6 +962,11 @@ class OrderedFood(CleanModelMixin, StatusSignalModel):
         verbose_name = _('besteld etenswaar')
         verbose_name_plural = _('bestelde etenswaren')
 
+    def __str__(self):
+        return str(self.original)
+
+    objects = OrderedFoodManager()
+
     ingredients = models.ManyToManyField(
         Ingredient,
         blank=True,
@@ -1019,8 +1025,6 @@ class OrderedFood(CleanModelMixin, StatusSignalModel):
         help_text=_('Status.')
     )
 
-    objects = OrderedFoodManager()
-
     @cached_property
     def ingredientgroups(self):
         return self.original.ingredientgroups
@@ -1029,6 +1033,15 @@ class OrderedFood(CleanModelMixin, StatusSignalModel):
     def amount_food(self):
         """Original amount of food, returns 1 if not variable, else original.amount."""
         return self.original.amount if self.original.foodtype.inputtype == INPUT_SI_SET else 1
+
+    @cached_property
+    def changes(self):
+        try:
+            return self.calculate_changes(
+                orderedfood=self
+            )
+        except Exception as e:
+            print(e)
 
     @property
     def total(self):
@@ -1059,6 +1072,61 @@ class OrderedFood(CleanModelMixin, StatusSignalModel):
         self.order.save()
 
     @staticmethod
+    def post_save(sender, instance, using, **kwargs):
+        instance.order.save()
+
+    @staticmethod
+    def calculate_changes(orderedfood, original_relations=None,
+                          ordered_ingredients=None):
+        if orderedfood.is_original or not orderedfood.original.has_ingredients:
+            return _('Niet aangepast.')
+
+        added_ingredients = set()
+        removed_ingredients = set()
+        if original_relations is None:
+            original_relations = orderedfood.original.ingredientrelations.select_related(
+                'ingredient',
+                'food',
+            ).all()
+        if ordered_ingredients is None:
+            ordered_ingredients = orderedfood.ingredients.all()
+
+        original_ingredients = [relation.ingredient for relation in original_relations if relation.selected]
+
+        for ingredient in ordered_ingredients:
+            if ingredient not in original_ingredients:
+                added_ingredients.add(ingredient)
+
+        for ingredient in original_ingredients:
+            if ingredient not in ordered_ingredients:
+                removed_ingredients.add(ingredient)
+
+        added_size = len(added_ingredients)
+        removed_size = len(removed_ingredients)
+
+        def to_representation(ingredient):
+            return ingredient.name
+
+        added = uggettext_summation(added_ingredients, to_representation).lower()
+        removed = uggettext_summation(removed_ingredients, to_representation).lower()
+
+        if added_size > 0:
+            if removed_size > 0:
+                return _('Met %(added)s, zonder %(removed)s.') % {
+                    'added': added,
+                    'removed': removed
+                }
+            else:
+                return _('Met %(added)s.') % {
+                    'added': added
+                }
+        elif removed_size > 0:
+            return _('Zonder %(removed)s.') % {
+                'removed': removed
+            }
+        return _('Niet aangepast.')
+
+    @staticmethod
     def calculate_cost(ingredients, food):
         """Calculate the base cost of the given ingredients and food.
 
@@ -1072,7 +1140,7 @@ class OrderedFood(CleanModelMixin, StatusSignalModel):
         Returns:
             Decimal: Base cost of edited food.
         """
-        food_ingredient_relations = food.ingredientrelation_set.select_related(
+        food_ingredient_relations = food.ingredientrelations.select_related(
             'ingredient__group',
         ).filter(
             selected=True
@@ -1146,9 +1214,6 @@ class OrderedFood(CleanModelMixin, StatusSignalModel):
                 )
             )
 
-    def __str__(self):
-        return str(self.original)
-
 
 class UserToken(BaseToken):
 
@@ -1184,10 +1249,3 @@ class UserToken(BaseToken):
             serializer.data,
             status=(status.HTTP_201_CREATED if created else status.HTTP_200_OK)
         )
-
-
-post_delete.connect(
-    PaymentLink.post_delete,
-    sender=PaymentLink,
-    weak=False
-)

@@ -401,13 +401,13 @@ class PopularFoodSerializer(serializers.ModelSerializer):
 
 class FoodSerializer(serializers.ModelSerializer):
     ingredients = lunch_serializers.IngredientRelationSerializer(
-        source='ingredientrelation_set',
+        source='ingredientrelations',
         many=True,
         required=False,
         read_only=True
     )
     ingredientrelations = IngredientRelationSerializer(
-        source='ingredientrelation_set',
+        source='ingredientrelations',
         many=True,
         required=False,
         write_only=True
@@ -454,7 +454,7 @@ class FoodSerializer(serializers.ModelSerializer):
 
     def create_or_update(self, validated_data, food=None):
         update = food is not None
-        relations = validated_data.pop('ingredientrelation_set', None)
+        relations = validated_data.pop('ingredientrelations', None)
 
         if not update:
             food = super().create(validated_data)

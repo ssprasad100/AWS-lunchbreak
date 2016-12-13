@@ -138,7 +138,7 @@ class OrderTestCase(CustomersTestCase):
 
     @mock.patch('lunch.models.Store.is_open')
     def test_order_with_ingredients(self, mock_is_open):
-        selected_ingredientrelations = self.food.ingredientrelation_set.filter(
+        selected_ingredientrelations = self.food.ingredientrelations.filter(
             selected=True
         )
         selected_ingredients = [r.ingredient for r in selected_ingredientrelations]

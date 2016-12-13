@@ -1,5 +1,18 @@
-from .models import GroupOrder, Order
+from django.db.models.signals import post_delete, post_save
+
+from .models import GroupOrder, Order, OrderedFood, PaymentLink
 from .signals import *  # NOQA
+
+post_delete.connect(
+    PaymentLink.post_delete,
+    sender=PaymentLink,
+    weak=False
+)
+post_save.connect(
+    OrderedFood.post_save,
+    sender=OrderedFood,
+    weak=False
+)
 
 order_created.connect(
     Order.created,

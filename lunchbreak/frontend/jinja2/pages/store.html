@@ -69,7 +69,11 @@
                             <div class="food-top">
                                 <div class="food-text">
                                     <h4>{{ food.name }}</h4>
+                                    {% if food.description %}
                                     <p>{{ food.description }}</p>
+                                    {% elif food.has_ingredients %}
+                                    <p>{{ food.get_ingredients_display() }}</p>
+                                    {% endif %}
                                 </div>
 
                                 <div class="food-add">
