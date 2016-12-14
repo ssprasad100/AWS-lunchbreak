@@ -407,7 +407,6 @@ class FoodSerializer(serializers.ModelSerializer):
         read_only=True
     )
     ingredientrelations = IngredientRelationSerializer(
-        source='ingredientrelations',
         many=True,
         required=False,
         write_only=True

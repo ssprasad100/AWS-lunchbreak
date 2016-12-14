@@ -713,7 +713,11 @@ class Order(StatusSignalModel, AbstractOrder):
     def total_no_discount(self):
         """Total without discount"""
         if self.discount == Decimal(100):
-            return Decimal(0)
+            total = 0
+            orderedfood = self.orderedfood.all()
+            for f in orderedfood:
+                total += f.total
+            return total
         return self.total * Decimal(100) / (Decimal(100) - self.discount)
 
     @cached_property
@@ -767,11 +771,8 @@ class Order(StatusSignalModel, AbstractOrder):
             self.total += f.total
 
         if self.group is not None:
-            self.total *= Decimal(100 - self.group.discount) / Decimal(100)
-
-    def clean_discount(self):
-        if self.group is not None:
             self.discount = self.group.discount
+        self.total *= Decimal(100 - self.discount) / Decimal(100)
 
     def clean_delivery_address(self):
         if self.delivery_address is not None:
@@ -1042,6 +1043,11 @@ class OrderedFood(CleanModelMixin, StatusSignalModel):
             )
         except Exception as e:
             print(e)
+
+    @cached_property
+    def discounted_total(self):
+        if self.order is not None:
+            return self.total * Decimal(100 - self.order.discount) / Decimal(100)
 
     @property
     def total(self):

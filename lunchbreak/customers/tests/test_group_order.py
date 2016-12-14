@@ -127,6 +127,8 @@ class GroupOrderTestCase(GroupTestCase):
         )
 
         total_discounted = Decimal(total * (100 - group.discount) / 100)
+        print('order.total', order.total)
+        print('total_discounted', total_discounted)
         self.assertEqual(
             order.total,
             total_discounted
