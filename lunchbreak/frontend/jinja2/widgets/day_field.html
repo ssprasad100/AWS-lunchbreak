@@ -5,7 +5,7 @@
 <div class="popup box">
     {% for day in days %}
     <a href="{{ url('frontend-group') }}?{{ query_param }}={{ day }}" {% if value == day %}class="selected"{% endif %}>
-        <time>{{ day | humanize_weekday }}</time>
+        <time>{{ day | naturalweekday }}</time>
         <time>{{ day | date('j F Y') }}</time>
     </a>
     {% endfor %}

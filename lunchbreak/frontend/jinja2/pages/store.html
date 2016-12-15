@@ -25,7 +25,7 @@
                     {%- set openingperiods = store.openingperiods_for(days=7) %}
                     {%- if openingperiods -%}
                         {%- set first_openingperiod = openingperiods[0] %}
-                        {{ first_openingperiod.start.isoweekday() | humanize_weekday }} open om {{ first_openingperiod.start | time('H:i') }}
+                        {{ first_openingperiod.start.isoweekday() | naturalweekday }} open om {{ first_openingperiod.start | time('H:i') }}
                     {% else %}
                         Komende week gesloten
                     {%- endif %}

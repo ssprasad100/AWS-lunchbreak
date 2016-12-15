@@ -1037,12 +1037,9 @@ class OrderedFood(CleanModelMixin, StatusSignalModel):
 
     @cached_property
     def changes(self):
-        try:
-            return self.calculate_changes(
-                orderedfood=self
-            )
-        except Exception as e:
-            print(e)
+        return self.calculate_changes(
+            orderedfood=self
+        )
 
     @cached_property
     def discounted_total(self):

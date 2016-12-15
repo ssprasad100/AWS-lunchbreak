@@ -39,26 +39,35 @@ def json_weekday_periods(weekday_periods, **kwargs):
 
 
 @library.filter
-def humanize_weekday(value):
-    if hasattr(value, 'isoweekday'):
-        value = value.isoweekday()
-
+def naturalweekday(value):
     today = Pendulum.today(settings.TIME_ZONE)
-    if value == today.isoweekday():
+
+    if isinstance(value, int):
+        value = today.subtract(
+            days=today.isoweekday()
+        ).add(
+            days=value
+        )
+
+    if not isinstance(value, date):
+        value = value.date()
+
+    if value == today.date():
         return _('Vandaag')
-    elif value == Pendulum.tomorrow(settings.TIME_ZONE).isoweekday():
+    elif value == Pendulum.tomorrow(settings.TIME_ZONE).date():
         return _('Morgen')
-    elif value == today.add(days=2).isoweekday():
+    elif value == today.add(days=2).date():
         return _('Overmorgen')
-    elif value == today.subtract(days=1).isoweekday():
+    elif value == today.subtract(days=1).date():
         return _('Gisteren')
-    elif value == today.subtract(days=2).isoweekday():
+    elif value == today.subtract(days=2).date():
         return _('Eergisteren')
 
+    value_weekday = value.isoweekday()
     for weekday in WEEKDAYS:
         number = weekday[0]
 
-        if number == value:
+        if number == value_weekday:
             return weekday[1]
 
     return ''
@@ -75,7 +84,7 @@ def humanize_date(value, arg='j F Y'):
             day=value.day
         )
 
-    result = humanize_weekday(value)
+    result = naturalweekday(value)
     if abs(Pendulum.now().diff(value).in_days()) > 2:
         result += ' ' + date_filter(value, arg)
     return result

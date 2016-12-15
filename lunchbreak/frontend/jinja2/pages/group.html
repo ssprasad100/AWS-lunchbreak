@@ -17,10 +17,6 @@
 </nav>
 <main>
     <section>
-        <div class="bundle segments">
-            <a href="/" class="selected">Groepeer per persoon</a>
-            <a href="/">Groepeer per product</a>
-        </div>
         <div class="bundle table groups">
             <header>
                 <div class="split popup container">
@@ -51,56 +47,58 @@
                 {% set global = {'new_user_index': 0, 'total': 0} %}
                 {% set total = {'value': 0} %}
                 {% for order in orders %}
-                    {% do global.update({'total': 0}) %}
-                    {% set same_user = loop.index0 < global.new_user_index or loop.index == loop.length %}
+                    {% do global.update({'total': order.total}) %}
+                    {% set same_user = loop.index0 < global.new_user_index %}
+
                     {% if not same_user %}
-                        {% for i in range(loop.index0, loop.length) %}
+                        {% for i in range(loop.index, loop.length) %}
                             {% set next_order = orders[i] %}
                             {% if next_order.user_id != order.user_id %}
-                                {% do global.update({'new_user_index': i}) %}
                                 {% break %}
                             {% endif %}
+                            {% do global.update({'new_user_index': i + 1}) %}
                             {% do global.update({'total': global['total'] + next_order.total}) %}
                         {% endfor %}
                     {% endif %}
-                {% set same_user_next = loop.index < global.new_user_index or loop.index + 1 == loop.length %}
+                    {% set same_user_next = loop.index0 + 1 < global.new_user_index %}
 
-                {% if not same_user %}
-                <tbody>
-                {% endif %}
-                    {% for orderedfood in order.orderedfood.all() %}
-                        {% if loop.first %}
-                        <tr>
-                            <td>
-                                {% if not same_user %}
-                                <h2>{{ order.user.name }}</h2>
-                                <p>{{ order.user.phone.phone }}</p>
-                                {% endif %}
-                            </td>
-                        {% else %}
-                        <tr class="hide-on-small">
-                            <td></td>
-                        {% endif %}
-                            <td class="hide-on-small">
-                                <h3>{{ orderedfood.original.name }} ({{ orderedfood.amount | amount(orderedfood.original.foodtype.inputtype) }})</h3>
-                                <p>{{ orderedfood.changes }}</p>
-                            </td>
-                            <td class="hide-on-small">{{ orderedfood.discounted_total | money }}</td>
-                        {% if loop.first %}
-                            <td>
-                                {% if not same_user %}
-                                <h3>{{ global.total | money }}</h3>
-                                <p>{% if order.payment_gocardless %}Online betaald{% else %}Te betalen{% endif %}</p>
-                                {% endif %}
-                            </td>
+                    {% if not same_user %}
+                    <tbody>
+                    {% endif %}
+                        {% set parent_loop = loop %}
+                        {% for orderedfood in order.orderedfood.all() %}
+                            {% if loop.first %}
+                            <tr>
+                                <td>
+                                    {% if not same_user %}
+                                    <h2>{{ order.user.name }}</h2>
+                                    <p>{{ order.user.phone.phone }}</p>
+                                    {% endif %}
+                                </td>
                             {% else %}
-                            <td></td>
-                        {% endif %}
-                        </tr>
-                    {% endfor %}
-                {% if not same_user_next %}
-                </tbody>
-                {% endif %}
+                            <tr class="hide-on-small">
+                                <td></td>
+                            {% endif %}
+                                <td class="hide-on-small">
+                                    <h3>{{ orderedfood.original.name }} ({{ orderedfood.amount | amount(orderedfood.original.foodtype.inputtype) }})</h3>
+                                    <p>{{ orderedfood.changes }}</p>
+                                </td>
+                                <td class="hide-on-small">{{ orderedfood.discounted_total | money }}</td>
+                            {% if loop.first %}
+                                <td>
+                                    {% if not same_user %}
+                                    <h3>{{ global.total | money }}</h3>
+                                    <p>{% if order.payment_gocardless %}Online betaald{% else %}Te betalen{% endif %}</p>
+                                    {% endif %}
+                                </td>
+                                {% else %}
+                                <td></td>
+                            {% endif %}
+                            </tr>
+                        {% endfor %}
+                    {% if not same_user_next %}
+                    </tbody>
+                    {% endif %}
                 {% endfor %}
                 <tfoot>
                     <tr>

@@ -337,8 +337,8 @@ class Store(AbstractAddress):
 
         self.timezone = result['timeZoneId']
 
-    def open_weekdays(self, openingperiods=None, **kwargs):
-        """Wrapper for openingperiods_for returning the weekdays.
+    def open_dates(self, openingperiods=None, **kwargs):
+        """Wrapper for openingperiods_for returning the dates.
 
         Will use given openingperiods instead of using openingperiods_for if not None.
         Else it will use openingperiods_for with given kwargs.
@@ -348,17 +348,17 @@ class Store(AbstractAddress):
             openingperiods (list, optional): List of :obj:`pendulum.Period`s.
 
         Returns:
-            set: Weekdays of the openingperiods.
+            set: Dates of the openingperiods.
         """
         if openingperiods is None:
             openingperiods = self.openingperiods_for(**kwargs)
 
         weekdays = list()
         for openingperiod in openingperiods:
-            if openingperiod.start.isoweekday() not in weekdays:
-                weekdays.append(openingperiod.start.isoweekday())
-            if openingperiod.end.isoweekday() not in weekdays:
-                weekdays.append(openingperiod.end.isoweekday())
+            if openingperiod.start.date() not in weekdays:
+                weekdays.append(openingperiod.start.date())
+            if openingperiod.end.date() not in weekdays:
+                weekdays.append(openingperiod.end.date())
 
         return weekdays
 

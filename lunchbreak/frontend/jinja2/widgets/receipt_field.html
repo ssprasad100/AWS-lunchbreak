@@ -9,14 +9,14 @@
 <div class="split-column">
     <label>Datum van afhaling
         <select name="{{ name_weekday }}" class="input-icon icon-dropdown input-icon-right">
-            {% for weekday in store.open_weekdays(openingperiods=openingperiods) %}
+            {% for weekday in store.open_dates(openingperiods=openingperiods) %}
                 {% set selected -%}
-                    {% if value and weekday == value.isoweekday() %}
+                    {% if value and weekday == value %}
                         selected
                     {% endif %}
                 {%- endset %}
-                <option value="{{ weekday }}" {{ selected }}>
-                    {{ weekday | humanize_weekday }}
+                <option value="{{ weekday.isoweekday() }}" {{ selected }}>
+                    {{ weekday | naturalweekday }}
                 </option>
             {% endfor %}
         </select>

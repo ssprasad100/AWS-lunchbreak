@@ -123,7 +123,7 @@ TEMPLATES = [
             ],
             'filters': {
                 'list_periods': 'frontend.templatetags.filters.list_periods',
-                'humanize_weekday': 'frontend.templatetags.filters.humanize_weekday',
+                'naturalweekday': 'frontend.templatetags.filters.naturalweekday',
                 'json_weekday_periods': 'frontend.templatetags.filters.json_weekday_periods',
                 'money': 'frontend.templatetags.filters.money',
                 'amount': 'frontend.templatetags.filters.amount',

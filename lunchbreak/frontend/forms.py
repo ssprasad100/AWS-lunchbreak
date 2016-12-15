@@ -103,7 +103,9 @@ class GroupForm(forms.ModelForm):
         self.group = kwargs.pop('group')
         super().__init__(*args, **kwargs)
 
-        group_orders = self.group.group_orders.all().values(
+        group_orders = self.group.group_orders.filter(
+            orders__isnull=False
+        ).distinct().values(
             'date'
         )
         group_order_days = [group_order['date'] for group_order in group_orders]
