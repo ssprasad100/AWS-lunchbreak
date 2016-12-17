@@ -10,7 +10,7 @@
     vertical-align: top;
     transition: opacity .25s ease;
 
-    &:disabled {
+    &:disabled, &[readonly] {
         opacity: .5;
     }
 

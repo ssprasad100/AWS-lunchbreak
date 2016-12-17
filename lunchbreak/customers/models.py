@@ -392,13 +392,13 @@ class Group(models.Model):
 
     @property
     def receipt(self):
-        return Pendulum.now().with_time(
+        return Pendulum.now(self.store.timezone).with_time(
             hour=self.deadline.hour,
             minute=self.deadline.minute,
             second=self.deadline.second
         ).add_timedelta(
             self.delay
-        ).time()
+        )
 
 
 class GroupOrder(StatusSignalModel):
@@ -798,7 +798,13 @@ class Order(StatusSignalModel, AbstractOrder):
         # TODO: Check whether the store can accept an order if it is
         # for delivery and needs to be delivered asap (receipt=None).
 
-        if self.group is None and self.delivery_address is None:
+        if self.group is not None:
+            self.receipt = self.group.receipt
+            self.store.is_open(
+                self.receipt,
+                now=self.placed
+            )
+        elif self.delivery_address is None:
             if self.receipt is None:
                 raise LunchbreakException(
                     _('Er moet een tijdstip voor het ophalen opgegeven worden.')

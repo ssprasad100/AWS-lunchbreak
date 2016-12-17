@@ -21,7 +21,7 @@
                 }
             }
 
-            input, textarea, select, .subscript {
+            input, textarea, select, .subscript:last-child {
                 margin-bottom: 16px;
                 display: block;
                 width: 100%;
@@ -30,6 +30,10 @@
                 &[type='submit'] {
                     margin-top: 8px;
                 }
+            }
+
+            .subscript:not(:first-child) {
+                padding-top: 0;
             }
 
             input + .subscript {

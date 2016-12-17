@@ -1,6 +1,9 @@
+import json
+
 from customers.config import PAYMENT_METHOD_GOCARDLESS, PAYMENT_METHODS
 from customers.models import Group, GroupOrder, Order, User
 from django import forms
+from django.utils.translation import ugettext as _
 from lunch.exceptions import AddressNotFound
 from lunch.models import AbstractAddress
 from Lunchbreak.forms import FatModelForm
@@ -11,10 +14,10 @@ from .widgets import DayWidget, ReceiptWidget
 class SearchForm(forms.Form):
     address = forms.CharField(
         required=True,
-        help_text='Vul je adres in',
+        help_text=_('Vul je adres in'),
         error_messages={
-            'required': 'Vul je adres in om winkels in de buurt te zoeken.',
-            'invalid': 'Kon je plaats niet bepalen, probeer opnieuw.'
+            'required': _('Vul je adres in om winkels in de buurt te zoeken.'),
+            'invalid': _('Kon je plaats niet bepalen, probeer opnieuw.')
         }
     )
 
@@ -49,10 +52,18 @@ class UserForm(forms.ModelForm):
 
 
 class OrderForm(FatModelForm):
+    group = forms.ModelChoiceField(
+        required=False,
+        queryset=Group.objects.none(),
+        empty_label=_('Privé bestellen'),
+        error_messages={
+            'invalid_choice': _('%(value)s is geen geldige keuze.')
+        }
+    )
 
     class Meta:
         model = Order
-        fields = ['payment_method', 'receipt', 'description']
+        fields = ['payment_method', 'receipt', 'description', 'group', ]
 
     def __init__(self, *args, **kwargs):
         self.store = kwargs.pop('store')
@@ -75,6 +86,31 @@ class OrderForm(FatModelForm):
 
         description = self.fields['description']
         description.widget.attrs['placeholder'] = description.help_text
+
+        group_field = self.fields['group']
+        group_field.queryset = self.user.store_groups.filter(
+            store_id=self.store.id
+        )
+        if len(group_field.queryset) > 0:
+            group_field.initial = group_field.queryset[0]
+        group_field.groups_json = json.dumps(
+            {
+                group.id: {
+                    'deadline': group.deadline.strftime('%H:%M'),
+                    'receipt': group.receipt.strftime('%H:%M'),
+                    'delivery': group.delivery
+                } for group in group_field.queryset
+            }
+        )
+        group_field.label = Group._meta.verbose_name.capitalize()
+        group_field.widget.attrs['class'] = 'input-icon icon-dropdown input-icon-right'
+
+    def create_instance(self, **kwargs):
+        return Order.objects.create_with_orderedfood(
+            orderedfood=None,
+            save=False,
+            **kwargs
+        )
 
     def save(self, temporary_order):
         return temporary_order.place(

@@ -18,13 +18,32 @@
 <div id="confirm" class="block fullsize">
 </div>
 
+{% if order.group %}
+    {% set receipt = order.group.receipt %}
+{% else %}
+    {% set receipt = order.get_receipt_display %}
+{% endif %}
 <div id="confirm-block" class="block fullsize">
     <div id="confirm-box">
         <h1>Bestelling geplaatst</h1>
-        <h5 id="confirm-receipt">{{ order.receipt | date('l d F') | capitalize }} om {{ order.get_receipt_display | time('H:i') }}</h5>
+        <h5 id="confirm-receipt">{{ receipt | date('l d F') | capitalize }} om {{ receipt | time('H:i') }}</h5>
         <p id="confirm-address">{{ store.street }} {{ store.number }}, {{ store.postcode }} {{ store.city }}</p>
 
-        <p>Je bestelling bij {{ store.name }} is succesvol geplaatst. Stap binnen vanaf {{ order.get_receipt_display | time('H:i') }} en haal je bestelling op!{% if order.payment_gocardless %} De betaling wordt automatisch verwerkt, je portefeuille hoef je niet boven te halen!{% endif %}</p>
+        <p>
+            {% if order.group %}
+                Je bestelling bij {{ store.name }} met de groep {{ order.group.name }} is succesvol geplaatst.
+                {% if order.group.delivery %}
+                    Je bestelling zal rond {{ receipt | time('H:i') }} geleverd worden.
+                {% else %}
+                    De verantwoordelijke kan deze bestelling vanaf {{ receipt | time('H:i') }} komen afhalen.
+                {% endif %}
+            {% else %}
+                Je bestelling bij {{ store.name }} is succesvol geplaatst. Stap binnen vanaf {{ receipt | time('H:i') }} en haal je bestelling op!
+            {% endif %}
+            {% if order.payment_gocardless %}
+                De betaling wordt automatisch verwerkt, je portefeuille hoef je niet boven te halen! Gelieve genoeg geld te plaatsen op de gegeven rekening.
+            {% endif %}
+        </p>
     </div>
 </div>
 

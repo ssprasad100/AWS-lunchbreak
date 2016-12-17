@@ -51,11 +51,14 @@ class UserManager(BaseUserManager):
 
 class OrderManager(models.Manager):
 
-    def create_with_orderedfood(self, orderedfood, group=None, **kwargs):
-        self.model.is_valid(orderedfood, **kwargs)
+    def create_with_orderedfood(self, orderedfood, group=None, save=True, **kwargs):
+        if save:
+            self.model.is_valid(orderedfood, **kwargs)
 
         Order = apps.get_model('customers.Order')
-        if self.model == Order:
+        if not save:
+            instance = Order(**kwargs)
+        elif self.model == Order:
             instance = self.create(**kwargs)
         else:
             instance, created = self.get_or_create(**kwargs)
@@ -64,35 +67,51 @@ class OrderManager(models.Manager):
 
         if group is not None:
             GroupOrder = apps.get_model('customers.GroupOrder')
-            group_order, created = GroupOrder.objects.get_or_create(
-                group=group,
-                date=instance.receipt.date()
-            )
-            if created:
-                # Reset the Order.group cached_property so it's not None when returned
-                del instance.group
+
+            group_order_kwargs = {
+                'group': group,
+                'date': instance.receipt.date()
+            }
+            if not save:
+                group_order = GroupOrder(
+                    **group_order_kwargs
+                )
+                try:
+                    del instance.group
+                except AttributeError:
+                    pass
+            else:
+                group_order, created = GroupOrder.objects.get_or_create(
+                    **group_order_kwargs
+                )
+                if created:
+                    # Reset the Order.group cached_property so it's not None when returned
+                    try:
+                        del instance.group
+                    except AttributeError:
+                        pass
             instance.group_order = group_order
 
-        OrderedFood = apps.get_model('customers.OrderedFood')
+        if save:
+            OrderedFood = apps.get_model('customers.OrderedFood')
+            try:
+                for f in orderedfood:
+                    if isinstance(f, dict):
+                        OrderedFood.objects.create_for_order(
+                            order=instance,
+                            **f
+                        )
+                    elif isinstance(f, OrderedFood):
+                        f.order = instance
+                        f.save()
+            except:
+                if instance.group_order is not None \
+                        and instance.group_order.orders.count() == 1:
+                    instance.group_order.delete()
+                instance.delete()
+                raise
 
-        try:
-            for f in orderedfood:
-                if isinstance(f, dict):
-                    OrderedFood.objects.create_for_order(
-                        order=instance,
-                        **f
-                    )
-                elif isinstance(f, OrderedFood):
-                    f.order = instance
-                    f.save()
-        except:
-            if instance.group_order is not None \
-                    and instance.group_order.orders.count() == 1:
-                instance.group_order.delete()
-            instance.delete()
-            raise
-
-        instance.save()
+            instance.save()
         return instance
 
 

@@ -5,10 +5,9 @@
     {% set first_openingperiods = weekday_openingperiods[first_openingperiod.start.isoweekday()] %}
 {% endif %}
 
-
 <div class="split-column">
-    <label>Datum van afhaling
-        <select name="{{ name_weekday }}" class="input-icon icon-dropdown input-icon-right">
+    <label>Datum van <span class="receipt-type">afhaling</span>
+        <select name="{{ name_weekday }}" class="input-icon icon-dropdown input-icon-right" data-openingperiods="{{ weekday_openingperiods | json_weekday_periods }}">
             {% for weekday in store.open_dates(openingperiods=openingperiods) %}
                 {% set selected -%}
                     {% if value and weekday == value %}
@@ -23,7 +22,7 @@
     </label>
 </div>
 <div class="split-column">
-    <label for="{{ name_time }}">Tijd van afhaling
+    <label for="{{ name_time }}">Tijd van <span class="receipt-type">afhaling</span>
         {% if value %}
             {% set time = value.time() %}
         {% else %}
@@ -34,16 +33,16 @@
 </div>
 
 {% set closed = 'De winkel is op deze datum gesloten.' %}
-<p class="subscript">
+<p class="subscript openinghours">
     {% if first_openingperiods %}
-        Openingsuren: <span class="openinghours">{{ first_openingperiods | list_periods() }}</span>.
+        Openingsuren: <span id="openinghours">{{ first_openingperiods | list_periods() }}</span>.
     {% else %}
         {{ closed }}
     {% endif %}
 </p>
 
-<script type="text/javascript">
-    var weekday_openingperiods_json = '{{ weekday_openingperiods | json_weekday_periods | safe }}';
-    var closed = '{{ closed }}';
-</script>
+<p class="subscript group_deadline" style="display: none;">
+Bestellen moet voor <span id="deadline"></span> en wordt om <span id="receipt"></span>.
+</p>
+
 <script type="text/javascript" src="{{ static('receipt-field.js') }}"></script>

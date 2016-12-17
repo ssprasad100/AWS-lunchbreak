@@ -59,6 +59,12 @@
             </div>
 
             <div class="split-column">
+                {% if order_form.fields['group'].queryset %}
+                <label id="checkout-group" data-groups="{{ order_form.fields['group'].groups_json }}">{{ order_form.group.label }}
+                    {{ order_form.group }}
+                    {{ forms.render_errors(order_form.group.errors) }}
+                </label>
+                {% endif %}
                 <div id="checkout-receipt">
                     {{ order_form.receipt }}
                     {{ forms.render_errors(order_form.receipt.errors) }}
