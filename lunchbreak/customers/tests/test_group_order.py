@@ -153,8 +153,9 @@ class GroupOrderTestCase(GroupTestCase):
             total_confirmed
         )
 
+    @mock.patch('lunch.models.Store.is_open')
     @mock.patch('customers.tasks.send_group_order_email.apply_async')
-    def test_synced_status(self, mock_task):
+    def test_synced_status(self, mock_task, mock_is_open):
         """Test whether changing the status on the GroupOrder changes the statuses on the orders.
 
         Also test whether changing the status of an Order with a GroupOrder
