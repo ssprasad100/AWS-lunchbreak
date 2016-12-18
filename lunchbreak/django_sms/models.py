@@ -4,6 +4,7 @@ from random import randint
 import plivo
 from django.db import models
 from django.utils import timezone
+from django.utils.translation import ugettext as _
 from phonenumber_field.modelfields import PhoneNumberField
 
 from .conf import (EXPIRY_TIME, MAX_TRIES, PHONE, PLIVO_AUTH_ID,
@@ -13,31 +14,53 @@ from .exceptions import (PinExpired, PinIncorrect, PinTimeout,
 
 
 class Phone(models.Model):
+
+    class Meta:
+        verbose_name = _('telefoon')
+        verbose_name_plural = _('telefoons')
+
+    def __str__(self):
+        return str(self.phone)
+
     phone = PhoneNumberField(
-        unique=True
+        unique=True,
+        verbose_name=_('telefoonnummer'),
+        help_text=_('Telefoonnummer.')
     )
     pin = models.CharField(
         max_length=6,
-        blank=True
+        blank=True,
+        verbose_name=_('PIN code'),
+        help_text=_('PIN code.')
     )
     tries = models.PositiveIntegerField(
-        default=0
+        default=0,
+        verbose_name=_('pogingen'),
+        help_text=_('Aantal keer PIN code geprobeerd.')
     )
 
     last_message = models.DateTimeField(
         null=True,
-        blank=True
+        blank=True,
+        verbose_name=_('laatst verstuurd bericht'),
+        help_text=_('Moment waarop het laatste bericht werd verstuurd.')
     )
     confirmed_at = models.DateTimeField(
         null=True,
-        blank=True
+        blank=True,
+        verbose_name=_('bevestigd op'),
+        help_text=_('Moment waarop er voor het eerste een correcte PIN code werd ingegeven.')
     )
     expires_at = models.DateTimeField(
         null=True,
-        blank=True
+        blank=True,
+        verbose_name=_('PIN code vervalt op'),
+        help_text=_('Moment waarop PIN code vervalt.')
     )
     created_at = models.DateTimeField(
-        auto_now_add=True
+        auto_now_add=True,
+        verbose_name=_('aangemaakt op'),
+        help_text=_('Moment waarop dit telefoonnummer werd toegevoegd.')
     )
 
     @property
@@ -139,6 +162,3 @@ class Phone(models.Model):
         self.reset()
 
         return True
-
-    def __str__(self):
-        return str(self.phone)

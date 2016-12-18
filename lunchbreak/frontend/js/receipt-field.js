@@ -64,11 +64,12 @@
         this.receiptField = receiptField;
         this.element = $('#checkout-group');
         /**
-         * Dictionary of group ids and their delivery and deadline fields.
+         * Dictionary of group ids and their delivery, receipt, and deadline fields.
          *
          * {
          *     '1': {
          *         'deadline': '11:00',
+         *         'receipt': '11:45',
          *         'delivery': true
          *     }
          * }
