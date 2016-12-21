@@ -16,10 +16,15 @@ class PaymentLinkInline(admin.TabularInline):
     extra = 0
 
 
+class GroupInline(admin.TabularInline):
+    model = Group.members.through
+    extra = 0
+
+
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
     list_display = ('name', 'phone', 'email',)
-    inlines = (PaymentLinkInline,)
+    inlines = (GroupInline, PaymentLinkInline,)
     search_fields = ('name', 'phone__phone', 'email',)
     list_filter = ('enabled',)
 

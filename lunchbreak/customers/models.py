@@ -125,13 +125,6 @@ class User(AbstractBaseUser, PermissionsMixin):
             **kwargs
         )
 
-    def phone_clean(raw_value, model_instance):
-        return Phone._meta.get_field('phone').clean(
-            raw_value, model_instance
-        )
-
-    phone.clean = phone_clean
-
     @staticmethod
     def register(phone):
         try:
