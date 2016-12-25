@@ -2,7 +2,9 @@ import pendulum
 from customers.config import (ORDER_STATUS_COMPLETED, ORDER_STATUS_PLACED,
                               ORDER_STATUS_RECEIVED, ORDER_STATUS_STARTED,
                               ORDER_STATUS_WAITING)
-from customers.models import Group, Order, OrderedFood
+from customers.models import Group, GroupOrder, Order, OrderedFood
+from customers.serializers import (GroupOrderDetailSerializer,
+                                   GroupOrderSerializer)
 from django.conf import settings
 from django.core.validators import validate_email
 from django.db.models import Count
@@ -531,6 +533,21 @@ class StoreGroupViewSet(TargettedViewSet,
     def get_queryset(self):
         return Group.objects.filter(
             store_id=self.kwargs['parent_lookup_pk']
+        )
+
+
+class StoreGroupOrderViewSet(TargettedViewSet,
+                             NestedViewSetMixin,
+                             mixins.ListModelMixin,
+                             mixins.RetrieveModelMixin,
+                             mixins.UpdateModelMixin):
+    authentication_classes = (EmployeeAuthentication,)
+    serializer_class = GroupOrderSerializer
+    serializer_class_retrieve = GroupOrderDetailSerializer
+
+    def get_queryset(self):
+        return GroupOrder.objects.filter(
+            group__store_id=self.kwargs['parent_lookup_pk']
         )
 
 

@@ -12,6 +12,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models, transaction
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
 from django_gocardless.config import CURRENCY_EUR, PAYMENT_STATUS_PAID_OUT
@@ -42,7 +43,7 @@ from .config import (GROUP_ORDER_STATUSES, ORDER_STATUS_COMPLETED,
                      PAYMENT_METHODS)
 from .exceptions import (CostCheckFailed, MinDaysExceeded, NoPaymentLink,
                          OnlinePaymentDisabled, PaymentLinkNotConfirmed,
-                         UserDisabled)
+                         PreorderTimeExceeded, UserDisabled)
 from .managers import (GroupManager, OrderedFoodManager, OrderManager,
                        UserManager)
 from .tasks import send_group_order_email
@@ -458,6 +459,20 @@ class GroupOrder(StatusSignalModel):
             self._calculate_totals()
         return self._discounted_amount
 
+    @property
+    def receipt(self):
+        return Pendulum(
+            year=self.date.year,
+            month=self.date.month,
+            day=self.date.day,
+            hour=self.group.deadline.hour,
+            minute=self.group.deadline.minute,
+            second=self.group.deadline.second,
+            tzinfo=self.group.store.timezone
+        ).add_timedelta(
+            self.group.delay
+        )
+
     def _calculate_totals(self):
         self._total = Decimal(0)
         self._paid_total = Decimal(0)
@@ -597,8 +612,6 @@ class Order(StatusSignalModel, AbstractOrder):
         help_text=_('Tijdstip waarop de bestelling werd geplaatst.')
     )
     receipt = models.DateTimeField(
-        blank=True,
-        null=True,
         verbose_name=_('tijd afgave'),
         help_text=_('Tijd van afhalen of levering.')
     )
@@ -752,6 +765,14 @@ class Order(StatusSignalModel, AbstractOrder):
             except Food.DoesNotExist:
                 pass
 
+    def clean_placed(self):
+        if self.placed is None:
+            self.placed = timezone.now()
+        if self.group is not None:
+            if self.placed.date() == self.receipt.date() \
+                    and self.group.deadline <= self.placed.time():
+                raise PreorderTimeExceeded()
+
     def clean_status(self):
         if self.group_order is not None \
                 and self.group_order.status != self.status:
@@ -788,32 +809,31 @@ class Order(StatusSignalModel, AbstractOrder):
                 raise NoDeliveryToAddress()
 
     def clean_receipt(self):
-        # TODO: Check whether the store can accept an order if it is
-        # for delivery and needs to be delivered asap (receipt=None).
-
-        if self.group is not None:
-            self.receipt = self.group.receipt
-            self.store.is_open(
-                self.receipt,
-                now=self.placed
-            )
-        elif self.delivery_address is None:
-            if self.receipt is None:
-                raise LunchbreakException(
-                    _('Er moet een tijdstip voor het ophalen opgegeven worden.')
+        if self.status == ORDER_STATUS_PLACED:
+            if self.group is not None:
+                self.receipt = self.group_order.receipt
+                self.store.is_open(
+                    self.receipt,
+                    now=self.placed,
+                    ignore_wait=True
                 )
-            if self.pk is None or 'receipt' in self.get_dirty_fields():
-                self.receipt = timezone_for_store(
-                    value=self.receipt,
-                    store=self.store
+            elif self.delivery_address is None:
+                if self.receipt is None:
+                    raise LunchbreakException(
+                        _('Er moet een tijdstip voor het ophalen opgegeven worden.')
+                    )
+                if self.pk is None or 'receipt' in self.get_dirty_fields():
+                    self.receipt = timezone_for_store(
+                        value=self.receipt,
+                        store=self.store
+                    )
+                self.store.is_open(
+                    self.receipt,
+                    now=self.placed
                 )
-            self.store.is_open(
-                self.receipt,
-                now=self.placed
-            )
 
-        if isinstance(self.receipt, Pendulum):
-            self.receipt = self.receipt._datetime
+            if isinstance(self.receipt, Pendulum):
+                self.receipt = self.receipt._datetime
 
     def clean_payment_method(self):
         if self.payment_method == PAYMENT_METHOD_GOCARDLESS:
@@ -840,6 +860,10 @@ class Order(StatusSignalModel, AbstractOrder):
             if self.group.store != self.store:
                 raise LinkingError(
                     _('De winkel van de groep moet dezelde zijn als die van de bestelling.')
+                )
+            if not self.group.members.filter(id=self.user_id).exists():
+                raise LinkingError(
+                    _('Je kan enkel bestellen bij groepen waartoe je behoort.')
                 )
 
     def create_payment(self):
@@ -1093,7 +1117,8 @@ class OrderedFood(CleanModelMixin, StatusSignalModel):
         if ordered_ingredients is None:
             ordered_ingredients = orderedfood.ingredients.all()
 
-        original_ingredients = [relation.ingredient for relation in original_relations if relation.selected]
+        original_ingredients = [
+            relation.ingredient for relation in original_relations if relation.selected]
 
         for ingredient in ordered_ingredients:
             if ingredient not in original_ingredients:

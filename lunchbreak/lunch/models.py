@@ -478,7 +478,7 @@ class Store(AbstractAddress):
             postcode=address.postcode
         ).exists()
 
-    def is_open(self, dt, raise_exception=True, now=None):
+    def is_open(self, dt, raise_exception=True, now=None, ignore_wait=False):
         """Check whether the store is open at the specified time."""
 
         if isinstance(dt, pendulum.Pendulum):
@@ -492,7 +492,7 @@ class Store(AbstractAddress):
                 return False
             raise PastOrderDenied()
 
-        if dt - now < self.wait:
+        if not ignore_wait and dt - now < self.wait:
             if not raise_exception:
                 return False
             raise PreorderTimeExceeded()

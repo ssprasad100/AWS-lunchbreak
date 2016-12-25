@@ -5,6 +5,7 @@ from django.apps import apps
 from django.contrib.auth.base_user import BaseUserManager
 from django.db import models
 from lunch.models import Food, Ingredient, IngredientGroup
+from pendulum import Pendulum
 
 from .exceptions import OrderedFoodNotOriginal
 
@@ -55,42 +56,53 @@ class OrderManager(models.Manager):
         if save:
             self.model.is_valid(orderedfood, **kwargs)
 
-        Order = apps.get_model('customers.Order')
-        if not save:
-            instance = Order(**kwargs)
-        elif self.model == Order:
-            instance = self.create(**kwargs)
-        else:
-            instance, created = self.get_or_create(**kwargs)
-            if not created:
-                instance.orderedfood.all().delete()
-
+        group_order = None
+        group_order_created = False
+        receipt = kwargs.get('receipt')
+        store = kwargs.get('store')
         if group is not None:
+            receipt = Pendulum.instance(
+                receipt
+            ).with_time(
+                hour=group.receipt.hour,
+                minute=group.receipt.minute,
+                second=group.receipt.second
+            ).timezone_(
+                store.timezone
+            )._datetime
+            kwargs['receipt'] = receipt
+
             GroupOrder = apps.get_model('customers.GroupOrder')
 
             group_order_kwargs = {
                 'group': group,
-                'date': instance.receipt.date()
+                'date': receipt.date()
             }
             if not save:
                 group_order = GroupOrder(
                     **group_order_kwargs
                 )
-                try:
-                    del instance.group
-                except AttributeError:
-                    pass
             else:
-                group_order, created = GroupOrder.objects.get_or_create(
+                group_order, group_order_created = GroupOrder.objects.get_or_create(
                     **group_order_kwargs
                 )
-                if created:
-                    # Reset the Order.group cached_property so it's not None when returned
-                    try:
-                        del instance.group
-                    except AttributeError:
-                        pass
-            instance.group_order = group_order
+            kwargs['group_order'] = group_order
+
+        Order = apps.get_model('customers.Order')
+
+        try:
+            if not save:
+                instance = Order(**kwargs)
+            elif self.model == Order:
+                instance = self.create(**kwargs)
+            else:
+                instance, created = self.get_or_create(**kwargs)
+                if not created:
+                    instance.orderedfood.all().delete()
+        except:
+            if save and group_order_created and group_order is not None:
+                group_order.delete()
+            raise
 
         if save:
             OrderedFood = apps.get_model('customers.OrderedFood')

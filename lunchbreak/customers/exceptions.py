@@ -33,7 +33,7 @@ class CostCheckFailed(LunchbreakException):
 class PreorderTimeExceeded(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
     default_code = PREORDERTIME_EXCEEDED
-    default_detail = 'Een bestelling moet vroeger geplaatst worden.'
+    default_detail = 'Een bestelling moet langer op voorhand geplaatst worden.'
 
 
 class StoreClosed(LunchbreakException):

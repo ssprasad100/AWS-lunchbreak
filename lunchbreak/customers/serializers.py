@@ -7,8 +7,8 @@ from phonenumber_field.validators import validate_international_phonenumber
 from rest_framework import serializers
 
 from .config import PAYMENTLINK_COMPLETION_REDIRECT_URL
-from .models import (Address, Group, Order, OrderedFood, PaymentLink, User,
-                     UserToken)
+from .models import (Address, Group, GroupOrder, Order, OrderedFood,
+                     PaymentLink, User, UserToken)
 
 
 class StoreHeartSerializer(lunch_serializers.StoreDetailSerializer):
@@ -106,6 +106,64 @@ class GroupSerializer(PrimaryModelSerializer):
         )
         read_only_fields = (
             'id',
+        )
+
+
+class OrderNestedSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Order
+        fields = (
+            'user',
+            'placed',
+            'receipt',
+            'status',
+            'total',
+            'total_confirmed',
+            'discount',
+            'description',
+            'payment',
+            'payment_method',
+            'paid',
+        )
+        read_only_fields = fields
+
+
+class GroupOrderSerializer(serializers.ModelSerializer):
+    group = GroupSerializer(
+        read_only=True
+    )
+
+    class Meta:
+        model = GroupOrder
+        fields = (
+            'id',
+            'group',
+            'date',
+            'status',
+        )
+        read_only_fields = (
+            'id',
+            'group',
+            'date',
+        )
+        write_only_fields = (
+            'status',
+        )
+
+
+class GroupOrderDetailSerializer(GroupOrderSerializer):
+    orders = OrderNestedSerializer(
+        read_only=True,
+        many=True
+    )
+
+    class Meta(GroupOrderSerializer.Meta):
+        fields = GroupOrderSerializer.Meta.fields + (
+            'orders',
+        )
+        read_only_fields = GroupOrderSerializer.Meta.read_only_fields + (
+            'orders',
         )
 
 
