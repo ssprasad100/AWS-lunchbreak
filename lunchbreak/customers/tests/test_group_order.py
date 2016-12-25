@@ -1,10 +1,13 @@
+from datetime import timedelta
 from decimal import Decimal
 
 import mock
 from lunch.exceptions import LinkingError
 from pendulum import Pendulum
 
-from ..config import ORDER_STATUS_COMPLETED, ORDER_STATUS_RECEIVED
+from ..config import (ORDER_STATUS_COMPLETED, ORDER_STATUS_PLACED,
+                      ORDER_STATUS_RECEIVED, ORDER_STATUS_STARTED,
+                      ORDER_STATUS_WAITING)
 from ..models import Group, GroupOrder, Order
 from .test_group import GroupTestCase
 
@@ -22,7 +25,7 @@ class GroupOrderTestCase(GroupTestCase):
             Order.objects.create_with_orderedfood,
             orderedfood=[],
             store=self.store_other,
-            receipt=Pendulum.now()._datetime,
+            receipt=self.group.receipt + timedelta(minutes=1),
             group=self.group,
             user=self.user
         )
@@ -47,7 +50,7 @@ class GroupOrderTestCase(GroupTestCase):
         order = Order.objects.create_with_orderedfood(
             orderedfood=[],
             store=self.store,
-            receipt=Pendulum.now()._datetime,
+            receipt=self.group.receipt + timedelta(minutes=1),
             group=self.group,
             user=self.user
         )
@@ -67,7 +70,7 @@ class GroupOrderTestCase(GroupTestCase):
         order = Order.objects.create_with_orderedfood(
             orderedfood=[],
             store=self.store,
-            receipt=Pendulum.now()._datetime,
+            receipt=self.group.receipt + timedelta(minutes=1),
             group=self.group,
             user=self.user
         )
@@ -82,7 +85,7 @@ class GroupOrderTestCase(GroupTestCase):
         order = Order.objects.create_with_orderedfood(
             orderedfood=[],
             store=self.store,
-            receipt=Pendulum.tomorrow()._datetime,
+            receipt=self.group.receipt + timedelta(days=1),
             group=self.group,
             user=self.user
         )
@@ -110,11 +113,12 @@ class GroupOrderTestCase(GroupTestCase):
             email='test_discount@cloock.be',
             discount=10
         )
+        group.members.add(self.user)
 
         total = Decimal(self.food.cost) * Decimal(self.food.amount)
         order = Order.objects.create_with_orderedfood(
             store=self.store,
-            receipt=Pendulum.now()._datetime,
+            receipt=self.group.receipt + timedelta(hours=1),
             group=group,
             user=self.user,
             orderedfood=[
@@ -153,13 +157,21 @@ class GroupOrderTestCase(GroupTestCase):
             total_confirmed
         )
 
+    def create_order(self, group_order):
+        return Order.objects.create(
+            store=self.store,
+            receipt=group_order.group.receipt,
+            group_order=group_order,
+            user=self.user,
+            placed=Pendulum.now(self.store.timezone).subtract(days=1)
+        )
+
     @mock.patch('lunch.models.Store.is_open')
     @mock.patch('customers.tasks.send_group_order_email.apply_async')
     def test_synced_status(self, mock_task, mock_is_open):
         """Test whether changing the status on the GroupOrder changes the statuses on the orders.
 
-        Also test whether changing the status of an Order with a GroupOrder
-        doesn't affect the status because that should always be the same as the GroupOrder.
+        Also test whether changing the status of an Order with a GroupOrder works.
         """
 
         group_order = GroupOrder.objects.create(
@@ -167,16 +179,8 @@ class GroupOrderTestCase(GroupTestCase):
             date=Pendulum.now().date()
         )
 
-        def create_order():
-            return Order.objects.create(
-                store=self.store,
-                receipt=Pendulum.now()._datetime,
-                group_order=group_order,
-                user=self.user
-            )
-
-        create_order()
-        create_order()
+        self.create_order(group_order)
+        self.create_order(group_order)
         self.assertEqual(
             group_order.orders.count(),
             2
@@ -198,23 +202,48 @@ class GroupOrderTestCase(GroupTestCase):
         group_order.save()
         assert_same_status()
 
-        # Creating a new order should change the status to the one of the GroupOrder.
-        order3 = create_order()
+        # Creating a new order should not change the status to the one of the GroupOrder.
+        order3 = self.create_order(group_order)
         self.assertEqual(
             group_order.orders.count(),
             3
         )
         self.assertEqual(
-            group_order.status,
-            order3.status
+            order3.status,
+            ORDER_STATUS_PLACED
         )
-        assert_same_status()
 
-        # Changing the status on an order should be ignored
+        # Changing the status on an order should not be ignored
         order3.status = ORDER_STATUS_COMPLETED
         order3.save()
         self.assertEqual(
             order3.status,
-            ORDER_STATUS_RECEIVED
+            ORDER_STATUS_COMPLETED
         )
+
+        # Changing the status again, should change all of the statuses
+        group_order.status = ORDER_STATUS_COMPLETED
+        group_order.save()
         assert_same_status()
+
+    @mock.patch('lunch.models.Store.is_open')
+    @mock.patch('customers.tasks.send_group_order_email.apply_async')
+    def test_completed_change(self, mock_task, mock_is_open):
+        """Test whether a completed GroupOrder goes back to in progress if a new order comes in."""
+
+        for status in [ORDER_STATUS_WAITING, ORDER_STATUS_COMPLETED]:
+            group_order = GroupOrder.objects.create(
+                group=self.group,
+                date=Pendulum.now().date(),
+                status=status
+            )
+
+            self.create_order(group_order)
+            group_order.refresh_from_db()
+            self.assertEqual(
+                group_order.status,
+                ORDER_STATUS_STARTED
+            )
+
+            group_order.orders.all().delete()
+            group_order.delete()

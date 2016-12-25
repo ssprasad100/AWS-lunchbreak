@@ -10,7 +10,7 @@ from django.contrib.contenttypes.fields import (GenericForeignKey,
                                                 GenericRelation)
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MaxValueValidator, MinValueValidator
-from django.db import models, transaction
+from django.db import models
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -36,7 +36,8 @@ from rest_framework import status
 from rest_framework.response import Response
 
 from .config import (GROUP_ORDER_STATUSES, ORDER_STATUS_COMPLETED,
-                     ORDER_STATUS_PLACED, ORDER_STATUSES,
+                     ORDER_STATUS_PLACED, ORDER_STATUS_STARTED,
+                     ORDER_STATUS_WAITING, ORDER_STATUSES,
                      ORDER_STATUSES_ACTIVE, ORDEREDFOOD_STATUS_OK,
                      ORDEREDFOOD_STATUS_OUT_OF_STOCK, ORDEREDFOOD_STATUSES,
                      PAYMENT_METHOD_CASH, PAYMENT_METHOD_GOCARDLESS,
@@ -490,12 +491,9 @@ class GroupOrder(StatusSignalModel):
         super().save(*args, **kwargs)
 
     def status_changed(self):
-        # We update this way so Order.save() is called.
-        # Updating a queryset does not call each object's save.
-        with transaction.atomic():
-            for order in self.orders.all():
-                order.status = self.status
-                order.save()
+        self.orders.update(
+            status=self.status
+        )
 
     @classmethod
     def created(cls, sender, group_order, **kwargs):
@@ -768,15 +766,17 @@ class Order(StatusSignalModel, AbstractOrder):
     def clean_placed(self):
         if self.placed is None:
             self.placed = timezone.now()
-        if self.group is not None:
-            if self.placed.date() == self.receipt.date() \
-                    and self.group.deadline <= self.placed.time():
+        if self.group is not None \
+                and self.placed.date() == self.receipt.date() \
+                and self.group.deadline <= self.placed.time():
                 raise PreorderTimeExceeded()
 
     def clean_status(self):
         if self.group_order is not None \
-                and self.group_order.status != self.status:
-            self.status = self.group_order.status
+                and self.group_order.status in [ORDER_STATUS_WAITING, ORDER_STATUS_COMPLETED]:
+            # This will also change the status on all of the orders
+            self.group_order.status = ORDER_STATUS_STARTED
+            self.group_order.save()
 
     def clean_total(self):
         self.total = 0

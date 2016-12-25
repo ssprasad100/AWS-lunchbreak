@@ -1,4 +1,5 @@
 from django.core.urlresolvers import reverse
+from pendulum import Pendulum
 from rest_framework import status
 
 from . import CustomersTestCase
@@ -14,8 +15,10 @@ class GroupTestCase(CustomersTestCase):
         self.group = Group.objects.create(
             name='Test Group',
             store=self.store,
-            email='andreas@cloock.be'
+            email='andreas@cloock.be',
+            deadline=Pendulum.now(self.store.timezone).add(hours=1).time()
         )
+        self.group.members.add(self.user)
 
     def test_store_groups(self):
         """Test whether the Store groups request returns joined groups."""
@@ -26,6 +29,7 @@ class GroupTestCase(CustomersTestCase):
                 'parent_lookup_pk': self.store.id
             }
         )
+        self.group.members.remove(self.user)
 
         def get_groups():
             request = self.factory.get(url)
