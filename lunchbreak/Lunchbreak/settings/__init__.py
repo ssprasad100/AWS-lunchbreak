@@ -4,8 +4,9 @@ from split_settings.tools import include
 
 TRAVIS_BRANCH = os.environ.get('TRAVIS_BRANCH')
 
-version = os.environ.get('DJANGO_SETTINGS_VERSION', 'development')
-
+# Used in settings too, that's why there's a default env
+os.environ.setdefault('DJANGO_SETTINGS_VERSION', 'development')
+version = os.environ.get('DJANGO_SETTINGS_VERSION')
 
 if TRAVIS_BRANCH is None:
     includes = [

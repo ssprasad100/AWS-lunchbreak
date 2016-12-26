@@ -1,0 +1,8 @@
+Beste,
+
+{{ group.store.name }} heeft een groep aangemaakt voor het personeel van {{ group.name }}. Naast deze e-mail, wordt er een tweede e-mail verstuurd die geforward kan worden naar het personeel met meer informatie over de groep.
+
+Ga naar de pagina van de groep: {{ url('frontend-group', pk=group.pk) | absolute_url }}
+
+Vriendelijke groeten,
+Het Lunchbreak Team

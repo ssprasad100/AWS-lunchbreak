@@ -1,3 +1,4 @@
+import mock
 from django.core.urlresolvers import reverse
 from pendulum import Pendulum
 from rest_framework import status
@@ -9,7 +10,8 @@ from ..views import StoreGroupViewSet
 
 class GroupTestCase(CustomersTestCase):
 
-    def setUp(self):
+    @mock.patch('customers.tasks.send_group_created_emails.apply_async')
+    def setUp(self, mock_task):
         super().setUp()
 
         self.group = Group.objects.create(
@@ -67,3 +69,13 @@ class GroupTestCase(CustomersTestCase):
             response.data[0]['id'],
             self.group.id
         )
+
+    @mock.patch('customers.tasks.send_group_created_emails.apply_async')
+    def test_send_created_emails(self, mock_task):
+        """Test whether the Celery email task is triggered on creation."""
+        Group.objects.create(
+            name='Signal test',
+            store=self.store,
+            email='test@cloock.be'
+        )
+        self.assertTrue(mock_task.called)

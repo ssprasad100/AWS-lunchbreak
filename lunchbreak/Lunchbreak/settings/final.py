@@ -122,6 +122,7 @@ TEMPLATES = [
                 'compressor.contrib.jinja2ext.CompressorExtension',
             ],
             'filters': {
+                'absolute_url': 'frontend.templatetags.filters.absolute_url',
                 'list_periods': 'frontend.templatetags.filters.list_periods',
                 'naturalweekday': 'frontend.templatetags.filters.naturalweekday',
                 'json_weekday_periods': 'frontend.templatetags.filters.json_weekday_periods',
@@ -130,7 +131,7 @@ TEMPLATES = [
                 'percentage': 'frontend.templatetags.filters.percentage',
                 'humanize_date': 'frontend.templatetags.filters.humanize_date',
             },
-            'match_extension': '.html',
+            'match_extension': None,
             'app_dirname': 'jinja2',
         }
     },

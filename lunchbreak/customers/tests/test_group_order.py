@@ -32,7 +32,7 @@ class GroupOrderTestCase(GroupTestCase):
 
     @mock.patch('customers.tasks.send_group_order_email.apply_async')
     def test_email_task_triggered(self, mock_task):
-        """Test whether the Celery emailt ask is triggered on creation."""
+        """Test whether the Celery email task is triggered on creation."""
 
         GroupOrder.objects.create(
             group=self.group,
@@ -99,7 +99,8 @@ class GroupOrderTestCase(GroupTestCase):
     @mock.patch('lunch.models.Store.is_open')
     @mock.patch('customers.models.Order.is_valid')
     @mock.patch('customers.tasks.send_group_order_email.apply_async')
-    def test_discount(self, mock_task, mock_is_valid, mock_is_open):
+    @mock.patch('customers.tasks.send_group_created_emails.apply_async')
+    def test_discount(self, mock_emailstask, mock_task, mock_is_valid, mock_is_open):
         """Test whether a discount is applied to an order.
 
         Order.total is calculated including discount, Order.total_confirmed is
@@ -118,7 +119,7 @@ class GroupOrderTestCase(GroupTestCase):
         total = Decimal(self.food.cost) * Decimal(self.food.amount)
         order = Order.objects.create_with_orderedfood(
             store=self.store,
-            receipt=self.group.receipt + timedelta(hours=1),
+            receipt=self.group.receipt + timedelta(days=1),
             group=group,
             user=self.user,
             orderedfood=[

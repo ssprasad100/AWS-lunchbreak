@@ -1,0 +1,18 @@
+<p>Welkom!</p>
+<p>
+    Eerst en vooral heten we je hartelijk welkom op het Lunchbreak platform! Het hele personeel van {{ group.name }} kan nu gemakkelijk bestellen bij {{ group.store.name }} via Lunchbreak! Lunchbreak is een online bestelplatform voor je dagelijkse bestellingen bij de bakker, slager, broodjeszaak en meer!{% if group.discount > 0 -%}Hierbovenop biedt {{ store.name }} elke werknemer nog eens {{ group.discount | percentage }} korting!{%- endif %}
+</p>
+<p>
+    Hieronder vind je de link waarmee je toegevoegd wordt aan de groep {{ group.name }} zodat je kan genieten van alle voordelen van Lunchbreak. Een Lunchbreak account wordt automatisch aangemaakt als je inlogt en staat ter beschikking als je inlogt op onze iOS of Android app! Je kan Lunchbreak ook privé gebruiken en dat raden we je natuurlijk ook aan als je thuis wil genieten van Lunchbreak.
+</p>
+{% set link = url('frontend-group', pk=group.pk, token=group.token) | absolute_url %}
+<p>
+    <a href="{{ link }}">Toetreden tot de {{ group.name }} groep.</a>
+</p>
+<p>
+    Deel deze link of forward deze e-mail naar je collega's om ze uit te nodigen tot de groep! Je kan de volgende link kopieëren: {{ link }}
+</p>
+<p>
+    Vriendelijke groeten,
+    <br/> Het Lunchbreak Team
+</p>

@@ -1,0 +1,8 @@
+<p>Beste,</p>
+
+<p>{{ group.store.name }} heeft een groep aangemaakt voor het personeel van {{ group.name }}. Naast deze e-mail wordt er een tweede e-mail verstuurd die geforward kan worden naar het personeel met meer informatie over de groep.</p>
+
+<p><a href="{{ url('frontend-group', pk=group.pk) | absolute_url }}">Ga naar de pagina van de groep.</a></p>
+
+<p>Vriendelijke groeten,<br/>
+Het Lunchbreak Team</p>

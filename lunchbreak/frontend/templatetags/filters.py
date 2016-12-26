@@ -12,10 +12,20 @@ from pendulum import Pendulum
 
 
 @library.filter
+def absolute_url(path, arg=None):
+    """Usage: {{ url('view-name') | absolute_url }}
+
+    Providing an argument overrides the hostname.
+    """
+    return '{protocol}://{domain}{path}'.format(
+        protocol='https' if settings.SSL else 'http',
+        domain=settings.ALLOWED_HOSTS[0] if arg is None else arg,
+        path=path
+    )
+
+
+@library.filter
 def list_periods(periods, arg='H:i'):
-    """
-    Usage: {{ 'Hello'|mylower() }}
-    """
     return ', '.join([
         '{start} - {end}'.format(
             start=time_filter(period.start.time(), arg),
@@ -26,9 +36,6 @@ def list_periods(periods, arg='H:i'):
 
 @library.filter
 def json_weekday_periods(weekday_periods, **kwargs):
-    """
-    Usage: {{ 'Hello'|mylower() }}
-    """
     result = {}
     for weekday, periods in weekday_periods.items():
         result[weekday] = list_periods(

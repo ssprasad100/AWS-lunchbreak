@@ -1,6 +1,6 @@
 from django.db.models.signals import post_delete, post_save
 
-from .models import GroupOrder, Order, OrderedFood, PaymentLink
+from .models import Group, GroupOrder, Order, OrderedFood, PaymentLink
 from .signals import *  # NOQA
 
 post_delete.connect(
@@ -38,4 +38,10 @@ order_not_collected.connect(
 group_order_created.connect(
     GroupOrder.created,
     dispatch_uid='customers_group_order_created'
+)
+
+post_save.connect(
+    Group.post_save,
+    sender=Group,
+    weak=False
 )

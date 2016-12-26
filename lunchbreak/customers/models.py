@@ -47,7 +47,7 @@ from .exceptions import (CostCheckFailed, MinDaysExceeded, NoPaymentLink,
                          PreorderTimeExceeded, UserDisabled)
 from .managers import (GroupManager, OrderedFoodManager, OrderManager,
                        UserManager)
-from .tasks import send_group_order_email
+from .tasks import send_group_created_emails, send_group_order_email
 
 
 class User(AbstractBaseUser, PermissionsMixin):
@@ -394,6 +394,13 @@ class Group(models.Model):
         ).add_timedelta(
             self.delay
         )
+
+    @staticmethod
+    def post_save(sender, instance, created, **kwargs):
+        if created:
+            send_group_created_emails.delay(
+                group_id=instance.id
+            )
 
 
 class GroupOrder(StatusSignalModel):

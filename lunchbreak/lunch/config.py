@@ -37,7 +37,7 @@ INPUT_TYPES = (
     (INPUT_SI_SET, 'Vaste hoeveelheid o.b.v. SI-eenheid'),
 )
 
-TOKEN_IDENTIFIER_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWabcdefghijklmnopqrstuvwxyz0123456789 !#$%&()*+,-./:;<=>?@[]\^_~'
+TOKEN_IDENTIFIER_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWabcdefghijklmnopqrstuvwxyz0123456789_'
 TOKEN_IDENTIFIER_LENGTH = 64
 
 
