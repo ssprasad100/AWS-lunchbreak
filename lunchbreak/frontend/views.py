@@ -220,6 +220,14 @@ class OrderView(LoginForwardMixin, TemplateView):
 class LoginView(TemplateView):
     template_name = 'pages/login.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        group_id = self.request.GET.get('group')
+        context['group'] = Group.objects.filter(
+            pk=group_id
+        ).first()
+        return context
+
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated():
             return HttpResponseRedirect(
@@ -356,13 +364,11 @@ class GroupJoinView(LoginRequiredMixin, TemplateView):
     @property
     def login_url(self):
         login_url = reverse('frontend-login')
-        return add_query_params(url=login_url, group=self.group)
+        return add_query_params(url=login_url, group=self.group.id)
 
     @property
     def group(self):
         if not hasattr(self, '_group'):
-            print(self.kwargs)
-            print(self.request.GET)
             self._group = get_object_or_404(
                 Group,
                 pk=self.kwargs['pk'],

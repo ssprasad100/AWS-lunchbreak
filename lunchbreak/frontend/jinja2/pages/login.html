@@ -7,7 +7,11 @@
         <div class="center-content">
             <img src="{{ static('logo-login.png') }}" alt="Lunchbreak"/>
             <h1>Lunchbreak</h1>
+            {% if group -%}
+            <h3>Aansluiten bij {{ group.name }}.</h3>
+            {%- else -%}
             <h3>Gratis inloggen met een sms'je.</h3>
+            {%- endif %}
 
             <form method="POST">
                 {% csrf_token %}
