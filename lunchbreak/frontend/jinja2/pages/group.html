@@ -3,7 +3,7 @@
 <link type="text/css" rel="stylesheet" href="{% sass_src 'new/print.scss' %}" media="print"> {% endblock css %} {% block head %}
 <link href="https://fonts.googleapis.com/css?family=Roboto:400,500" rel="stylesheet"> {% endblock head %} {% block content %}
 <nav id="menu">
-    <a href="/" class="logo">Lunchbreak</a>
+    <a href="{{ url('frontend-terms') }}" class="logo">Lunchbreak</a>
     <div class="items">
         <div class="hidden">
             <a href="#overeenkomst">Overeenkomst</a>
@@ -16,6 +16,7 @@
     </div>
 </nav>
 <main>
+    {% if group_form.group_order %}
     <section>
         <div class="bundle table groups">
             <header>
@@ -132,38 +133,52 @@
             {% endif %}
         </div>
     </section>
-    <section id="overeenkomst" class="noprint">
+    {% else %}
+    <section>
         <article class="text bundle">
-            <h1>Overeenkomst met Petit Pain</h1>
-            <ul>
-                <li>Bestel voor {{ group.deadline | time('H:i') }}
-                </li>
-                <li>{% if group.delivery %}Afhaling{% else %}Levering{% endif %} om {{ group.receipt | time('H:i') }}*</li>
-                <li>{{ group.discount | percentage }} korting op alle bestellingen</li>
-            </ul>
-            <p>* Afhankelijk van de (mondelinge) overeenkomst met de winkel</p>
-            <p>Aanpassingen moeten worden aangevraagd bij de winkel in kwestie.</p>
-        </article>
-    </section>
-    <section id="bestelling-plaatsen" class="noprint">
-        <article class="text bundle">
-            <h1>Hoe kan je een bestelling plaatsen?</h1>
-            <p>Gebruik de Lunchbreak app of website om een bestelling te plaatsen bij de winkel waarmee een overeenkomst is gesloten. Wanneer gevraagd wordt naar een afhaalmethode, moet “bestel in groep” gekozen worden. Daarna krijgt men keuze uit de beschikbare groepen. Kies de groep waarbij je wilt bestellen (dit is dus het bedrijf of de school). Bestellingen worden hierna automatisch in de lijst hierboven geplaatst zodat u alle bestellingen kan afrekenen voor de bestelling geleverd of afgehaald wordt.</p>
-            <footer class="split">
-                <div class="column max">
-                    <a href="" class="button image"><img src="{{ static('new/android-badge.png') }}" alt="Google Play"></a>
-                    <a href="" class="button image"><img src="{{ static('new/ios-badge.png') }}" alt="App Store"></a>
-                </div>
-                <div class="column">
-                    <a href="/" class="red button">Bestel via de website</a>
-                </div>
+            <h1>Er zijn nog geen bestellingen geplaatst</h1>
+            <p>
+                Er zijn nog geen bestellingen geplaatst. Zodra er een bestelling geplaatst is, worden deze hier getoond.
+            </p>
+            <footer>
+                <a class="red button" href="#bestelling-plaatsen">Bestelling plaatsen</a>
             </footer>
         </article>
     </section>
+    {% endif %}
+    <section id="overeenkomst" class="noprint">
+        <article class="text bundle">
+            <h1>Overeenkomst met {{ group.store.name }}</h1>
+            <ul>
+                <li>
+                    Bestellen moet voor {{ group.deadline | time('H:i') }}.
+                </li>
+                <li>
+                {% if group.delivery -%}
+                Leveren gebeurt om {{ group.receipt | time('H:i') }}*.
+                {%- else -%}
+                Ophalen kan vanaf {{ group.receipt | time('H:i') }}*.
+                {%- endif %}
+                </li>
+                {% if group.discount > 0 %}
+                <li>
+                    {{ group.discount | percentage }} korting op alle bestellingen
+                </li>
+                {% endif %}
+            </ul>
+            <p>
+                * Afhankelijk van een eventuele mondelinge overeenkomst met de winkel.
+            </p>
+            <p>
+                Aanpassingen moeten worden aangevraagd bij {{ group.store.name }}.
+            </p>
+        </article>
+    </section>
+    {% include 'includes/how-to-order.html' %}
 </main>
 <footer id="footer">
     <div class="bundle">
-        <a href="/terms">Voorwaarden</a>
+        <a href="{{ url('frontend-terms') }}">Voorwaarden</a>
         <a href="mailto:hi@lunchbreakapp.be">Contact</a>
     </div>
 </footer>

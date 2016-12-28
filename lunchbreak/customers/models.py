@@ -380,7 +380,11 @@ class Group(models.Model):
         verbose_name=_('leden'),
         help_text=_('Groepsleden.'),
     )
-    token = models.CharField(
+    admin_token = models.CharField(
+        max_length=TOKEN_IDENTIFIER_LENGTH,
+        default=random_token
+    )
+    join_token = models.CharField(
         max_length=TOKEN_IDENTIFIER_LENGTH,
         default=random_token
     )

@@ -35,9 +35,9 @@ urlpatterns = patterns(
         name='frontend-group'
     ),
     url(
-        r'^group/(?P<pk>\d+)/(?P<token>.*)/?$',
-        views.GroupView.as_view(),
-        name='frontend-group'
+        r'^group/(?P<pk>\d+)/join/?$',
+        views.GroupJoinView.as_view(),
+        name='frontend-group-join'
     ),
     url(
         r'^login/?$',
@@ -53,5 +53,15 @@ urlpatterns = patterns(
         r'^terms/?$',
         views.TermsView.as_view(),
         name='frontend-terms'
+    ),
+    url(
+        r'^android/?$',
+        views.AndroidView.as_view(),
+        name='frontend-android'
+    ),
+    url(
+        r'^ios/?$',
+        views.IOSView.as_view(),
+        name='frontend-ios'
     ),
 )

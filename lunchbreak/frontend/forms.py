@@ -152,7 +152,7 @@ class GroupForm(forms.ModelForm):
 
     @property
     def group_order(self):
-        return GroupOrder.objects.get(
+        return GroupOrder.objects.filter(
             group=self.group,
             date=self['day'].value()
-        )
+        ).first()

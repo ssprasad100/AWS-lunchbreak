@@ -13,11 +13,13 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView, View
+from django.views.generic.base import RedirectView
 from lunch.models import Food, Store
 from user_agents import parse as parse_user_agent
 
 from .forms import GroupForm, OrderForm, SearchForm, UserForm
 from .mixins import LoginForwardMixin
+from .utils import add_query_params
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -312,7 +314,7 @@ class TermsView(TemplateView):
     template_name = 'pages/terms.html'
 
 
-class GroupView(LoginRequiredMixin, TemplateView):
+class GroupView(TemplateView):
     template_name = 'pages/group.html'
     login_url = reverse_lazy('frontend-login')
 
@@ -324,7 +326,6 @@ class GroupView(LoginRequiredMixin, TemplateView):
             ),
             pk=pk
         )
-        context['joined'] = 'joined' in request.GET
         context['title'] = _('Lunchbreak: Groep %(group_name)s') % {
             'group_name': context['group'].name
         }
@@ -337,23 +338,9 @@ class GroupView(LoginRequiredMixin, TemplateView):
     def get(self, request, pk, **kwargs):
         context = self.get_context_data(request, pk, **kwargs)
         group = context['group']
-        token = kwargs.get('token')
+        token = request.GET.get('token')
 
-        if token is not None:
-            if group.token != token:
-                raise Http404()
-            # Redirect the user to the same page without the token.
-            # So if the link is shared, not token is shared.
-            return redirect(
-                to=reverse(
-                    'frontend-group',
-                    kwargs={
-                        'pk': pk
-                    }
-                )
-            )
-
-        if request.user not in group.members.all():
+        if token is None or group.admin_token != token:
             raise Http404()
 
         return render(
@@ -361,3 +348,49 @@ class GroupView(LoginRequiredMixin, TemplateView):
             template_name=self.template_name,
             context=context
         )
+
+
+class GroupJoinView(LoginRequiredMixin, TemplateView):
+    template_name = 'pages/group-join.html'
+
+    @property
+    def login_url(self):
+        login_url = reverse('frontend-login')
+        return add_query_params(url=login_url, group=self.group)
+
+    @property
+    def group(self):
+        if not hasattr(self, '_group'):
+            print(self.kwargs)
+            print(self.request.GET)
+            self._group = get_object_or_404(
+                Group,
+                pk=self.kwargs['pk'],
+                join_token=self.request.GET.get('token')
+            )
+        return self._group
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        is_member = self.group.members.filter(
+            pk=self.request.user.pk
+        ).exists()
+        if not is_member:
+            self.group.members.add(self.request.user)
+        context['group'] = self.group
+        context['title'] = _('Lunchbreak: Groep %(group_name)s') % {
+            'group_name': self.group.name
+        }
+        return context
+
+
+class AndroidView(RedirectView):
+
+    def get_redirect_url(self, *args, **kwargs):
+        return 'https://play.google.com/store/apps/details?id=be.lunchbreakapp.lunchbreak'
+
+
+class IOSView(RedirectView):
+
+    def get_redirect_url(self, *args, **kwargs):
+        return 'https://itunes.apple.com/app/id949238693'

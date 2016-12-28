@@ -1,0 +1,38 @@
+<p>
+    Welkom!
+</p>
+<p>
+    Ben je ook die vervelende situaties beu zoals "Mijn broodje zit er niet bij" of "Ik heb geen cash geld bij"?
+</p>
+<p>
+    {{ group.name }} maakt het nu mogelijk om jouw lunch online te bestellen bij {{ group.store.name }}! Gemakkelijk en snel via de Lunchbreak app, beschikbaar via <a href="{{ url('frontend-ios') | absolute_url }}">iOS</a>, <a href="{{ url('frontend-android') | absolute_url }}">Android</a> of <a href="{{ url('frontend-index') | absolute_url }}">www.lunchbreakapp.be</a>.
+</p>
+<p>
+{% if group.delivery %}
+    {{ group.store.name }} aanvaardt bestellingen tot {{ group.deadline | time('H:i') }} uur en kan worden opgehaald vanaf {{ group.receipt | time('H:i') }} uur.
+{% else %}
+    {{ group.store.name }} aanvaardt bestellingen tot {{ group.deadline | time('H:i') }} uur en levert rond {{ group.receipt | time('H:i') }} uur.
+{% endif %}
+{% if group.discount > 0 -%}
+    Hierbovenop krijg je een korting van {{ group.discount | percentage }}.
+{%- endif %}
+</p>
+<p>
+    Je bent slechts enkele stappen verwijderd van deze moderne manier van bestellen:
+</p>
+{% set link = url('frontend-group-join', pk=group.pk) | absolute_url(token=group.join_token) %}
+<ol>
+    <li>
+        <a href="{{ link }}">Log in op Lunchbreak</a> en je account wordt automatisch gekoppeld aan {{ group.name }}. Reeds bestaande accounts blijven behouden en kunnen ook voor privé aankopen gebruikt worden.
+    </li>
+    <li>
+        Bestel met Lunchbreak via de <a href="{{ url('frontend-ios') | absolute_url }}">iOS app</a>, <a href="{{ url('frontend-android') | absolute_url }}">Android app</a> of <a href="{{ url('frontend-index') | absolute_url }}">web app</a>.
+    </li>
+</ol>
+<p>
+    Je zal zien dat je bestellingen zelfs online kan betalen zonder dat je het bakje van de bank nodig hebt. Lunchbreak werkt hiervoor met domiciliëring via GoCardless. Gewoon in de app jouw bankrekeningnummer invullen en jouw bestellingen worden automatisch betaald. Is dit wel veilig? Geen zorgen, jouw bank verwittigt je van elke betaling via hun online bankieren portaal, jij hebt dus volledige controle!
+</p>
+<p>
+    Smakelijk!
+    <br/> Het Lunchbreak team
+</p>

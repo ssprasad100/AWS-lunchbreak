@@ -1,0 +1,34 @@
+{% extends 'base.html' %} {% block css %}
+<link type="text/css" rel="stylesheet" href="{% sass_src 'new/main.scss' %}">
+<link type="text/css" rel="stylesheet" href="{% sass_src 'new/print.scss' %}" media="print"> {% endblock css %} {% block head %}
+<link href="https://fonts.googleapis.com/css?family=Roboto:400,500" rel="stylesheet"> {% endblock head %} {% block content %}
+<nav id="menu">
+    <a href="{{ url('frontend-terms') }}" class="logo">Lunchbreak</a>
+</nav>
+<main>
+    <section class="noprint">
+        <article class="text bundle">
+            <h1>Succesvol toegevoegd aan {{ group.name }}!</h1>
+            <p>
+                Je werd succesvol toegevoegd aan de {{ group.name }} groep. Je kan nu bij het bestellen ervoor kiezen om je bestelling te plaatsen op {{ group.name }}. Deze bestellingen moeten <strong>voor {{ group.deadline | time('H:i') }} geplaatst worden</strong>.
+            {% if group.delivery -%}
+                Alle bestellingen worden <strong>geleverd rond {{ group.receipt | time('H:i') }}</strong>.
+            {%- else -%}
+                De bestellingen worden door de verantwoordelijke van {{ group.name }} <strong>opgehaald rond {{ group.receipt | time('H:i') }}</strong>.
+            {%- endif %}
+            {% if group.discount > 0 -%}
+                Hierboven krijg je ook een korting van {{ group.discount | percentage }}.
+            {%- endif %}
+            </p>
+        </article>
+    </section>
+    {% include 'includes/how-to-order.html' %}
+</main>
+<footer id="footer">
+    <div class="bundle">
+        <a href="{{ url('frontend-terms') }}">Voorwaarden</a>
+        <a href="mailto:hi@lunchbreakapp.be">Contact</a>
+    </div>
+</footer>
+<script type="text/javascript" src="{{ static('new/scroll-to-id.js')}}"></script>
+{% endblock content %}

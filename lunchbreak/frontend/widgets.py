@@ -77,13 +77,17 @@ class DayWidget(widgets.Widget):
         except (ValueError, OverflowError):
             pass
         now = Pendulum.now()
-        return min(
-            self.days,
-            key=lambda date: now.diff(
-                Pendulum.create_from_date(
-                    year=date.year,
-                    month=date.month,
-                    day=date.day
+        try:
+            return min(
+                self.days,
+                key=lambda date: now.diff(
+                    Pendulum.create_from_date(
+                        year=date.year,
+                        month=date.month,
+                        day=date.day
+                    )
                 )
             )
-        )
+        # Thrown if self.days is empty
+        except ValueError:
+            return None

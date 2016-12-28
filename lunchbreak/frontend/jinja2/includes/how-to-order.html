@@ -1,0 +1,23 @@
+<section id="bestelling-plaatsen" class="noprint">
+    <article class="text bundle">
+        <h1>Hoe kan je een bestelling plaatsen?</h1>
+        <p>
+            Gebruik de Lunchbreak app of website om een bestelling te plaatsen bij de winkel waarmee een overeenkomst is gesloten. Wanneer er gevraagd wordt naar een groep of afhaalmethode, moet je voor de groep "{{ group.name }}" kiezen.
+            {% if group.delivery -%}
+                De bestelling zal dan worden toegewezen aan je groep zodat deze kan geleverd worden samen met de andere bestellingen.
+            {%- else -%}
+                De bestelling zal dan worden toegewezen aan je groep zodat deze kan afgehaald worden samen met de andere bestellingen.
+            {%- endif %}
+
+        </p>
+        <footer class="split">
+            <div class="column max">
+                <a href="" class="button badge"><img src="{{ static('badges/google-play.svg') }}" alt="Google Play"></a>
+                <a href="" class="button badge"><img src="{{ static('badges/app-store.svg') }}" alt="App Store"></a>
+            </div>
+            <div class="column">
+                <a href="{{ url('frontend-index') }}" class="red button">Bestel via de website</a>
+            </div>
+        </footer>
+    </article>
+</section>

@@ -29,6 +29,14 @@
         text-align: left;
     }
 
+    &.badge {
+        @extend .button.image;
+
+        img {
+            height: 50px;
+        }
+    }
+
     &:first-child {
         margin-left: 0;
     }

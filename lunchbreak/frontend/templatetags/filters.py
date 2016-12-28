@@ -10,18 +10,21 @@ from jinja2 import Markup
 from lunch.config import INPUT_SI_VARIABLE, WEEKDAYS
 from pendulum import Pendulum
 
+from ..utils import add_query_params
+
 
 @library.filter
-def absolute_url(path, arg=None):
+def absolute_url(path, **params):
     """Usage: {{ url('view-name') | absolute_url }}
 
-    Providing an argument overrides the hostname.
+    Additional params will be url encoded.
     """
-    return '{protocol}://{domain}{path}'.format(
+    url = '{protocol}://{domain}{path}'.format(
         protocol='https' if settings.SSL else 'http',
-        domain=settings.ALLOWED_HOSTS[0] if arg is None else arg,
+        domain=settings.ALLOWED_HOSTS[0],
         path=path
     )
+    return add_query_params(url=url, **params)
 
 
 @library.filter

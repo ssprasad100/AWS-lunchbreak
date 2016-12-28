@@ -1,8 +1,52 @@
-<p>Beste,</p>
-
-<p>{{ group.store.name }} heeft een groep aangemaakt voor het personeel van {{ group.name }}. Naast deze e-mail wordt er een tweede e-mail verstuurd die geforward kan worden naar het personeel met meer informatie over de groep.</p>
-
-<p><a href="{{ url('frontend-group', pk=group.pk) | absolute_url }}">Ga naar de pagina van de groep.</a></p>
-
-<p>Vriendelijke groeten,<br/>
-Het Lunchbreak Team</p>
+<p>
+    Beste,
+</p>
+{% set admin_link = url('frontend-group', pk=group.pk) | absolute_url(token=group.admin_token) %}
+<p>
+    Goed nieuws! {{ group.store.name }} wil jou een extra service geven en maakt het mogelijk bestellingen online door te geven via de Lunchbreak app. De eigenaar van {{ group.store.name }} gaf jou op als beheerder voor {{ group.name }}. Zou de beheerder een andere persoon moeten zijn, of ken je {{ group.store.name }} of Lunchbreak niet? <a href="mailto:report@lunchbreakapp.be">Geef ons een seintje!</a>
+</p>
+<p>
+    Als beheerder van {{ group.name }} kan je alle bestellingen in het oog houden op <a href="{{ admin_link }}">onze website</a>. Zo volg je gemakkelijk bestellingen op die nog niet online betaald werden. We raden je aan deze link enkel te delen met andere beheerders.
+</p>
+<p>
+    <strong>Wat zijn de voordelen van Lunchbreak te gebruiken?</strong>
+</p>
+<ol>
+    <li>
+        <strong>Bespaar tijd!</strong> Leden van jouw groep kunnen elk apart hun bestelling doorgeven en betalen via de pc of smartphone, maar alle bestellingen zullen toch samen geleverd worden.
+    </li>
+    <li>
+        <strong>Geen misverstanden.</strong> Omdat alles online wordt ingegeven, zullen onleesbare faxen of misbegrepen woorden via telefoon voorgoed verleden tijd zijn.
+    </li>
+    <li>
+        <strong>Gratis!</strong> De service is volledig kosteloos voor de gebruikers.
+    </li>
+</ol>
+<p><strong>Hoe werkt het?</strong></p>
+<ol>
+    <li>
+        Leden van jouw groep geven elk voor zichzelf hun bestelling door via hun pc of smartphone. Bij hun bestelling kunnen ze aangeven dat die moet toegevoegd worden bij jullie groep (ze kunnen immers ook privé bestellen). Groepsbestellingen dienen altijd te gebeuren voor het uur dat is ingesteld door {{ group.store.name }}.
+    </li>
+    <li>
+        Ieder lid van de groep kan voor zijn bestelling kiezen tussen online of cash betalen.
+    </li>
+    <li>
+        Jij krijgt als beheerder na het einduur een mail met alle bestellingen, en hoeveel cash er nog moet ontvangen worden van elke persoon (indien nodig).
+    </li>
+    <li>
+        Alle aparte bestellingen worden gegroepeerd doorgegeven aan {{ group.store.name }}. Zij zullen ervoor zorgen dat deze bestelling correct aan jullie wordt bezorgd.
+    </li>
+</ol>
+<p><strong>Moet er nog iets gebeuren?</strong></p>
+<p>
+    Je hebt samen met deze mail een tweede mail in jouw inbox gekregen die aan elk lid van de groep kan doorgestuurd worden. Dit bespaart jou niet alleen een hele uitleg, maar in deze mail staat dezelfde link als hierboven waarbij eenieder een Lunchbreak account kan aanmaken en dit verbinden met jullie groep {{ group.name }}. Gemakkelijk toch? 😄
+</p>
+{# TODO Add link to resend email.
+<p>
+    Heb je deze tweede mail niet gekregen? Vraag hem opnieuw aan:
+</p>
+#}
+<p>
+    Smakelijk!
+    <br/> Het Lunchbreak team
+</p>

@@ -72,7 +72,7 @@ def send_group_created_emails(group_id):
     send_email(
         subject=_('Welkom bij Lunchbreak!'),
         recipients=[group.email],
-        template='group_invite',
+        template='group_join',
         template_args={
             'group': group
         }
