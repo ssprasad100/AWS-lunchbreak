@@ -23,6 +23,11 @@ fi
 python manage.py migrate --no-input 1> /dev/null
 python manage.py collectstatic --noinput -c 1> /dev/null
 
+celery -A Lunchbreak worker \
+    -l info \
+    --detach \
+    --logfile="/var/lunchbreak/log/%n%I.log"
+
 uwsgi \
     --chdir=/code/ \
     --module=Lunchbreak.wsgi:application \
@@ -54,13 +59,6 @@ uwsgi \
     --processes=5 \
     --harakiri=20 \
     --max-requests=5000 \
-    --vacuum &
-PIDS[0]=$!
-celery -A Lunchbreak worker -l info &
-PIDS[1]=$!
-
-trap "kill ${PIDS[*]}" SIGINT
-
-wait
+    --vacuum
 
 exec "$@"
