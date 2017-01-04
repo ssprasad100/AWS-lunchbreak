@@ -161,7 +161,7 @@ class User(AbstractBaseUser, PermissionsMixin):
                 phone = Phone.objects.create(
                     phone=phone
                 )
-            User.objects.create(
+            User.objects.get_or_create(
                 phone=phone
             )
 
