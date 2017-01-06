@@ -308,6 +308,7 @@ class OrderSerializer(customers_serializers.OrderSerializer):
             'payment_method',
             'paid',
             'group',
+            'group_order',
         )
         read_only_fields = (
             'id',
@@ -321,6 +322,7 @@ class OrderSerializer(customers_serializers.OrderSerializer):
             'payment_method',
             'paid',
             'group',
+            'group_order',
         )
 
 
@@ -345,6 +347,7 @@ class OrderDetailSerializer(OrderSerializer):
             'orderedfood',
             'description',
             'paid',
+            'group_order',
         )
 
 
