@@ -24,7 +24,7 @@ class ErrorLoggingTask(Task):
                 str(exception),
                 exc_info=True,
                 extra=dict(kwargs, **{
-                    'args': args
+                    'arguments': args
                 })
             )
         super().on_failure(exception, *args, **kwargs)
