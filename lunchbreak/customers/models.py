@@ -797,7 +797,7 @@ class Order(StatusSignalModel, AbstractOrder):
 
         if self.group is not None:
             self.discount = self.group.discount
-        self.total *= Decimal(100 - self.discount) / Decimal(100)
+        self.total *= (Decimal(100) - self.discount) / Decimal(100)
 
     def clean_delivery_address(self):
         if self.delivery_address is not None:
