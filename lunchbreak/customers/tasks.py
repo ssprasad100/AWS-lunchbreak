@@ -42,7 +42,7 @@ def send_group_order_email(group_order_id):
     except GroupOrder.DoesNotExist:
         return
 
-    if len(group_order.orders) == 0:
+    if group_order.orders.all.count() == 0:
         return
 
     send_email(
