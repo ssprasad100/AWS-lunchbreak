@@ -11,3 +11,5 @@ ALLOWED_HOSTS = [
     'www.lunchbreakapp.be',
     'api.lunchbreakapp.be',
 ]
+
+VERSION = '2.0.13'

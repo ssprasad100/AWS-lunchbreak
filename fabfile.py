@@ -6,9 +6,11 @@ from fabric.context_managers import cd, hide, quiet, settings
 from fabric.contrib import django
 from fabric.contrib.files import exists
 from fabric.operations import put
+from pendulum import Pendulum
 
 django.project('Lunchbreak')
 django.settings_module('lunchbreak.Lunchbreak.settings')
+started_at = Pendulum.now()
 
 # Host
 HOST = os.environ.get('LUNCHBREAK_HOST')
@@ -99,7 +101,7 @@ def deploy(username=None, password=None, skiptests=False, check_deploy=False):
     deployer = Deployer()
     push(deployer=deployer)
     deployer.update_server()
-    deployer.register_opbeat()
+    deployer.add_release()
 
 
 def push(username=None, password=None, deployer=None):
@@ -264,7 +266,7 @@ class Deployer:
         self.update_compose_config(**kwargs)
 
         if not exists('/swap', use_sudo=True):
-            sudo('fallocate -l 1G /swap')
+            sudo('fallocate -l 3G /swap')
             sudo('chmod 600 /swap')
             sudo('mkswap /swap')
             sudo('swapon /swap')
@@ -382,19 +384,16 @@ class Deployer:
         with settings(warn_only=True), hide('warnings'):
             run('docker images -q -f dangling=true | xargs --no-run-if-empty docker rmi')
 
-    def register_opbeat(self):
+    def add_release(self):
         with hide('running'):
-            revision = local('git log -n 1 --pretty="format:%H"', capture=True)
             local(
-                'curl https://intake.opbeat.com/api/v1/organizations/{organization}/apps/{app}/releases/'
-                ' -H "Authorization: Bearer {secret_token}"'
-                ' -d rev="{revision}"'
-                ' -d branch="{branch}"'
-                ' -d status=completed'.format(
-                    organization='5d9db7394a424d27b704ace52cf4f9ef',
-                    app=OPBEAT_APP_ID,
-                    secret_token=OPBEAT_SECRET_TOKEN,
-                    revision=revision,
-                    branch=git_tag if git_tag else git_commit
+                'curl https://sentry.io/api/hooks/release/builtin/130866/6470dd2af48c751aeeea53d5833c2dc5add47596e3bc76b5157e97ebba312f62/ '
+                '-X POST '
+                '-H \'Content-Type: application/json\' '
+                '-d \'{{"version": "{version}", "ref": "{ref}", "url": "{url}", "dateStarted": "{started_at}"\}}\' '.format(
+                    version=git_tag if git_tag else git_commit,
+                    ref=git_commit,
+                    url='https://github.com/AndreasBackx/Lunchbreak-Backend/commit/' + git_commit,
+                    started_at=started_at.isoformat()
                 )
             )

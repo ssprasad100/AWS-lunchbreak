@@ -18,4 +18,14 @@
 
 {% include 'includes/header.html' %}
 
+{% if show_report_dialog and request.sentry.id %}
+<script src="https://cdn.ravenjs.com/2.3.0/raven.min.js"></script>
+<script>
+Raven.showReportDialog({
+    eventId: '{{ request.sentry.id }}',
+    dsn: '{{ RAVEN_DSN_PUBLIC }}'
+});
+</script>
+{% endif %}
+
 {% endblock content %}

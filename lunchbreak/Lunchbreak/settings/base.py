@@ -39,8 +39,8 @@ INSTALLED_APPS = [
     'compressor',
     'sass_processor',
     'subdomains',
+    'raven.contrib.django.raven_compat',
     'django_jinja',
-    'opbeat.contrib.django',
     'sendfile',
 
     'imagekit',
@@ -180,9 +180,9 @@ LOGGING = {
         },
     },
     'handlers': {
-        'opbeat': {
-            'level': 'WARNING',
-            'class': 'opbeat.contrib.django.handlers.OpbeatHandler',
+        'sentry': {
+            'level': 'ERROR',
+            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
         },
         'console': {
             'level': 'DEBUG',
@@ -206,12 +206,17 @@ LOGGING = {
             'level': 'DEBUG',
             'handlers': [
                 'console',
-                'opbeat'
+                'sentry'
             ],
             'propagate': False,
         },
-        'opbeat.errors': {
-            'level': 'ERROR',
+        'raven': {
+            'level': 'DEBUG',
+            'handlers': ['console'],
+            'propagate': False,
+        },
+        'sentry.errors': {
+            'level': 'DEBUG',
             'handlers': ['console'],
             'propagate': False,
         },

@@ -1,3 +1,4 @@
+import logging
 import os
 
 from django_jinja.builtins import DEFAULT_EXTENSIONS
@@ -112,7 +113,8 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
             ],
             'constants': {
-                'GOOGLE_WEB_CREDENTIALS': GOOGLE_WEB_CREDENTIALS
+                'GOOGLE_WEB_CREDENTIALS': GOOGLE_WEB_CREDENTIALS,
+                'RAVEN_DSN_PUBLIC': get_variable('RAVEN_DSN_PUBLIC', ''),
             },
             'globals': {
                 'url_query': 'frontend.templatetags.globals.url_query'
@@ -131,7 +133,7 @@ TEMPLATES = [
                 'percentage': 'frontend.templatetags.filters.percentage',
                 'humanize_date': 'frontend.templatetags.filters.humanize_date',
             },
-            'match_extension': None,
+            'match_extension': '.html',
             'app_dirname': 'jinja2',
         }
     },
@@ -161,3 +163,18 @@ CELERY_BROKER_URL = 'amqp://{AMQP_USER}:{AMQP_PASSWORD}@{AMQP_HOST}:5672'.format
     AMQP_HOST=get_variable('AMQP_HOST', 'rabbitmq')
 )
 CELERY_IGNORE_RESULT = True
+
+# Raven configuration for Sentry
+RAVEN_CONFIG = {
+    'dsn': get_variable('RAVEN_DSN', None),
+    'release': get_variable(
+        'VERSION',
+        'latest'
+    ),
+    'environment': os.environ.get('DJANGO_SETTINGS_VERSION'),
+    'CELERY_LOGLEVEL': logging.ERROR,
+    'ignore_exceptions': [
+        'Http404',
+        'django.exceptions.http.Http404',
+    ]
+}

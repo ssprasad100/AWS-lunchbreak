@@ -55,12 +55,15 @@ uwsgi \
     --env PLIVO_AUTH_TOKEN="${PLIVO_AUTH_TOKEN}" \
     --env OPBEAT_APP_ID="${OPBEAT_APP_ID}" \
     --env OPBEAT_SECRET_TOKEN="${OPBEAT_SECRET_TOKEN}" \
+    --env RAVEN_DSN="${RAVEN_DSN}" \
+    --env RAVEN_DSN_PUBLIC="${RAVEN_DSN_PUBLIC}" \
     --master \
     --pidfile=/tmp/lunchbreak.pid \
     --socket=0.0.0.0:49152 \
     --processes=5 \
     --harakiri=20 \
     --max-requests=5000 \
+    --enable-threads \
     --vacuum
 
 exec "$@"
