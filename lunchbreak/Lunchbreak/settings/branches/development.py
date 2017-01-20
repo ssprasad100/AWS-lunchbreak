@@ -18,6 +18,7 @@ ALLOWED_HOSTS = [
 
 INSTALLED_APPS = [
     'livereload',
+    'django_extensions',
 ] + INSTALLED_APPS
 
 SSL = False
