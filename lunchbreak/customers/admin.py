@@ -1,4 +1,7 @@
+from django import forms
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.contrib.auth.models import Group as DjangoGroup
 from django.contrib.contenttypes.admin import GenericTabularInline
 from django.utils.translation import ugettext as _
@@ -21,12 +24,75 @@ class GroupInline(admin.TabularInline):
     extra = 0
 
 
+class UserChangeForm(forms.ModelForm):
+    password = ReadOnlyPasswordHashField()
+    password1 = forms.CharField(
+        label=_('Wachtwoord'),
+        widget=forms.PasswordInput,
+        required=False
+    )
+    password2 = forms.CharField(
+        label=_('Bevestig wachtwoord'),
+        widget=forms.PasswordInput,
+        required=False
+    )
+
+    class Meta:
+        model = User
+        fields = ('password', 'password1', 'password2', 'phone',
+                  'name', 'email', 'enabled', 'is_staff',)
+
+    def clean_password2(self):
+        password1 = self.cleaned_data.get('password1')
+        password2 = self.cleaned_data.get('password2')
+        if password1 != password2:
+            raise forms.ValidationError('Passwords don\'t match')
+        return password2
+
+    def clean_password(self):
+        # Regardless of what the user provides, return the initial value.
+        # This is done here, rather than on the field, because the
+        # field does not have access to the initial value
+        return self.initial['password']
+
+    def save(self, commit=True):
+        user = super(UserChangeForm, self).save(commit=False)
+
+        password1 = self.cleaned_data.get('password1')
+        password2 = self.cleaned_data.get('password2')
+        if password1 and password2:
+            user.set_password(self.cleaned_data['password1'])
+            if commit:
+                user.save()
+        return user
+
+
 @admin.register(User)
-class UserAdmin(admin.ModelAdmin):
+class UserAdmin(BaseUserAdmin):
+    form = UserChangeForm
+    add_form = UserChangeForm
+
     list_display = ('name', 'phone', 'email',)
     inlines = (GroupInline, PaymentLinkInline,)
     search_fields = ('name', 'phone__phone', 'email',)
     list_filter = ('enabled',)
+    ordering = ('id',)
+
+    fieldsets = (
+        (
+            _('Gegevens'),
+            {
+                'fields': ('phone', 'name', 'email', 'password', 'password1', 'password2', 'enabled',)
+            }
+        ),
+        (
+            _('Beheer'),
+            {
+                'fields': ('is_staff', 'is_superuser', 'user_permissions',)
+            }
+        ),
+    )
+    add_fieldsets = fieldsets
 
 
 @admin.register(Address)
