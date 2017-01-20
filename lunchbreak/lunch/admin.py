@@ -100,9 +100,14 @@ class IngredientGroupAdmin(admin.ModelAdmin):
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
     list_display = ('name', 'store', 'group', 'last_modified',)
-    search_fields = ('name', 'store__name', 'group__name',)
-    list_filter = ('store',)
-    ordering = ('store__name', 'name', 'group__name', 'last_modified',)
+    search_fields = ('name', 'group__store__name', 'group__name',)
+    list_filter = ('group__store',)
+    ordering = ('group__store__name', 'name', 'group__name', 'last_modified',)
+    readonly_fields = ('store',)
+
+    def store(self, obj):
+        return obj.group.store
+    store.short_description = _('winkel')
 
 
 @admin.register(Quantity)
@@ -127,6 +132,13 @@ class IngredientsRelationInline(admin.TabularInline):
         return obj.ingredient.group.cost
     group_cost.short_description = _('kostprijs groep')
 
+    def formfield_for_dbfield(self, db_field, **kwargs):
+        formfield = super().formfield_for_dbfield(db_field, **kwargs)
+        if db_field.name == 'ingredient':
+            # dirty trick so queryset is evaluated and cached in .choices
+            formfield.choices = formfield.choices
+        return formfield
+
 
 class FoodForm(forms.ModelForm):
 
@@ -137,7 +149,7 @@ class FoodForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['ingredientgroups'].queryset = IngredientGroup.objects.filter(
-            store_id=self.instance.store_id
+            store_id=self.instance.menu.store_id
         )
 
 
@@ -146,9 +158,14 @@ class FoodAdmin(admin.ModelAdmin):
     form = FoodForm
     list_display = ('name', 'store', 'menu', 'priority', 'cost',)
     inlines = (IngredientsRelationInline,)
-    search_fields = ('name', 'store__name', 'menu__name',)
-    list_filter = ('store',)
-    ordering = ('store__name', 'name', 'priority',)
+    search_fields = ('name', 'menu__store__name', 'menu__name',)
+    list_filter = ('menu__store',)
+    ordering = ('menu__store__name', 'name', 'priority',)
+    readonly_fields = ('store',)
+
+    def store(self, obj):
+        return obj.menu.store
+    store.short_description = _('winkel')
 
 
 class BaseTokenAdmin(admin.ModelAdmin):

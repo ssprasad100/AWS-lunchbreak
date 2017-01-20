@@ -204,7 +204,7 @@ class FoodViewSet(TargettedViewSet,
     @property
     def queryset(self):
         return Food.objects.filter(
-            store=self.request.user.staff.store
+            menu__store=self.request.user.staff.store
         )
 
     @property
@@ -212,12 +212,12 @@ class FoodViewSet(TargettedViewSet,
         since = datetime_request(self.request, arg='since')
         if since is not None:
             result = Food.objects.filter(
-                store=self.request.user.staff.store,
+                menu__store=self.request.user.staff.store,
                 last_modified__gte=since
             )
         else:
             result = Food.objects.filter(
-                store=self.request.user.staff.store
+                menu__store=self.request.user.staff.store
             )
 
         return result.order_by('-priority', 'name')
@@ -230,7 +230,7 @@ class FoodViewSet(TargettedViewSet,
             to = datetime_request(self.request, arg='to')
             to = to if to is not None else timezone.now()
             return Food.objects.filter(
-                store_id=self.request.user.staff.store_id,
+                menu__store_id=self.request.user.staff.store_id,
                 orderedfood__placed_order__receipt__gt=frm,
                 orderedfood__placed_order__receipt__lt=to
             ).annotate(
@@ -266,6 +266,7 @@ class StoreSenderView:
 class PerformCreateStore(StoreSenderView, generics.CreateAPIView):
 
     def perform_create(self, serializer):
+        # TODO Check whether this still is needed
         serializer.save(store=self.store)
 
 
@@ -302,7 +303,7 @@ class IngredientView(PerformCreateStore, generics.ListAPIView):
 
     def get_queryset(self):
         result = Ingredient.objects.filter(
-            store=self.request.user.staff.store
+            group__store=self.request.user.staff.store
         )
         since = datetime_request(self.request, arg='since')
         if since is not None:
@@ -319,12 +320,12 @@ class IngredientDetailView(generics.RetrieveUpdateDestroyAPIView):
         since = datetime_request(self.request, arg='datetime')
         if since is not None:
             result = Ingredient.objects.filter(
-                store=self.request.user.staff.store,
+                group__store=self.request.user.staff.store,
                 last_modified__gte=since
             )
         else:
             result = Ingredient.objects.filter(
-                store=self.request.user.staff.store
+                group__store=self.request.user.staff.store
             )
         return result.order_by('-priority', 'name')
 
@@ -458,7 +459,7 @@ class OrderedFoodViewSet(TargettedViewSet,
 
     def get_queryset(self):
         return OrderedFood.objects.filter(
-            original__store_id=self.request.user.staff.store_id
+            original__menu__store_id=self.request.user.staff.store_id
         )
 
 

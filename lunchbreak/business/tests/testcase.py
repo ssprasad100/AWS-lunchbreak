@@ -153,8 +153,7 @@ class BusinessTestCase(LunchbreakTestCase):
             name='Food test',
             cost=1.00,
             foodtype=self.foodtype,
-            menu=self.menu,
-            store=self.store
+            menu=self.menu
         )
 
         IngredientRelation.objects.bulk_create([
@@ -162,7 +161,6 @@ class BusinessTestCase(LunchbreakTestCase):
                 ingredient=Ingredient.objects.create(
                     name='Ingredient 1',
                     group=self.ingredientgroup,
-                    store=self.store
                 ),
                 food=self.food
             ),
@@ -170,7 +168,6 @@ class BusinessTestCase(LunchbreakTestCase):
                 ingredient=Ingredient.objects.create(
                     name='Ingredient 2',
                     group=self.ingredientgroup,
-                    store=self.store
                 ),
                 food=self.food
             ),
@@ -178,7 +175,6 @@ class BusinessTestCase(LunchbreakTestCase):
                 ingredient=Ingredient.objects.create(
                     name='Ingredient 3',
                     group=self.ingredientgroup,
-                    store=self.store
                 ),
                 food=self.food
             ),
@@ -186,7 +182,6 @@ class BusinessTestCase(LunchbreakTestCase):
                 ingredient=Ingredient.objects.create(
                     name='Ingredient 4',
                     group=self.ingredientgroup,
-                    store=self.store
                 ),
                 food=self.food
             ),
@@ -194,7 +189,6 @@ class BusinessTestCase(LunchbreakTestCase):
                 ingredient=Ingredient.objects.create(
                     name='Ingredient 5',
                     group=self.ingredientgroup,
-                    store=self.store
                 ),
                 food=self.food
             )

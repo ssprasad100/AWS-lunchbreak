@@ -41,7 +41,6 @@ class FoodTestCase(LunchbreakTestCase):
             cost=1,
             foodtype=foodtype,
             menu=menu,
-            store=store,
             preorder_days=0
         )
 

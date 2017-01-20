@@ -103,14 +103,15 @@ class FoodManager(models.Manager):
                 ) as score
             FROM
                 `lunch_food`
+                INNER JOIN
+                    `lunch_menu` ON lunch_menu.store_id = %s AND lunch_food.menu_id = lunch_menu.id
                 LEFT JOIN
                     `lunch_ingredientrelation` ON lunch_food.id = lunch_ingredientrelation.food_id
                     AND lunch_ingredientrelation.typical = 1
                 LEFT JOIN
                     `lunch_ingredient` ON lunch_ingredientrelation.ingredient_id = lunch_ingredient.id
             WHERE
-                lunch_food.foodtype_id = %s AND
-                lunch_food.store_id = %s
+                lunch_food.foodtype_id = %s
             GROUP BY
                 lunch_food.id
             ORDER BY
@@ -118,8 +119,8 @@ class FoodManager(models.Manager):
                 lunch_food.id = %s DESC,
                 lunch_food.cost ASC;
             ''', [
-            original.foodtype.id,
             original.store.id,
+            original.foodtype.id,
             original.id
         ])[0]
 

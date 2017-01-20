@@ -212,7 +212,7 @@ class IngredientGroupDetailSerializer(IngredientGroupSerializer):
 
 class MenuSerializer(serializers.ModelSerializer):
     store = serializers.ModelField(
-        model_field=Food()._meta.get_field('store'),
+        model_field=Menu()._meta.get_field('store'),
         write_only=True,
         default=serializers.CreateOnlyDefault(
             CurrentUserAttributeDefault('staff.store')
@@ -297,6 +297,10 @@ class BaseFoodSerializer(serializers.ModelSerializer):
     )
     quantity = QuantitySerializer(
         many=False
+    )
+    store = serializers.PrimaryKeyRelatedField(
+        read_only=True,
+        source='menu.store'
     )
 
     class Meta:

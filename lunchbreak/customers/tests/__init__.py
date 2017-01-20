@@ -112,7 +112,6 @@ class CustomersTestCase(LunchbreakTestCase):
             cost=100.00,
             foodtype=self.foodtype,
             menu=self.menu,
-            store=self.store
         )
 
         ingredient_relations = [
@@ -120,7 +119,6 @@ class CustomersTestCase(LunchbreakTestCase):
                 ingredient=Ingredient.objects.create(
                     name='Ingredient 1',
                     group=self.ingredientgroup,
-                    store=self.store,
                     cost=0.1
                 ),
                 food=self.food,
@@ -130,7 +128,6 @@ class CustomersTestCase(LunchbreakTestCase):
                 ingredient=Ingredient.objects.create(
                     name='Ingredient 2',
                     group=self.ingredientgroup,
-                    store=self.store,
                     cost=0.1
                 ),
                 food=self.food,
@@ -140,7 +137,6 @@ class CustomersTestCase(LunchbreakTestCase):
                 ingredient=Ingredient.objects.create(
                     name='Ingredient 3',
                     group=self.ingredientgroup,
-                    store=self.store,
                     cost=0.1
                 ),
                 food=self.food,
@@ -150,7 +146,6 @@ class CustomersTestCase(LunchbreakTestCase):
                 ingredient=Ingredient.objects.create(
                     name='Ingredient 4',
                     group=self.ingredientgroup,
-                    store=self.store,
                     cost=0.1
                 ),
                 food=self.food,
@@ -160,7 +155,6 @@ class CustomersTestCase(LunchbreakTestCase):
                 ingredient=Ingredient.objects.create(
                     name='Ingredient 5',
                     group=self.ingredientgroup,
-                    store=self.store,
                     cost=0.1
                 ),
                 food=self.food,
@@ -175,13 +169,11 @@ class CustomersTestCase(LunchbreakTestCase):
             cost=1,
             foodtype=self.foodtype,
             menu=self.menu,
-            store=self.store
         )
 
         self.unique_ingredient = Ingredient.objects.create(
             name='Unique ingredient',
             group=self.ingredientgroup,
-            store=self.store,
             cost=0.1
         )
 

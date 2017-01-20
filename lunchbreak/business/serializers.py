@@ -2,7 +2,6 @@ from customers import serializers as customers_serializers
 from customers.models import Group, Order, OrderedFood
 from lunch import serializers as lunch_serializers
 from lunch.config import TOKEN_IDENTIFIER_LENGTH
-from lunch.fields import CurrentUserAttributeDefault
 from lunch.models import (Food, Ingredient, IngredientGroup,
                           IngredientRelation, Store, StoreHeader)
 from Lunchbreak.serializers import RequestAttributeDefault
@@ -414,12 +413,9 @@ class FoodSerializer(serializers.ModelSerializer):
         required=False,
         write_only=True
     )
-    store = serializers.ModelField(
-        model_field=Food()._meta.get_field('store'),
+    store = serializers.PrimaryKeyRelatedField(
         read_only=True,
-        default=serializers.CreateOnlyDefault(
-            CurrentUserAttributeDefault('staff.store')
-        )
+        source='menu.store'
     )
 
     class Meta:

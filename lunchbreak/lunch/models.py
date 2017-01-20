@@ -975,6 +975,18 @@ class IngredientGroup(CleanModelMixin, models.Model):
 
 
 class Ingredient(models.Model, DirtyFieldsMixin):
+
+    class Meta:
+        verbose_name = _('ingrediënt')
+        verbose_name_plural = _('ingrediënten')
+
+    def __str__(self):
+        return '{name} ({group}) #{id}'.format(
+            name=self.name,
+            group=self.group,
+            id=self.id
+        )
+
     name = models.CharField(
         max_length=191,
         verbose_name=_('naam'),
@@ -998,12 +1010,6 @@ class Ingredient(models.Model, DirtyFieldsMixin):
         verbose_name=_('ingrediëntengroep'),
         help_text=('Ingrediëntengroep.')
     )
-    store = models.ForeignKey(
-        Store,
-        on_delete=models.CASCADE,
-        verbose_name=_('winkel'),
-        help_text=('Winkel.')
-    )
 
     last_modified = models.DateTimeField(
         auto_now=True,
@@ -1011,9 +1017,9 @@ class Ingredient(models.Model, DirtyFieldsMixin):
         help_text=('Laatst aangepast.')
     )
 
-    class Meta:
-        verbose_name = _('ingrediënt')
-        verbose_name_plural = _('ingrediënt')
+    @cached_property
+    def store(self):
+        return self.group.store
 
     def save(self, *args, **kwargs):
         if self.store != self.group.store:
@@ -1026,13 +1032,6 @@ class Ingredient(models.Model, DirtyFieldsMixin):
                     food.update_typical()
 
         super(Ingredient, self).save(*args, **kwargs)
-
-    def __str__(self):
-        return '{name} ({group}) #{id}'.format(
-            name=self.name,
-            group=self.group,
-            id=self.id
-        )
 
 
 class Menu(models.Model):
@@ -1198,12 +1197,6 @@ class Food(CleanModelMixin, models.Model):
         verbose_name=_('ingrediëntengroep'),
         help_text=('Ingrediëntengroep.')
     )
-    store = models.ForeignKey(
-        Store,
-        on_delete=models.CASCADE,
-        verbose_name=_('winkel'),
-        help_text=('Winkel.')
-    )
 
     last_modified = models.DateTimeField(
         auto_now=True,
@@ -1227,6 +1220,10 @@ class Food(CleanModelMixin, models.Model):
         verbose_name_plural = _('etenswaren')
 
     @cached_property
+    def store(self):
+        return self.menu.store
+
+    @cached_property
     def has_ingredients(self):
         return self.ingredients.count() > 0 or self.ingredientgroups.count() > 0
 
@@ -1235,7 +1232,7 @@ class Food(CleanModelMixin, models.Model):
         try:
             return Quantity.objects.get(
                 foodtype_id=self.foodtype_id,
-                store_id=self.store_id
+                store_id=self.store.id
             )
         except Quantity.DoesNotExist:
             return None
@@ -1302,13 +1299,6 @@ class Food(CleanModelMixin, models.Model):
 
     def clean_amount(self):
         self.foodtype.is_valid_amount(self.amount)
-
-    def clean_store(self):
-        if self.store_id != self.menu.store_id:
-            raise LinkingError(
-                'De menu van het etenswaar moet van dezelfde winkel zijn als '
-                'het etenswaar.'
-            )
 
     def save(self, *args, **kwargs):
         self.full_clean()
@@ -1448,7 +1438,6 @@ class Food(CleanModelMixin, models.Model):
                 kwargs[info['field_name']] = value
 
             food = Food(
-                store=store,
                 **kwargs
             )
             try:
@@ -1501,7 +1490,7 @@ class IngredientRelation(models.Model, DirtyFieldsMixin):
         unique_together = ('food', 'ingredient',)
 
     def save(self, *args, **kwargs):
-        if self.food.store_id != self.ingredient.store_id:
+        if self.food.store.id != self.ingredient.store.id:
             raise LinkingError()
 
         dirty_fields = self.get_dirty_fields(check_relationship=True)

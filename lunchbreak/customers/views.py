@@ -320,7 +320,7 @@ class StoreFoodViewSet(TargettedViewSet,
     @property
     def queryset(self):
         return Food.objects.filter(
-            store_id=self.kwargs['parent_lookup_pk'],
+            menu__store_id=self.kwargs['parent_lookup_pk'],
             deleted=False
         ).select_related(
             'menu',
