@@ -390,7 +390,7 @@ class Deployer:
                 'curl https://sentry.io/api/hooks/release/builtin/130866/6470dd2af48c751aeeea53d5833c2dc5add47596e3bc76b5157e97ebba312f62/ '
                 '-X POST '
                 '-H \'Content-Type: application/json\' '
-                '-d \'{{"version": "{version}", "ref": "{ref}", "url": "{url}", "dateStarted": "{started_at}"\}}\' '.format(
+                '-d \'{{"version": "{version}", "ref": "{ref}", "url": "{url}", "dateStarted": "{started_at}"}}\' '.format(
                     version=git_tag if git_tag else git_commit,
                     ref=git_commit,
                     url='https://github.com/AndreasBackx/Lunchbreak-Backend/commit/' + git_commit,
