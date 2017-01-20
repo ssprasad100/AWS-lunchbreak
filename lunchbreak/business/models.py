@@ -123,7 +123,7 @@ class Employee(AbstractPassword, NotifyModelMixin):
     staff = models.ForeignKey(
         Staff,
         on_delete=models.CASCADE,
-        verbose_name=_('peroneel'),
+        verbose_name=_('personeel'),
         help_text=_('Personeel.')
     )
     owner = models.BooleanField(
