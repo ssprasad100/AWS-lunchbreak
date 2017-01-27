@@ -133,7 +133,8 @@ TEMPLATES = [
                 'percentage': 'frontend.templatetags.filters.percentage',
                 'humanize_date': 'frontend.templatetags.filters.humanize_date',
             },
-            'match_extension': '.html',
+            'match_extension': None,
+            'default_extension': '.html',
             'app_dirname': 'jinja2',
         }
     },
