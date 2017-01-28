@@ -36,7 +36,7 @@ class FoodViewSet(TargettedViewSet,
     @property
     def queryset_retrieve(self):
         result = Food.objects.filter(
-            deleted=False
+            deleted__isnull=True
         ).select_related(
             'foodtype',
             'menu',
@@ -54,7 +54,7 @@ class FoodViewSet(TargettedViewSet,
 
         return Food.objects.filter(
             menu_id=self.kwargs['menu_id'],
-            deleted=False
+            deleted__isnull=True
         ).select_related(
             'menu',
             'foodtype',
@@ -321,7 +321,7 @@ class StoreFoodViewSet(TargettedViewSet,
     def queryset(self):
         return Food.objects.filter(
             menu__store_id=self.kwargs['parent_lookup_pk'],
-            deleted=False
+            deleted__isnull=True
         ).select_related(
             'menu',
             'foodtype',

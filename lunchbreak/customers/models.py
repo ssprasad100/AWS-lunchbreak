@@ -34,6 +34,7 @@ from pendulum import Pendulum
 from push_notifications.models import SERVICE_INACTIVE
 from rest_framework import status
 from rest_framework.response import Response
+from safedelete import HARD_DELETE
 
 from .config import (GROUP_ORDER_STATUSES, ORDER_STATUS_COMPLETED,
                      ORDER_STATUS_PLACED, ORDER_STATUS_STARTED,
@@ -758,21 +759,22 @@ class Order(StatusSignalModel, AbstractOrder):
 
     def delete(self, *args, **kwargs):
         super(Order, self).delete(*args, **kwargs)
-        self.update_staged_deletion()
+        self.update_hard_delete()
 
-    def update_staged_deletion(self, orderedfood=None):
-        if orderedfood is None:
-            orderedfood = self.orderedfood.all()
+    def update_hard_delete(self):
+        """Update whether the orderedfood can be deletedself.
 
-        if self.delivery_address is not None and self.delivery_address.deleted:
-            self.delivery_address.delete()
+        Calls all of the linked OrderedFood's update_hard_delete methods.
+        """
+        orderedfood_list = self.orderedfood.select_related(
+            'original',
+            'order',
+        ).prefetch_related(
+            'ingredients'
+        ).all()
 
-        for f in orderedfood:
-            try:
-                if f.original.deleted:
-                    f.original.delete()
-            except Food.DoesNotExist:
-                pass
+        for orderedfood in orderedfood_list:
+            orderedfood.update_hard_delete()
 
     def clean_placed(self):
         if self.placed is None:
@@ -951,19 +953,19 @@ class Order(StatusSignalModel, AbstractOrder):
     @classmethod
     def completed(cls, sender, order, **kwargs):
         order.create_payment()
-        order.update_staged_deletion()
+        order.update_hard_delete()
 
     @classmethod
     def denied(cls, sender, order, **kwargs):
         order.user.notify(
             _('Je bestelling werd spijtig genoeg geweigerd!')
         )
-        order.update_staged_deletion()
+        order.update_hard_delete()
 
     @classmethod
     def not_collected(cls, sender, order, **kwargs):
         order.create_payment()
-        order.update_staged_deletion()
+        order.update_hard_delete()
 
 
 class TemporaryOrder(AbstractOrder):
@@ -1036,7 +1038,9 @@ class OrderedFood(CleanModelMixin, StatusSignalModel):
     )
     original = models.ForeignKey(
         Food,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
         verbose_name=_('origineel etenswaar'),
         help_text=_('Origineel etenswaar.')
     )
@@ -1059,6 +1063,13 @@ class OrderedFood(CleanModelMixin, StatusSignalModel):
         verbose_name=_('status'),
         help_text=_('Status.')
     )
+    total = RoundingDecimalField(
+        decimal_places=2,
+        max_digits=7,
+        default=0,
+        verbose_name=_('totale prijs'),
+        help_text=_('Totale prijs exclusief korting.')
+    )
 
     @cached_property
     def ingredientgroups(self):
@@ -1080,29 +1091,54 @@ class OrderedFood(CleanModelMixin, StatusSignalModel):
         if self.order is not None:
             return self.total * Decimal(100 - self.order.discount) / Decimal(100)
 
-    @property
-    def total(self):
-        """Calculate the total cost of the OrderedFood."""
-        if self.status == ORDEREDFOOD_STATUS_OUT_OF_STOCK:
-            return Decimal(0)
-        return Decimal(
-            math.ceil(
-                (self.cost * self.amount * self.amount_food) * Decimal(100)
-            ) / Decimal(100)
-        )
-
     def save(self, *args, **kwargs):
         self.full_clean()
         super().save(*args, **kwargs)
 
-    def clean(self):
-        self.original.is_valid_amount(self.amount)
+    def update_hard_delete(self):
+        """Check whether Food and Ingredients scheduled for deletion can be deleted."""
+        try:
+            if self.original.deleted:
+                active_food = OrderedFood.objects.active_with(
+                    food=self.original
+                ).exists()
+                if active_food:
+                    self.orignal.delete(force_policy=HARD_DELETE)
+        except Food.DoesNotExist:
+            raise
 
-        if not self.original.commentable and self.comment:
-            self.comment = ''
+        self.ingredients.filter(
+            deleted__isnull=False
+        ).delete()
 
-        if isinstance(self.order, Order) and not self.original.is_orderable(self.order.receipt):
+    def clean_total(self):
+        """Calculate the total cost of the OrderedFood."""
+        if self.original is None:
+            return
+
+        if self.status == ORDEREDFOOD_STATUS_OUT_OF_STOCK:
+            self.total = Decimal(0)
+        else:
+            self.total = Decimal(
+                math.ceil(
+                    (self.cost * self.amount * self.amount_food) * Decimal(100)
+                ) / Decimal(100)
+            )
+
+    def clean_order(self):
+        if self.original is not None \
+                and isinstance(self.order, Order) \
+                and not self.original.is_orderable(self.order.receipt):
             raise MinDaysExceeded()
+
+    def clean_amount(self):
+        if self.original is not None:
+            self.original.is_valid_amount(self.amount)
+
+    def clean_comment(self):
+        if self.original is not None \
+                and not self.original.commentable and self.comment:
+            self.comment = ''
 
     def status_changed(self):
         # Update the order total

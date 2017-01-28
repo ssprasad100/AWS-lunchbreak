@@ -24,6 +24,8 @@ from openpyxl import load_workbook
 from polaroid.models import Polaroid
 from private_media.storages import PrivateMediaStorage
 from push_notifications.models import BareDevice
+from safedelete import HARD_DELETE, HARD_DELETE_NOCASCADE, SOFT_DELETE
+from safedelete.models import SafeDeleteMixin
 
 from .config import (CCTLDS, COST_GROUP_BOTH, COST_GROUP_CALCULATIONS,
                      COUNTRIES, INPUT_AMOUNT, INPUT_TYPES, LANGUAGES, WEEKDAYS)
@@ -862,6 +864,14 @@ class FoodType(models.Model):
 
 
 class IngredientGroup(CleanModelMixin, models.Model):
+
+    class Meta:
+        verbose_name = _('ingrediëntengroep')
+        verbose_name_plural = _('ingrediëntengroepen')
+
+    def __str__(self):
+        return self.name
+
     name = models.CharField(
         max_length=191,
         verbose_name=_('naam'),
@@ -917,10 +927,6 @@ class IngredientGroup(CleanModelMixin, models.Model):
         )
     )
 
-    class Meta:
-        verbose_name = _('ingrediëntengroep')
-        verbose_name_plural = _('ingrediëntengroepen')
-
     def clean_minimum(self):
         if self.minimum > self.maximum:
             raise LunchbreakException(
@@ -970,11 +976,10 @@ class IngredientGroup(CleanModelMixin, models.Model):
                 if amount < group.minimum:
                     raise IngredientGroupsMinimumNotMet()
 
-    def __str__(self):
-        return self.name
 
+class Ingredient(SafeDeleteMixin, DirtyFieldsMixin):
 
-class Ingredient(models.Model, DirtyFieldsMixin):
+    _safedelete_policy = SOFT_DELETE
 
     class Meta:
         verbose_name = _('ingrediënt')
@@ -1021,6 +1026,25 @@ class Ingredient(models.Model, DirtyFieldsMixin):
     def store(self):
         return self.group.store
 
+    @cached_property
+    def _safedelete_policy(self):
+        """Ingredients can be deleted if no active OrderedFood use them.
+
+        Returns:
+            SOFT_DELETE if still used, HARD_DELETE otherwise.
+        """
+        if hasattr(self, '__safedelete_policy'):
+            from customers.models import OrderedFood
+
+            active_order = OrderedFood.objects.active_with(
+                ingredient=self
+            ).exists()
+            if active_order:
+                self.__safedelete_policy = SOFT_DELETE
+            else:
+                self.__safedelete_policy = HARD_DELETE
+        return self.__safedelete_policy
+
     def save(self, *args, **kwargs):
         if self.store != self.group.store:
             raise LinkingError()
@@ -1034,7 +1058,18 @@ class Ingredient(models.Model, DirtyFieldsMixin):
         super(Ingredient, self).save(*args, **kwargs)
 
 
-class Menu(models.Model):
+class Menu(SafeDeleteMixin):
+
+    _safedelete_policy = HARD_DELETE_NOCASCADE
+
+    class Meta:
+        unique_together = ('name', 'store',)
+        verbose_name = _('menu')
+        verbose_name_plural = _('menu\'s')
+
+    def __str__(self):
+        return self.name
+
     name = models.CharField(
         max_length=191,
         verbose_name=_('naam'),
@@ -1053,16 +1088,22 @@ class Menu(models.Model):
         help_text=('Winkel.')
     )
 
+
+class Quantity(CleanModelMixin, SafeDeleteMixin):
+
+    _safedelete_policy = HARD_DELETE_NOCASCADE
+
     class Meta:
-        unique_together = ('name', 'store',)
-        verbose_name = _('menu')
-        verbose_name_plural = _('menu\'s')
+        unique_together = ('foodtype', 'store',)
+        verbose_name = _('hoeveelheid')
+        verbose_name_plural = _('hoeveelheden')
 
     def __str__(self):
-        return self.name
+        return '{minimum}-{maximum}'.format(
+            minimum=self.minimum,
+            maximum=self.maximum
+        )
 
-
-class Quantity(CleanModelMixin, models.Model):
     foodtype = models.ForeignKey(
         FoodType,
         on_delete=models.CASCADE,
@@ -1097,11 +1138,6 @@ class Quantity(CleanModelMixin, models.Model):
         help_text=('Laatst aangepast.')
     )
 
-    class Meta:
-        unique_together = ('foodtype', 'store',)
-        verbose_name = _('hoeveelheid')
-        verbose_name_plural = _('hoeveelheden')
-
     def clean_minimum(self):
         self.foodtype.is_valid_amount(self.minimum)
         if self.minimum > self.maximum:
@@ -1116,14 +1152,19 @@ class Quantity(CleanModelMixin, models.Model):
         self.full_clean()
         super(Quantity, self).save(*args, **kwargs)
 
+
+class Food(CleanModelMixin, SafeDeleteMixin):
+
+    _safedelete_policy = HARD_DELETE_NOCASCADE
+    manager_superclass = FoodManager()
+
+    class Meta:
+        verbose_name = _('etenswaar')
+        verbose_name_plural = _('etenswaren')
+
     def __str__(self):
-        return '{minimum}-{maximum}'.format(
-            minimum=self.minimum,
-            maximum=self.maximum
-        )
+        return self.name
 
-
-class Food(CleanModelMixin, models.Model):
     name = models.CharField(
         max_length=191,
         verbose_name=_('naam'),
@@ -1203,21 +1244,25 @@ class Food(CleanModelMixin, models.Model):
         verbose_name=_('laatst aangepast'),
         help_text=('Laatst aangepast.')
     )
-    deleted = models.BooleanField(
-        default=False,
-        verbose_name=_('verwijderd'),
-        help_text=(
-            'Duid aan of het item wacht om verwijderd te worden. Het wordt '
-            'pas verwijderd wanneer er geen actieve bestellingen meer zijn '
-            'met dit etenswaar.'
-        )
-    )
 
-    objects = FoodManager()
+    @cached_property
+    def _safedelete_policy(self):
+        """Food can be deleted if no active OrderedFood use them.
 
-    class Meta:
-        verbose_name = _('etenswaar')
-        verbose_name_plural = _('etenswaren')
+        Returns:
+            SOFT_DELETE if still used, HARD_DELETE otherwise.
+        """
+        if hasattr(self, '__safedelete_policy'):
+            from customers.models import OrderedFood
+
+            active_order = OrderedFood.objects.active_with(
+                food=self
+            ).exists()
+            if active_order:
+                self.__safedelete_policy = SOFT_DELETE
+            else:
+                self.__safedelete_policy = HARD_DELETE
+        return self.__safedelete_policy
 
     @cached_property
     def store(self):
@@ -1308,18 +1353,15 @@ class Food(CleanModelMixin, models.Model):
         if self.deleted:
             self.delete()
 
-    def delete(self, *args, **kwargs):
-        active_orders_amount = self.orderedfood_set.filter(
-            placed_order__status__in=ORDER_STATUSES_ACTIVE
-        ).count()
-        if active_orders_amount == 0:
-            super(Food, self).delete(*args, **kwargs)
-        elif not self.deleted:
-            self.deleted = True
-            self.save()
-
-    def __str__(self):
-        return self.name
+    # def delete(self, *args, **kwargs):
+    #     active_orders_amount = self.orderedfood_set.filter(
+    #         placed_order__status__in=ORDER_STATUSES_ACTIVE
+    #     ).count()
+    #     if active_orders_amount == 0:
+    #         super(Food, self).delete(*args, **kwargs)
+    #     elif not self.deleted:
+    #         self.deleted = True
+    #         self.save()
 
     @staticmethod
     def changed_ingredients(sender, instance, action=None, **kwargs):
@@ -1461,6 +1503,13 @@ class Food(CleanModelMixin, models.Model):
 
 
 class IngredientRelation(models.Model, DirtyFieldsMixin):
+
+    class Meta:
+        unique_together = ('food', 'ingredient',)
+
+    def __str__(self):
+        return str(self.ingredient)
+
     food = models.ForeignKey(
         Food,
         on_delete=models.CASCADE,
@@ -1486,9 +1535,6 @@ class IngredientRelation(models.Model, DirtyFieldsMixin):
         help_text=_('Of het een typisch ingrediënt is voor het gelinkte etenswaar.')
     )
 
-    class Meta:
-        unique_together = ('food', 'ingredient',)
-
     def save(self, *args, **kwargs):
         if self.food.store.id != self.ingredient.store.id:
             raise LinkingError()
@@ -1498,9 +1544,6 @@ class IngredientRelation(models.Model, DirtyFieldsMixin):
             self.food.update_typical()
 
         super(IngredientRelation, self).save(*args, **kwargs)
-
-    def __str__(self):
-        return str(self.ingredient)
 
 
 class BaseToken(BareDevice, DirtyFieldsMixin):

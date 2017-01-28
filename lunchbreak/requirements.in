@@ -10,11 +10,12 @@ django-dirtyfields==0.8.1
 django-imagekit==3.3
 django-jsonfield==1.0.1
 django-phonenumber-field==0.7.2
+django-safedelete==0.4.0
 django-sass-processor==0.3.5
 django-sendfile==0.3.11
 django-split-settings==0.1.2
 django-subdomains==2.1.0
-Django==1.9.9
+Django==1.9.12
 djangorestframework-jsonp==1.0.0
 djangorestframework==3.4.6
 drf-extensions==0.2.8

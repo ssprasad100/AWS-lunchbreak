@@ -7,6 +7,7 @@ from django.db import models
 from lunch.models import Food, Ingredient, IngredientGroup
 from pendulum import Pendulum
 
+from .config import ORDER_STATUSES_ACTIVE
 from .exceptions import OrderedFoodNotOriginal
 
 
@@ -128,6 +129,46 @@ class OrderManager(models.Manager):
 
 
 class OrderedFoodManager(models.Manager):
+
+    def active_with(self, food=None, ingredient=None, ingredients=[]):
+        """Active OrderedFood with given food or ingredients.
+
+        Args:
+            food: Food used (default: {None})
+            ingredient: Ingredient used (default: {None})
+            ingredients: Ingredients used (default: {[]})
+
+        Returns:
+            Active OrderedFood items with the given food or ingredients.
+            QuerySet
+
+        Raises:
+            ValueError: Food or ingredients need to be given.
+        """
+        if food is None and ingredient is None and not ingredients:
+            raise ValueError(
+                'Either food or ingredients need to be given.'
+            )
+
+        result = self.filter(
+            order__status__in=ORDER_STATUSES_ACTIVE
+        )
+
+        or_queries = []
+        if food is not None:
+            or_queries.append(
+                models.Q(original=food)
+            )
+        if ingredient is not None:
+            ingredients.append(ingredient)
+        if ingredients:
+            or_queries.append(
+                models.Q(ingredients__in=ingredients)
+            )
+
+        return result.filter(
+            any(or_queries)
+        )
 
     def create_for_order(self, original, amount, total, ingredients=None, **kwargs):
         if not isinstance(amount, Decimal):
