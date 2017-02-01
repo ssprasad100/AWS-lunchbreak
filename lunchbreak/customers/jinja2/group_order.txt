@@ -1,8 +1,8 @@
 Beste,
 
-De groepsbestelling voor {{ group_order.group.name }} op {{ timestamp | date('%d/%m/%Y') }} is afgerond en wordt momenteel verwerkt door {{ group_order.group.store.name }}. Hieronder volgt een link met de samenvatting van de groepsbestelling.
+De groepsbestelling voor {{ group_order.group.name }} op {{ group_order.date | date('%d/%m/%Y') }} is afgerond en wordt momenteel verwerkt door {{ group_order.group.store.name }}. Hieronder volgt een link met de samenvatting van de groepsbestelling.
 
-{{ url('frontend-group', pk=group.pk) | absolute_url }}
+{{ url('frontend-group', pk=group_order.group.pk) | absolute_url }}
 
 Vriendelijke groeten,
 Het Lunchbreak Team

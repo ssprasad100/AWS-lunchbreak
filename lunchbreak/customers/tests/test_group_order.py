@@ -9,10 +9,11 @@ from ..config import (ORDER_STATUS_COMPLETED, ORDER_STATUS_PLACED,
                       ORDER_STATUS_RECEIVED, ORDER_STATUS_STARTED,
                       ORDER_STATUS_WAITING)
 from ..models import Group, GroupOrder, Order
-from .test_group import GroupTestCase
+from ..tasks import send_group_order_email
+from .test_group import BaseGroupTestCase
 
 
-class GroupOrderTestCase(GroupTestCase):
+class GroupOrderTestCase(BaseGroupTestCase):
 
     @mock.patch('customers.tasks.send_group_order_email.apply_async')
     @mock.patch('lunch.models.Store.is_open')
@@ -248,3 +249,32 @@ class GroupOrderTestCase(GroupTestCase):
 
             group_order.orders.all().delete()
             group_order.delete()
+
+    @mock.patch('customers.tasks.send_group_order_email.apply_async')
+    @mock.patch('django.core.mail.EmailMultiAlternatives.send')
+    def test_no_email(self, mock_send, mock_task):
+        """Test whether a group order email task is ignored if the group order
+        doesn't exist or there are no orders."""
+        send_group_order_email(-1)
+        self.assertFalse(mock_send.called)
+
+        group_order = GroupOrder.objects.create(
+            group=self.group,
+            date=Pendulum.today().date()
+        )
+
+        send_group_order_email(group_order.id)
+        self.assertFalse(mock_send.called)
+
+    @mock.patch('customers.tasks.send_group_order_email.apply_async')
+    @mock.patch('django.core.mail.EmailMultiAlternatives.send')
+    def test_email_successful(self, mock_send, mock_task):
+        """Test whether setting up the group order email goes okay."""
+        group_order = GroupOrder.objects.create(
+            group=self.group,
+            date=Pendulum.today().date()
+        )
+        self.create_order(group_order)
+
+        send_group_order_email(group_order.id)
+        self.assertTrue(mock_send.called)
