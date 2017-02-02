@@ -9,7 +9,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('lunch', '0016_utf8mb4_encoding_collation'),
+        ('lunch', '0018_removed_explicit_store'),
     ]
 
     operations = [

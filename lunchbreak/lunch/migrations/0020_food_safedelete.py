@@ -34,7 +34,7 @@ def safedelete_migration_reverse(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('lunch', '0017_safedelete'),
+        ('lunch', '0019_safedelete'),
     ]
 
     operations = [

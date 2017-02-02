@@ -10,7 +10,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('customers', '0019_groups'),
+        ('customers', '0020_grouptokens_receiptnotnull'),
     ]
 
     operations = [

@@ -1,7 +1,6 @@
 from datetime import datetime, time, timedelta
 
 from . import LunchTestCase
-
 from ..models import Food, FoodType, Menu, Store
 
 
