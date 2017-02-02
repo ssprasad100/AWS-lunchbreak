@@ -1336,7 +1336,7 @@ class Food(CleanModelMixin, models.Model):
     def check_ingredientgroups(cls, action, instance, pk_set, **kwargs):
         if len(action) > 4 and action[:4] == 'post':
             groups = instance.ingredientgroups.filter(
-                ~Q(store_id=instance.store_id)
+                ~Q(menu__store_id=instance.store_id)
             )
             if groups.exists():
                 raise LinkingError(
