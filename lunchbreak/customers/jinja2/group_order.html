@@ -2,10 +2,10 @@
     Beste,
 </p>
 <p>
-    De groepsbestelling voor {{ group_order.group.name }} op {{ group_order.date | date('%d/%m/%Y') }} is afgerond en wordt momenteel verwerkt door {{ group_order.group.store.name }}. Hieronder volgt een link met de samenvatting van de groepsbestelling.
+    De groepsbestelling voor {{ group_order.group.name }} op {{ group_order.date | date('d/m/Y') }} is afgerond en wordt momenteel verwerkt door {{ group_order.group.store.name }}. Hieronder volgt een link met de samenvatting van de groepsbestelling.
 </p>
 <p>
-    <a href="{{ url('frontend-group', pk=group_order.group.pk) | absolute_url }}">Ga naar de samenvatting.</a>
+    <a href="{{ url('frontend-group', pk=group_order.group.pk) | absolute_url(token=group_order.group.admin_token) }}">Ga naar de samenvatting.</a>
 </p>
 <p>
     Vriendelijke groeten,
