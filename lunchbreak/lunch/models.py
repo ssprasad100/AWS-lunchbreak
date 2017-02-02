@@ -1265,7 +1265,7 @@ class Food(CleanModelMixin, models.Model):
         if self.preorder_days == 0:
             return True
         else:
-            now = datetime.now() if now is None else now
+            now = timezone.now() if now is None else now
             # Amount of days needed to order in advance
             # (add 1 if it isn't before the preorder_time)
             preorder_days = self.preorder_days + (

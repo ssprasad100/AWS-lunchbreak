@@ -943,17 +943,16 @@ class OrderedFood(models.Model):
         Raises:
             CostCheckFailed: Cost given by user was calculated incorrectly.
         """
-        calculated_cost = math.ceil(
-            (
-                base_cost * amount * (
-                    # See OrderedFood.amount_food
-                    food.amount
-                    if food.foodtype.inputtype == INPUT_SI_SET
-                    else 1
-                )
-            ) * 100
-        ) / 100.0
-        if calculated_cost != float(given_total):
+        exponent = Decimal('1.' + ('0' * 2))
+        calculated_cost = (
+            base_cost * amount * (
+                # See OrderedFood.amount_food
+                food.amount
+                if food.foodtype.inputtype == INPUT_SI_SET
+                else 1
+            )
+        ).quantize(exponent)
+        if calculated_cost != given_total:
             raise CostCheckFailed(
                 '{calculated_cost} != {given_total}'.format(
                     calculated_cost=calculated_cost,
