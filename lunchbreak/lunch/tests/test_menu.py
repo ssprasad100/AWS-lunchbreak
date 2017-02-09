@@ -1,7 +1,5 @@
-from datetime import datetime, time, timedelta
-
 from . import LunchTestCase
-from ..models import Food, FoodType, Menu, Store
+from ..models import Food, Menu
 
 
 class MenuTestCase(LunchTestCase):
@@ -17,9 +15,6 @@ class MenuTestCase(LunchTestCase):
             Menu.DoesNotExist,
             menu.refresh_from_db
         )
-        print(menu.deleted)
-        print(Menu.objects.count())
-        print(Menu.objects.all_with_deleted().count())
 
         menu = Menu.objects.create(
             name='test_soft_delete',
@@ -30,19 +25,12 @@ class MenuTestCase(LunchTestCase):
             name='Food',
             cost=1,
             foodtype=self.foodtype,
-            menu=menu,
-            store=self.store
+            menu=menu
         )
 
         self.assertIsNone(menu.deleted)
-        print(menu.deleted)
-        print(Menu.objects.count())
-        print(Menu.objects.all_with_deleted().count())
         menu.delete()
-        print(menu.deleted)
-        print(Menu.objects.count())
-        print(Menu.objects.all_with_deleted().count())
-        menu.refresh_from_db()
+        menu = Menu.objects.all_with_deleted().get(pk=menu.pk)
         self.assertIsNotNone(menu.deleted)
         food.delete()
         self.assertRaises(

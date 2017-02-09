@@ -87,12 +87,15 @@ class OrderTestCase(CustomersTestCase):
             Food.objects.get,
             id=original.id
         )
-        self.assertEqual(
-            OrderedFood.objects.filter(
-                placed_order=order
-            ).count(),
-            0
+        order_orderedfood = OrderedFood.objects.filter(
+            placed_order=order
         )
+        self.assertEqual(
+            order_orderedfood.count(),
+            2
+        )
+        for orderedfood in order_orderedfood.all():
+            self.assertIsNone(orderedfood.original)
 
         # Test delivery address exceptions
         self.food, original = self.clone_model(self.food)
@@ -119,7 +122,7 @@ class OrderTestCase(CustomersTestCase):
             number=10
         )
         address, address_other = self.clone_model(address)
-        address_other.user = self.user_other
+        address_other.user = self.other_user
         address_other.save()
 
         content['delivery_address'] = address.id

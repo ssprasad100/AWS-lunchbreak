@@ -3,7 +3,6 @@ from datetime import datetime, time, timedelta
 
 import googlemaps
 import pendulum
-from customers.config import ORDER_STATUSES_ACTIVE
 from customers.exceptions import (PastOrderDenied, PreorderTimeExceeded,
                                   StoreClosed)
 from dirtyfields import DirtyFieldsMixin
@@ -863,7 +862,7 @@ class FoodType(models.Model):
         return self.name
 
 
-class IngredientGroup(CleanModelMixin, models.Model):
+class IngredientGroup(CleanModelMixin, SafeDeleteMixin):
 
     class Meta:
         verbose_name = _('ingrediëntengroep')
@@ -1156,7 +1155,7 @@ class Quantity(CleanModelMixin, SafeDeleteMixin):
 class Food(CleanModelMixin, SafeDeleteMixin):
 
     _safedelete_policy = HARD_DELETE_NOCASCADE
-    manager_superclass = FoodManager()
+    objects = FoodManager()
 
     class Meta:
         verbose_name = _('etenswaar')
@@ -1252,7 +1251,7 @@ class Food(CleanModelMixin, SafeDeleteMixin):
         Returns:
             SOFT_DELETE if still used, HARD_DELETE otherwise.
         """
-        if hasattr(self, '__safedelete_policy'):
+        if not hasattr(self, '__safedelete_policy'):
             from customers.models import OrderedFood
 
             active_order = OrderedFood.objects.active_with(

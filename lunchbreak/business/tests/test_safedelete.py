@@ -16,13 +16,9 @@ class StagedDeleteTestCase(BusinessTestCase):
 
     @mock.patch('customers.models.User.notify')
     def test_food_delete(self, mock_notify):
-        food = Food.objects.get(id=self.food.id)
-        food.pk = None
-        food.save()
-
         orderedfood = OrderedFood(
             cost=1,
-            original=food,
+            original=self.food,
             is_original=True
         )
 
@@ -33,12 +29,8 @@ class StagedDeleteTestCase(BusinessTestCase):
             orderedfood=[orderedfood]
         )
 
-        food_duplicate = Food.objects.get(id=self.food.id)
-        food_duplicate.pk = None
-        food_duplicate.save()
-
         url_kwargs = {
-            'pk': food.id
+            'pk': self.food.pk
         }
         url = reverse(
             'business-food-delete',
@@ -58,7 +50,8 @@ class StagedDeleteTestCase(BusinessTestCase):
             **url_kwargs
         )
 
-        self.assertTrue(Food.objects.filter(id=food.id).exists())
+        self.assertFalse(Food.objects.filter(pk=self.food.pk).exists())
+        self.assertTrue(Food.objects.all_with_deleted().filter(pk=self.food.pk).exists())
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # Because the food is now marked to be deleted
@@ -85,13 +78,13 @@ class StagedDeleteTestCase(BusinessTestCase):
         self.assertRaises(
             Food.DoesNotExist,
             Food.objects.get,
-            id=food.id
+            pk=self.food.pk
         )
 
         # If the food is not yet marked as deleted, but has no
         # unfinished orders, a 204 should be returned.
-        url_kwargs['pk'] = food_duplicate.id
-        orderedfood.original = food_duplicate
+        url_kwargs['pk'] = self.other_food.pk
+        orderedfood.original = self.other_food
         orderedfood.save()
 
         request = self.factory.delete(url)
@@ -105,5 +98,6 @@ class StagedDeleteTestCase(BusinessTestCase):
             **url_kwargs
         )
 
-        self.assertRaises(Food.DoesNotExist, Food.objects.get, id=food.id)
+        self.assertFalse(Food.objects.filter(pk=self.food.pk).exists())
+        self.assertFalse(Food.objects.all_with_deleted().filter(pk=self.food.pk).exists())
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)

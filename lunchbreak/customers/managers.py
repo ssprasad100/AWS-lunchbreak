@@ -151,24 +151,23 @@ class OrderedFoodManager(models.Manager):
             )
 
         result = self.filter(
-            order__status__in=ORDER_STATUSES_ACTIVE
+            placed_order__status__in=ORDER_STATUSES_ACTIVE
         )
 
-        or_queries = []
+        or_queries = None
         if food is not None:
-            or_queries.append(
-                models.Q(original=food)
-            )
+            or_queries = models.Q(original=food)
+
         if ingredient is not None:
             ingredients.append(ingredient)
         if ingredients:
-            or_queries.append(
-                models.Q(ingredients__in=ingredients)
-            )
+            query = models.Q(ingredients__in=ingredients)
+            if or_queries is None:
+                or_queries = query
+            else:
+                or_queries |= query
 
-        return result.filter(
-            any(or_queries)
-        )
+        return result.filter(or_queries)
 
     def create_for_order(self, original, amount, total, ingredients=None, **kwargs):
         if not isinstance(amount, Decimal):

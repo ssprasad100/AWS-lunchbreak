@@ -768,9 +768,9 @@ class Order(StatusSignalModel, AbstractOrder):
         """
         orderedfood_list = self.orderedfood.select_related(
             'original',
-            'order',
         ).prefetch_related(
-            'ingredients'
+            'ingredients',
+            'order',
         ).all()
 
         for orderedfood in orderedfood_list:
@@ -1099,11 +1099,11 @@ class OrderedFood(CleanModelMixin, StatusSignalModel):
         """Check whether Food and Ingredients scheduled for deletion can be deleted."""
         try:
             if self.original.deleted:
-                active_food = OrderedFood.objects.active_with(
+                inactive_food = not OrderedFood.objects.active_with(
                     food=self.original
                 ).exists()
-                if active_food:
-                    self.orignal.delete(force_policy=HARD_DELETE)
+                if inactive_food:
+                    self.original.delete(force_policy=HARD_DELETE)
         except Food.DoesNotExist:
             raise
 

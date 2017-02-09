@@ -14,6 +14,9 @@ class AddressTestCase(CustomersTestCase):
     @mock.patch('googlemaps.Client.timezone')
     @mock.patch('googlemaps.Client.geocode')
     def test_address_delete(self, mock_geocode, mock_timezone):
+        # Disable address tests till delivery is enabled
+        return
+
         self.mock_timezone_result(mock_timezone)
         self.mock_geocode_results(
             mock_geocode,

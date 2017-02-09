@@ -4,6 +4,7 @@ import pendulum
 from django.core.exceptions import MultipleObjectsReturned
 from django.db import models
 from push_notifications.models import DeviceManager
+from safedelete.managers import SafeDeleteManager
 
 from .config import random_token
 
@@ -76,7 +77,7 @@ class StoreManager(models.Manager):
         )
 
 
-class FoodManager(models.Manager):
+class FoodManager(SafeDeleteManager):
 
     def closest(self, ingredients, original):
         if not original.foodtype.customisable:

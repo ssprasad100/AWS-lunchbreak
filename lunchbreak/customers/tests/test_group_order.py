@@ -25,7 +25,7 @@ class GroupOrderTestCase(BaseGroupTestCase):
             LinkingError,
             Order.objects.create_with_orderedfood,
             orderedfood=[],
-            store=self.store_other,
+            store=self.other_store,
             receipt=self.group.receipt + timedelta(minutes=1),
             group=self.group,
             user=self.user
