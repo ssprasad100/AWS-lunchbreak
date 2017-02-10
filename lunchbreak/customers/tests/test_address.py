@@ -49,7 +49,7 @@ class AddressTestCase(CustomersTestCase):
         order = Order.objects.create(
             user=self.user,
             store=self.store,
-            receipt=timezone.now() + timedelta(hours=1),
+            receipt=self.midday.add(hours=1)._datetime,
             delivery_address=address
         )
         order, order_clone = self.clone_model(order)

@@ -184,7 +184,7 @@ class OrderedFoodTestCase(CustomersTestCase):
             orderedfood=orderedfood_data,
             user=self.user,
             store=self.store,
-            receipt=Pendulum.now()._datetime
+            receipt=self.midday
         )
 
         orderedfood = order.orderedfood.first()
@@ -410,7 +410,7 @@ class OrderedFoodTestCase(CustomersTestCase):
             orderedfood=orderedfood_data,
             user=self.user,
             store=self.store,
-            receipt=Pendulum.now()._datetime
+            receipt=self.midday
         )
         orderedfood = order.orderedfood.first()
 

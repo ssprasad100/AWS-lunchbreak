@@ -38,7 +38,7 @@ class OrderTestCase(CustomersTestCase):
         self.food, original = self.clone_model(self.food)
 
         content = {
-            'receipt': (timezone.now() + timedelta(days=1)).isoformat(),
+            'receipt': self.midday.add(days=1).isoformat(),
             'store': self.store.id,
             'orderedfood': [
                 {
@@ -158,7 +158,7 @@ class OrderTestCase(CustomersTestCase):
             orderedfood=orderedfood,
             user=self.user,
             store=self.store,
-            receipt=timezone.now() + timedelta(hours=1)
+            receipt=self.midday.add(hours=1)
         )
 
         of = order.orderedfood.all().first()
@@ -172,7 +172,7 @@ class OrderTestCase(CustomersTestCase):
             orderedfood=orderedfood,
             user=self.user,
             store=self.store,
-            receipt=timezone.now() + timedelta(hours=1)
+            receipt=self.midday.add(hours=1)
         )
 
         of = order.orderedfood.all().first()
@@ -193,7 +193,7 @@ class OrderTestCase(CustomersTestCase):
             orderedfood=orderedfood,
             user=self.user,
             store=self.store,
-            receipt=timezone.now() + timedelta(hours=1)
+            receipt=self.midday.add(hours=1)
         )
 
     def test_order_signals(self):

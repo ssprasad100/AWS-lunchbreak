@@ -4,6 +4,7 @@ import mock
 from django.conf import settings
 from django.test.utils import override_settings
 from lunch.models import Store
+from pendulum import Pendulum
 from rest_framework.test import APITestCase, force_authenticate
 
 
@@ -35,12 +36,21 @@ class LunchbreakTestCase(APITestCase):
         }
     ]
 
+    midday = Pendulum.create(
+        year=1996,
+        month=10,
+        day=2,
+        hour=12,
+        tz=settings.TIME_ZONE
+    )
+
     @override_settings(
         DEFAULT_URL_SCHEME='http',
         ROOT_URLCONF='Lunchbreak.urls.tests',
         GOOGLE_CLOUD_SECRET='AIza',
         GOCARDLESS_ACCESS_TOKEN='something',
-        DEBUG=True
+        DEBUG=True,
+        TESTING=True
     )
     def run(self, *args, **kwargs):
         gocardless_settings = settings.GOCARDLESS

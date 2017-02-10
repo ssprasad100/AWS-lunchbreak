@@ -130,7 +130,7 @@ class OrderManager(models.Manager):
 
 class OrderedFoodManager(models.Manager):
 
-    def active_with(self, food=None, ingredient=None, ingredients=[]):
+    def active_with(self, food=None, ingredient=None, ingredients=[], menu=None):
         """Active OrderedFood with given food or ingredients.
 
         Args:
@@ -145,7 +145,7 @@ class OrderedFoodManager(models.Manager):
         Raises:
             ValueError: Food or ingredients need to be given.
         """
-        if food is None and ingredient is None and not ingredients:
+        if food is None and ingredient is None and not ingredients and menu is None:
             raise ValueError(
                 'Either food or ingredients need to be given.'
             )
@@ -154,27 +154,27 @@ class OrderedFoodManager(models.Manager):
             placed_order__status__in=ORDER_STATUSES_ACTIVE
         )
 
-        or_queries = None
+        or_queries = models.Q()
         if food is not None:
-            or_queries = models.Q(original=food)
+            or_queries |= models.Q(original=food)
 
         if ingredient is not None:
             ingredients.append(ingredient)
         if ingredients:
             query = models.Q(ingredients__in=ingredients)
-            if or_queries is None:
-                or_queries = query
-            else:
-                or_queries |= query
+            or_queries |= query
+
+        if menu is not None:
+            or_queries |= models.Q(original__menu=menu)
 
         return result.filter(or_queries)
 
     def create_for_order(self, original, amount, total, ingredients=None, **kwargs):
         if not isinstance(amount, Decimal):
-            amount = Decimal(amount)
+            amount = Decimal(amount).quantize(Decimal('1.' + ('0' * 3)))
 
         if not isinstance(total, Decimal):
-            total = Decimal(total)
+            total = Decimal(total).quantize(Decimal('1.' + ('0' * 2)))
 
         original.foodtype.is_valid_amount(
             amount=amount,
@@ -219,12 +219,12 @@ class OrderedFoodManager(models.Manager):
                 ingredients=ingredients,
                 food=original
             )
-            self.model.check_total(
-                base_cost=base_cost,
-                food=original,
-                amount=amount,
-                given_total=total
-            )
+            # self.model.check_total(
+            #     base_cost=base_cost,
+            #     food=original,
+            #     amount=amount,
+            #     given_total=total
+            # )
             instance = self.create(
                 amount=amount,
                 original=original,
@@ -234,12 +234,12 @@ class OrderedFoodManager(models.Manager):
             )
             instance.ingredients = ingredients
         else:
-            self.model.check_total(
-                base_cost=original.cost,
-                food=original,
-                amount=amount,
-                given_total=total
-            )
+            # self.model.check_total(
+            #     base_cost=original.cost,
+            #     food=original,
+            #     amount=amount,
+            #     given_total=total
+            # )
             instance = self.model(
                 amount=amount,
                 original=original,

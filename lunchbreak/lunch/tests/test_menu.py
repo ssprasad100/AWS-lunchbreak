@@ -30,14 +30,13 @@ class MenuTestCase(LunchTestCase):
 
         self.assertIsNone(menu.deleted)
         menu.delete()
-        menu = Menu.objects.all_with_deleted().get(pk=menu.pk)
-        self.assertIsNotNone(menu.deleted)
-        food.delete()
-        self.assertRaises(
-            Food.DoesNotExist,
-            food.refresh_from_db
-        )
         self.assertRaises(
             Menu.DoesNotExist,
-            menu.refresh_from_db
+            Menu.objects.all_with_deleted().get,
+            pk=menu.pk
+        )
+        self.assertRaises(
+            Food.DoesNotExist,
+            Food.objects.all_with_deleted().get,
+            pk=food.pk
         )

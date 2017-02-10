@@ -26,11 +26,11 @@ class CustomersTestCase(LunchTestCase):
 
         self.phone = Phone.objects.create(
             phone=self.PHONE_USER,
-            confirmed_at=timezone.now()
+            confirmed_at=self.midday._datetime
         )
         self.other_phone = Phone.objects.create(
             phone=self.VALID_PHONE2,
-            confirmed_at=timezone.now()
+            confirmed_at=self.midday._datetime
         )
 
         self.user = User.objects.create(

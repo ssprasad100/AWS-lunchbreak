@@ -1,4 +1,7 @@
 from django.apps import apps
+from rest_framework import status
+from rest_framework.mixins import DestroyModelMixin
+from rest_framework.response import Response
 
 
 class NotifyModelMixin:
@@ -34,3 +37,18 @@ class NotifyModelMixin:
             instance=self,
             **kwargs
         )
+
+
+class SafeDeleteModelMixin(DestroyModelMixin):
+    """Delete a model instance.model
+
+    Return 200 if the model was safe deleted,
+    return 204 if the model was hard deleted.
+    """
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        if instance.pk is not None:
+            return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_204_NO_CONTENT)

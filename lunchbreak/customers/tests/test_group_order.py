@@ -165,20 +165,23 @@ class GroupOrderTestCase(BaseGroupTestCase):
             receipt=group_order.group.receipt,
             group_order=group_order,
             user=self.user,
-            placed=Pendulum.now(self.store.timezone).subtract(days=1)
+            placed=self.midday.subtract(days=1, hours=1)
         )
 
+    @mock.patch('django.utils.timezone.now')
     @mock.patch('lunch.models.Store.is_open')
     @mock.patch('customers.tasks.send_group_order_email.apply_async')
-    def test_synced_status(self, mock_task, mock_is_open):
+    def test_synced_status(self, mock_task, mock_is_open, mock_now):
         """Test whether changing the status on the GroupOrder changes the statuses on the orders.
 
         Also test whether changing the status of an Order with a GroupOrder works.
         """
 
+        mock_now.return_value = self.midday._datetime
+
         group_order = GroupOrder.objects.create(
             group=self.group,
-            date=Pendulum.now().date()
+            date=self.midday.date()
         )
 
         self.create_order(group_order)
@@ -215,6 +218,7 @@ class GroupOrderTestCase(BaseGroupTestCase):
             ORDER_STATUS_PLACED
         )
 
+
         # Changing the status on an order should not be ignored
         order3.status = ORDER_STATUS_COMPLETED
         order3.save()
@@ -236,7 +240,7 @@ class GroupOrderTestCase(BaseGroupTestCase):
         for status in [ORDER_STATUS_WAITING, ORDER_STATUS_COMPLETED]:
             group_order = GroupOrder.objects.create(
                 group=self.group,
-                date=Pendulum.now().date(),
+                date=self.midday.date(),
                 status=status
             )
 

@@ -28,6 +28,7 @@ from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from .authentication import EmployeeAuthentication, StaffAuthentication
 from .exceptions import InvalidDatetime, InvalidEmail, InvalidPasswordReset
+from .mixins import SafeDeleteModelMixin
 from .models import Employee, Staff
 from .permissions import StoreOwnerOnlyPermission, StoreOwnerPermission
 from .serializers import (EmployeeSerializer, FoodDetailSerializer,
@@ -192,7 +193,8 @@ class FoodViewSet(TargettedViewSet,
                   mixins.ListModelMixin,
                   mixins.RetrieveModelMixin,
                   mixins.CreateModelMixin,
-                  mixins.UpdateModelMixin):
+                  mixins.UpdateModelMixin,
+                  SafeDeleteModelMixin):
 
     serializer_class = FoodSerializer
     serializer_class_retrieve = FoodDetailSerializer
@@ -239,15 +241,6 @@ class FoodViewSet(TargettedViewSet,
         else:
             raise Http404()
 
-    @detail_route(methods=['delete'], permission_classes=[StoreOwnerPermission])
-    def delete(self, request, pk=None):
-        food = self.get_object()
-        food.delete()
-
-        if food.pk is not None:
-            return Response(status=status.HTTP_200_OK)
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
     @list_route(methods=['get'])
     def popular(self, request):
         result = self._list(request)
@@ -274,7 +267,8 @@ class MenuViewSet(TargettedViewSet,
                   mixins.ListModelMixin,
                   mixins.RetrieveModelMixin,
                   mixins.CreateModelMixin,
-                  mixins.UpdateModelMixin):
+                  mixins.UpdateModelMixin,
+                  SafeDeleteModelMixin):
 
     authentication_classes = (EmployeeAuthentication,)
     permission_classes = (StoreOwnerPermission,)

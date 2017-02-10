@@ -1,6 +1,5 @@
 import mock
 from django.core.urlresolvers import reverse
-from pendulum import Pendulum
 from rest_framework import status
 
 from . import CustomersTestCase
@@ -19,7 +18,7 @@ class BaseGroupTestCase(CustomersTestCase):
             name='Test Group',
             store=self.store,
             email='andreas@cloock.be',
-            deadline=Pendulum.now(self.store.timezone).add(hours=1).time()
+            deadline=self.midday.time()
         )
         self.group.members.add(self.user)
 

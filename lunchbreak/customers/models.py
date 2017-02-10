@@ -782,7 +782,14 @@ class Order(StatusSignalModel, AbstractOrder):
         if self.group is not None \
                 and self.placed.date() == self.receipt.date() \
                 and self.group.deadline <= self.placed.time():
-                raise PreorderTimeExceeded()
+                raise PreorderTimeExceeded(
+                    '{} == {} and {} <= {}'.format(
+                        self.placed.date(),
+                        self.receipt.date(),
+                        self.group.deadline,
+                        self.placed.time()
+                    )
+                )
 
     def clean_status(self):
         if self.group_order is not None \
@@ -824,7 +831,13 @@ class Order(StatusSignalModel, AbstractOrder):
     def clean_receipt(self):
         if self.status == ORDER_STATUS_PLACED:
             if self.group is not None:
-                self.receipt = self.group_order.receipt
+                self.receipt = Pendulum.instance(
+                    self.receipt
+                ).with_time(
+                    hour=self.group_order.receipt.hour,
+                    minute=self.group_order.receipt.minute,
+                    second=self.group_order.receipt.second
+                )
                 self.store.is_open(
                     self.receipt,
                     now=self.placed,

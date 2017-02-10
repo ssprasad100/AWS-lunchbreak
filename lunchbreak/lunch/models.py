@@ -23,7 +23,8 @@ from openpyxl import load_workbook
 from polaroid.models import Polaroid
 from private_media.storages import PrivateMediaStorage
 from push_notifications.models import BareDevice
-from safedelete import HARD_DELETE, HARD_DELETE_NOCASCADE, SOFT_DELETE
+from safedelete import (HARD_DELETE, HARD_DELETE_NOCASCADE, SOFT_DELETE,
+                        SOFT_DELETE_CASCADE)
 from safedelete.models import SafeDeleteMixin
 
 from .config import (CCTLDS, COST_GROUP_BOTH, COST_GROUP_CALCULATIONS,
@@ -978,8 +979,6 @@ class IngredientGroup(CleanModelMixin, SafeDeleteMixin):
 
 class Ingredient(SafeDeleteMixin, DirtyFieldsMixin):
 
-    _safedelete_policy = SOFT_DELETE
-
     class Meta:
         verbose_name = _('ingrediënt')
         verbose_name_plural = _('ingrediënten')
@@ -1032,17 +1031,14 @@ class Ingredient(SafeDeleteMixin, DirtyFieldsMixin):
         Returns:
             SOFT_DELETE if still used, HARD_DELETE otherwise.
         """
-        if hasattr(self, '__safedelete_policy'):
-            from customers.models import OrderedFood
+        from customers.models import OrderedFood
 
-            active_order = OrderedFood.objects.active_with(
-                ingredient=self
-            ).exists()
-            if active_order:
-                self.__safedelete_policy = SOFT_DELETE
-            else:
-                self.__safedelete_policy = HARD_DELETE
-        return self.__safedelete_policy
+        active_order = OrderedFood.objects.active_with(
+            ingredient=self
+        ).exists()
+        if active_order:
+            return SOFT_DELETE
+        return HARD_DELETE
 
     def save(self, *args, **kwargs):
         if self.store != self.group.store:
@@ -1058,8 +1054,6 @@ class Ingredient(SafeDeleteMixin, DirtyFieldsMixin):
 
 
 class Menu(SafeDeleteMixin):
-
-    _safedelete_policy = HARD_DELETE_NOCASCADE
 
     class Meta:
         unique_together = ('name', 'store',)
@@ -1086,6 +1080,24 @@ class Menu(SafeDeleteMixin):
         verbose_name=_('winkel'),
         help_text=('Winkel.')
     )
+
+    @cached_property
+    def _safedelete_policy(self):
+        """Menu can be deleted if no active OrderedFood use them.
+
+        Otherwise soft delete it and the food it's related to.
+
+        Returns:
+            SOFT_DELETE if still used, HARD_DELETE otherwise.
+        """
+        from customers.models import OrderedFood
+
+        active_order = OrderedFood.objects.active_with(
+            menu=self
+        ).exists()
+        if active_order:
+            return SOFT_DELETE_CASCADE
+        return HARD_DELETE
 
 
 class Quantity(CleanModelMixin, SafeDeleteMixin):
@@ -1154,7 +1166,6 @@ class Quantity(CleanModelMixin, SafeDeleteMixin):
 
 class Food(CleanModelMixin, SafeDeleteMixin):
 
-    _safedelete_policy = HARD_DELETE_NOCASCADE
     objects = FoodManager()
 
     class Meta:
@@ -1251,17 +1262,14 @@ class Food(CleanModelMixin, SafeDeleteMixin):
         Returns:
             SOFT_DELETE if still used, HARD_DELETE otherwise.
         """
-        if not hasattr(self, '__safedelete_policy'):
-            from customers.models import OrderedFood
+        from customers.models import OrderedFood
 
-            active_order = OrderedFood.objects.active_with(
-                food=self
-            ).exists()
-            if active_order:
-                self.__safedelete_policy = SOFT_DELETE
-            else:
-                self.__safedelete_policy = HARD_DELETE
-        return self.__safedelete_policy
+        active_order = OrderedFood.objects.active_with(
+            food=self
+        ).exists()
+        if active_order:
+            return SOFT_DELETE
+        return HARD_DELETE
 
     @cached_property
     def store(self):
