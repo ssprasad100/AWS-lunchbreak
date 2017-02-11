@@ -75,6 +75,15 @@ class LunchbreakTestCase(APITestCase):
             number=10
         )
 
+        self.patcher = mock.patch('django.utils.timezone.now')
+        self.mock_now = self.patcher.start()
+        self.mock_now.return_value = self.midday._datetime
+
+    def tearDown(self):
+        super().tearDown()
+
+        self.patcher.stop()
+
     def mock_timezone_result(self, mock_timezone):
         mock_timezone.return_value = self.MOCK_TIMEZONE
 

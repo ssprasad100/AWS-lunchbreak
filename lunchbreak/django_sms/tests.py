@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 import mock
 from django.test.utils import override_settings
@@ -35,7 +35,7 @@ class SmsTestCase(LunchbreakTestCase):
             202,
             'Success'
         )
-        mock_now.return_value = datetime.now()
+        mock_now.return_value = self.midday._datetime
         phone, created = Phone.register(
             phone=self.PHONE
         )
@@ -53,7 +53,9 @@ class SmsTestCase(LunchbreakTestCase):
             ''
         )
 
-        mock_now.return_value = datetime.now().replace(tzinfo=timezone.utc) + settings['timeout']
+        mock_now.return_value = self.midday.add_timedelta(
+            settings['timeout']
+        )._datetime
         phone2, created = Phone.register(
             phone=self.PHONE
         )

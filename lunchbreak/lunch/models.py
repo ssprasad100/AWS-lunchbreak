@@ -937,45 +937,6 @@ class IngredientGroup(CleanModelMixin, SafeDeleteMixin):
         self.full_clean()
         super(IngredientGroup, self).save(*args, **kwargs)
 
-    @staticmethod
-    def check_ingredients(ingredients, food):
-        """
-        Check whether the given ingredients can be made into an OrderedFood
-        based on the closest food.
-        """
-
-        ingredientgroups = {}
-        for ingredient in ingredients:
-            group = ingredient.group
-            amount = 1
-            if group.id in ingredientgroups:
-                amount += ingredientgroups[group.id]
-            if group.maximum > 0 and amount > group.maximum:
-                raise IngredientGroupMaxExceeded()
-            ingredientgroups[group.id] = amount
-
-        foodtype_groups = food.foodtype.ingredientgroup_set.all()
-
-        for ingredientgroup in ingredientgroups:
-            for foodtype_group in foodtype_groups:
-                if foodtype_group.id == ingredientgroup:
-                    break
-            else:
-                raise LinkingError()
-
-        original_ingredients = food.ingredients.all()
-
-        for ingredient in original_ingredients:
-            group = ingredient.group
-            if group.minimum > 0:
-                in_groups = group.id in ingredientgroups
-                if not in_groups:
-                    raise IngredientGroupsMinimumNotMet()
-                amount = ingredientgroups[group.id]
-
-                if amount < group.minimum:
-                    raise IngredientGroupsMinimumNotMet()
-
 
 class Ingredient(SafeDeleteMixin, DirtyFieldsMixin):
 
@@ -1360,15 +1321,44 @@ class Food(CleanModelMixin, SafeDeleteMixin):
         if self.deleted:
             self.delete()
 
-    # def delete(self, *args, **kwargs):
-    #     active_orders_amount = self.orderedfood_set.filter(
-    #         placed_order__status__in=ORDER_STATUSES_ACTIVE
-    #     ).count()
-    #     if active_orders_amount == 0:
-    #         super(Food, self).delete(*args, **kwargs)
-    #     elif not self.deleted:
-    #         self.deleted = True
-    #         self.save()
+    def check_ingredients(self, ingredients):
+        """
+        Check whether the given ingredients can be made into an OrderedFood.
+        """
+
+        ingredientgroups = {}
+        for ingredient in ingredients:
+            group = ingredient.group
+            amount = 1
+            if group.id in ingredientgroups:
+                amount += ingredientgroups[group.id]
+            if group.maximum > 0 and amount > group.maximum:
+                raise IngredientGroupMaxExceeded()
+            ingredientgroups[group.id] = amount
+
+        allowed_ingredients = Ingredient.objects.filter(
+            Q(food__pk=self.pk) | Q(group__food__pk=self.pk)
+        ).distinct()
+
+        valid_ingredients = all(
+            ingredient in allowed_ingredients for ingredient in ingredients
+        )
+        if not valid_ingredients:
+            raise LinkingError(
+                _('Ingrediënten zijn niet toegelaten voor het gegeven etenswaar.')
+            )
+
+        original_ingredients = self.ingredients.all()
+
+        for ingredient in original_ingredients:
+            group = ingredient.group
+            if group.minimum > 0:
+                if group.id not in ingredientgroups:
+                    raise IngredientGroupsMinimumNotMet()
+                amount = ingredientgroups[group.id]
+
+                if amount < group.minimum:
+                    raise IngredientGroupsMinimumNotMet()
 
     @staticmethod
     def changed_ingredients(sender, instance, action=None, **kwargs):
@@ -1385,7 +1375,7 @@ class Food(CleanModelMixin, SafeDeleteMixin):
     def check_ingredientgroups(cls, action, instance, pk_set, **kwargs):
         if len(action) > 4 and action[:4] == 'post':
             groups = instance.ingredientgroups.filter(
-                ~Q(menu__store_id=instance.store_id)
+                ~Q(store_id=instance.menu.store_id)
             )
             if groups.exists():
                 raise LinkingError(

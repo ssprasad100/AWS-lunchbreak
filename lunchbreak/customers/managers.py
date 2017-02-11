@@ -4,7 +4,7 @@ from decimal import Decimal
 from django.apps import apps
 from django.contrib.auth.base_user import BaseUserManager
 from django.db import models
-from lunch.models import Food, Ingredient, IngredientGroup
+from lunch.models import Food, Ingredient
 from pendulum import Pendulum
 
 from .config import ORDER_STATUSES_ACTIVE
@@ -202,9 +202,8 @@ class OrderedFoodManager(models.Manager):
                 is_original = True
 
         if not is_original:
-            IngredientGroup.check_ingredients(
-                ingredients=ingredients,
-                food=original
+            original.check_ingredients(
+                ingredients=ingredients
             )
 
             closest_food = Food.objects.closest(

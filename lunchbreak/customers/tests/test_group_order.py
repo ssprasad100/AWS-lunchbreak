@@ -3,7 +3,6 @@ from decimal import Decimal
 
 import mock
 from lunch.exceptions import LinkingError
-from pendulum import Pendulum
 
 from ..config import (ORDER_STATUS_COMPLETED, ORDER_STATUS_PLACED,
                       ORDER_STATUS_RECEIVED, ORDER_STATUS_STARTED,
@@ -37,7 +36,7 @@ class GroupOrderTestCase(BaseGroupTestCase):
 
         GroupOrder.objects.create(
             group=self.group,
-            date=Pendulum.today().date()
+            date=self.midday.date()
         )
 
         self.assertTrue(mock_task.called)
@@ -165,19 +164,16 @@ class GroupOrderTestCase(BaseGroupTestCase):
             receipt=group_order.group.receipt,
             group_order=group_order,
             user=self.user,
-            placed=self.midday.subtract(days=1, hours=1)
+            placed=self.midday.subtract(days=1)
         )
 
-    @mock.patch('django.utils.timezone.now')
     @mock.patch('lunch.models.Store.is_open')
     @mock.patch('customers.tasks.send_group_order_email.apply_async')
-    def test_synced_status(self, mock_task, mock_is_open, mock_now):
+    def test_synced_status(self, mock_task, mock_is_open):
         """Test whether changing the status on the GroupOrder changes the statuses on the orders.
 
         Also test whether changing the status of an Order with a GroupOrder works.
         """
-
-        mock_now.return_value = self.midday._datetime
 
         group_order = GroupOrder.objects.create(
             group=self.group,
@@ -217,7 +213,6 @@ class GroupOrderTestCase(BaseGroupTestCase):
             order3.status,
             ORDER_STATUS_PLACED
         )
-
 
         # Changing the status on an order should not be ignored
         order3.status = ORDER_STATUS_COMPLETED
@@ -264,19 +259,20 @@ class GroupOrderTestCase(BaseGroupTestCase):
 
         group_order = GroupOrder.objects.create(
             group=self.group,
-            date=Pendulum.today().date()
+            date=self.midday.date()
         )
 
         send_group_order_email(group_order.id)
         self.assertFalse(mock_send.called)
 
+    @mock.patch('lunch.models.Store.is_open')
     @mock.patch('customers.tasks.send_group_order_email.apply_async')
     @mock.patch('django.core.mail.EmailMultiAlternatives.send')
-    def test_email_successful(self, mock_send, mock_task):
+    def test_email_successful(self, mock_send, mock_task, mock_is_open):
         """Test whether setting up the group order email goes okay."""
         group_order = GroupOrder.objects.create(
             group=self.group,
-            date=Pendulum.today().date()
+            date=self.midday.date()
         )
         self.create_order(group_order)
 

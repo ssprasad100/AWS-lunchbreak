@@ -70,15 +70,17 @@ class LunchTestCase(LunchbreakTestCase):
             menu=self.menu,
         )
 
+        self.ingredient = Ingredient.objects.create(
+            name='Ingredient 1',
+            group=self.ingredientgroup,
+            cost=0.1
+        )
+
         self.food, self.other_food = self.clone_model(self.food)
 
         ingredient_relations = [
             IngredientRelation(
-                ingredient=Ingredient.objects.create(
-                    name='Ingredient 1',
-                    group=self.ingredientgroup,
-                    cost=0.1
-                ),
+                ingredient=self.ingredient,
                 food=self.food,
                 selected=True
             ),

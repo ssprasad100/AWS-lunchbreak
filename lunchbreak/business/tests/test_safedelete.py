@@ -2,32 +2,37 @@ from datetime import timedelta
 
 import mock
 from customers.config import ORDER_STATUS_COMPLETED
-from customers.models import Order, OrderedFood
+from customers.models import Order
 from django.core.urlresolvers import reverse
 from django.utils import timezone
-from lunch.models import Food, Menu
+from lunch.models import Food, Ingredient, Menu
 from rest_framework import status
 
 from .. import views
 from .testcase import BusinessTestCase
 
 
-class StagedDeleteTestCase(BusinessTestCase):
+class SafeDeleteTestCase(BusinessTestCase):
 
-    def setUp(self):
+    @mock.patch('lunch.managers.FoodManager.closest')
+    def setUp(self, mock_closest):
         super().setUp()
 
-        self.orderedfood = OrderedFood(
-            cost=1,
-            original=self.food,
-            is_original=True
-        )
+        mock_closest.return_value = self.food
+        self.orderedfood = {
+            'original': self.food,
+            'ingredients': [self.ingredient],
+            'total': self.food.cost,
+            'amount': 1
+        }
+
         self.order = Order.objects.create_with_orderedfood(
             user=self.user,
             store=self.store,
             receipt=timezone.now() + timedelta(days=1),
             orderedfood=[self.orderedfood]
         )
+        self.orderedfood = self.order.orderedfood.all().first()
 
     @mock.patch('customers.models.User.notify')
     def test_order_completion(self, mock_notify):
@@ -151,6 +156,78 @@ class StagedDeleteTestCase(BusinessTestCase):
         self.assertFalse(Menu.objects.all_with_deleted().filter(pk=self.menu.pk).exists())
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
+    @mock.patch('customers.models.User.notify')
+    def test_ingredient_completion(self, mock_notify):
+        # Trying to delete it while there still is a depending OrderedFood
+        # should return 200
+        response = self.request_ingredient_deletion(pk=self.ingredient.pk)
+
+        self.assertFalse(
+            Ingredient.objects.filter(
+                pk=self.ingredient.pk
+            ).exists()
+        )
+        self.assertTrue(
+            Ingredient.objects.all_with_deleted().filter(
+                pk=self.ingredient.pk
+            ).exists()
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Because the menu is now marked to be deleted
+        # Updating the order status should delete it
+        self.order.status = ORDER_STATUS_COMPLETED
+        self.order.save()
+
+        response = self.request_ingredient_deletion(pk=self.ingredient.pk)
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_404_NOT_FOUND
+        )
+        self.assertRaises(
+            Ingredient.DoesNotExist,
+            Ingredient.objects.get,
+            pk=self.ingredient.pk
+        )
+        self.orderedfood.refresh_from_db()
+        self.assertFalse(self.orderedfood.ingredients.filter(
+            pk__in=[self.ingredient.pk]
+        ).exists())
+
+    @mock.patch('customers.models.User.notify')
+    def test_ingredient_order_finished(self, mock_notify):
+        """Test whether a food without an active order is hard deleted."""
+        self.order.status = ORDER_STATUS_COMPLETED
+        self.order.save()
+
+        # If the food is not yet marked as deleted, but has no
+        # unfinished orders, a 204 should be returned.
+        response = self.request_ingredient_deletion(pk=self.ingredient.pk)
+
+        self.assertFalse(Ingredient.objects.filter(pk=self.ingredient.pk).exists())
+        self.assertFalse(Ingredient.objects.all_with_deleted().filter(
+            pk=self.ingredient.pk).exists())
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.orderedfood.refresh_from_db()
+        self.assertFalse(self.orderedfood.ingredients.filter(
+            pk__in=[self.ingredient.pk]
+        ).exists())
+
+    @mock.patch('customers.models.User.notify')
+    def test_ingredient_no_order(self, mock_notify):
+        """Test whether a food without an active order is hard deleted."""
+        self.order.delete()
+
+        # If the food is not yet marked as deleted, but has no
+        # unfinished orders, a 204 should be returned.
+        response = self.request_ingredient_deletion(pk=self.ingredient.pk)
+
+        self.assertFalse(Ingredient.objects.filter(pk=self.ingredient.pk).exists())
+        self.assertFalse(Ingredient.objects.all_with_deleted().filter(
+            pk=self.ingredient.pk).exists())
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
     def request_deletion(self, pk, url_name, viewset, user=None):
         """Request deletion for a specific model and viewset."""
         if user is None:
@@ -189,5 +266,14 @@ class StagedDeleteTestCase(BusinessTestCase):
             pk=pk,
             url_name='business-menu-detail',
             viewset=views.MenuViewSet,
+            **kwargs
+        )
+
+    def request_ingredient_deletion(self, pk, **kwargs):
+        """Make a request for ingredient deletion."""
+        return self.request_deletion(
+            pk=pk,
+            url_name='business-ingredient-detail',
+            viewset=views.IngredientViewSet,
             **kwargs
         )

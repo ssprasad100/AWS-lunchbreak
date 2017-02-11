@@ -1,7 +1,4 @@
-from datetime import timedelta
-
 import mock
-from django.utils import timezone
 from lunch.config import BELGIUM
 from lunch.models import Region
 

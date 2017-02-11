@@ -1,4 +1,3 @@
-from django.utils import timezone
 from django_sms.models import Phone
 from lunch.tests import LunchTestCase
 from push_notifications.models import SERVICE_APNS

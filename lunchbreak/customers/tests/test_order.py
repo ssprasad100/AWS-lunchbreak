@@ -1,14 +1,10 @@
-from datetime import timedelta
-
 import mock
 from business.models import Staff
 from django.core.urlresolvers import reverse
-from django.utils import timezone
 from django_gocardless.exceptions import MerchantAccessError
 from django_gocardless.models import Merchant, RedirectFlow
 from lunch.exceptions import LinkingError, NoDeliveryToAddress
 from lunch.models import Food
-from pendulum import Pendulum
 from rest_framework import status
 
 from . import CustomersTestCase
@@ -179,6 +175,8 @@ class OrderTestCase(CustomersTestCase):
         self.assertTrue(of.is_original)
         self.assertFalse(of.ingredients.all().exists())
 
+        self.food.ingredientgroups.add(self.unique_ingredient.group)
+
         orderedfood[0]['ingredients'] = [self.unique_ingredient]
         self.assertEqual(
             Food.objects.closest(
@@ -214,7 +212,7 @@ class OrderTestCase(CustomersTestCase):
             self.assertEqual(mock_signal.call_count, 0)
             order = Order.objects.create(
                 store=self.store,
-                receipt=Pendulum.tomorrow()._datetime,
+                receipt=self.midday.add(days=1)._datetime,
                 user=self.user
             )
             self.assertEqual(mock_signal.call_count, 1)
@@ -224,7 +222,7 @@ class OrderTestCase(CustomersTestCase):
                 self.assertEqual(mock_signal.call_count, 0)
                 Order.objects.create(
                     store=self.store,
-                    receipt=Pendulum.tomorrow()._datetime,
+                    receipt=self.midday.add(days=1)._datetime,
                     user=self.user,
                     status=order_status
                 )
@@ -265,7 +263,7 @@ class OrderTestCase(CustomersTestCase):
         )
         order = Order.objects.create(
             store=self.store,
-            receipt=Pendulum.tomorrow()._datetime,
+            receipt=self.midday.add(days=1)._datetime,
             user=self.user,
             payment_method=PAYMENT_METHOD_GOCARDLESS
         )

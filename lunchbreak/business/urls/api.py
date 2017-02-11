@@ -25,6 +25,11 @@ router.register(
     base_name='business-menu'
 )
 router.register(
+    r'ingredient',
+    views.IngredientViewSet,
+    base_name='business-ingredient'
+)
+router.register(
     r'orderedfood',
     views.OrderedFoodViewSet,
     base_name='business-orderedfood'
@@ -121,14 +126,14 @@ urlpatterns = patterns(
         views.FoodTypeView.as_view()
     ),
 
-    url(
-        r'^ingredient/?$',
-        views.IngredientView.as_view()
-    ),
-    url(
-        r'^ingredient/(?P<pk>\d+)/?$',
-        views.IngredientDetailView.as_view()
-    ),
+    # url(
+    #     r'^ingredient/?$',
+    #     views.IngredientView.as_view()
+    # ),
+    # url(
+    #     r'^ingredient/(?P<pk>\d+)/?$',
+    #     views.IngredientDetailView.as_view()
+    # ),
 
     url(
         r'^ingredientgroup/?$',

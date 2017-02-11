@@ -1,6 +1,6 @@
 from django.http import Http404
 from django.shortcuts import get_object_or_404
-from lunch.models import Food, IngredientGroup, Menu, Store
+from lunch.models import Food, Menu, Store
 from lunch.pagination import SimplePagination
 from lunch.serializers import (FoodDetailSerializer, FoodSerializer,
                                MenuDetailSerializer, MenuSerializer,
@@ -124,7 +124,9 @@ class OrderViewSet(TargettedViewSet,
                 if 'ingredients' in price_check:
                     ingredients = price_check['ingredients']
                     food_closest = Food.objects.closest(ingredients, original)
-                    IngredientGroup.check_ingredients(ingredients, food_closest)
+                    food_closest.check_ingredients(
+                        ingredients=ingredients
+                    )
 
                     price_info['cost'] = OrderedFood.calculate_cost(ingredients, food_closest)
                     price_info['food'] = food_closest.id

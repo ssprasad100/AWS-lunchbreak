@@ -2,7 +2,6 @@ import mock
 from lunch.config import (COST_GROUP_ADDITIONS, COST_GROUP_ALWAYS,
                           COST_GROUP_BOTH)
 from lunch.models import Food, Ingredient, IngredientRelation
-from pendulum import Pendulum
 
 from . import CustomersTestCase
 from ..config import ORDEREDFOOD_STATUS_OK, ORDEREDFOOD_STATUS_OUT_OF_STOCK
