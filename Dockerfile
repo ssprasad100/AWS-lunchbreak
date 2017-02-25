@@ -39,7 +39,7 @@ ENV MEDIA_ROOT ${MEDIA_ROOT}
 ENV PRIVATE_MEDIA_ROOT ${PRIVATE_MEDIA_ROOT}
 
 # Setting up entrypoint
-COPY ./docker/web/docker-entrypoint.sh /
+COPY ./docker/lunchbreak/docker-entrypoint.sh /
 RUN chmod +x /docker-entrypoint.sh
 ENTRYPOINT ["/docker-entrypoint.sh"]
 

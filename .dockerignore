@@ -3,3 +3,4 @@ lunchbreak/media-private/
 lunchbreak/static/
 .git/
 .tox/
+lunchbreak/Lunchbreak/settings/local.py

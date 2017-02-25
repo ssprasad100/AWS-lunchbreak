@@ -1,34 +1,14 @@
 version: '2'
+
 services:
   nginx:
     volumes:
-      - /var/lunchbreak/staging/static:/var/lunchbreak_staging/static:ro
-      - /var/lunchbreak/staging/media:/var/lunchbreak_staging/media:ro
-      - /var/lunchbreak/staging/media-private:/var/lunchbreak_staging/media-private:ro
       - /var/lunchbreak/production/static:/var/lunchbreak_production/static:ro
       - /var/lunchbreak/production/media:/var/lunchbreak_production/media:ro
       - /var/lunchbreak/production/media-private:/var/lunchbreak_production/media-private:ro
-
-  lunchbreak_staging:
-    extends:
-      file: common-services.yml
-      service: lunchbreak
-    container_name: lunchbreak_staging
-    links:
-      - db
-      - rabbitmq
-    depends_on:
-      - db
-      - nginx
-      - rabbitmq
-    env_file:
-      - ./staging.env
-    volumes:
-      - ./web/secrets/staging:/var/secrets:ro
-      - /var/lunchbreak/staging/log:/var/lunchbreak/log:rw
-      - /var/lunchbreak/staging/static:/var/lunchbreak/static:rw
-      - /var/lunchbreak/staging/media:/var/lunchbreak/media:rw
-      - /var/lunchbreak/staging/media-private:/var/lunchbreak/media-private:rw
+      - /var/lunchbreak/staging/static:/var/lunchbreak_staging/static:ro
+      - /var/lunchbreak/staging/media:/var/lunchbreak_staging/media:ro
+      - /var/lunchbreak/staging/media-private:/var/lunchbreak_staging/media-private:ro
 
   lunchbreak_production:
     extends:
@@ -37,17 +17,38 @@ services:
     image: 'andreasbackx/lunchbreak:production'
     container_name: lunchbreak_production
     links:
-      - db
       - rabbitmq
     depends_on:
-      - db
       - nginx
       - rabbitmq
     env_file:
       - ./production.env
     volumes:
-      - ./web/secrets/production:/var/secrets:ro
+      - /var/run/mysqld/mysqld.sock:/var/run/mysqld/mysqld.sock:ro
+      - ./lunchbreak/secrets/production:/var/secrets:ro
       - /var/lunchbreak/production/log:/var/lunchbreak/log:rw
       - /var/lunchbreak/production/static:/var/lunchbreak/static:rw
       - /var/lunchbreak/production/media:/var/lunchbreak/media:rw
       - /var/lunchbreak/production/media-private:/var/lunchbreak/media-private:rw
+    network_mode: bridge
+
+  lunchbreak_staging:
+    extends:
+      file: common-services.yml
+      service: lunchbreak
+    container_name: lunchbreak_staging
+    links:
+      - rabbitmq
+    depends_on:
+      - nginx
+      - rabbitmq
+    env_file:
+      - ./staging.env
+    volumes:
+      - /var/run/mysqld/mysqld.sock:/var/run/mysqld/mysqld.sock:ro
+      - ./lunchbreak/secrets/staging:/var/secrets:ro
+      - /var/lunchbreak/staging/log:/var/lunchbreak/log:rw
+      - /var/lunchbreak/staging/static:/var/lunchbreak/static:rw
+      - /var/lunchbreak/staging/media:/var/lunchbreak/media:rw
+      - /var/lunchbreak/staging/media-private:/var/lunchbreak/media-private:rw
+    network_mode: bridge

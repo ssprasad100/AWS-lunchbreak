@@ -1,5 +1,3 @@
-DB_HOST = 'db'
-
 GOCARDLESS_ENVIRONMENT = 'live'
 GOCARDLESS_APP_DOMAIN = 'api.lunchbreakapp.be'
 
@@ -7,6 +5,19 @@ ALLOWED_HOSTS = [
     'lunchbreakapp.be',
     'www.lunchbreakapp.be',
     'api.lunchbreakapp.be',
+
+    'lunchbreak.io',
+    'www.lunchbreak.io',
+    'api.lunchbreak.io',
+
+    'lunchbreak.eu',
+    'www.lunchbreak.eu',
+    'api.lunchbreak.eu',
+
+    'lunchbreak.fr',
+    'www.lunchbreak.fr',
+    'api.lunchbreak.fr',
 ]
 
 VERSION = '2.0.13'
+RAVEN_ENVIRONMENT = 'production'

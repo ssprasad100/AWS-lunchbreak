@@ -14,6 +14,7 @@ started_at = Pendulum.now()
 
 # Host
 HOST = os.environ.get('LUNCHBREAK_HOST')
+HOST = '137.74.42.120'
 if not HOST:
     HOST = input('Host: ')
 
@@ -187,15 +188,8 @@ class Deployer:
 
     def update_server(self):
         """Make sure the remote server updates its containers."""
-        with hide('output'):
-            sudo('apt-get update')
-            sudo('apt-get upgrade -y')
-
-            self._setup_ufw()
-
-        # Ensure Fail2ban is running
-        # sudo('fail2ban-client reload')
-        # sudo('fail2ban-client start')
+        self._setup_ufw()
+        self._setup_fail2ban()
 
         self._compose_up(
             service='lunchbreak_' + str('staging' if not is_production else 'production')
@@ -207,24 +201,19 @@ class Deployer:
         )
 
     def upload_docker_folders(self, everything=False):
+        folders = ['lunchbreak', 'config']
         if everything:
-            put(
-                local_path='docker/web',
-                remote_path='/etc/lunchbreak/docker'
-            )
-            put(
-                local_path='docker/nginx',
-                remote_path='/etc/lunchbreak/docker'
-            )
+            for folder in folders:
+                put(
+                    local_path='docker/' + folder,
+                    remote_path='/etc/lunchbreak/docker'
+                )
         else:
-            put(
-                local_path='docker/web/*',
-                remote_path='/etc/lunchbreak/docker/web/'
-            )
-            put(
-                local_path='docker/nginx/*',
-                remote_path='/etc/lunchbreak/docker/nginx/'
-            )
+            for folder in folders:
+                put(
+                    local_path='docker/' + folder + '/*',
+                    remote_path='/etc/lunchbreak/docker/' + folder + '/'
+                )
 
     def setup(self, **kwargs):
         """Install all of the required software.
@@ -232,34 +221,71 @@ class Deployer:
         Only works on Ubuntu 16.04 LTS.
         """
 
-        # Docker installation
         with hide('output'):
-            sudo('apt-get update')
-            sudo('apt-get upgrade -y')
+            # Networking
+            # Disable local search domain
+            put(
+                local_path='docker/config/dhcp/dhclient.conf',
+                remote_path='/etc/dhcp/dhclient.conf',
+                use_sudo=True
+            )
+            # Set custom nameservers
+            put(
+                local_path='docker/config/resolv.conf.d/base',
+                remote_path='/etc/resolvconf/resolv.conf.d/base',
+                use_sudo=True
+            )
+            # Apply DHCP changes
+            sudo('service networking restart')
+            # Regenerate resolvconfig
+            sudo('resolvconf -u')
+
+
             sudo('apt-get install apt-transport-https ca-certificates -y')
             sudo('apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D')
             sudo('echo "deb https://apt.dockerproject.org/repo ubuntu-xenial main" > /etc/apt/sources.list.d/docker.list')
 
             sudo('apt-get update')
+            sudo('apt-get -o Dpkg::Options::="--force-confnew" upgrade -y')
             sudo('apt-get purge lxc-docker')
             sudo('apt-get install linux-image-extra-$(uname -r) linux-image-extra-virtual -y')
-            sudo('apt-get install docker-engine -y')
+
+            # Docker config
+            sudo('mkdir -p /etc/docker/')
+            put(
+                local_path='docker/config/docker/daemon.json',
+                remote_path='/etc/docker/daemon.json',
+                use_sudo=True
+            )
+            sudo('apt-get -o Dpkg::Options::="--force-confnew" install docker-engine -y')
 
             # Disable docker service iptables before starting
             sudo('mkdir -p /etc/systemd/system/docker.service.d')
             put(
-                local_path='docker/docker.service.d/disable-iptables.conf',
+                local_path='docker/config/docker/disable-iptables.conf',
                 remote_path='/etc/systemd/system/docker.service.d/disable-iptables.conf'
             )
             sudo('systemctl daemon-reload')
-            sudo('service docker start')
+            sudo('service docker restart')
             sudo('systemctl enable docker')
+
+            with settings(warn_only=True):
+                sudo('docker network create -d bridge --subnet 192.168.0.0/24 --gateway 192.168.0.1 host_network')
 
             # Docker compose installation
             sudo('apt-get install python-pip -y')
             sudo('pip install --no-input docker-compose')
 
+            # MySQL installation
+            sudo('debconf-set-selections <<< "mysql-server-5.7 mysql-server/root_password password ditiseenzeerlangwachtwoorddatveranderdzalzijn"')
+            sudo('debconf-set-selections <<< "mysql-server-5.7 mysql-server/root_password_again password ditiseenzeerlangwachtwoorddatveranderdzalzijn"')
+            sudo('apt-get -y install mysql-server-5.7')
+
+            # Fail2Ban
+            sudo('apt-get install fail2ban -y')
+
             self._setup_ufw()
+            self._setup_fail2ban()
 
         sudo('mkdir /etc/lunchbreak/docker -p')
         self.upload_docker_folders(everything=True)
@@ -286,8 +312,16 @@ class Deployer:
         """Firewall settings."""
         # Allow UFW forwarding for docker
         put(
-            local_path='docker/default/ufw',
+            local_path='docker/config/ufw/default_ufw',
             remote_path='/etc/default/ufw'
+        )
+        put(
+            local_path='docker/config/ufw/after.rules',
+            remote_path='/etc/ufw/after.rules'
+        )
+        put(
+            local_path='docker/config/ufw/sysctl.conf',
+            remote_path='/etc/ufw/sysctl.conf'
         )
         sudo('ufw default deny incoming')
         sudo('ufw default allow outgoing')
@@ -297,18 +331,31 @@ class Deployer:
         sudo('ufw --force enable')
         sudo('ufw --force reload')
 
+    def _setup_fail2ban(self):
+        put(
+            local_path='docker/config/fail2ban/fail2ban.local',
+            remote_path='/etc/fail2ban'
+        )
+
+        # Ensure Fail2ban is running
+        with settings(warn_only=True):
+            sudo('fail2ban-client start')
+        sudo('fail2ban-client reload')
+
     def _docker_login(self, remote=True):
         self.username = self.username \
             if self.username is not None \
             else os.environ.get('DOCKER_USERNAME')
         if not self.username:
             self.username = input('Docker Hub username: ')
+            os.environ['DOCKER_USERNAME'] = self.username
 
         self.password = self.password \
             if self.password is not None \
             else os.environ.get('DOCKER_PASSWORD')
         if not self.password:
             self.password = getpass.getpass('Docker Hub password: ')
+            os.environ['DOCKER_PASSWORD'] = self.password
 
         with quiet():
             method = local if not remote else sudo
@@ -385,6 +432,7 @@ class Deployer:
             run('docker images -q -f dangling=true | xargs --no-run-if-empty docker rmi')
 
     def add_release(self):
+        return
         with hide('running'):
             local(
                 'curl https://sentry.io/api/hooks/release/builtin/130866/6470dd2af48c751aeeea53d5833c2dc5add47596e3bc76b5157e97ebba312f62/ '

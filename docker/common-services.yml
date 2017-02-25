@@ -9,4 +9,4 @@ services:
     env_file:
       - ./base.env
     volumes:
-      - ./web/keys/apns:/etc/lunchbreak/certificates/apns:ro
+      - ./lunchbreak/keys/apns:/etc/lunchbreak/certificates/apns:ro

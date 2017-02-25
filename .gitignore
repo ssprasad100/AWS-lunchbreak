@@ -5,8 +5,8 @@ lunchbreak/Lunchbreak/settings/local.py
 # Secrets
 secret.sls
 docker/nginx/certs
-docker/web/keys
-docker/web/secrets/*/*
+docker/lunchbreak/keys
+docker/lunchbreak/secrets/*/*
 _build
 static
 

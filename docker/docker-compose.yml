@@ -1,43 +1,42 @@
 version: '2'
+
+volumes:
+  mysql: {}
+  prometheus_data: {}
+  grafana_data: {}
+
 services:
-  db:
-    image: mysql:5.7.15
-    container_name: db
-    restart: always
-    environment:
-      - MYSQL_ROOT_PASSWORD=
-      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
-    volumes:
-      - mysql:/var/lib/mysql
-    expose:
-      - '3306'
-    ports:
-      - '3306:3306'
+
+  # Web server services
   nginx:
     image: nginx
     container_name: nginx
     restart: always
     ports:
-      - '80:80'
-      - '443:443'
+      - 80:80
+      - 443:443
     volumes:
       - /etc/nginx/conf.d
       - /etc/nginx/vhost.d
       - /usr/share/nginx/html
-      - ./nginx/certs:/etc/nginx/certs:ro
+      - ./config/nginx/certs:/etc/nginx/certs:ro
+    network_mode: bridge
+
   nginx-gen:
     image: jwilder/docker-gen
     container_name: nginx-gen
     restart: always
     # Dummy port for bug reported here: https://github.com/jwilder/nginx-proxy/issues/438
     expose:
-      - '1234'
+      - 1234
     volumes_from:
       - nginx
     volumes:
-      - ./nginx/nginx.tmpl:/etc/docker-gen/templates/nginx.tmpl:ro
+      - ./config/nginx/nginx.tmpl:/etc/docker-gen/templates/nginx.tmpl:ro
       - /var/run/docker.sock:/tmp/docker.sock:ro
     command: -notify-sighup nginx -watch -only-exposed -wait 5s:30s /etc/docker-gen/templates/nginx.tmpl /etc/nginx/conf.d/default.conf
+    network_mode: bridge
+
   nginx-letsencrypt:
     image: jrcs/letsencrypt-nginx-proxy-companion
     container_name: nginx-letsencrypt
@@ -47,8 +46,10 @@ services:
     volumes_from:
       - nginx
     volumes:
-      - ./nginx/certs:/etc/nginx/certs:rw
+      - ./config/nginx/certs:/etc/nginx/certs:rw
       - /var/run/docker.sock:/var/run/docker.sock:ro
+    network_mode: bridge
+
   rabbitmq:
     image: rabbitmq:3.6.6
     container_name: rabbitmq
@@ -59,9 +60,84 @@ services:
       - RABBITMQ_DEFAULT_USER=lunchbreak
       - RABBITMQ_DEFAULT_PASS=lunchbreak
     ports:
-      - '5672'
+      - 5672
     volumes:
       - /var/lib/rabbitmq
+    network_mode: bridge
 
-volumes:
-  mysql:
+  # Monitoring services
+  prometheus:
+    image: prom/prometheus:v1.5.2
+    container_name: prometheus
+    volumes:
+      - ./config/prometheus/:/etc/prometheus/
+      - prometheus_data:/prometheus
+    command:
+      - '-config.file=/etc/prometheus/prometheus.yml'
+      - '-storage.local.path=/prometheus'
+      - '-alertmanager.url=http://alertmanager:9093'
+      - '-storage.local.memory-chunks=100000'
+    environment:
+      - METRICS_RESOLUTION=5s
+    restart: unless-stopped
+    links:
+      - alertmanager
+      - nodeexporter
+      - cadvisor
+    expose:
+      - 9090
+    ports:
+      - 9090:9090
+    network_mode: bridge
+
+  alertmanager:
+    image: prom/alertmanager:master
+    container_name: alertmanager
+    volumes:
+      - ./config/alertmanager/:/etc/alertmanager/
+    command:
+      - '-config.file=/etc/alertmanager/config.yml'
+      - '-storage.path=/alertmanager'
+    restart: unless-stopped
+    expose:
+      - 9093
+    ports:
+      - 9093:9093
+    network_mode: bridge
+
+  nodeexporter:
+    image: prom/node-exporter
+    container_name: nodeexporter
+    restart: unless-stopped
+    expose:
+      - 9100
+    network_mode: bridge
+
+  cadvisor:
+    image: google/cadvisor:v0.24.1
+    container_name: cadvisor
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    restart: unless-stopped
+    expose:
+      - 8080
+    network_mode: bridge
+
+  grafana:
+    image: grafana/grafana:4.1.2
+    container_name: grafana
+    volumes:
+      - grafana_data:/var/lib/grafana
+    env_file:
+      - grafana.env
+    restart: unless-stopped
+    links:
+      - prometheus
+    expose:
+      - 3000
+    ports:
+      - 3000:3000
+    network_mode: bridge
