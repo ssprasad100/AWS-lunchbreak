@@ -36,11 +36,15 @@ class UserAdmin(BaseUserAdmin):
     form = UserChangeForm
     add_form = UserChangeForm
 
-    list_display = ('name', 'phone', 'email',)
+    list_display = ('get_name', 'phone', 'email',)
     inlines = (GroupInline, PaymentLinkInline,)
     search_fields = ('name', 'phone__phone', 'email',)
     list_filter = ('enabled',)
     ordering = ('id',)
+
+    def get_name(self, obj):
+        return str(obj)
+    get_name.short_description = _('naam')
 
     fieldsets = (
         (

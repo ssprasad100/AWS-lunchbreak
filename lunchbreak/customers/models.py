@@ -64,7 +64,9 @@ class User(AbstractBaseUser, PermissionsMixin):
         verbose_name_plural = _('gebruikers')
 
     def __str__(self):
-        return self.name
+        if self.name:
+            return self.name
+        return str(self.phone)
 
     objects = UserManager()
 
