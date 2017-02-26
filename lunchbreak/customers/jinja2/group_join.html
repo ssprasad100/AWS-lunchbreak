@@ -5,7 +5,7 @@
     Ben je ook die vervelende situaties beu zoals "Mijn broodje zit er niet bij" of "Ik heb geen cash geld bij"?
 </p>
 <p>
-    {{ group.name }} maakt het nu mogelijk om jouw lunch online te bestellen bij {{ group.store.name }}! Gemakkelijk en snel via de Lunchbreak app, beschikbaar via <a href="{{ url('frontend-ios') | absolute_url }}">iOS</a>, <a href="{{ url('frontend-android') | absolute_url }}">Android</a> of <a href="{{ url('frontend-index') | absolute_url }}">www.lunchbreakapp.be</a>.
+    {{ group.name }} maakt het nu mogelijk om jouw lunch online te bestellen bij {{ group.store.name }}! Gemakkelijk en snel via de Lunchbreak app, beschikbaar via <a href="{{ url('frontend:ios') | absolute_url }}">iOS</a>, <a href="{{ url('frontend:android') | absolute_url }}">Android</a> of <a href="{{ url('frontend:index') | absolute_url }}">www.lunchbreakapp.be</a>.
 </p>
 <p>
 {% if group.delivery %}
@@ -20,13 +20,13 @@
 <p>
     Je bent slechts enkele stappen verwijderd van deze moderne manier van bestellen:
 </p>
-{% set link = url('frontend-group-join', pk=group.pk) | absolute_url(token=group.join_token) %}
+{% set link = url('frontend:group-join', pk=group.pk) | absolute_url(token=group.join_token) %}
 <ol>
     <li>
         <a href="{{ link }}">Log in op Lunchbreak</a> en je account wordt automatisch gekoppeld aan {{ group.name }}. Reeds bestaande accounts blijven behouden en kunnen ook voor privé aankopen gebruikt worden.
     </li>
     <li>
-        Bestel met Lunchbreak via de <a href="{{ url('frontend-ios') | absolute_url }}">iOS app</a>, <a href="{{ url('frontend-android') | absolute_url }}">Android app</a> of <a href="{{ url('frontend-index') | absolute_url }}">web app</a>.
+        Bestel met Lunchbreak via de <a href="{{ url('frontend:ios') | absolute_url }}">iOS app</a>, <a href="{{ url('frontend:android') | absolute_url }}">Android app</a> of <a href="{{ url('frontend:index') | absolute_url }}">web app</a>.
     </li>
 </ol>
 <p>

@@ -4,7 +4,7 @@ Goed nieuws! {{ group.store.name }} wil jou een extra service geven en maakt het
 
 Als beheerder van {{ group.name }} kan je alle bestellingen in het oog houden op onze website met onderstaande link. Zo volg je gemakkelijk bestellingen op die nog niet online betaald werden. We raden je aan deze link enkel te delen met andere beheerders.
 
-De groep {{ group.name }} beheren: {{ url('frontend-group', pk=group.pk) | absolute_url(token=group.admin_token) }}
+De groep {{ group.name }} beheren: {{ url('frontend:group', pk=group.pk) | absolute_url(token=group.admin_token) }}
 
 Wat zijn de voordelen van Lunchbreak te gebruiken?
 

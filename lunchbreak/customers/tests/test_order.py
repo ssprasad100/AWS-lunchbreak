@@ -49,7 +49,7 @@ class OrderTestCase(CustomersTestCase):
                 }
             ]
         }
-        url = reverse('customers-order-list')
+        url = reverse('customers:order-list')
 
         view_actions = {
             'post': 'create'

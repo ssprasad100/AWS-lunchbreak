@@ -1,4 +1,4 @@
-from django.conf.urls import include, patterns, url
+from django.conf.urls import include, url
 from django_jinja import views
 
 from . import api, frontend
@@ -8,8 +8,7 @@ handler403 = views.PermissionDenied.as_view()
 handler404 = views.PageNotFound.as_view()
 handler500 = views.ServerError.as_view()
 
-urlpatterns = patterns(
-    '',
+urlpatterns = [
     url(
         r'',
         include(api)
@@ -18,4 +17,4 @@ urlpatterns = patterns(
         r'',
         include(frontend)
     ),
-)
+]

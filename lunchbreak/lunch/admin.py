@@ -19,7 +19,7 @@ class StoreHeaderThumbnail:
 
     def thumbnail(self, obj):
         return '<img src="{}"/>'.format(
-            reverse('customers-store-header', kwargs={
+            reverse('customers:store-header', kwargs={
                 'store_id': obj.store.id,
                 'width': 100,
                 'height': 100

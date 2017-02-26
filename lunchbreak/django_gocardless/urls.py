@@ -1,29 +1,29 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
 from . import views
 
-urlpatterns = patterns(
-    '',
+app_name = 'gocardless'
+urlpatterns = [
     url(
         r'^redirectflow/create/?$',
         views.RedirectFlowCreateView.as_view(),
-        name='gocardless-redirectflow-create'
+        name='redirectflow-create'
     ),
     url(
         r'^redirectflow/success/?$',
         views.RedirectFlowSuccessView.as_view(),
-        name='gocardless-redirectflow-success'
+        name='redirectflow-success'
     ),
 
     url(
         r'^webhook/?$',
         views.WebhookView.as_view(),
-        name='gocardless-webhook'
+        name='webhook'
     ),
     url(
         r'^webhook/app/?$',
         views.WebhookView.as_view(),
-        name='gocardless-webhook-app',
+        name='webhook-app',
         kwargs={
             'is_app': True
         }
@@ -32,6 +32,6 @@ urlpatterns = patterns(
     url(
         r'^redirect/?$',
         views.OAuthRedirectView.as_view(),
-        name='gocardless-redirect'
+        name='redirect'
     ),
-)
+]

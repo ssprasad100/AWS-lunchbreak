@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 from lunch import views as lunch_views
 from rest_framework.routers import SimpleRouter
 from rest_framework_extensions.routers import ExtendedSimpleRouter
@@ -8,42 +8,43 @@ from ..authentication import EmployeeAuthentication, StaffAuthentication
 from ..models import Employee, EmployeeToken, Staff, StaffToken
 from ..serializers import EmployeePasswordSerializer, StaffPasswordSerializer
 
+app_name = 'business'
 router = SimpleRouter()
 router.register(
     r'store',
     views.StoreViewSet,
-    base_name='business-store'
+    base_name='store'
 )
 router.register(
     r'food',
     views.FoodViewSet,
-    base_name='business-food'
+    base_name='food'
 )
 router.register(
     r'menu',
     views.MenuViewSet,
-    base_name='business-menu'
+    base_name='menu'
 )
 router.register(
     r'ingredient',
     views.IngredientViewSet,
-    base_name='business-ingredient'
+    base_name='ingredient'
 )
 router.register(
     r'orderedfood',
     views.OrderedFoodViewSet,
-    base_name='business-orderedfood'
+    base_name='orderedfood'
 )
 
 router_extended = ExtendedSimpleRouter()
 router_extended.register(
     r'store',
     views.StoreViewSet,
-    base_name='customers-store'
+    base_name='store'
 ).register(
     r'openingperiods',
     views.StoreOpeningPeriodViewSet,
-    base_name='customers-store-openingperiods',
+    base_name='store-openingperiods',
     parents_query_lookups=[
         'pk'
     ]
@@ -51,11 +52,11 @@ router_extended.register(
 router_extended.register(
     r'store',
     views.StoreViewSet,
-    base_name='customers-store'
+    base_name='store'
 ).register(
     r'holidayperiods',
     views.StoreHolidayPeriodViewSet,
-    base_name='customers-store-holidayperiods',
+    base_name='store-holidayperiods',
     parents_query_lookups=[
         'pk'
     ]
@@ -63,11 +64,11 @@ router_extended.register(
 router_extended.register(
     r'store',
     views.StoreViewSet,
-    base_name='customers-store'
+    base_name='store'
 ).register(
     r'periods',
     lunch_views.StorePeriodsViewSet,
-    base_name='customers-store-periods',
+    base_name='store-periods',
     parents_query_lookups=[
         'pk'
     ]
@@ -75,11 +76,11 @@ router_extended.register(
 router_extended.register(
     r'store',
     views.StoreViewSet,
-    base_name='customers-store'
+    base_name='store'
 ).register(
     r'groups',
     views.StoreGroupViewSet,
-    base_name='customers-store-groups',
+    base_name='store-groups',
     parents_query_lookups=[
         'pk'
     ]
@@ -87,18 +88,17 @@ router_extended.register(
 router_extended.register(
     r'store',
     views.StoreViewSet,
-    base_name='customers-store'
+    base_name='store'
 ).register(
     r'grouporders',
     views.StoreGroupOrderViewSet,
-    base_name='customers-store-grouporders',
+    base_name='store-grouporders',
     parents_query_lookups=[
         'pk'
     ]
 )
 
-urlpatterns = patterns(
-    '',
+urlpatterns = [
     url(
         r'^employee/?$',
         views.EmployeeView.as_view()
@@ -125,15 +125,6 @@ urlpatterns = patterns(
         r'^foodtype/?$',
         views.FoodTypeView.as_view()
     ),
-
-    # url(
-    #     r'^ingredient/?$',
-    #     views.IngredientView.as_view()
-    # ),
-    # url(
-    #     r'^ingredient/(?P<pk>\d+)/?$',
-    #     views.IngredientDetailView.as_view()
-    # ),
 
     url(
         r'^ingredientgroup/?$',
@@ -212,4 +203,4 @@ urlpatterns = patterns(
         r'^storecategory/?$',
         views.StoreCategoryView.as_view()
     ),
-) + router.urls + router_extended.urls
+] + router.urls + router_extended.urls

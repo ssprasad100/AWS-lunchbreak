@@ -255,7 +255,7 @@ class SafeDeleteTestCase(BusinessTestCase):
         """Make a request for food deletion."""
         return self.request_deletion(
             pk=pk,
-            url_name='business-food-detail',
+            url_name='business:food-detail',
             viewset=views.FoodViewSet,
             **kwargs
         )
@@ -264,7 +264,7 @@ class SafeDeleteTestCase(BusinessTestCase):
         """Make a request for menu deletion."""
         return self.request_deletion(
             pk=pk,
-            url_name='business-menu-detail',
+            url_name='business:menu-detail',
             viewset=views.MenuViewSet,
             **kwargs
         )
@@ -273,7 +273,7 @@ class SafeDeleteTestCase(BusinessTestCase):
         """Make a request for ingredient deletion."""
         return self.request_deletion(
             pk=pk,
-            url_name='business-ingredient-detail',
+            url_name='business:ingredient-detail',
             viewset=views.IngredientViewSet,
             **kwargs
         )

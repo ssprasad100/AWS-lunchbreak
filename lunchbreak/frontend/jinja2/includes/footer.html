@@ -5,27 +5,27 @@
                 <li>
                     <h4>Plaatsen</h4>
                 </li>
-                <a href="{{ url_query('frontend-search', address='Gent') }}">
+                <a href="{{ url_query('frontend:search', address='Gent') }}">
                     <li>
                         Gent
                     </li>
                 </a>
-                <a href="{{ url_query('frontend-search', address='Mechelen') }}">
+                <a href="{{ url_query('frontend:search', address='Mechelen') }}">
                     <li>
                         Mechelen
                     </li>
                 </a>
-                <a href="{{ url_query('frontend-search', address='Wetteren') }}">
+                <a href="{{ url_query('frontend:search', address='Wetteren') }}">
                     <li>
                         Wetteren
                     </li>
                 </a>
-                <a href="{{ url_query('frontend-search', address='Antwerpen') }}">
+                <a href="{{ url_query('frontend:search', address='Antwerpen') }}">
                     <li>
                         Antwerpen
                     </li>
                 </a>
-                <a href="{{ url_query('frontend-search', address='Brussel') }}">
+                <a href="{{ url_query('frontend:search', address='Brussel') }}">
                     <li>
                         Brussel
                     </li>
@@ -40,12 +40,12 @@
                         Voeg je zaak toe
                     </li>
                 </a>
-                <a href="{{ url('frontend-terms') }}">
+                <a href="{{ url('frontend:terms') }}">
                     <li>
                         Privacybeleid
                     </li>
                 </a>
-                <a href="{{ url('frontend-terms') }}">
+                <a href="{{ url('frontend:terms') }}">
                     <li>
                         Algemene voorwaarden
                     </li>
@@ -67,7 +67,7 @@
                 <li>
                     <h4>Apps</h4>
                 </li>
-                <a href="{{ url('frontend-ios') }}">
+                <a href="{{ url('frontend:ios') }}">
                     <li>
                         <img src="{{ static('badges/app-store.svg') }}" alt="Download Lunchbreak op App Store."/>
                     </li>
@@ -77,7 +77,7 @@
                 <li>
                     <h4>&nbsp;</h4>
                 </li>
-                <a href="{{ url('frontend-android') }}">
+                <a href="{{ url('frontend:android') }}">
                     <li>
                         <img src="{{ static('badges/google-play.svg') }}" alt="Download Lunchbreak op Google Play."/>
                     </li>

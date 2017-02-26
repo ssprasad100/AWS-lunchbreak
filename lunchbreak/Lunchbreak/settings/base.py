@@ -98,8 +98,8 @@ USE_I18N = True  # Translate localisation
 USE_L10N = True  # Format localisation
 USE_TZ = True
 
-LOGIN_REDIRECT_URL = reverse_lazy('frontend-index')
-LOGIN_URL = reverse_lazy('frontend-login')
+LOGIN_REDIRECT_URL = reverse_lazy('frontend:index')
+LOGIN_URL = reverse_lazy('frontend:login')
 
 STATIC_ROOT = os.environ.get(
     'STATIC_ROOT',

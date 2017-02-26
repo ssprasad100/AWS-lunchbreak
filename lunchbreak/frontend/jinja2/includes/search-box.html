@@ -3,7 +3,7 @@
 <script src="{{ static('search-box.js') }}" type="text/javascript"></script>
 {% endblock head %}
 
-<form method="get" action="{{ url('frontend-search') }}" class="search-box">
+<form method="get" action="{{ url('frontend:search') }}" class="search-box">
     <div class="search-box-input">
         <input id="store-search" class="input-icon icon-location" type="text" placeholder="Vul je adres of de naam van een winkel in" autocomplete="off" name="{{ search_form.address.html_name }}" {% if search_form.address.value() %}value="{{ search_form.address.value() }}"{% endif %}/>
         <input type="submit" value="Zoeken" class="button"/>

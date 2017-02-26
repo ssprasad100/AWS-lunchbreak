@@ -13,7 +13,7 @@ from ..models import Heart, User, UserToken
 class UserTestCase(CustomersTestCase):
 
     def test_registration(self):
-        url = reverse('customers-user-register')
+        url = reverse('customers:user-register')
         content = {
             'phone': self.VALID_PHONE
         }
@@ -33,7 +33,7 @@ class UserTestCase(CustomersTestCase):
 
     @mock.patch('customers.models.User.register')
     def test_registration_demo(self, mock_register):
-        url = reverse('customers-user-register')
+        url = reverse('customers:user-register')
         content = {
             'phone': DEMO_PHONE
         }
@@ -53,7 +53,7 @@ class UserTestCase(CustomersTestCase):
 
     @mock.patch('customers.models.User.register')
     def test_registration_invalid(self, mock_register):
-        url = reverse('customers-user-register')
+        url = reverse('customers:user-register')
         content = {
             'phone': self.INVALID_PHONE
         }
@@ -76,7 +76,7 @@ class UserTestCase(CustomersTestCase):
         self.assertFalse(mock_register.called)
 
     def test_login(self):
-        url = reverse('customers-user-login')
+        url = reverse('customers:user-login')
         content = {
             'phone': self.VALID_PHONE,
             'pin': self.PIN,
@@ -134,7 +134,7 @@ class UserTestCase(CustomersTestCase):
 
     @mock.patch('customers.models.User.login')
     def test_login_demo(self, mock_login):
-        url = reverse('customers-user-login')
+        url = reverse('customers:user-login')
 
         content = {
             'phone': DEMO_PHONE,
@@ -190,8 +190,8 @@ class UserTestCase(CustomersTestCase):
         view_actions_unheart = {
             'patch': 'unheart'
         }
-        heart_url = reverse('customers-store-heart', kwargs=reverse_kwargs)
-        unheart_url = reverse('customers-store-unheart', kwargs=reverse_kwargs)
+        heart_url = reverse('customers:store-heart', kwargs=reverse_kwargs)
+        unheart_url = reverse('customers:store-unheart', kwargs=reverse_kwargs)
 
         request = self.factory.patch(heart_url, {})
         response = self.authenticate_request(
@@ -251,7 +251,7 @@ class UserTestCase(CustomersTestCase):
         view_actions_put = {
             'put': 'token'
         }
-        url = reverse('customers-user-token')
+        url = reverse('customers:user-token')
 
         request = self.factory.patch(url, content)
         response = self.authenticate_request(

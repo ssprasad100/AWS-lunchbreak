@@ -3,7 +3,7 @@
 <link type="text/css" rel="stylesheet" href="{% sass_src 'new/print.scss' %}" media="print"> {% endblock css %} {% block head %}
 <link href="https://fonts.googleapis.com/css?family=Roboto:400,500" rel="stylesheet"> {% endblock head %} {% block content %}
 <nav id="menu">
-    <a href="{{ url('frontend-terms') }}" class="logo">Lunchbreak</a>
+    <a href="{{ url('frontend:terms') }}" class="logo">Lunchbreak</a>
 </nav>
 <main>
     <section class="noprint">
@@ -26,7 +26,7 @@
 </main>
 <footer id="footer">
     <div class="bundle">
-        <a href="{{ url('frontend-terms') }}">Voorwaarden</a>
+        <a href="{{ url('frontend:terms') }}">Voorwaarden</a>
         <a href="mailto:hi@lunchbreakapp.be">Contact</a>
     </div>
 </footer>

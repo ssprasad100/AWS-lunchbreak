@@ -162,7 +162,7 @@ class OrderView(LoginForwardMixin, TemplateView):
         if 'order' not in context:
             return HttpResponseRedirect(
                 reverse(
-                    'frontend-store',
+                    'frontend:store',
                     kwargs={
                         'pk': kwargs['store_id']
                     }
@@ -181,7 +181,7 @@ class OrderView(LoginForwardMixin, TemplateView):
                     store=store,
                     completion_redirect_url=request.build_absolute_uri(
                         reverse(
-                            'frontend-order',
+                            'frontend:order',
                             kwargs={
                                 'store_id': store.id
                             }
@@ -202,7 +202,7 @@ class OrderView(LoginForwardMixin, TemplateView):
             )
             return HttpResponseRedirect(
                 reverse(
-                    'frontend-confirm',
+                    'frontend:confirm',
                     kwargs={
                         'store_id': placed_order.store_id,
                         'order_id': placed_order.id
@@ -314,7 +314,7 @@ class LogoutView(View):
     def get(self, request, *args, **kwargs):
         logout(request)
         return HttpResponseRedirect(
-            reverse('frontend-index')
+            reverse('frontend:index')
         )
 
 
@@ -324,7 +324,7 @@ class TermsView(TemplateView):
 
 class GroupView(TemplateView):
     template_name = 'pages/group.html'
-    login_url = reverse_lazy('frontend-login')
+    login_url = reverse_lazy('frontend:login')
 
     def get_context_data(self, request, pk, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -363,7 +363,7 @@ class GroupJoinView(LoginRequiredMixin, TemplateView):
 
     @property
     def login_url(self):
-        login_url = reverse('frontend-login')
+        login_url = reverse('frontend:login')
         return add_query_params(url=login_url, group=self.group.id)
 
     @property

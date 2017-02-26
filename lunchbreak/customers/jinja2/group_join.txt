@@ -15,7 +15,7 @@ Hierbovenop krijg je een korting van {{ group.discount | percentage }}.
 
 Je bent slechts enkele stappen verwijderd van deze moderne manier van bestellen:
 
-{% set link = url('frontend-group-join', pk=group.pk) | absolute_url(token=group.join_token) %}
+{% set link = url('frontend:group-join', pk=group.pk) | absolute_url(token=group.join_token) %}
 
     1. Log in op Lunchbreak via de link hieronder en je account wordt automatisch gekoppeld aan {{ group.name }}. Reeds bestaande accounts blijven behouden en kunnen ook voor privé aankopen gebruikt worden.
 

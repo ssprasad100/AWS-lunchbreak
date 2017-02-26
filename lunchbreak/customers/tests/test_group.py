@@ -28,7 +28,7 @@ class GroupTestCase(BaseGroupTestCase):
     def test_store_groups(self):
         """Test whether the Store groups request returns joined groups."""
         url = reverse(
-            'customers-store-groups-list',
+            'customers:store-groups-list',
             kwargs={
                 'parent_lookup_pk': self.store.id
             }

@@ -62,7 +62,7 @@ class Merchant(models.Model):
         return '{protocol}://{domain}{path}'.format(
             protocol='https' if settings.SSL else 'http',
             domain=settings.GOCARDLESS['app']['domain'],
-            path=reverse('gocardless-redirect')
+            path=reverse('gocardless:redirect')
         )
 
     @classmethod
@@ -489,7 +489,7 @@ class RedirectFlow(models.Model, GCCreateMixin):
         if request is not None:
             success_redirect_url = request.build_absolute_uri(
                 reverse(
-                    'gocardless-redirectflow-success',
+                    'gocardless:redirectflow-success',
                 )
             )
         else:
@@ -497,7 +497,7 @@ class RedirectFlow(models.Model, GCCreateMixin):
                 scheme='https' if settings.SSL else 'http',
                 domain=settings.GOCARDLESS['app']['domain'],
                 location=reverse(
-                    'gocardless-redirectflow-success',
+                    'gocardless:redirectflow-success',
                 )
             )
 

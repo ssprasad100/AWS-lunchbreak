@@ -1,7 +1,7 @@
 <p>
     Beste,
 </p>
-{% set admin_link = url('frontend-group', pk=group.pk) | absolute_url(token=group.admin_token) %}
+{% set admin_link = url('frontend:group', pk=group.pk) | absolute_url(token=group.admin_token) %}
 <p>
     Goed nieuws! {{ group.store.name }} wil jou een extra service geven en maakt het mogelijk bestellingen online door te geven via de Lunchbreak app. De eigenaar van {{ group.store.name }} gaf jou op als beheerder voor {{ group.name }}. Zou de beheerder een andere persoon moeten zijn, of ken je {{ group.store.name }} of Lunchbreak niet? <a href="mailto:report@lunchbreakapp.be">Geef ons een seintje!</a>
 </p>
