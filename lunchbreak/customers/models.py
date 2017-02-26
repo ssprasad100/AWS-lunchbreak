@@ -44,8 +44,9 @@ from .config import (GROUP_ORDER_STATUSES, ORDER_STATUS_COMPLETED,
                      PAYMENT_METHOD_CASH, PAYMENT_METHOD_GOCARDLESS,
                      PAYMENT_METHODS)
 from .exceptions import (CostCheckFailed, MinDaysExceeded, NoPaymentLink,
-                         OnlinePaymentDisabled, PaymentLinkNotConfirmed,
-                         PreorderTimeExceeded, UserDisabled)
+                         OnlinePaymentDisabled, OnlinePaymentRequired,
+                         PaymentLinkNotConfirmed, PreorderTimeExceeded,
+                         UserDisabled)
 from .managers import (GroupManager, OrderedFoodManager, OrderManager,
                        UserManager)
 from .tasks import send_group_created_emails, send_group_order_email
@@ -352,6 +353,11 @@ class Group(models.Model):
         default=False,
         verbose_name=_('levering'),
         help_text=_('Bestellingen worden geleverd.')
+    )
+    payment_online_only = models.BooleanField(
+        default=False,
+        verbose_name=_('enkel online betalen'),
+        help_text=_('Enkel online betalingen zijn toegestaan.')
     )
     deadline = models.TimeField(
         default=datetime.time(hour=12),
@@ -880,6 +886,8 @@ class Order(StatusSignalModel, AbstractOrder):
                         'contant te betalen bij het ophalen.'
                     )
                 )
+        elif self.pk is None and self.group is not None and self.group.payment_online_only:
+            raise OnlinePaymentRequired()
 
     def clean_group_order(self):
         if self.group is not None:

@@ -272,6 +272,7 @@ class GroupSerializer(serializers.ModelSerializer):
             'description',
             'email',
             'delivery',
+            'payment_online_only',
             'deadline',
             'delay',
             'discount',

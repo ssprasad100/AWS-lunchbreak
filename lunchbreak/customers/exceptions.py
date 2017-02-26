@@ -16,6 +16,7 @@ ONLINE_PAYMENTS_DISABLED = 712
 NO_PAYMENT_LINK = 713
 PAYMENT_LINK_NOT_CONFIRMED = 714
 ORDEREDFOOD_NOT_ORIGINAL = 715
+ONLINE_PAYMENT_REQUIRED = 716
 
 
 class PastOrderDenied(LunchbreakException):
@@ -76,3 +77,9 @@ class OrderedFoodNotOriginal(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
     default_code = ORDEREDFOOD_NOT_ORIGINAL
     default_detail = 'Het originele waar moet gelijk zijn aan het meest aansluitende waar.'
+
+
+class OnlinePaymentRequired(LunchbreakException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_code = ONLINE_PAYMENT_REQUIRED
+    default_detail = 'Online betalen is verplicht bij deze bestelling.'

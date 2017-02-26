@@ -7,6 +7,7 @@ from lunch.exceptions import LinkingError
 from ..config import (ORDER_STATUS_COMPLETED, ORDER_STATUS_PLACED,
                       ORDER_STATUS_RECEIVED, ORDER_STATUS_STARTED,
                       ORDER_STATUS_WAITING)
+from ..exceptions import OnlinePaymentRequired
 from ..models import Group, GroupOrder, Order
 from ..tasks import send_group_order_email
 from .test_group import BaseGroupTestCase
@@ -278,3 +279,39 @@ class GroupOrderTestCase(BaseGroupTestCase):
 
         send_group_order_email(group_order.id)
         self.assertTrue(mock_send.called)
+
+    @mock.patch('lunch.models.Store.is_open')
+    @mock.patch('customers.tasks.send_group_order_email.apply_async')
+    @mock.patch('django.core.mail.EmailMultiAlternatives.send')
+    def test_payment_online_only(self, mock_send, mock_task, mock_is_open):
+        """Test whether groups where only online payments are allowed block cash orders."""
+
+        # Creating a group order when payments online only is True,
+        # should result in an error.
+        self.group.payment_online_only = True
+        self.group.save()
+
+        group_order = GroupOrder.objects.create(
+            group=self.group,
+            date=self.midday.date()
+        )
+
+        self.assertRaises(
+            OnlinePaymentRequired,
+            self.create_order,
+            group_order
+        )
+
+        # Creating a group order when payments online only is False,
+        # should result in successfully placing the order.
+        self.group.payment_online_only = False
+        self.group.save()
+
+        order = self.create_order(group_order)
+
+        # Editing the payments online only should not stop existing orders
+        # from updating.
+        self.group.payment_online_only = True
+        self.group.save()
+
+        order.save()

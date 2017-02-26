@@ -100,6 +100,7 @@ class GroupSerializer(PrimaryModelSerializer):
             'name',
             'description',
             'delivery',
+            'payment_online_only',
             'deadline',
             'delay',
             'discount',
