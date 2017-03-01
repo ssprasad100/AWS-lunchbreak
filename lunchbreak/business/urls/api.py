@@ -163,11 +163,13 @@ urlpatterns = [
 
     url(
         r'^staff/?$',
-        views.StaffView.as_view()
+        views.StaffView.as_view(),
+        name='staff-list'
     ),
     url(
         r'^staff/(?P<pk>\d+)/?$',
-        views.StaffDetailView.as_view()
+        views.StaffDetailView.as_view(),
+        name='staff-detail'
     ),
     url(
         r'^staff/nearby'

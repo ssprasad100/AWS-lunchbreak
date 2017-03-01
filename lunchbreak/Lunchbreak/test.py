@@ -119,10 +119,12 @@ class LunchbreakTestCase(APITestCase):
             result_view = view.as_view()
         return result_view(request, *args, **kwargs)
 
-    def authenticate_request(self, request, view, user=None, view_actions=None, *args, **kwargs):
+    def authenticate_request(self, request, view, user=None, token=None, view_actions=None, *args, **kwargs):
         if user is None:
             user = self.user
-        force_authenticate(request, user=user, token=self.usertoken)
+        if token is None:
+            token = self.usertoken
+        force_authenticate(request, user=user, token=token)
         return self.as_view(request, view, view_actions, *args, **kwargs)
 
     def assertInCount(self, haystack, needles):

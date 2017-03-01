@@ -1543,7 +1543,7 @@ class IngredientRelation(models.Model, DirtyFieldsMixin):
         super(IngredientRelation, self).save(*args, **kwargs)
 
 
-class BaseToken(BareDevice, DirtyFieldsMixin):
+class BaseToken(CleanModelMixin, BareDevice, DirtyFieldsMixin):
     device = models.CharField(
         max_length=191,
         verbose_name=_('apparaat'),
@@ -1561,6 +1561,7 @@ class BaseToken(BareDevice, DirtyFieldsMixin):
         abstract = True,
 
     def save(self, *args, **kwargs):
+        self.full_clean()
         # forced hashing can be removed when resetting migrations
         force_hashing = kwargs.pop('force_hashing', False)
 
@@ -1574,6 +1575,17 @@ class BaseToken(BareDevice, DirtyFieldsMixin):
 
     def check_identifier(self, identifier_raw):
         return check_password(identifier_raw, self.identifier)
+
+    def clean_device(self):
+        if self.device:
+            # Convert to ASCII and strip UTF-8 characters because those are not allowed in headers.
+            self.device = bytes(self.device, 'utf-8').decode(
+                'utf-8'
+            ).encode(
+                'ascii', 'ignore'
+            ).decode(
+                'utf-8'
+            )
 
     def __str__(self):
         return self.device
