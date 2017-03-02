@@ -84,3 +84,7 @@ class MerchantAccessError(DjangoGoCardlessException):
         'access_token_not_active',
         'access_token_not_found'
     ]
+
+
+class LinkedMerchantDoesNotExist(DjangoGoCardlessException):
+    message = 'Organisation in links does not exist.'

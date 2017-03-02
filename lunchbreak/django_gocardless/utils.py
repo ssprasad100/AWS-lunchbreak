@@ -1,7 +1,7 @@
 from django.apps import apps
 from django.db import models
 
-from .exceptions import UnsupportedLinksError
+from .exceptions import LinkedMerchantDoesNotExist, UnsupportedLinksError
 
 LINKS_MODELS = {
     'mandate': 'Mandate',
@@ -28,6 +28,26 @@ def model_from_links(links, attr, client=None):
             )
         )
 
+    merchant = None
+    if client is None:
+        organisation = None
+        if not isinstance(links, dict):
+            organisation = links.organisation
+        else:
+            organisation = links.get('organisation')
+        if organisation is not None:
+            from .models import Merchant
+            try:
+                merchant = Merchant.objects.get(
+                    organisation_id=organisation
+                )
+            except Merchant.DoesNotExist:
+                raise LinkedMerchantDoesNotExist(
+                    'Organisation {organisation}'.format(
+                        organisation=organisation
+                    )
+                )
+
     identifier = links[attr] if type(links) is dict else getattr(links, attr)
     argument_model = LINKS_MODELS[attr]
 
@@ -50,6 +70,10 @@ def model_from_links(links, attr, client=None):
                 **where
             )
         except model.DoesNotExist:
+            if merchant is not None:
+                client = model.client_from_settings(
+                    access_token=merchant.access_token
+                )
             model_instance = model.fetch(
                 instance=None,
                 where=where,
