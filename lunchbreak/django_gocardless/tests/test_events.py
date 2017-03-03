@@ -16,7 +16,10 @@ class EventsTestCase(GCTestCase):
 
     @mock.patch('django_gocardless.mixins.GCCacheMixin.client_from_settings')
     @mock.patch('django_gocardless.models.Payout.fetch')
-    @mock.patch('gocardless_pro.resources.event.Event.Links.organisation', new_callable=mock.PropertyMock)
+    @mock.patch(
+        'gocardless_pro.resources.event.Event.Links.organisation',
+        new_callable=mock.PropertyMock
+    )
     def test_links_organisation(self, mock_organisation, mock_fetch, mock_client):
         organisation = 'organisation'
         access_token = 'access_token'

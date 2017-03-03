@@ -41,7 +41,10 @@ DATABASES = {
         'USER': DB_USER,
         'PASSWORD': DB_PASS,
         'HOST': DB_HOST,
-        'PORT': '3306'
+        'PORT': '3306',
+        'OPTIONS': {
+            'charset': 'utf8mb4'
+        }
     }
 }
 
