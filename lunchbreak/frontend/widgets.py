@@ -42,7 +42,7 @@ class ReceiptWidget(widgets.Widget):
                 time=time,
                 store=self.store
             )._datetime
-        except TypeError:
+        except (TypeError, ValueError):
             return None
 
 
