@@ -790,14 +790,14 @@ class Order(StatusSignalModel, AbstractOrder):
         if self.group is not None \
                 and self.placed.date() == self.receipt.date() \
                 and self.group.deadline <= self.placed.time():
-                raise PreorderTimeExceeded(
-                    '{} == {} and {} <= {}'.format(
-                        self.placed.date(),
-                        self.receipt.date(),
-                        self.group.deadline,
-                        self.placed.time()
-                    )
+            raise PreorderTimeExceeded(
+                '{} == {} and {} <= {}'.format(
+                    self.placed.date(),
+                    self.receipt.date(),
+                    self.group.deadline,
+                    self.placed.time()
                 )
+            )
 
     def clean_status(self):
         if self.group_order is not None \
@@ -888,7 +888,10 @@ class Order(StatusSignalModel, AbstractOrder):
                         'contant te betalen bij het ophalen.'
                     )
                 )
-        elif self.pk is None and self.group is not None and self.group.payment_online_only:
+        elif self.pk is None \
+                and self.group is not None \
+                and self.group.payment_online_only \
+                and self.store.staff.is_merchant:
             raise OnlinePaymentRequired()
 
     def clean_group_order(self):

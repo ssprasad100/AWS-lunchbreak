@@ -40,6 +40,17 @@ class AbstractPassword(AbstractPasswordReset):
 
 
 class Staff(AbstractPassword, NotifyModelMixin):
+
+    class Meta:
+        verbose_name = _('Personeel')
+        verbose_name_plural = _('Personeel')
+
+    def __str__(self):
+        return '{store}: {name}'.format(
+            store=self.store,
+            name=self.name
+        )
+
     store = models.OneToOneField(
         'lunch.Store',
         on_delete=models.CASCADE,
@@ -83,19 +94,15 @@ class Staff(AbstractPassword, NotifyModelMixin):
 
     @property
     def is_merchant(self):
+        """Whether the store is a merchant.
+
+        Returns:
+            True if the store has online payments enabled and has a confirmed merchant linked.
+            bool
+        """
         return self.store.online_payments_enabled \
             and self.merchant is not None \
             and self.merchant.confirmed
-
-    class Meta:
-        verbose_name = _('Personeel')
-        verbose_name_plural = _('Personeel')
-
-    def __str__(self):
-        return '{store}: {name}'.format(
-            store=self.store,
-            name=self.name
-        )
 
 
 class StaffToken(BaseToken):

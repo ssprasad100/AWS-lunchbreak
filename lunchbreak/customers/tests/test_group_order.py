@@ -40,7 +40,10 @@ class GroupOrderTestCase(BaseGroupTestCase):
             date=self.midday.date()
         )
 
-        self.assertTrue(mock_task.called)
+        self.assertEqual(
+            mock_task.call_count,
+            1
+        )
 
     @mock.patch('lunch.models.Store.is_open')
     @mock.patch('customers.models.Order.is_valid')
@@ -278,13 +281,19 @@ class GroupOrderTestCase(BaseGroupTestCase):
         self.create_order(group_order)
 
         send_group_order_email(group_order.id)
-        self.assertTrue(mock_send.called)
+        self.assertEqual(
+            mock_send.call_count,
+            1
+        )
 
+    @mock.patch('lunch.models.Store.staff')
     @mock.patch('lunch.models.Store.is_open')
     @mock.patch('customers.tasks.send_group_order_email.apply_async')
     @mock.patch('django.core.mail.EmailMultiAlternatives.send')
-    def test_payment_online_only(self, mock_send, mock_task, mock_is_open):
+    def test_payment_online_only(self, mock_send, mock_task, mock_is_open, mock_staff):
         """Test whether groups where only online payments are allowed block cash orders."""
+
+        mock_staff.is_merchant = True
 
         # Creating a group order when payments online only is True,
         # should result in an error.
@@ -315,3 +324,8 @@ class GroupOrderTestCase(BaseGroupTestCase):
         self.group.save()
 
         order.save()
+
+        # Cash payments should still be allowed even if the group only allows
+        # online payments if the store has it disabled.
+        mock_staff.is_merchant = False
+        self.create_order(group_order)
