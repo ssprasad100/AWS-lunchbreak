@@ -2,6 +2,7 @@ import logging
 import os
 
 from django_jinja.builtins import DEFAULT_EXTENSIONS
+from kombu import Exchange, Queue
 
 if DEBUG:
     SENDFILE_BACKEND = 'sendfile.backends.development'
@@ -26,9 +27,10 @@ ALLOWED_HOSTS = get_variable(
 if HOST not in ALLOWED_HOSTS:
     ALLOWED_HOSTS.append(HOST)
 
+DJANGO_SETTINGS_VERSION = os.environ.get('DJANGO_SETTINGS_VERSION')
 DB_NAME = get_variable(
     'DB_NAME',
-    'LB_%s' % os.environ.get('DJANGO_SETTINGS_VERSION')
+    'LB_%s' % DJANGO_SETTINGS_VERSION
 )
 DB_USER = get_variable('DB_USER', DB_NAME)
 DB_PASS = get_variable('DB_PASS', DB_NAME)
@@ -166,7 +168,21 @@ CELERY_BROKER_URL = 'amqp://{AMQP_USER}:{AMQP_PASSWORD}@{AMQP_HOST}:5672'.format
     AMQP_PASSWORD=get_variable('AMQP_PASSWORD', 'lunchbreak'),
     AMQP_HOST=get_variable('AMQP_HOST', 'rabbitmq')
 )
-CELERY_IGNORE_RESULT = True
+CELERY_TASK_IGNORE_RESULT = True
+CELERY_TASK_DEFAULT_QUEUE = DJANGO_SETTINGS_VERSION
+CELERY_TASK_DEFAULT_EXCHANGE = DJANGO_SETTINGS_VERSION
+CELERY_TASK_DEFAULT_EXCHANGE_TYPE = 'topic'
+CELERY_TASK_DEFAULT_ROUTING_KEY = 'task.default'
+CELERY_TASK_QUEUES = (
+    Queue(
+        CELERY_TASK_DEFAULT_QUEUE,
+        exchange=Exchange(
+            CELERY_TASK_DEFAULT_EXCHANGE,
+            type=CELERY_TASK_DEFAULT_EXCHANGE_TYPE,
+        ),
+        routing_key='task.#'
+    ),
+)
 
 # Raven configuration for Sentry
 RAVEN_CONFIG = {
@@ -175,7 +191,7 @@ RAVEN_CONFIG = {
         'VERSION',
         'latest'
     ),
-    'environment': os.environ.get('DJANGO_SETTINGS_VERSION'),
+    'environment': DJANGO_SETTINGS_VERSION,
     'CELERY_LOGLEVEL': logging.ERROR,
     'ignore_exceptions': [
         'Http404',

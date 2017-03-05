@@ -10,7 +10,7 @@ from django.utils.translation import ugettext as _
 logger = logging.getLogger('lunchbreak')
 
 
-class ErrorLoggingTask(Task):
+class DebugLoggingTask(Task):
     """Base Celery task for logging errors."""
     abstract = True
 
@@ -19,18 +19,10 @@ class ErrorLoggingTask(Task):
 
         if settings.DEBUG:
             traceback.print_exc()
-        else:
-            logger.exception(
-                str(exception),
-                exc_info=True,
-                extra=dict(kwargs, **{
-                    'arguments': args
-                })
-            )
         super().on_failure(exception, *args, **kwargs)
 
 
-@shared_task(base=ErrorLoggingTask)
+@shared_task(base=DebugLoggingTask)
 def send_group_order_email(group_order_id):
     from .models import GroupOrder
     try:
@@ -57,7 +49,7 @@ def send_group_order_email(group_order_id):
     )
 
 
-@shared_task(base=ErrorLoggingTask)
+@shared_task(base=DebugLoggingTask)
 def send_group_created_emails(group_id):
     from .models import Group
     try:
@@ -87,7 +79,7 @@ def send_group_created_emails(group_id):
     )
 
 
-@shared_task(base=ErrorLoggingTask)
+@shared_task(base=DebugLoggingTask)
 def send_email(subject, recipients, template, template_args={}):
     message = EmailMultiAlternatives(
         subject=subject,

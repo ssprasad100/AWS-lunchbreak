@@ -26,6 +26,7 @@ python manage.py collectstatic --noinput -c 1> /dev/null
 export C_FORCE_ROOT=true
 
 celery -A Lunchbreak worker \
+    -Q "${DJANGO_SETTINGS_VERSION}" \
     -l debug \
     --detach \
     --logfile="/var/lunchbreak/log/%n%I.log"
