@@ -429,6 +429,7 @@
         this.element = element;
         this.addButton = this.element.find('.food-add');
         this.confirmButtonSelector = '.food-confirm';
+        this.labelSelector = '.food-amount label';
         this.updated = false;
         this.rendered = false;
         this.json = null;
@@ -441,7 +442,8 @@
          * @return {string} Example: "&euro; 3,50".
          */
         this.getCostDisplay = function() {
-            return moneyFilter(this.cost);
+            var simpleQuantifier = this.foodtype.inputtype === FoodType.InputType.SIVariable ? 'kg' : 'stuk';
+            return moneyFilter(this.cost) + ' / ' + simpleQuantifier;
         };
 
         /**
@@ -808,8 +810,8 @@
          */
         this.onCostChange = function() {
             this.element
-                .find(this.confirmButtonSelector)
-                .html(this.getCostDisplay());
+                .find(this.labelSelector)
+                .html(this.foodtype.getLabelDisplay() + ' (' + this.getCostDisplay() + ')');
         };
 
         this.init();

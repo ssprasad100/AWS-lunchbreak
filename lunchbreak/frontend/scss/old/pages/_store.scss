@@ -92,6 +92,10 @@
                         .food-text {
                             h4 {
                                 margin: 0;
+                                margin-bottom: 7px;
+                                white-space: nowrap;
+                                overflow: hidden;
+                                text-overflow: ellipsis;
                             }
 
                             p {
@@ -99,11 +103,9 @@
                                 font-size: $size-small;
                                 line-height: 1.5em;
                                 padding: .5em 0 0 0;
-
-                                //position: absolute;
                                 float: left;
 
-                                $lines-to-show: 4;
+                                $lines-to-show: 3;
 
                                 // Start
                                 display: block; /* Fallback for non-webkit */
@@ -161,7 +163,7 @@
                                     text-align: left;
                                     margin-top: -5px;
                                     padding-left: 0;
-                                    width: auto;
+                                    width: 224px;
                                 }
                             }
                         }

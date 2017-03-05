@@ -1,9 +1,9 @@
 <div class="food-form">
     <div class="food-amount mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
         <input class="mdl-textfield__input" type="text" value="{{ food.getIntegerAmount() }}">
-        <label class="mdl-textfield__label">{{ label }}</label>
+        <label class="mdl-textfield__label">{{ label }} ({{ food.getCostDisplay() | safe }})</label>
         <span class="mdl-textfield__error">Ongeldige hoeveelheid</span>
     </div>
-    <div class="food-confirm button">{{ food.getCostDisplay() | safe }}</div>
-    <div class="food-cancel button transparent">Annuleren</div>
+    <div class="food-confirm button">Toevoegen</div>
+    <div class="food-cancel button transparent">Sluiten</div>
 </div>

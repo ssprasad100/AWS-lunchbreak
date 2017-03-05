@@ -91,9 +91,9 @@ class FoodTypeAdmin(admin.ModelAdmin):
 
 @admin.register(IngredientGroup)
 class IngredientGroupAdmin(admin.ModelAdmin):
-    list_display = ('name', 'store', 'priority', 'calculation',)
-    search_fields = ('name', 'store__name',)
-    list_filter = ('calculation', 'store',)
+    list_display = ('name', 'store', 'priority', 'calculation', 'foodtype',)
+    search_fields = ('name', 'store__name', 'ingredients__name', 'ingredients__food__name', 'foodtype__name',)
+    list_filter = ('calculation', 'foodtype__inputtype', 'store',)
     ordering = ('store__name', 'priority', 'name',)
 
 
@@ -148,9 +148,11 @@ class FoodForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['ingredientgroups'].queryset = IngredientGroup.objects.filter(
-            store_id=self.instance.menu.store_id
-        )
+        if self.instance.pk is not None:
+            ingredientgroups = IngredientGroup.objects.filter(
+                store_id=self.instance.menu.store_id
+            )
+            self.fields['ingredientgroups'].queryset = ingredientgroups
 
 
 @admin.register(Food)
