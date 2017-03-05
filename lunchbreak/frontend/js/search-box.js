@@ -78,6 +78,7 @@
 
                 window.clearTimeout(timeoutId);
                 timeoutId = window.setTimeout(function() {
+                    Cookies.set(lastInputCookie, value);
                     service.getQueryPredictions(
                         {
                             input: value

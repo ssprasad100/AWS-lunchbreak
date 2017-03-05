@@ -1,8 +1,5 @@
-$search-box-width: 540px;
-
 .search-box {
     position: relative;
-    width: $search-box-width;
     margin: 0 auto;
 
     .search-box-input {
@@ -58,7 +55,7 @@ $search-box-width: 540px;
     }
 }
 
-@media (max-width: $search-box-width) {
+@media (max-width: 640px) {
     .search-box {
         width: 100%;
         box-sizing: border-box;
@@ -90,10 +87,12 @@ $search-box-width: 540px;
 
                 &[type='text'] {
                     width: 100%;
+                    border-radius: 2px;
                 }
 
                 &[type='submit'] {
                     width: 100%;
+                    border-radius: 2px;
                 }
             }
 
