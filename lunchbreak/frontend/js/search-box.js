@@ -16,12 +16,13 @@
         var form = fieldContainer.parent();
         var service = new google.maps.places.AutocompleteService();
         var geocoder = new google.maps.Geocoder;
+        var lastInputCookie = 'search-box';
 
         var timeoutId, previousValue;
 
         var init = function() {
             if (!field.val())
-                getCurrentLocation();
+                updateField();
             registerEvents();
         };
 
@@ -39,6 +40,10 @@
 
             $(document).on('mouseleave', autocompleteSelector, function(event) {
                 field.val(previousValue);
+            });
+
+            form.on('submit', function(event) {
+                Cookies.set(lastInputCookie, field.val());
             });
 
             field.on('keyup', function(event) {
@@ -106,6 +111,19 @@
                     timeout: 10000,
                     maximumAge: 30 * 60 * 1000
                 });
+            }
+        };
+
+        /**
+         * Set the search box's field to the last inputted value or ask for the
+         * user's location.
+         */
+        var updateField = function() {
+            var lastInput = Cookies.get(lastInputCookie);
+            if(lastInput) {
+                field.val(lastInput);
+            } else {
+                getCurrentLocation();
             }
         };
 
