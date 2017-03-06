@@ -5,9 +5,9 @@ Ben je ook die vervelende situaties beu zoals "Mijn broodje zit er niet bij" of 
 {{ group.name }} maakt het nu mogelijk om jouw lunch online te bestellen bij {{ group.store.name }}! Gemakkelijk en snel via de Lunchbreak app, beschikbaar via iOS, Android of www.lunchbreakapp.be.
 
 {% if group.delivery %}
-{{ group.store.name }} aanvaardt bestellingen tot {{ group.deadline | time('H:i') }} uur en kan worden opgehaald vanaf {{ group.receipt | time('H:i') }} uur.
-{% else %}
 {{ group.store.name }} aanvaardt bestellingen tot {{ group.deadline | time('H:i') }} uur en levert rond {{ group.receipt | time('H:i') }} uur.
+{% else %}
+{{ group.store.name }} aanvaardt bestellingen tot {{ group.deadline | time('H:i') }} uur en kan worden opgehaald vanaf {{ group.receipt | time('H:i') }} uur.
 {% endif %}
 {% if group.discount > 0 -%}
 Hierbovenop krijg je een korting van {{ group.discount | percentage }}.
