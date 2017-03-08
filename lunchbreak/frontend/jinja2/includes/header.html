@@ -7,7 +7,7 @@
         </div>
         <div id="header-right">
             <ul>
-                {% if request is defined and request.user.is_authenticated() %}
+                {% if request is defined and request.user is defined and request.user.is_authenticated() %}
                     <li>{{ request.user.name }}</li>
                 {% else %}
                     <li><a href="{{ url('frontend:login') }}" alt="Inloggen">Inloggen</a></li>
