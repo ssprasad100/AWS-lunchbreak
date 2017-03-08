@@ -141,6 +141,7 @@ TEMPLATES = [
             'match_extension': None,
             'default_extension': '.html',
             'app_dirname': 'jinja2',
+            'undefined': 'Lunchbreak.jinja2.SilencedUndefined' if not DEBUG else 'jinja2.DebugUndefined',
         }
     },
     {
