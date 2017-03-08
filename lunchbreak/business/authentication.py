@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.core.mail import BadHeaderError, EmailMultiAlternatives
 from django.core.validators import validate_email
+from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from lunch.authentication import TokenAuthentication
 from lunch.config import random_token
@@ -56,7 +57,8 @@ class BusinessAuthentication(TokenAuthentication):
     @classmethod
     def get_model(cls, data):
         model_id = data[cls.SERIALIZER_FIELD]
-        return cls.MODEL.objects.get(
+        return get_object_or_404(
+            cls.MODEL,
             **{
                 cls.MODEL_FIELD: model_id
             }
@@ -131,7 +133,8 @@ class StaffAuthentication(BusinessAuthentication):
         uses_email = 'email' in data
         model_field = 'email' if uses_email else 'id'
         model_id = data['email'] if uses_email else data['staff']
-        return cls.MODEL.objects.get(
+        return get_object_or_404(
+            cls.MODEL,
             **{
                 model_field: model_id
             }
