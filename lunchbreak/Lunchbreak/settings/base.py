@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'customers',
     'lunch',
     'frontend',
+    'versioning_prime',
 ]
 
 MIDDLEWARE_CLASSES = (

@@ -21,13 +21,14 @@ from django_gocardless.exceptions import (DjangoGoCardlessException,
 from django_gocardless.models import Payment, RedirectFlow
 from django_sms.exceptions import PinTimeout
 from django_sms.models import Phone
-from lunch.config import (COST_GROUP_ADDITIONS, COST_GROUP_BOTH, INPUT_SI_SET,
-                          TOKEN_IDENTIFIER_LENGTH, random_token)
+from lunch.config import (COST_GROUP_ADDITIONS, COST_GROUP_BOTH, INPUT_AMOUNT,
+                          INPUT_SI_SET, TOKEN_IDENTIFIER_LENGTH, random_token)
 from lunch.exceptions import LinkingError, NoDeliveryToAddress
 from lunch.models import AbstractAddress, BaseToken, Food, Ingredient, Store
 from lunch.utils import timezone_for_store, uggettext_summation
 from Lunchbreak.exceptions import LunchbreakException
-from Lunchbreak.fields import RoundingDecimalField, StatusSignalField
+from Lunchbreak.fields import (MoneyField, CostField, RoundingDecimalField,
+                               StatusSignalField)
 from Lunchbreak.mixins import CleanModelMixin
 from Lunchbreak.models import StatusSignalModel
 from pendulum import Pendulum
@@ -637,16 +638,12 @@ class Order(StatusSignalModel, AbstractOrder):
         verbose_name=_('status'),
         help_text=_('Status.')
     )
-    total = RoundingDecimalField(
-        decimal_places=2,
-        max_digits=7,
+    total = MoneyField(
         default=0,
         verbose_name=_('totale prijs'),
         help_text=_('Totale prijs inclusief korting.')
     )
-    total_confirmed = RoundingDecimalField(
-        decimal_places=2,
-        max_digits=7,
+    total_confirmed = MoneyField(
         default=None,
         null=True,
         blank=True,
@@ -1042,9 +1039,7 @@ class OrderedFood(CleanModelMixin, StatusSignalModel):
         verbose_name=_('hoeveelheid'),
         help_text=_('Hoeveelheid.')
     )
-    cost = RoundingDecimalField(
-        decimal_places=2,
-        max_digits=7,
+    cost = CostField(
         verbose_name=_('kostprijs'),
         help_text=_('Kostprijs.')
     )
@@ -1088,9 +1083,7 @@ class OrderedFood(CleanModelMixin, StatusSignalModel):
         verbose_name=_('status'),
         help_text=_('Status.')
     )
-    total = RoundingDecimalField(
-        decimal_places=2,
-        max_digits=7,
+    total = MoneyField(
         default=0,
         verbose_name=_('totale prijs'),
         help_text=_('Totale prijs exclusief korting.')
@@ -1101,9 +1094,27 @@ class OrderedFood(CleanModelMixin, StatusSignalModel):
         return self.original.ingredientgroups
 
     @cached_property
-    def amount_food(self):
-        """Original amount of food, returns 1 if not variable, else original.amount."""
+    def food_amount(self):
+        """Original amount of food used for calculating the total.
+
+        See ``OrderedFood.clean_total`` for a usage example.
+
+        Returns:
+            1 if the input type is for a set amount of weight. Otherwise 1 is returned.
+            int
+        """
         return self.original.amount if self.original.foodtype.inputtype == INPUT_SI_SET else 1
+
+    @cached_property
+    def _amount(self):
+        """Amount representative of real value.
+
+        If the input type is set to amounts, then the amount already reflects
+        the exact value. If it's a weight, then it needs to be divided by a thousand.
+        """
+        return self.amount \
+            if self.original.foodtype.inputtype == INPUT_AMOUNT \
+            else self.amount / 1000
 
     @cached_property
     def changes(self):
@@ -1137,17 +1148,23 @@ class OrderedFood(CleanModelMixin, StatusSignalModel):
         ).delete()
 
     def clean_total(self):
-        """Calculate the total cost of the OrderedFood."""
+        """Calculate the total cost of the ordered food.
+
+        If there no longer is a reference to the original food, then we cannot
+        update this value. If it's out of stock, then we set the total to 0.
+        If a value calculation is possible in the end, then we return the most
+        appropriate value.
+        """
         if self.original is None:
             return
 
         if self.status == ORDEREDFOOD_STATUS_OUT_OF_STOCK:
-            self.total = Decimal(0)
+            self.total = 0
         else:
-            self.total = Decimal(
+            self.total = int(
                 math.ceil(
-                    (self.cost * self.amount * self.amount_food) * Decimal(100)
-                ) / Decimal(100)
+                    self.cost * self._amount * self.food_amount
+                )
             )
 
     def clean_order(self):
@@ -1234,7 +1251,7 @@ class OrderedFood(CleanModelMixin, StatusSignalModel):
 
         Args:
             ingredients (list): List of ingredient ids
-            food (Food): Food to base the calculation off of, most of the time the original/closest food.
+            food (Food): Food to base the calculation off of, most of the timethe original/closest food.
 
         Returns:
             Decimal: Base cost of edited food.
@@ -1298,7 +1315,7 @@ class OrderedFood(CleanModelMixin, StatusSignalModel):
         exponent = Decimal('1.' + ('0' * 2))
         calculated_cost = (
             base_cost * amount * (
-                # See OrderedFood.amount_food
+                # See OrderedFood.food_amount
                 food.amount
                 if food.foodtype.inputtype == INPUT_SI_SET
                 else 1

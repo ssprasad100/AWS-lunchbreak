@@ -62,7 +62,6 @@ class EmployeePasswordRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = Employee
         fields = ('id',)
-        write_only_fields = fields
 
 
 class StaffPasswordRequestSerializer(serializers.ModelSerializer):
@@ -73,7 +72,6 @@ class StaffPasswordRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = Staff
         fields = ('email',)
-        write_only_fields = fields
 
 
 class PasswordSerializer(serializers.ModelSerializer):
@@ -93,7 +91,11 @@ class PasswordSerializer(serializers.ModelSerializer):
             'password_reset',
             'email',
         )
-        write_only_fields = fields
+        extra_kwargs = {
+            'password': {
+                'write_only': True
+            }
+        }
 
 
 class EmployeePasswordSerializer(PasswordSerializer):
@@ -116,9 +118,6 @@ class BusinessTokenSerializer(lunch_serializers.TokenDetailSerializer):
 
     class Meta(lunch_serializers.TokenDetailSerializer.Meta):
         fields = lunch_serializers.TokenDetailSerializer.Meta.fields + (
-            'password',
-        )
-        write_only_fields = (
             'password',
         )
         read_only_fields = (
@@ -154,9 +153,6 @@ class StaffTokenSerializer(BusinessTokenSerializer):
         fields = BusinessTokenSerializer.Meta.fields + (
             'email',
             'staff',
-        )
-        write_only_fields = BusinessTokenSerializer.Meta.write_only_fields + (
-            'email',
         )
         extra_kwargs = {
             'staff': {
@@ -282,9 +278,6 @@ class GroupSerializer(serializers.ModelSerializer):
         read_only_fields = (
             'id',
         )
-        write_only_fields = (
-            'store',
-        )
 
 
 class OrderSerializer(customers_serializers.OrderSerializer):
@@ -383,7 +376,11 @@ class IngredientRelationSerializer(serializers.ModelSerializer):
             'ingredient',
             'selected',
         )
-        write_only_fields = fields
+        extra_kwargs = {
+            'selected': {
+                'write_only': True
+            }
+        }
 
 
 class PopularFoodSerializer(serializers.ModelSerializer):
@@ -447,9 +444,6 @@ class FoodSerializer(serializers.ModelSerializer):
             'ingredients',
             'store',
             'last_modified',
-        )
-        write_only_fields = (
-            'ingredientrelations',
         )
 
     def create_or_update(self, validated_data, food=None):
@@ -542,7 +536,4 @@ class StoreHeaderSerializer(serializers.ModelSerializer):
         fields = (
             'store',
             'original',
-        )
-        write_only_fields = (
-            'store',
         )

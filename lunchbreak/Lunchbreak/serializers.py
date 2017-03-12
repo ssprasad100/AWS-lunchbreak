@@ -1,6 +1,7 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import ugettext_lazy as _
-from rest_framework import fields, serializers
+from rest_framework import serializers
+from versioning_prime import VersionedMixin
 
 
 class PrimaryModelSerializer(serializers.ModelSerializer):
@@ -65,9 +66,13 @@ class RequestAttributeDefault():
         )
 
 
-class RoundingDecimalField(fields.DecimalField):
+class MoneyField(VersionedMixin, serializers.IntegerField):
+    description = _('Valuta onafhankelijke centen')
 
-    def validate_precision(self, value):
-        return super().validate_precision(
-            self.quantize(value)
-        )
+
+class CostField(VersionedMixin, serializers.IntegerField):
+    description = _('Valuta onafhankelijke centen dat negatief kan zijn')
+
+
+class QuantityField(VersionedMixin, serializers.IntegerField):
+    description = _('Gewichten en hoeveelheden')

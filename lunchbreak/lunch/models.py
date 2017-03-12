@@ -17,7 +17,7 @@ from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from imagekit.models import ImageSpecField
 from Lunchbreak.exceptions import LunchbreakException
-from Lunchbreak.fields import RoundingDecimalField
+from Lunchbreak.fields import CostField, RoundingDecimalField
 from Lunchbreak.mixins import CleanModelMixin
 from openpyxl import load_workbook
 from polaroid.models import Polaroid
@@ -847,6 +847,20 @@ class FoodType(models.Model):
         verbose_name_plural = _('type etenswaren')
 
     def is_valid_amount(self, amount, quantity=None, raise_exception=True):
+        """Check whether the given amount is valid for the foodtype.
+
+        Args:
+            amount: Food amount.
+            quantity: Quantity model. (default: {None})
+            raise_exception: Raise an exception if invalid. (default: {True})
+
+        Returns:
+            Valid returns True, invalid returns False.
+            bool
+
+        Raises:
+            InvalidFoodTypeAmount: Raised if invalid amount.
+        """
         is_valid = (
             amount > 0 and (
                 self.inputtype != INPUT_AMOUNT or
@@ -907,9 +921,7 @@ class IngredientGroup(CleanModelMixin, SafeDeleteMixin):
         verbose_name=_('prioriteit'),
         help_text=_('Prioriteit waarop gesorteerd wordt.')
     )
-    cost = RoundingDecimalField(
-        max_digits=7,
-        decimal_places=2,
+    cost = CostField(
         default=0,
         validators=[
             MinValueValidator(0)
@@ -958,9 +970,7 @@ class Ingredient(SafeDeleteMixin, DirtyFieldsMixin):
         verbose_name=_('naam'),
         help_text=('Naam.')
     )
-    cost = RoundingDecimalField(
-        max_digits=7,
-        decimal_places=2,
+    cost = CostField(
         default=0,
         verbose_name=_('basisprijs'),
         help_text=(
@@ -1155,9 +1165,7 @@ class Food(CleanModelMixin, SafeDeleteMixin):
         verbose_name=_('standaardhoeveelheid'),
         help_text=('Hoeveelheid die standaard is ingevuld.')
     )
-    cost = RoundingDecimalField(
-        decimal_places=2,
-        max_digits=7,
+    cost = CostField(
         verbose_name=_('basisprijs'),
         help_text=(
             'Basisprijs, dit is inclusief de gekozen ingrediënten en '

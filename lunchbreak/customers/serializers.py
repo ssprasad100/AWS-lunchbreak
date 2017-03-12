@@ -1,8 +1,9 @@
 from django_gocardless.serializers import RedirectFlowSerializer
 from django_sms.models import Phone
 from lunch import serializers as lunch_serializers
-from lunch.models import Store
-from Lunchbreak.serializers import PrimaryModelSerializer, RoundingDecimalField
+from lunch.models import Food, Store
+from lunch.serializers import FoodSerializer
+from Lunchbreak.serializers import PrimaryModelSerializer
 from phonenumber_field.validators import validate_international_phonenumber
 from rest_framework import serializers
 
@@ -28,10 +29,6 @@ class OrderedFoodSerializer(serializers.ModelSerializer):
     ingredientgroups = lunch_serializers.IngredientGroupSerializer(
         many=True,
         read_only=True
-    )
-    total = RoundingDecimalField(
-        decimal_places=3,
-        max_digits=7
     )
 
     class Meta:
@@ -63,6 +60,7 @@ class OrderedFoodSerializer(serializers.ModelSerializer):
 
 
 class OrderedFoodPriceSerializer(serializers.ModelSerializer):
+    food = FoodSerializer(read_only=True)
 
     class Meta:
         model = OrderedFood
@@ -70,8 +68,41 @@ class OrderedFoodPriceSerializer(serializers.ModelSerializer):
             'ingredients',
             'amount',
             'original',
+            'cost',
+            'food',
         )
-        write_only_fields = fields
+        extra_kwargs = {
+            'ingredients': {
+                'write_only': True,
+            },
+            'amount': {
+                'write_only': True,
+            },
+            'original': {
+                'write_only': True,
+            },
+        }
+        read_only_fields = (
+            'cost',
+            'food',
+        )
+
+    def to_representation(self, obj):
+        original = obj['original']
+        if 'ingredients' in obj:
+            ingredients = obj['ingredients']
+            food_closest = Food.objects.closest(ingredients, original)
+            food_closest.check_ingredients(
+                ingredients=ingredients
+            )
+
+            obj['cost'] = OrderedFood.calculate_cost(ingredients, food_closest)
+            obj['food'] = food_closest
+        else:
+            obj['cost'] = original.cost
+            obj['food'] = original
+
+        return super().to_representation(obj)
 
 
 class PrimaryAddressSerializer(PrimaryModelSerializer):
@@ -148,9 +179,11 @@ class GroupOrderSerializer(serializers.ModelSerializer):
             'group',
             'date',
         )
-        write_only_fields = (
-            'status',
-        )
+        extra_kwargs = {
+            'status': {
+                'write_only': True
+            }
+        }
 
 
 class GroupOrderDetailSerializer(GroupOrderSerializer):
@@ -169,7 +202,6 @@ class GroupOrderDetailSerializer(GroupOrderSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
-
     """Used after placing an order for confirmation."""
 
     orderedfood = OrderedFoodSerializer(
@@ -217,9 +249,6 @@ class OrderSerializer(serializers.ModelSerializer):
             'group',
             'group_order',
         )
-        write_only_fields = (
-            'description',
-        )
 
     def create(self, validated_data):
         return Order.objects.create_with_orderedfood(
@@ -254,7 +283,6 @@ class OrderDetailSerializer(OrderSerializer):
             'payment_method',
             'paid',
         )
-        write_only_fields = ()
 
 
 class UserRegisterSerializer(serializers.ModelSerializer):
@@ -264,14 +292,12 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         fields = (
             'phone',
         )
-        write_only_fields = (
-            'phone',
-        )
         extra_kwargs = {
             'phone': {
                 'validators': [
                     validate_international_phonenumber
-                ]
+                ],
+                'write_only': True
             }
         }
 
@@ -285,7 +311,17 @@ class UserTokenLoginSerializer(serializers.ModelSerializer):
             'service',
             'registration_id',
         )
-        write_only_fields = fields
+        extra_kwargs = {
+            'device': {
+                'write_only': True
+            },
+            'service': {
+                'write_only': True
+            },
+            'registration_id': {
+                'write_only': True
+            },
+        }
 
 
 class UserLoginSerializer(serializers.ModelSerializer):
@@ -310,10 +346,10 @@ class UserLoginSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = (
-            'phone',
-            'name',
             'pin',
             'token',
+            'name',
+            'phone',
         )
         extra_kwargs = {
             'phone': {
@@ -322,7 +358,6 @@ class UserLoginSerializer(serializers.ModelSerializer):
                 ]
             }
         }
-        write_only_fields = fields
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -357,11 +392,11 @@ class UserDetailSerializer(serializers.ModelSerializer):
         read_only_fields = (
             'id',
         )
-        write_only_fields = (
-            'phone',
-            'pin',
-            'device',
-        )
+        extra_kwargs = {
+            'phone': {
+                'write_only': True
+            }
+        }
 
 
 class UserTokenSerializer(lunch_serializers.TokenSerializer):

@@ -94,9 +94,6 @@ class OpeningPeriodSerializer(serializers.ModelSerializer):
         read_only_fields = (
             'id',
         )
-        write_only_fields = (
-            'store',
-        )
 
 
 class HolidayPeriodSerializer(serializers.ModelSerializer):
@@ -121,9 +118,6 @@ class HolidayPeriodSerializer(serializers.ModelSerializer):
         )
         read_only_fields = (
             'id',
-        )
-        write_only_fields = (
-            'store',
         )
 
 
@@ -230,9 +224,6 @@ class MenuSerializer(serializers.ModelSerializer):
         read_only_fields = (
             'id',
         )
-        write_only_fields = (
-            'store',
-        )
 
 
 class MenuDetailSerializer(MenuSerializer):
@@ -241,7 +232,7 @@ class MenuDetailSerializer(MenuSerializer):
     )
 
     class Meta(MenuSerializer.Meta):
-        write_only_fields = ()
+        pass
 
 
 class FoodTypeSerializer(serializers.ModelSerializer):

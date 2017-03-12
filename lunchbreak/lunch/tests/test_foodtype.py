@@ -1,4 +1,3 @@
-
 import mock
 from Lunchbreak.test import LunchbreakTestCase
 

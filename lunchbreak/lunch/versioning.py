@@ -3,7 +3,11 @@ from rest_framework.versioning import BaseVersioning
 
 class HeaderVersioning(BaseVersioning):
     default_version = '2.0.0'
-    allowed_versions = [default_version, '2.1.0']
+    allowed_versions = [
+        default_version,
+        '2.1.0',
+        '2.2.0',
+    ]
 
     def determine_version(self, request, *args, **kwargs):
         from .exceptions import UnsupportedAPIVersion

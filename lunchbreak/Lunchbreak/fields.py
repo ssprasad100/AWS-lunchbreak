@@ -3,6 +3,7 @@ from decimal import Decimal
 from django.conf import settings
 from django.db import models
 from django.utils.functional import curry
+from django.utils.translation import ugettext_lazy as _
 from pendulum import Pendulum
 from rest_framework import serializers
 
@@ -62,3 +63,11 @@ class StatusSignalField(models.PositiveIntegerField):
                     field=self
                 )
             )
+
+
+class MoneyField(models.PositiveIntegerField):
+    description = _('Valuta onafhankelijke centen')
+
+
+class CostField(models.IntegerField):
+    description = _('Valuta onafhankelijke centen dat negatief kan zijn')

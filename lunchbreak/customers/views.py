@@ -15,8 +15,7 @@ from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from .authentication import CustomerAuthentication
 from .config import DEMO_PHONE
-from .models import (Group, Heart, Order, OrderedFood, PaymentLink, User,
-                     UserToken)
+from .models import Group, Heart, Order, PaymentLink, User, UserToken
 from .serializers import (GroupSerializer, OrderDetailSerializer,
                           OrderedFoodPriceSerializer, OrderSerializer,
                           PaymentLinkSerializer, StoreHeartSerializer,
@@ -114,34 +113,11 @@ class OrderViewSet(TargettedViewSet,
         """Return the price of the food."""
         serializer = OrderedFoodPriceSerializer(
             data=request.data,
-            many=True
+            many=True,
+            context={'request': request}
         )
-        if serializer.is_valid(raise_exception=True):
-            result = []
-            for price_check in serializer.validated_data:
-                price_info = {}
-                original = price_check['original']
-                if 'ingredients' in price_check:
-                    ingredients = price_check['ingredients']
-                    food_closest = Food.objects.closest(ingredients, original)
-                    food_closest.check_ingredients(
-                        ingredients=ingredients
-                    )
-
-                    price_info['cost'] = OrderedFood.calculate_cost(ingredients, food_closest)
-                    price_info['food'] = food_closest.id
-                else:
-                    price_info['cost'] = original.cost
-                    price_info['food'] = original.id
-
-                # TODO make it into 1 filter/query
-                price_info['food'] = FoodSerializer().to_representation(
-                    instance=Food.objects.get(
-                        id=price_info['food']
-                    )
-                )
-                result.append(price_info)
-            return Response(data=result, status=status.HTTP_200_OK)
+        serializer.is_valid(raise_exception=True)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 
 class StoreViewSet(TargettedViewSet,
