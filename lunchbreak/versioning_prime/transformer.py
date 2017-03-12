@@ -35,14 +35,9 @@ class Transformer:
                     request=request,
                     forwards=forwards
                 )
-                if forwards:
-                    obj = result
-                else:
-                    data = result
+                data = result
             except NotImplementedError:
                 continue
-        if forwards:
-            return obj
         return data
 
     def backwards(self, obj, data, request):

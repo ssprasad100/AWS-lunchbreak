@@ -3,7 +3,7 @@ from django_sms.models import Phone
 from lunch import serializers as lunch_serializers
 from lunch.models import Food, Store
 from lunch.serializers import FoodSerializer
-from Lunchbreak.serializers import PrimaryModelSerializer
+from Lunchbreak.serializers import MoneyField, PrimaryModelSerializer
 from phonenumber_field.validators import validate_international_phonenumber
 from rest_framework import serializers
 
@@ -30,6 +30,7 @@ class OrderedFoodSerializer(serializers.ModelSerializer):
         many=True,
         read_only=True
     )
+    total = MoneyField()
 
     class Meta:
         model = OrderedFood

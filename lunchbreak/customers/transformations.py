@@ -11,8 +11,8 @@ class MoneyTransformation(Transformation):
     ]
     version = '2.2.0'
 
-    def backwards_field(self, obj, data, request):
+    def backwards_field(self, data, obj, request):
         return Decimal(obj) / Decimal(10 ** 2)
 
-    def forwards_field(self, obj, data, request):
+    def forwards_field(self, data, request):
         return int(Decimal(data) * Decimal(10 ** 2))

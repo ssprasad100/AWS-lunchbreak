@@ -25,7 +25,7 @@ class TransformationTestCase(VersioningPrimeTestCase):
 
     def test_for_field(self):
         transformation = TestTransformation100(
-            base=TestField
+            base=TestField()
         )
         self.assertTrue(transformation.for_field)
         self.assertFalse(transformation.for_serializer)
@@ -33,7 +33,7 @@ class TransformationTestCase(VersioningPrimeTestCase):
 
     def test_for_serializer(self):
         transformation = TestTransformation100(
-            base=TestSerializer
+            base=TestSerializer()
         )
         self.assertFalse(transformation.for_field)
         self.assertTrue(transformation.for_serializer)
@@ -41,8 +41,8 @@ class TransformationTestCase(VersioningPrimeTestCase):
 
     def test_for_specific_field(self):
         transformation = TestTransformation100(
-            base=TestSerializer,
-            field='specific_field'
+            base=TestSerializer(),
+            field=TestField()
         )
         self.assertFalse(transformation.for_field)
         self.assertFalse(transformation.for_serializer)
@@ -50,36 +50,36 @@ class TransformationTestCase(VersioningPrimeTestCase):
 
     def test_sorting(self):
         field101 = TestTransformation101(
-            base=TestField
+            base=TestField()
         )
         field100 = TestTransformation100(
-            base=TestField
+            base=TestField()
         )
         field090 = TestTransformation090(
-            base=TestField
+            base=TestField()
         )
 
         serializer101 = TestTransformation101(
-            base=TestSerializer
+            base=TestSerializer()
         )
         serializer100 = TestTransformation100(
-            base=TestSerializer
+            base=TestSerializer()
         )
         serializer090 = TestTransformation090(
-            base=TestSerializer
+            base=TestSerializer()
         )
 
         specific_field101 = TestTransformation101(
-            base=TestSerializer,
-            field='specific_field'
+            base=TestSerializer(),
+            field=TestField()
         )
         specific_field100 = TestTransformation100(
-            base=TestSerializer,
-            field='specific_field'
+            base=TestSerializer(),
+            field=TestField()
         )
         specific_field090 = TestTransformation090(
-            base=TestSerializer,
-            field='specific_field'
+            base=TestSerializer(),
+            field=TestField()
         )
 
         # Serializers and specific fields can be in the same transformer.

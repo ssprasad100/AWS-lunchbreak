@@ -56,7 +56,7 @@ def import_base(base, cls='Unknown'):
         parts = base.split('.')
         try:
             serializer = '.'.join(parts[:-1])
-            field = parts[-1]
+            field_name = parts[-1]
         except IndexError:
             logger.error(
                 '{cls} has an invalid base: "{base}".\nCould not import '
@@ -67,15 +67,15 @@ def import_base(base, cls='Unknown'):
             )
             return None, None
         try:
-            return import_from_string(serializer, 'bases'), field
+            return import_from_string(serializer, 'bases'), field_name
         except (ValueError, ImportError):
             logger.error(
                 '{cls} has an invalid base: "{base}".\nCould not import '
-                'the serializer "{serializer}" with the field "{field}".'.format(
+                'the serializer "{serializer}" with the field "{field_name}".'.format(
                     cls=cls,
                     base=base,
                     serializer=serializer,
-                    field=field
+                    field_name=field_name
                 )
             )
             raise
@@ -111,7 +111,7 @@ def generate_transformations():
                     continue
 
                 for base in bases:
-                    base, field = import_base(base, cls=transformation)
+                    base, field_name = import_base(base, cls=transformation)
                     if base is None:
                         continue
-                    base.add_transformation(transformation, field=field)
+                    base.add_transformation(transformation, field_name=field_name)

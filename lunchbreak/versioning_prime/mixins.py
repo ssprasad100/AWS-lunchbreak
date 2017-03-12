@@ -9,22 +9,20 @@ from .utils import get_version_index
 
 class VersionedMixin:
 
-    default_transformations = {
+    default_transformation_classes = {
         'self': [],
-        'fields': defaultdict(list),
+        'field_names': defaultdict(list),
     }
 
     @classmethod
-    def add_transformation(cls, transformation, field=None):
-        obj = transformation(cls, field=field)
+    def add_transformation(cls, transformation_class, field_name=None):
+        if not hasattr(cls, '_transformation_classes'):
+            cls._transformation_classes = deepcopy(cls.default_transformation_classes)
 
-        if not hasattr(cls, '_transformations'):
-            cls._transformations = deepcopy(cls.default_transformations)
-
-        if field is None:
-            cls._transformations['self'].append(obj)
+        if field_name is None:
+            cls._transformation_classes['self'].append(transformation_class)
         else:
-            cls._transformations['fields'][field].append(obj)
+            cls._transformation_classes['field_names'][field_name].append(transformation_class)
 
     @cached_property
     def _request(self):
@@ -44,27 +42,30 @@ class VersionedMixin:
         return self._request.version
 
     @property
-    def transformations(self):
-        return getattr(self, '_transformations', deepcopy(self.default_transformations))
+    def transformation_classes(self):
+        return getattr(
+            self,
+            '_transformation_classes',
+            deepcopy(self.default_transformation_classes)
+        )
 
     def to_internal_value(self, data):
-        obj = super().to_internal_value(data)
-
-        return self.get_transformer(
-            obj=obj,
+        transformed_data = self.get_transformer(
             data=data,
             forwards=True,
         ).forwards(
-            obj=obj,
+            obj=None,
             data=data,
             request=self._request
         )
+
+        obj = super().to_internal_value(transformed_data)
+        return obj
 
     def to_representation(self, obj):
         data = super().to_representation(obj)
 
         return self.get_transformer(
-            obj=obj,
             data=data,
             forwards=False,
         ).backwards(
@@ -75,33 +76,30 @@ class VersionedMixin:
 
     def get_transformations(self, forwards, field=None):
         if field is None:
-            transformations = self.transformations['self']
+            transformation_classes = self.transformation_classes['self']
         else:
-            transformations = self.transformations['fields'][field]
+            transformation_classes = self.transformation_classes['field_names'][field.field_name]
 
         result = []
         version_index = get_version_index(self.version)
-        for transformation in transformations:
+        for transformation_class in transformation_classes:
+            transformation = transformation_class(self, field=field)
             newer_version = transformation.is_newer_version(version_index)
-            older_version = transformation.is_older_version(version_index)
 
-            if forwards:
-                if older_version:
-                    result.append(transformation)
-            else:
-                if newer_version:
-                    result.append(transformation)
+            if newer_version:
+                result.append(transformation)
 
         return result
 
-    def get_transformer(self, obj, data, forwards):
+    def get_transformer(self, data, forwards):
         transformer = Transformer()
 
         if isinstance(data, dict):
             for key, value in data.items():
+                field = self.fields[key]
                 transformations = self.get_transformations(
                     forwards=forwards,
-                    field=key
+                    field=field
                 )
                 transformer.extend(transformations)
 
