@@ -4,7 +4,8 @@ from lunch import serializers as lunch_serializers
 from lunch.config import TOKEN_IDENTIFIER_LENGTH
 from lunch.models import (Food, Ingredient, IngredientGroup,
                           IngredientRelation, Store, StoreHeader)
-from Lunchbreak.serializers import RequestAttributeDefault
+from Lunchbreak.serializers import (RequestAttributeDefault,
+                                    RoundingDecimalField)
 from rest_framework import serializers
 
 from .models import (AbstractPassword, Employee, EmployeeToken, Staff,
@@ -188,7 +189,7 @@ class EmployeeTokenSerializer(BusinessTokenSerializer):
 
 
 class OrderedFoodSerializer(serializers.ModelSerializer):
-    cost = serializers.DecimalField(
+    cost = RoundingDecimalField(
         decimal_places=2,
         max_digits=7,
         read_only=True

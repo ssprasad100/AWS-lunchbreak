@@ -6,6 +6,7 @@ from django_gocardless.models import Merchant, RedirectFlow
 from lunch.exceptions import LinkingError, NoDeliveryToAddress
 from lunch.models import Food
 from rest_framework import status
+from rest_framework.exceptions import NotFound
 
 from . import CustomersTestCase
 from .. import views
@@ -294,3 +295,36 @@ class OrderTestCase(CustomersTestCase):
         mock_staff_notify.reset_mock()
         self.assertTrue(mock_user_notify.called)
         mock_user_notify.reset_mock()
+
+    @mock.patch('customers.serializers.OrderSerializer.create')
+    def test_ignore_floating_errors(self, mock_create):
+        self.food, original = self.clone_model(self.food)
+
+        content = {
+            'receipt': self.midday.add(days=1).isoformat(),
+            'store': self.store.id,
+            'orderedfood': [
+                {
+                    'total': '4.000000000000001',
+                    'amount': original.amount,
+                }
+            ]
+        }
+        url = reverse('customers:order-list')
+
+        view_actions = {
+            'post': 'create'
+        }
+
+        mock_create.side_effect = NotFound()
+
+        request = self.factory.post(url, content)
+        response = self.authenticate_request(
+            request,
+            views.OrderViewSet,
+            view_actions=view_actions
+        )
+
+        response.render()
+        self.assertTrue(mock_create.called)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

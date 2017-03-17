@@ -2,7 +2,7 @@ from django_gocardless.serializers import RedirectFlowSerializer
 from django_sms.models import Phone
 from lunch import serializers as lunch_serializers
 from lunch.models import Store
-from Lunchbreak.serializers import PrimaryModelSerializer
+from Lunchbreak.serializers import PrimaryModelSerializer, RoundingDecimalField
 from phonenumber_field.validators import validate_international_phonenumber
 from rest_framework import serializers
 
@@ -29,7 +29,7 @@ class OrderedFoodSerializer(serializers.ModelSerializer):
         many=True,
         read_only=True
     )
-    total = serializers.DecimalField(
+    total = RoundingDecimalField(
         decimal_places=3,
         max_digits=7
     )
