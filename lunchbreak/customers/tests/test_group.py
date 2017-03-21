@@ -1,4 +1,5 @@
 import mock
+from business.models import Staff
 from django.core.urlresolvers import reverse
 from rest_framework import status
 
@@ -14,6 +15,10 @@ class BaseGroupTestCase(CustomersTestCase):
     def setUp(self, mock_task):
         super().setUp()
 
+        self.staff = Staff.objects.create(
+            store=self.store,
+            email=self.EMAIL
+        )
         self.group = Group.objects.create(
             name='Test Group',
             store=self.store,

@@ -24,7 +24,9 @@ Je bent slechts enkele stappen verwijderd van deze moderne manier van bestellen:
     2. Bestel met Lunchbreak via de iOS app, Android app of web app.
 
 
+{% if group.store.staff.is_merchant %}
 Je zal zien dat je bestellingen zelfs online kan betalen zonder dat je het bakje van de bank nodig hebt. Lunchbreak werkt hiervoor met domiciliëring via GoCardless. Gewoon in de app jouw bankrekeningnummer invullen en jouw bestellingen worden automatisch betaald. Is dit wel veilig? Geen zorgen, jouw bank verwittigt je van elke betaling via hun online bankieren portaal, jij hebt dus volledige controle!
+{% endif %}
 
 Smakelijk!
 Het Lunchbreak team
