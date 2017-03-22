@@ -2,15 +2,22 @@
 from random import randint
 
 import plivo
+from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils import timezone
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
 from phonenumber_field.modelfields import PhoneNumberField
 
-from .conf import (EXPIRY_TIME, MAX_TRIES, PHONE, PLIVO_AUTH_ID,
-                   PLIVO_AUTH_TOKEN, TEXT_TEMPLATE, TIMEOUT)
+from .conf import (DOMAIN, EXPIRY_TIME, GATEWAY_TWILIO, GATEWAYS, MAX_TRIES,
+                   MESSAGE_STATUS_QUEUED, MESSAGE_STATUSES, PLIVO_AUTH_ID,
+                   PLIVO_AUTH_TOKEN, PLIVO_PHONE, STATUS_DELIVERED,
+                   STATUS_FAILED, STATUS_REJECTED, STATUS_UNDELIVERED,
+                   TEXT_TEMPLATE, TIMEOUT)
 from .exceptions import (PinExpired, PinIncorrect, PinTimeout,
                          PinTriesExceeded, SmsException)
+from .tasks import send_pin
 
 
 class Phone(models.Model):
@@ -67,6 +74,17 @@ class Phone(models.Model):
     def confirmed(self):
         return self.confirmed_at is not None
 
+    @cached_property
+    def last_messsage(self):
+        try:
+            return Message.objects.filter(
+                phone_id=self.id
+            ).order_by(
+                '-sent_at'
+            ).first()
+        except IndexError:
+            return None
+
     @classmethod
     def register(cls, phone):
         instance, created = cls.objects.get_or_create(
@@ -81,6 +99,12 @@ class Phone(models.Model):
         for i in range(6):
             pin += str(randint(0, 9))
         return pin
+
+    def can_retry(self, gateway):
+        return self.messages.filter(
+            gateway=gateway,
+
+        )
 
     def send_pin(self, new_pin=True):
         if self.last_message is not None:
@@ -98,7 +122,7 @@ class Phone(models.Model):
             PLIVO_AUTH_TOKEN
         )
         params = {
-            'src': PHONE,
+            'src': PLIVO_PHONE,
             'dst': str(self.phone),
             'text': TEXT_TEMPLATE.format(
                 pin=self.pin
@@ -162,3 +186,88 @@ class Phone(models.Model):
         self.reset()
 
         return True
+
+
+class Message(models.Model):
+
+    class Meta:
+        verbose_name = _('bericht')
+        verbose_name_plural = _('berichten')
+
+    def __str__(self):
+        return str(self.uuid)
+
+    id = models.UUIDField(
+        primary_key=True,
+        editable=False
+    )
+    phone = models.ForeignKey(
+        Phone,
+        on_delete=models.CASCADE,
+        related_name='messages'
+    )
+    gateway = models.CharField(
+        choices=GATEWAYS
+    )
+    status = models.CharField(
+        default=MESSAGE_STATUS_QUEUED,
+        choices=MESSAGE_STATUSES
+    )
+    sent_at = models.DateTimeField(
+        # This allows for overriding it on creation
+        # auto_now_add does not allow overriding.
+        default=timezone.now,
+        blank=True
+    )
+    error_code = models.PositiveIntegerField(
+        null=True,
+        blank=True
+    )
+
+    @property
+    def success(self):
+        return self.status == STATUS_DELIVERED
+
+    @property
+    def failure(self):
+        return self.status in (
+            STATUS_FAILED,
+            STATUS_UNDELIVERED,
+            STATUS_REJECTED,
+        )
+
+    @property
+    def sid(self):
+        assert self.status == GATEWAY_TWILIO, \
+            'Only messages sent via Twilio have an sid.'
+        return 'MM' + str(self.id)
+
+    def handle_status(self, status):
+        self.status = status
+
+        if self.failure:
+            self.retry()
+
+        self.save()
+
+    def retry(self):
+        assert self.failure, \
+            'Only failed messages can be retried.'
+
+        if self.phone.can_retry(self.gateway):
+            send_pin.delay(
+                phone_pk=self.phone_id
+            )
+
+    @staticmethod
+    def get_webhook_uri(gateway):
+        if gateway == GATEWAY_TWILIO:
+            path = reverse('django_sms:twilio')
+        else:
+            path = reverse('django_sms:plivo')
+
+        return '{protocol}://{domain}{path}'.format(
+            protocol='https' if settings.SSL else 'http',
+            domain=DOMAIN,
+            path=path
+        )

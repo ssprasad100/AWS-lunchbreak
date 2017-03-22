@@ -51,7 +51,7 @@ class RedirectFlowSuccessView(View):
                 params['error'] = 'completed'
             except BadRequestError:
                 params['error'] = 'invalid'
-            except:
+            except Exception:
                 params['error'] = 'default'
 
         url = redirectflow.completion_redirect_url
