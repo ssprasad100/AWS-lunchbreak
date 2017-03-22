@@ -204,7 +204,7 @@
                     if (request === undefined)
                         statusCode = 201;
                     else
-                        statusCode = request.statusCode();
+                        statusCode = request.statusCode().status;
 
                     pager.data['phone'] = phone;
 
