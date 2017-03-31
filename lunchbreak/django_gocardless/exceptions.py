@@ -17,8 +17,8 @@ class DjangoGoCardlessException(Exception):
     def _subclasses(cls):
         return [
             obj
-            for name, obj in inspect.getmembers(sys.modules[__name__])
-            if inspect.isclass(obj) and issubclass(obj, DjangoGoCardlessException)
+            for name, obj in inspect.getmembers(sys.modules[__name__], inspect.isclass)
+            if issubclass(obj, DjangoGoCardlessException)
         ]
 
     @classmethod

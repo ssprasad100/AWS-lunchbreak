@@ -106,7 +106,12 @@ class GroupAdmin(admin.ModelAdmin):
 
 class OrderInline(admin.TabularInline):
     model = Order
+    fields = ('id', 'user', 'store', 'placed', 'receipt', 'status', 'total',
+              'total_confirmed', 'discount',)
     extra = 0
+
+    def get_readonly_fields(self, request, obj=None):
+        return [field.name for field in self.model._meta.fields]
 
 
 @admin.register(GroupOrder)

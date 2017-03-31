@@ -801,7 +801,8 @@ class Order(StatusSignalModel, AbstractOrder):
 
     def clean_status(self):
         if self.group_order is not None \
-                and self.group_order.status in [ORDER_STATUS_WAITING, ORDER_STATUS_COMPLETED]:
+                and self.group_order.status in [ORDER_STATUS_WAITING, ORDER_STATUS_COMPLETED] \
+                and self.group_order.status != self.status:
             # This will also change the status on all of the orders
             self.group_order.status = ORDER_STATUS_STARTED
             self.group_order.save()
