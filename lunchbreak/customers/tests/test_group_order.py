@@ -165,10 +165,10 @@ class GroupOrderTestCase(BaseGroupTestCase):
     def create_order(self, group_order):
         return Order.objects.create(
             store=self.store,
-            receipt=group_order.group.receipt,
+            receipt=group_order.receipt,
             group_order=group_order,
             user=self.user,
-            placed=self.midday.subtract(days=1)
+            placed=self.midday.subtract(days=1)._datetime
         )
 
     @mock.patch('lunch.models.Store.is_open')
@@ -332,7 +332,9 @@ class GroupOrderTestCase(BaseGroupTestCase):
 
     @mock.patch('lunch.models.Store.is_open')
     @mock.patch('customers.tasks.send_group_order_email.apply_async')
-    def test_edge(self, mock_task, mock_is_open):
+    def test_sync_same_status(self, mock_task, mock_is_open):
+        """Test whether saving the the group order with the same status still
+        syncs the status to its group orders."""
         # Create group order
         group_order = GroupOrder.objects.create(
             group=self.group,
@@ -380,4 +382,19 @@ class GroupOrderTestCase(BaseGroupTestCase):
         self.assertEqual(
             order.status,
             ORDER_STATUS_STARTED
+        )
+
+    @mock.patch('lunch.models.Store.is_open')
+    @mock.patch('customers.tasks.send_group_order_email.apply_async')
+    def test_group_order_mail_once(self, mock_task, mock_is_open):
+        """Test that a group_order_email is only scheduled once."""
+        group_order = GroupOrder.objects.create(
+            group=self.group,
+            date=self.midday.date()
+        )
+        self.create_order(group_order)
+        self.create_order(group_order)
+        self.assertEqual(
+            mock_task.call_count,
+            1
         )

@@ -114,7 +114,6 @@ class StoreTestCase(LunchbreakTestCase):
         )
 
         last_modified_first = store.last_modified
-        self.mock_now.return_value = self.midday.add(minutes=1)._datetime
 
         OpeningPeriod.objects.create(
             store=store,
@@ -126,8 +125,6 @@ class StoreTestCase(LunchbreakTestCase):
         last_modified_second = store.last_modified
 
         self.assertGreater(last_modified_second, last_modified_first)
-
-        self.mock_now.return_value = self.midday.add(minutes=2)._datetime
 
         tomorrow = self.midday.add(days=1)
         HolidayPeriod.objects.create(

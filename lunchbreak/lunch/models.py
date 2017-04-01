@@ -492,7 +492,9 @@ class Store(AbstractAddress):
         if dt < now:
             if not raise_exception:
                 return False
-            raise PastOrderDenied()
+            raise PastOrderDenied("{} < {}".format(
+                dt, now
+            ))
 
         if not ignore_wait and dt - now < self.wait:
             if not raise_exception:

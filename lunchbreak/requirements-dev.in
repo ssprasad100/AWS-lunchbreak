@@ -1,5 +1,7 @@
 -r requirements.in
 
+-e git://github.com/spulec/freezegun.git@88f69903b3ac66b3894be00ef89d597e34f88f5e#egg=freezegun
+
 django-extensions==1.7.5
 django-livereload-server==0.2.1
 django-queryinspect==0.1.0

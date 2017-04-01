@@ -3,6 +3,7 @@ import json
 import mock
 from django.conf import settings
 from django.test.utils import override_settings
+from freezegun import freeze_time
 from lunch.models import Store
 from pendulum import Pendulum
 from rest_framework.test import APITestCase, force_authenticate
@@ -60,6 +61,7 @@ class LunchbreakTestCase(APITestCase):
 
     @mock.patch('googlemaps.Client.timezone')
     @mock.patch('googlemaps.Client.geocode')
+    @freeze_time(midday, tick=True)
     def setUp(self, mock_geocode, mock_timezone):
         super().setUp()
 
@@ -75,14 +77,12 @@ class LunchbreakTestCase(APITestCase):
             number=10
         )
 
-        self.patcher = mock.patch('django.utils.timezone.now')
-        self.mock_now = self.patcher.start()
-        self.mock_now.return_value = self.midday._datetime
+        self.freezer = freeze_time(self.midday, tick=True)
+        self.freezer.start()
 
     def tearDown(self):
         super().tearDown()
-
-        self.patcher.stop()
+        self.freezer.stop()
 
     def mock_timezone_result(self, mock_timezone):
         mock_timezone.return_value = self.MOCK_TIMEZONE

@@ -623,7 +623,7 @@ class Order(StatusSignalModel, AbstractOrder):
         }
 
     placed = models.DateTimeField(
-        auto_now_add=True,
+        default=timezone.now,
         verbose_name=_('tijd van plaatsing'),
         help_text=_('Tijdstip waarop de bestelling werd geplaatst.')
     )
