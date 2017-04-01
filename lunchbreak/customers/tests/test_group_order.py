@@ -329,3 +329,55 @@ class GroupOrderTestCase(BaseGroupTestCase):
         # online payments if the store has it disabled.
         mock_staff.is_merchant = False
         self.create_order(group_order)
+
+    @mock.patch('lunch.models.Store.is_open')
+    @mock.patch('customers.tasks.send_group_order_email.apply_async')
+    def test_edge(self, mock_task, mock_is_open):
+        # Create group order
+        group_order = GroupOrder.objects.create(
+            group=self.group,
+            date=self.midday.date()
+        )
+
+        # Place an order
+        self.create_order(group_order)
+        group_order.refresh_from_db()
+        self.assertEqual(
+            group_order.status,
+            ORDER_STATUS_PLACED
+        )
+
+        # Set the group status to started
+        group_order.status = ORDER_STATUS_STARTED
+        group_order.save()
+        self.assertEqual(
+            group_order.status,
+            ORDER_STATUS_STARTED
+        )
+
+        # Create a new order
+        order = self.create_order(group_order)
+        group_order.refresh_from_db()
+        self.assertEqual(
+            order.status,
+            ORDER_STATUS_PLACED
+        )
+        # The group order status shouldn't change
+        self.assertEqual(
+            group_order.status,
+            ORDER_STATUS_STARTED
+        )
+
+        # Setting the status to the same one and saving it should still
+        # trigger orders to change.
+        group_order.status = ORDER_STATUS_STARTED
+        group_order.save()
+        order.refresh_from_db()
+        self.assertEqual(
+            group_order.status,
+            ORDER_STATUS_STARTED
+        )
+        self.assertEqual(
+            order.status,
+            ORDER_STATUS_STARTED
+        )
