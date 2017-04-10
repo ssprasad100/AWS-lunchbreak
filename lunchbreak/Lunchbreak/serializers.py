@@ -1,6 +1,6 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import ugettext_lazy as _
-from rest_framework import serializers
+from rest_framework import fields, serializers
 from versioning_prime import VersionedMixin
 
 
@@ -63,6 +63,14 @@ class RequestAttributeDefault():
             attribute=self.attribute,
             raise_exception=self.raise_exception,
             fallback=self.fallback
+        )
+
+
+class RoundingDecimalField(fields.DecimalField):
+
+    def validate_precision(self, value):
+        return super().validate_precision(
+            self.quantize(value)
         )
 
 
