@@ -1,6 +1,3 @@
-GOCARDLESS_ENVIRONMENT = 'sandbox'
-GOCARDLESS_APP_DOMAIN = 'api.staging.lunchbreakapp.be'
-
 ALLOWED_HOSTS = [
     'staging.lunchbreakapp.be',
     'www.staging.lunchbreakapp.be',

@@ -1,12 +1,12 @@
+import json
 from decimal import Decimal
 
 import mock
-from business.models import Staff
 from django.core.urlresolvers import reverse
-from django_gocardless.exceptions import MerchantAccessError
-from django_gocardless.models import Merchant, RedirectFlow
 from lunch.exceptions import LinkingError, NoDeliveryToAddress
 from lunch.models import Food
+from payconiq.models import Transaction
+from payconiq.views import WebhookView
 from rest_framework import status
 from rest_framework.exceptions import NotFound
 
@@ -15,15 +15,14 @@ from .. import views
 from ..config import (ORDER_STATUS_COMPLETED, ORDER_STATUS_DENIED,
                       ORDER_STATUS_NOT_COLLECTED, ORDER_STATUS_PLACED,
                       ORDER_STATUS_RECEIVED, ORDER_STATUS_STARTED,
-                      ORDER_STATUS_WAITING, PAYMENT_METHOD_CASH,
-                      PAYMENT_METHOD_GOCARDLESS)
+                      ORDER_STATUS_WAITING, PAYMENT_METHOD_PAYCONIQ)
 from ..exceptions import OrderedFoodNotOriginal
-from ..models import Address, Order, OrderedFood, PaymentLink
+from ..models import Address, ConfirmedOrder, Order, OrderedFood
 
 
 class OrderTestCase(CustomersTestCase):
 
-    def create_order(self, content, **extra):
+    def place_order(self, content, **extra):
         url = reverse('customers:order-list')
         request = self.factory.post(url, content, **extra)
         response = self.authenticate_request(
@@ -45,7 +44,10 @@ class OrderTestCase(CustomersTestCase):
         content = get_content(original=original)
 
         def create_order():
-            response, order = self.create_order(content, HTTP_X_VERSION=version)
+            response, order = self.place_order(
+                content=content,
+                HTTP_X_VERSION=version
+            )
             if order is not None:
                 self.assertEqual(order.total, original.cost * 2)
             return response, order
@@ -272,69 +274,6 @@ class OrderTestCase(CustomersTestCase):
                 order.save()
                 self.assertEqual(mock_signal.call_count, 1)
 
-    @mock.patch('business.models.Staff.notify')
-    @mock.patch('customers.models.User.notify')
-    @mock.patch('customers.models.PaymentLink.delete')
-    @mock.patch('django_gocardless.models.RedirectFlow.is_completed', new_callable=mock.PropertyMock)
-    @mock.patch('django_gocardless.models.Payment.create')
-    def test_create_payment(self, mock_payment, mock_is_completed,
-                            mock_pl_delete, mock_user_notify, mock_staff_notify):
-        """Test whether the statuses completed and not collected trigger the
-        creation of a payment."""
-
-        mock_payment.return_value = None
-        mock_is_completed.return_value = True
-        merchant = Merchant.objects.create()
-        Staff.objects.create(
-            store=self.store,
-            email='andreas@cloock.be',
-            first_name='Andreas',
-            last_name='Backx',
-            merchant=merchant
-        )
-        redirectflow = RedirectFlow.objects.create(
-            id='RED12345',
-            merchant=merchant
-        )
-        PaymentLink.objects.create(
-            user=self.user,
-            store=self.store,
-            redirectflow=redirectflow
-        )
-        order = Order.objects.create(
-            store=self.store,
-            receipt=self.midday.add(days=1)._datetime,
-            user=self.user,
-            payment_method=PAYMENT_METHOD_GOCARDLESS
-        )
-
-        for order_status in [ORDER_STATUS_COMPLETED, ORDER_STATUS_NOT_COLLECTED]:
-            order.status = order_status
-            order.save()
-            self.assertTrue(mock_payment.called)
-            mock_payment.reset_mock()
-            self.assertFalse(mock_user_notify.called)
-            mock_user_notify.reset_mock()
-
-        mock_payment.side_effect = MerchantAccessError()
-        order.status = ORDER_STATUS_COMPLETED
-        order.save()
-
-        self.assertEqual(
-            order.payment_method,
-            PAYMENT_METHOD_CASH
-        )
-        self.assertRaises(
-            Merchant.DoesNotExist,
-            merchant.refresh_from_db
-        )
-        self.assertTrue(mock_pl_delete.called)
-        mock_pl_delete.reset_mock()
-        self.assertTrue(mock_staff_notify.called)
-        mock_staff_notify.reset_mock()
-        self.assertTrue(mock_user_notify.called)
-        mock_user_notify.reset_mock()
-
     @mock.patch('customers.serializers.OrderSerializer.create')
     def test_ignore_floating_errors(self, mock_create):
         self.food, original = self.clone_model(self.food)
@@ -367,3 +306,91 @@ class OrderTestCase(CustomersTestCase):
         response.render()
         self.assertTrue(mock_create.called)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def place_payconiq_order(self, mock_geocode, mock_timezone,
+                             mock_is_open, mock_notify, mock_transaction,
+                             transaction_status, confirmed):
+        self.mock_timezone_result(mock_timezone)
+
+        self.mock_geocode_results(mock_geocode)
+        self.food, original = self.clone_model(self.food)
+
+        total = original.cost * original.amount
+
+        transaction = Transaction.objects.create(
+            remote_id='12345',
+            amount=int(total * 100),
+            merchant=self.merchant
+        )
+        mock_transaction.return_value = transaction
+
+        content = {
+            'receipt': self.midday.add(days=1).isoformat(),
+            'store': self.store.id,
+            'payment_method': PAYMENT_METHOD_PAYCONIQ,
+            'orderedfood': [
+                {
+                    'original': original.id,
+                    'total': total,
+                    'amount': original.amount
+                }
+            ]
+        }
+
+        def assert_confirmed(order, confirmed):
+            self.assertEqual(
+                ConfirmedOrder.objects.filter(
+                    pk=order.pk
+                ).exists(),
+                confirmed
+            )
+            self.assertTrue(
+                Order.objects.filter(
+                    pk=order.pk
+                ).exists()
+            )
+
+        response, order = self.place_order(content)
+        self.assertIsNotNone(order)
+        assert_confirmed(order, False)
+
+        url = reverse('payconiq:webhook')
+        data = {
+            '_id': transaction.remote_id,
+            'status': transaction_status
+        }
+        request = self.factory.post(
+            url,
+            data=json.dumps(data),
+            content_type='application/json'
+        )
+        response = WebhookView.as_view()(request)
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_200_OK
+        )
+        assert_confirmed(order, confirmed)
+        Transaction.objects.all().delete()
+
+    @mock.patch('payconiq.models.Transaction.start')
+    @mock.patch('customers.models.User.notify')
+    @mock.patch('lunch.models.Store.is_open')
+    @mock.patch('googlemaps.Client.timezone')
+    @mock.patch('googlemaps.Client.geocode')
+    def test_payconiq_order(self, mock_geocode, mock_timezone,
+                            mock_is_open, mock_notify, mock_transaction):
+        self.place_payconiq_order(
+            mock_geocode, mock_timezone, mock_is_open, mock_notify,
+            mock_transaction, transaction_status=Transaction.SUCCEEDED, confirmed=True
+        )
+
+        failed_statuses = [
+            Transaction.TIMEDOUT,
+            Transaction.CANCELED,
+            Transaction.FAILED,
+        ]
+        for failed_status in failed_statuses:
+            self.place_payconiq_order(
+                mock_geocode, mock_timezone, mock_is_open, mock_notify,
+                mock_transaction, transaction_status=failed_status, confirmed=False
+            )

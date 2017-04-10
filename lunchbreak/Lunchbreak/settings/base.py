@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'polaroid',
 
     'django_sms',
+    'payconiq',
     'django_gocardless',
     'business',
     'customers',

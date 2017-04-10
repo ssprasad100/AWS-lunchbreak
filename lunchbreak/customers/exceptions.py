@@ -5,16 +5,16 @@ COSTCHECK_FAILED = 700
 PREORDERTIME_EXCEEDED = 701
 PASTORDER_DENIED = 702
 STORE_CLOSED = 704
-# 705 available
+# 705
 MINDAYS_EXCEEDED = 706
 USER_DISABLED = 707
-# 708 available
-# 709 available
-# 710 available
-# 711 available
+# 708
+# 709
+# 710
+# 711
 ONLINE_PAYMENTS_DISABLED = 712
-NO_PAYMENT_LINK = 713
-PAYMENT_LINK_NOT_CONFIRMED = 714
+# 713
+# 714
 ORDEREDFOOD_NOT_ORIGINAL = 715
 ONLINE_PAYMENT_REQUIRED = 716
 
@@ -59,18 +59,6 @@ class OnlinePaymentDisabled(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
     default_code = ONLINE_PAYMENTS_DISABLED
     default_detail = 'Deze winkel heeft online betalingen uitgeschakeld.'
-
-
-class NoPaymentLink(LunchbreakException):
-    status_code = status.HTTP_400_BAD_REQUEST
-    default_code = NO_PAYMENT_LINK
-    default_detail = 'Gebruiker heeft geen mandaat met deze winkel getekend.'
-
-
-class PaymentLinkNotConfirmed(LunchbreakException):
-    status_code = status.HTTP_400_BAD_REQUEST
-    default_code = PAYMENT_LINK_NOT_CONFIRMED
-    default_detail = 'Gebruiker heeft het mandaat nog niet bevestigd.'
 
 
 class OrderedFoodNotOriginal(LunchbreakException):

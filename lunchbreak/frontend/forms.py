@@ -1,6 +1,6 @@
 import json
 
-from customers.config import PAYMENT_METHOD_GOCARDLESS, PAYMENT_METHODS
+from customers.config import PAYMENT_METHODS
 from customers.models import Group, GroupOrder, Order, User
 from django import forms
 from django.utils.translation import ugettext as _
@@ -116,14 +116,6 @@ class OrderForm(FatModelForm):
         return temporary_order.place(
             **self.cleaned_data
         )
-
-    @property
-    def needs_paymentlink(self):
-        try:
-            is_gocardless = int(self['payment_method'].value()) == PAYMENT_METHOD_GOCARDLESS
-            return is_gocardless and 'payment_method' in self.errors.as_data()
-        except (ValueError, TypeError):
-            return False
 
 
 class GroupForm(forms.ModelForm):

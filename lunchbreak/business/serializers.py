@@ -5,6 +5,7 @@ from lunch.config import TOKEN_IDENTIFIER_LENGTH
 from lunch.models import (Food, Ingredient, IngredientGroup,
                           IngredientRelation, Store, StoreHeader)
 from Lunchbreak.serializers import RequestAttributeDefault
+from payconiq.serializers import MerchantSerializer
 from rest_framework import serializers
 
 from .models import (AbstractPassword, Employee, EmployeeToken, Staff,
@@ -48,12 +49,20 @@ class StoreDetailSerializer(serializers.ModelSerializer):
         )
 
 
-class StoreMerchantSerializer(serializers.BaseSerializer):
+class StoreMerchantSerializer(MerchantSerializer):
+    store = serializers.HiddenField(
+        write_only=True,
+        default=serializers.CreateOnlyDefault(
+            RequestAttributeDefault(
+                attribute='user.staff.store'
+            )
+        )
+    )
 
-    def to_representation(self, url):
-        return {
-            'authorisation_link': url
-        }
+    class Meta(MerchantSerializer.Meta):
+        fields = MerchantSerializer.Meta.fields + (
+            'store',
+        )
 
 
 class EmployeePasswordRequestSerializer(serializers.ModelSerializer):

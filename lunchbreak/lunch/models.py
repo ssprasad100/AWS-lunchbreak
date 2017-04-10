@@ -288,8 +288,8 @@ class Store(AbstractAddress):
         default=True,
         verbose_name=_('online betalingen ingeschakeld'),
         help_text=_(
-            'Online betalingen ingeschakeld, er moet een GoCardless '
-            'account/merchant gelinked worden voor online betalingen '
+            'Online betalingen ingeschakeld, er moet een Payconiq '
+            'merchant gelinkt worden voor online betalingen '
             'aanvaard kunnen worden.'
         )
     )

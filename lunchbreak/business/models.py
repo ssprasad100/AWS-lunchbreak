@@ -74,13 +74,13 @@ class Staff(AbstractPassword, NotifyModelMixin):
         verbose_name=_('familienaam'),
         help_text=_('Familienaam.')
     )
-    merchant = models.ForeignKey(
-        'django_gocardless.Merchant',
+    merchant = models.OneToOneField(
+        'payconiq.Merchant',
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        verbose_name=_('GoCardless account'),
-        help_text=_('GoCardless account.')
+        verbose_name=_('Payconiq account'),
+        help_text=_('Payconiq account.')
     )
 
     objects = StaffManager()
@@ -97,12 +97,11 @@ class Staff(AbstractPassword, NotifyModelMixin):
         """Whether the store is a merchant.
 
         Returns:
-            True if the store has online payments enabled and has a confirmed merchant linked.
+            True if the store has online payments enabled and has a merchant linked.
             bool
         """
         return self.store.online_payments_enabled \
-            and self.merchant is not None \
-            and self.merchant.confirmed
+            and self.merchant
 
 
 class StaffToken(BaseToken):

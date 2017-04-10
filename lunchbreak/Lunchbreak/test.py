@@ -49,15 +49,11 @@ class LunchbreakTestCase(APITestCase):
         DEFAULT_URL_SCHEME='http',
         ROOT_URLCONF='Lunchbreak.urls.tests',
         GOOGLE_CLOUD_SECRET='AIza',
-        GOCARDLESS_ACCESS_TOKEN='something',
         DEBUG=True,
         TESTING=True
     )
     def run(self, *args, **kwargs):
-        gocardless_settings = settings.GOCARDLESS
-        gocardless_settings['access_token'] = 'something'
-        with override_settings(GOCARDLESS=gocardless_settings):
-            super(LunchbreakTestCase, self).run(*args, **kwargs)
+        super(LunchbreakTestCase, self).run(*args, **kwargs)
 
     @mock.patch('googlemaps.Client.timezone')
     @mock.patch('googlemaps.Client.geocode')

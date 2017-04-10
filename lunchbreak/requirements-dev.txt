@@ -20,6 +20,7 @@ celery==4.0.2
 cffi==1.9.1               # via bcrypt
 click==6.7                # via pip-tools
 contextlib2==0.5.4        # via raven
+cookies==2.2.1            # via responses
 decorator==4.0.11         # via ipython, traitlets
 django-appconf==1.0.2     # via django-compressor, django-imagekit
 django-compressor==2.1.1
@@ -83,9 +84,10 @@ pyyaml==3.11
 raven==5.32.0
 rcssmin==1.0.6            # via django-compressor
 requests==2.9.1
+responses==0.5.1
 rjsmin==1.0.12            # via django-compressor
 simplegeneric==0.8.1      # via ipython
-six==1.10.0               # via bcrypt, django-extensions, django-imagekit, django-livereload-server, fabric3, libsass, mock, packaging, pip-tools, prompt-toolkit, python-dateutil, setuptools, traitlets
+six==1.10.0               # via bcrypt, django-extensions, django-imagekit, django-livereload-server, fabric3, libsass, mock, packaging, pip-tools, prompt-toolkit, python-dateutil, responses, setuptools, traitlets
 tornado==4.4.2            # via django-livereload-server
 tox==2.1.1
 traitlets==4.3.1          # via ipython

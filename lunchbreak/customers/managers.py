@@ -5,9 +5,11 @@ from django.apps import apps
 from django.contrib.auth.base_user import BaseUserManager
 from django.db import models
 from lunch.models import Food, Ingredient
+from payconiq.models import Transaction
 from pendulum import Pendulum
 
-from .config import ORDER_STATUSES_ACTIVE
+from .config import (ORDER_STATUSES_ACTIVE, PAYMENT_METHOD_CASH,
+                     PAYMENT_METHOD_PAYCONIQ)
 from .exceptions import OrderedFoodNotOriginal
 
 
@@ -100,7 +102,7 @@ class OrderManager(models.Manager):
                 instance, created = self.get_or_create(**kwargs)
                 if not created:
                     instance.orderedfood.all().delete()
-        except:
+        except Exception:
             if save and group_order_created and group_order is not None:
                 group_order.delete()
             raise
@@ -117,15 +119,35 @@ class OrderManager(models.Manager):
                     elif isinstance(f, OrderedFood):
                         f.order = instance
                         f.save()
-            except:
+            except Exception:
                 if instance.group_order is not None \
                         and instance.group_order.orders.count() == 1:
                     instance.group_order.delete()
                 instance.delete()
                 raise
 
+            payment_method = kwargs.get('payment_method')
+            if payment_method == PAYMENT_METHOD_PAYCONIQ:
+                instance.transaction = Transaction.start(
+                    amount=int(instance.total * 100),
+                    merchant=store.staff.merchant
+                )
+
             instance.save()
         return instance
+
+
+class ConfirmedOrderManager(OrderManager):
+
+    def get_queryset(self):
+        return super().get_queryset().filter(
+            models.Q(
+                payment_method=PAYMENT_METHOD_CASH
+            ) | models.Q(
+                payment_method=PAYMENT_METHOD_PAYCONIQ,
+                transaction__status=Transaction.SUCCEEDED
+            )
+        )
 
 
 class OrderedFoodManager(models.Manager):

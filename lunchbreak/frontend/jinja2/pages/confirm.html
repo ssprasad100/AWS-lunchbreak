@@ -40,7 +40,7 @@
             {% else %}
                 Je bestelling bij {{ store.name }} is succesvol geplaatst. Stap binnen vanaf {{ receipt | time('H:i') }} en haal je bestelling op!
             {% endif %}
-            {% if order.payment_gocardless %}
+            {% if order.payment_payconiq %}
                 De betaling wordt automatisch verwerkt, je portefeuille hoef je niet boven te halen! Gelieve genoeg geld te plaatsen op de gegeven rekening.
             {% endif %}
         </p>

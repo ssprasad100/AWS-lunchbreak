@@ -1,5 +1,3 @@
-GOCARDLESS_ENVIRONMENT = 'sandbox'
-GOCARDLESS_APP_DOMAIN = 'api.andreas.cloock.be'
 MIDDLEWARE_CLASSES += (
     'lunch.middleware.PrintExceptionMiddleware',
     'qinspect.middleware.QueryInspectMiddleware',

@@ -8,6 +8,7 @@ from rest_framework.settings import import_from_string
 from .apps import VersioningPrimeConfig as AppConfig
 
 logger = logging.getLogger()
+retrieved_modules = set()
 
 
 def get_version_index(version):
@@ -28,6 +29,9 @@ def get_classes(module):
         Classes from the given module.
         class
     """
+    if module.__name__ in retrieved_modules:
+        return
+    retrieved_modules.add(module.__name__)
     for name, obj in inspect.getmembers(module):
         if inspect.ismodule(obj):
             if obj.__name__.startswith(module.__name__):

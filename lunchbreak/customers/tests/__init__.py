@@ -1,5 +1,7 @@
+from business.models import Staff
 from django_sms.models import Phone
 from lunch.tests import LunchTestCase
+from payconiq.models import Merchant
 from push_notifications.models import SERVICE_APNS
 
 from ..models import User, UserToken
@@ -55,4 +57,14 @@ class CustomersTestCase(LunchTestCase):
             user=self.other_user,
             registration_id='something',
             service=SERVICE_APNS
+        )
+
+        self.merchant = Merchant.objects.create(
+            remote_id='12345',
+            access_token='secret'
+        )
+        self.staff = Staff.objects.create(
+            store=self.store,
+            email=self.EMAIL,
+            merchant=self.merchant
         )

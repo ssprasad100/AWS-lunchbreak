@@ -45,7 +45,11 @@ DATABASES = {
         'HOST': DB_HOST,
         'PORT': '3306',
         'OPTIONS': {
-            'charset': 'utf8mb4'
+            'charset': 'utf8mb4',
+        },
+        'TEST': {
+            'CHARSET': 'utf8mb4',
+            'COLLATION': 'utf8mb4_unicode_ci',
         }
     }
 }
@@ -60,32 +64,6 @@ PUSH_NOTIFICATIONS_SETTINGS = {
     'GCM_API_KEY': GOOGLE_CLOUD_SECRET,
     'APNS_CERTIFICATE': CUSTOMERS_APNS_CERTIFICATE,
 }
-
-# GoCardless settings
-GOCARDLESS = {
-    'access_token': get_variable('GOCARDLESS_ACCESS_TOKEN'),
-    'environment': get_variable('GOCARDLESS_ENVIRONMENT'),
-    'webhook': {
-        'secret': get_variable('GOCARDLESS_WEBHOOK_SECRET'),
-    },
-    'app': {
-        'domain': get_variable('GOCARDLESS_APP_DOMAIN'),
-        'client_id': get_variable('GOCARDLESS_APP_CLIENT_ID'),
-        'client_secret': get_variable('GOCARDLESS_APP_CLIENT_SECRET'),
-        'oauth_baseurl': {
-            'live': 'https://connect.gocardless.com',
-            'sandbox': 'https://connect-sandbox.gocardless.com'
-        },
-        'webhook': {
-            'secret': get_variable('GOCARDLESS_APP_WEBHOOK_SECRET')
-        },
-        'redirect': {
-            'success': 'lunchbreakstore://gocardless/redirect/success',
-            'error': 'lunchbreakstore://gocardless/redirect/error'
-        }
-    }
-}
-
 
 SMS = {
     'phone': '+32466900406',

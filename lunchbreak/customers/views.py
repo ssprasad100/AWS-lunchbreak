@@ -15,12 +15,12 @@ from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from .authentication import CustomerAuthentication
 from .config import DEMO_PHONE
-from .models import Group, Heart, Order, PaymentLink, User, UserToken
+from .models import Group, Heart, Order, User, UserToken
 from .serializers import (GroupSerializer, OrderDetailSerializer,
                           OrderedFoodPriceSerializer, OrderSerializer,
-                          PaymentLinkSerializer, StoreHeartSerializer,
-                          UserLoginSerializer, UserRegisterSerializer,
-                          UserTokenSerializer, UserTokenUpdateSerializer)
+                          StoreHeartSerializer, UserLoginSerializer,
+                          UserRegisterSerializer, UserTokenSerializer,
+                          UserTokenUpdateSerializer)
 
 
 class FoodViewSet(TargettedViewSet,
@@ -134,7 +134,6 @@ class StoreViewSet(TargettedViewSet,
     serializer_class_recent = StoreSerializer
     serializer_class_heart = StoreHeartSerializer
     serializer_class_unheart = StoreHeartSerializer
-    serializer_class_paymentlink = PaymentLinkSerializer
 
     queryset = Store.objects.all()
 
@@ -184,16 +183,6 @@ class StoreViewSet(TargettedViewSet,
             'name'
         )
 
-    @property
-    def serializer_context_paymentlink(self):
-        context = super(TargettedViewSet, self).get_serializer_context()
-        context.update(
-            {
-                'store': self.get_object()
-            }
-        )
-        return context
-
     def _heart(self, request, pk, option):
         store = self.get_object()
 
@@ -232,48 +221,6 @@ class StoreViewSet(TargettedViewSet,
             pk=pk,
             option='unheart'
         )
-
-    @detail_route(methods=['post', 'get'])
-    def paymentlink(self, request, pk=None):
-        try:
-            paymentlink = PaymentLink.objects.select_related(
-                'redirectflow',
-                'user',
-                'store'
-            ).get(
-                user=request.user,
-                store=self.get_object()
-            )
-            paymentlink = paymentlink if paymentlink.redirectflow.is_completed else None
-        except PaymentLink.DoesNotExist:
-            paymentlink = None
-
-        if request.method == 'GET':
-            if paymentlink is None:
-                return Response(
-                    status=status.HTTP_404_NOT_FOUND
-                )
-            serializer = self.get_serializer(
-                paymentlink
-            )
-            return Response(
-                data=serializer.data,
-                status=status.HTTP_200_OK
-            )
-
-        else:
-            serializer = self.get_serializer(
-                paymentlink,
-                data=request.data
-            )
-
-            if serializer.is_valid(raise_exception=True):
-                serializer.save()
-                return Response(
-                    data=serializer.data,
-                    status=status.HTTP_201_CREATED
-                    if paymentlink is None else status.HTTP_200_OK
-                )
 
     @list_route(methods=['get'])
     def recent(self, request):

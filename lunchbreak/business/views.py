@@ -10,8 +10,6 @@ from django.core.validators import validate_email
 from django.db.models import Count
 from django.http import Http404
 from django.utils import timezone
-from django_gocardless.models import Merchant
-from django_gocardless.serializers import MerchantSerializer
 from lunch import views as lunch_views
 from lunch.models import (Food, FoodType, HolidayPeriod, Ingredient,
                           IngredientGroup, Menu, Quantity, Store)
@@ -19,6 +17,7 @@ from lunch.serializers import (FoodTypeSerializer, MenuSerializer,
                                QuantityDetailSerializer)
 from Lunchbreak.exceptions import LunchbreakException
 from Lunchbreak.views import TargettedViewSet
+from payconiq.models import Merchant
 from rest_framework import generics, mixins, status, viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.exceptions import MethodNotAllowed
@@ -128,7 +127,6 @@ class StoreViewSet(TargettedViewSet,
     permission_classes = (StoreOwnerPermission,)
 
     serializer_class = StoreDetailSerializer
-    serializer_class_merchant = MerchantSerializer
     serializer_class_header = StoreHeaderSerializer
 
     @property
@@ -138,30 +136,6 @@ class StoreViewSet(TargettedViewSet,
         return parser_classes
 
     queryset = Store.objects.all()
-
-    @detail_route(methods=['get'], permission_classes=[StoreOwnerOnlyPermission])
-    def merchant(self, request, pk=None):
-        store = self.get_object()
-
-        if store.staff.is_merchant:
-            return Response(
-                self.get_serializer_class()(
-                    store.staff.merchant
-                ).data
-            )
-
-        if store.staff.merchant is not None:
-            store.staff.merchant.delete()
-
-        merchant, url = Merchant.authorisation_link(
-            email=store.staff.email
-        )
-        store.staff.merchant = merchant
-        store.staff.save()
-
-        return Response(
-            StoreMerchantSerializer(url).data
-        )
 
     @detail_route(methods=['get', 'post'])
     def header(self, request, pk=None):
@@ -187,6 +161,20 @@ class StoreViewSet(TargettedViewSet,
                     store.header.delete()
                 serializer.save()
                 return Response(status=status.HTTP_200_OK)
+
+
+class StoreMerchantViewSet(TargettedViewSet,
+                           NestedViewSetMixin,
+                           mixins.RetrieveModelMixin,
+                           mixins.CreateModelMixin,
+                           mixins.DestroyModelMixin):
+    authentication_classes = (StoreOwnerOnlyPermission,)
+    serializer_class = StoreMerchantSerializer
+
+    def get_queryset(self):
+        return Merchant.objects.filter(
+            merchant__store_id=self.kwargs['parent_lookup_pk']
+        )
 
 
 class FoodViewSet(TargettedViewSet,

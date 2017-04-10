@@ -1,14 +1,14 @@
 import json
 
 from customers.config import ORDER_STATUSES_ENDED
-from customers.models import Group, Order, PaymentLink, TemporaryOrder
+from customers.models import Group, Order, TemporaryOrder
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.db.models import Count
 from django.http import Http404, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, render
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_exempt
@@ -173,29 +173,6 @@ class OrderView(LoginForwardMixin, TemplateView):
         order_form = context['order_form']
         if request.method == 'POST' and user_form.is_valid() and order_form.is_valid():
             user_form.save()
-
-            if order_form.needs_paymentlink:
-                store = context['store']
-                paymentlink = PaymentLink.create(
-                    user=self.request.user,
-                    store=store,
-                    completion_redirect_url=request.build_absolute_uri(
-                        reverse(
-                            'frontend:order',
-                            kwargs={
-                                'store_id': store.id
-                            }
-                        )
-                    )
-                )
-                response = self.create_forward(
-                    request=request,
-                    data=self.data,
-                    response=redirect(
-                        to=paymentlink.redirectflow.redirect_url
-                    )
-                )
-                return response
 
             placed_order = order_form.save(
                 temporary_order=context['order']

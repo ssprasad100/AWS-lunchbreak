@@ -24,8 +24,8 @@ urlpatterns = [
         include('customers.urls.api')
     ),
     url(
-        r'^gocardless/',
-        include('django_gocardless.urls')
+        r'^payconiq/',
+        include('payconiq.urls')
     ),
     url(
         r'^',

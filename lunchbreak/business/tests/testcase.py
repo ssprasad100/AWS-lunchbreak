@@ -8,11 +8,6 @@ class BusinessTestCase(CustomersTestCase):
     def setUp(self):
         super().setUp()
 
-        self.staff = Staff.objects.create(
-            store=self.store,
-            email=self.EMAIL
-        )
-
         self.owner = Employee.objects.create(
             staff=self.staff,
             name='Owner',
