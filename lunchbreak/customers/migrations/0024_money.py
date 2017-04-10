@@ -78,7 +78,7 @@ def migration_reverse(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('customers', '0022_group_payment_online_only'),
+        ('customers', '0023_order_placed_default'),
         ('lunch', '0022_money'),
     ]
 

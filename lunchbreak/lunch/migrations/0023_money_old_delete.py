@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('lunch', '0022_money'),
-        ('customers', '0023_money')
+        ('customers', '0024_money')
     ]
 
     operations = [
