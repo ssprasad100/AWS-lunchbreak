@@ -1,3 +1,5 @@
+from itertools import permutations
+
 from ..transformation import Transformation
 from .serializers import TestField, TestSerializer
 from .testcase import VersioningPrimeTestCase
@@ -82,41 +84,51 @@ class TransformationTestCase(VersioningPrimeTestCase):
             field=TestField()
         )
 
-        # Serializers and specific fields can be in the same transformer.
-        serializer_transformations = [
-            serializer100,
-            specific_field090,
-            specific_field100,
-            serializer101,
-            serializer090,
-            specific_field101,
-        ]
-        serializer_transformations.sort()
-        self.assertEqual(
-            serializer_transformations,
+        perms = permutations(
             [
-                specific_field090,
                 serializer090,
-                specific_field100,
                 serializer100,
-                specific_field101,
                 serializer101,
+                specific_field090,
+                specific_field100,
+                specific_field101,
             ]
         )
 
+        # Serializers and specific fields can be in the same transformer.
+        for p in perms:
+            permutation = list(p)
+            permutation.sort()
+            self.assertEqual(
+                permutation,
+                [
+                    specific_field090,
+                    serializer090,
+                    specific_field100,
+                    serializer100,
+                    specific_field101,
+                    serializer101,
+                ]
+            )
+
         # Fields cannot have specific fields and cannot be applied together with
         # serializer or specific fields.
-        field_transformations = [
-            field101,
-            field090,
-            field100,
-        ]
-        field_transformations.sort()
-        self.assertEqual(
-            field_transformations,
+        perms = permutations(
             [
+                field101,
                 field090,
                 field100,
-                field101,
             ]
         )
+
+        for p in perms:
+            permutation = list(p)
+            permutation.sort()
+            self.assertEqual(
+                permutation,
+                [
+                    field090,
+                    field100,
+                    field101,
+                ]
+            )
