@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 import mock
 from business.models import Staff
 from django.core.urlresolvers import reverse
@@ -21,53 +23,32 @@ from ..models import Address, Order, OrderedFood, PaymentLink
 
 class OrderTestCase(CustomersTestCase):
 
-    @mock.patch('customers.models.User.notify')
-    @mock.patch('lunch.models.Store.is_open')
-    @mock.patch('googlemaps.Client.timezone')
-    @mock.patch('googlemaps.Client.geocode')
-    def test_order(self, mock_geocode, mock_timezone, mock_is_open, mock_notify):
-        """
-        Test an order's total and whether marked Food's are deleted on save.
-        """
-        self.mock_timezone_result(mock_timezone)
-
-        self.mock_geocode_results(mock_geocode)
-        self.food, original = self.clone_model(self.food)
-
-        content = {
-            'receipt': self.midday.add(days=1).isoformat(),
-            'store': self.store.id,
-            'orderedfood': [
-                {
-                    'original': original.id,
-                    'total': original.cost * original.amount,
-                    'amount': original.amount
-                },
-                {
-                    'original': original.id,
-                    'total': original.cost * original.amount,
-                    'amount': original.amount
-                }
-            ]
-        }
+    def create_order(self, content, **extra):
         url = reverse('customers:order-list')
+        request = self.factory.post(url, content, **extra)
+        response = self.authenticate_request(
+            request,
+            views.OrderViewSet,
+            view_actions={
+                'post': 'create'
+            }
+        )
+        if response.status_code == status.HTTP_201_CREATED:
+            order = Order.objects.get(
+                id=response.data['id']
+            )
+            return (response, order)
+        return (response, None)
 
-        view_actions = {
-            'post': 'create'
-        }
+    def order_test_versioning(self, get_content, version, mock_is_open):
+        self.food, original = self.clone_model(self.food)
+        content = get_content(original=original)
 
         def create_order():
-            request = self.factory.post(url, content)
-            response = self.authenticate_request(
-                request,
-                views.OrderViewSet,
-                view_actions=view_actions
-            )
-            if response.status_code == status.HTTP_201_CREATED:
-                order = Order.objects.get(id=response.data['id'])
+            response, order = self.create_order(content, HTTP_X_VERSION=version)
+            if order is not None:
                 self.assertEqual(order.total, original.cost * 2)
-                return (response, order)
-            return (response, None)
+            return response, order
 
         mock_is_open.reset_mock()
         response, order = create_order()
@@ -96,19 +77,7 @@ class OrderTestCase(CustomersTestCase):
 
         # Test delivery address exceptions
         self.food, original = self.clone_model(self.food)
-        content['orderedfood'] = [
-            {
-                'original': original.id,
-                'total': original.cost * original.amount,
-                'amount': original.amount
-            },
-            {
-                'original': original.id,
-                'total': original.cost * original.amount,
-                'amount': original.amount
-            }
-        ]
-
+        content = get_content(original=original)
         address = Address.objects.create(
             user=self.user,
             country='België',
@@ -135,6 +104,76 @@ class OrderTestCase(CustomersTestCase):
         del content['delivery_address']
         response, order = create_order()
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    @mock.patch('customers.models.User.notify')
+    @mock.patch('lunch.models.Store.is_open')
+    @mock.patch('googlemaps.Client.timezone')
+    @mock.patch('googlemaps.Client.geocode')
+    def test_order_decimals(self, mock_geocode, mock_timezone, mock_is_open, mock_notify):
+        """
+        Test an order's total and whether marked Food's are deleted on save.
+        """
+        self.mock_timezone_result(mock_timezone)
+        self.mock_geocode_results(mock_geocode)
+
+        def get_content(original):
+            return {
+                'receipt': self.midday.add(days=1).isoformat(),
+                'store': self.store.id,
+                'orderedfood': [
+                    {
+                        'original': original.id,
+                        'total': Decimal(original.cost) * original.amount / Decimal(100),
+                        'amount': original.amount
+                    },
+                    {
+                        'original': original.id,
+                        'total': Decimal(original.cost) * original.amount / Decimal(100),
+                        'amount': original.amount
+                    }
+                ]
+            }
+
+        self.order_test_versioning(
+            get_content=get_content,
+            version='2.1.0',
+            mock_is_open=mock_is_open
+        )
+
+    @mock.patch('customers.models.User.notify')
+    @mock.patch('lunch.models.Store.is_open')
+    @mock.patch('googlemaps.Client.timezone')
+    @mock.patch('googlemaps.Client.geocode')
+    def test_order_integers(self, mock_geocode, mock_timezone, mock_is_open, mock_notify):
+        """
+        Test an order's total and whether marked Food's are deleted on save.
+        """
+        self.mock_timezone_result(mock_timezone)
+        self.mock_geocode_results(mock_geocode)
+
+        def get_content(original):
+            return {
+                'receipt': self.midday.add(days=1).isoformat(),
+                'store': self.store.id,
+                'orderedfood': [
+                    {
+                        'original': original.id,
+                        'total': original.cost * original.amount,
+                        'amount': original.amount
+                    },
+                    {
+                        'original': original.id,
+                        'total': original.cost * original.amount,
+                        'amount': original.amount
+                    }
+                ]
+            }
+
+        self.order_test_versioning(
+            get_content=get_content,
+            version='2.2.0',
+            mock_is_open=mock_is_open
+        )
 
     @mock.patch('lunch.models.Store.is_open')
     def test_order_with_ingredients(self, mock_is_open):
