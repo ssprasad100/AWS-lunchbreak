@@ -55,7 +55,8 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE_CLASSES = (
-    'Lunchbreak.middleware.SubdomainHostMiddleWare',
+    'Lunchbreak.middleware.RedirectHostMiddleware',
+    'Lunchbreak.middleware.SubdomainHostMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',

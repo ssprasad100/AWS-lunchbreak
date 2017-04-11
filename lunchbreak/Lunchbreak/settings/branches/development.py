@@ -11,10 +11,19 @@ ALLOWED_HOSTS = [
     'www.lunchbreak.dev',
     'api.lunchbreak.dev',
 
+    'lunchbreak.redirect',
+    'www.lunchbreak.redirect',
+    'api.lunchbreak.redirect',
+
     'andreas.cloock.be',
     'www.andreas.cloock.be',
     'api.andreas.cloock.be',
 ]
+
+REDIRECTED_HOSTS = {
+    'lunchbreak.redirect': 'www.lunchbreak.dev',
+    'www.lunchbreak.redirect': 'www.lunchbreak.dev',
+}
 
 INSTALLED_APPS = [
     'livereload',

@@ -9,15 +9,12 @@ ALLOWED_HOSTS = [
     'lunchbreak.io',
     'www.lunchbreak.io',
     'api.lunchbreak.io',
-
-    'lunchbreak.eu',
-    'www.lunchbreak.eu',
-    'api.lunchbreak.eu',
-
-    'lunchbreak.fr',
-    'www.lunchbreak.fr',
-    'api.lunchbreak.fr',
 ]
+
+REDIRECTED_HOSTS = {
+    'lunchbreakapp.be': 'www.lunchbreak.io',
+    'www.lunchbreakapp.be': 'www.lunchbreak.io',
+}
 
 VERSION = '2.0.13'
 RAVEN_ENVIRONMENT = 'production'
