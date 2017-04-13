@@ -907,7 +907,7 @@ class Order(StatusSignalModel, AbstractOrder):
                 and self.group.payment_online_only \
                 and (
                     self.store.staff.gocardless_ready
-                    or self.store.staff.gocardless_ready
+                    or self.store.staff.payconiq_ready
                 ):
             raise OnlinePaymentRequired()
         # if self.payment_method == PAYMENT_METHOD_PAYCONIQ:

@@ -35,16 +35,16 @@ class WebhookView(ValidatedView):
     def is_valid(self, request):
         return True
 
-        signature = request.META.get('HTTP_X_SECURITY_SIGNATURE')
-        timestamp = request.META.get('HTTP_X_SECURITY_TIMESTAMP')
-        key = request.META.get('HTTP_X_SECURITY_KEY')
-        algorithm = request.META.get('HTTP_X_SECURITY_ALGORITHM')
+        # signature = request.META.get('HTTP_X_SECURITY_SIGNATURE')
+        # timestamp = request.META.get('HTTP_X_SECURITY_TIMESTAMP')
+        # key = request.META.get('HTTP_X_SECURITY_KEY')
+        # algorithm = request.META.get('HTTP_X_SECURITY_ALGORITHM')
 
-        print('request.META', request.META)
-        print('signature', signature)
-        print('timestamp', timestamp)
-        print('key', key)
-        print('algorithm', algorithm)
+        # print('request.META', request.META)
+        # print('signature', signature)
+        # print('timestamp', timestamp)
+        # print('key', key)
+        # print('algorithm', algorithm)
 
     def post(self, request, *args, **kwargs):
         try:

@@ -1,12 +1,11 @@
 import uuid
+from decimal import Decimal
 
-import payconiq
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.translation import ugettext as _
 from payconiq import Transaction as PayconiqTransaction
-from decimal import Decimal
 
 
 class Merchant(models.Model):

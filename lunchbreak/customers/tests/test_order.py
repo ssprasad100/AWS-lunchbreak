@@ -2,7 +2,6 @@ import json
 from decimal import Decimal
 
 import mock
-from business.models import Staff
 from django.core.urlresolvers import reverse
 from django_gocardless.exceptions import MerchantAccessError
 from django_gocardless.models import Merchant as GoCardlessMerchant
@@ -324,7 +323,7 @@ class OrderTestCase(CustomersTestCase):
 
         transaction = Transaction.objects.create(
             remote_id='12345',
-            amount=int(total * 100),
+            amount=total,
             merchant=self.payconiq
         )
         mock_transaction.return_value = transaction
