@@ -15,6 +15,10 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
+from django_gocardless.config import CURRENCY_EUR, PAYMENT_STATUS_PAID_OUT
+from django_gocardless.exceptions import (DjangoGoCardlessException,
+                                          MerchantAccessError)
+from django_gocardless.models import Payment, RedirectFlow
 from django_sms.exceptions import PinTimeout
 from django_sms.models import Phone
 from lunch.config import (COST_GROUP_ADDITIONS, COST_GROUP_BOTH, INPUT_AMOUNT,
@@ -23,7 +27,7 @@ from lunch.exceptions import LinkingError, NoDeliveryToAddress
 from lunch.models import AbstractAddress, BaseToken, Food, Ingredient, Store
 from lunch.utils import timezone_for_store, uggettext_summation
 from Lunchbreak.exceptions import LunchbreakException
-from Lunchbreak.fields import (MoneyField, CostField, RoundingDecimalField,
+from Lunchbreak.fields import (CostField, MoneyField, RoundingDecimalField,
                                StatusSignalField)
 from Lunchbreak.mixins import CleanModelMixin
 from Lunchbreak.models import StatusSignalModel
@@ -38,10 +42,11 @@ from .config import (GROUP_ORDER_STATUSES, ORDER_STATUS_COMPLETED,
                      ORDER_STATUS_WAITING, ORDER_STATUSES,
                      ORDER_STATUSES_ACTIVE, ORDEREDFOOD_STATUS_OK,
                      ORDEREDFOOD_STATUS_OUT_OF_STOCK, ORDEREDFOOD_STATUSES,
-                     PAYMENT_METHOD_CASH, PAYMENT_METHOD_PAYCONIQ,
-                     PAYMENT_METHODS)
-from .exceptions import (CostCheckFailed, MinDaysExceeded,
-                         OnlinePaymentRequired, PreorderTimeExceeded,
+                     PAYMENT_METHOD_CASH, PAYMENT_METHOD_GOCARDLESS,
+                     PAYMENT_METHOD_PAYCONIQ, PAYMENT_METHODS)
+from .exceptions import (CostCheckFailed, GoCardlessDisabled, MinDaysExceeded,
+                         NoPaymentLink, OnlinePaymentRequired,
+                         PaymentLinkNotConfirmed, PreorderTimeExceeded,
                          UserDisabled)
 from .managers import (ConfirmedOrderManager, GroupManager, OrderedFoodManager,
                        OrderManager, UserManager)
@@ -96,6 +101,18 @@ class User(AbstractBaseUser, PermissionsMixin):
         help_text=_(
             'Lunchbreak werknemer, dit geeft toegang tot het controle paneel.'
         )
+    )
+
+    paymentlinks = models.ManyToManyField(
+        Store,
+        through='PaymentLink',
+        through_fields=(
+            'user',
+            'store',
+        ),
+        blank=True,
+        verbose_name=_('getekende mandaten'),
+        help_text=_('Getekende mandaten.')
     )
 
     @property
@@ -214,6 +231,94 @@ class Address(AbstractAddress):
             self.save()
         else:
             super(Address, self).delete(*args, **kwargs)
+
+
+class PaymentLink(models.Model):
+
+    class Meta:
+        unique_together = ('user', 'store',)
+        verbose_name = _('betalingskoppeling')
+        verbose_name_plural = _('betalingskoppelingen')
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name=_('gebruiker'),
+        help_text=_('Gebruiker.')
+    )
+    store = models.ForeignKey(
+        Store,
+        on_delete=models.CASCADE,
+        verbose_name=_('winkel'),
+        help_text=_('Winkel.')
+    )
+
+    redirectflow = models.ForeignKey(
+        RedirectFlow,
+        on_delete=models.CASCADE,
+        verbose_name=_('doorverwijzing'),
+        help_text=_(
+            'GoCardless doorverwijzing voor het tekenen van een mandaat.'
+        )
+    )
+
+    @classmethod
+    def create(cls, user, store, instance=None, **kwargs):
+        if not store.staff.gocardless_ready:
+            raise GoCardlessDisabled()
+
+        if instance is None:
+            cls.objects.filter(
+                user=user,
+                store=store
+            ).delete()
+        elif isinstance(instance, cls):
+            instance.delete()
+
+        redirectflow = RedirectFlow.create(
+            description=_('Lunchbreak'),
+            merchant=store.staff.gocardless,
+            **kwargs
+        )
+
+        return cls.objects.create(
+            user=user,
+            store=store,
+            redirectflow=redirectflow
+        )
+
+    @staticmethod
+    def post_delete(sender, instance, using, **kwargs):
+        instance.redirectflow.delete()
+
+        updated_orders = instance.user.order_set.filter(
+            status__in=ORDER_STATUSES_ACTIVE,
+            payment_method=PAYMENT_METHOD_GOCARDLESS
+        ).update(
+            payment_method=PAYMENT_METHOD_CASH
+        )
+        if updated_orders > 0:
+            instance.user.notify(
+                _(
+                    'Uw bankrekening werd door ons systeem geweigerd en '
+                    'verwijderd. Lopende bestellingen zijn nu contant te '
+                    'betalen.'
+                )
+            )
+            instance.store.staff.notify(
+                _(
+                    'De online betaling van %(user)s is geweigerd. De lopende '
+                    'bestellingen hiervan zijn aangepast naar contant.'
+                ) % {
+                    'user': instance.user.name
+                }
+            )
+
+    def __str__(self):
+        return '{user}, {store}'.format(
+            user=self.user,
+            store=self.store
+        )
 
 
 class Group(models.Model):
@@ -398,7 +503,7 @@ class GroupOrder(StatusSignalModel):
             self._total += order.total
             self._total_no_discount += order.total_no_discount
             self._discounted_amount += order.discounted_amount
-            if order.payment_payconiq:
+            if order.payment_gocardless or order.payment_payconiq:
                 self._paid_total += order.total
 
     def save(self, *args, **kwargs):
@@ -564,6 +669,14 @@ class Order(StatusSignalModel, AbstractOrder):
         verbose_name=_('opmerking bij de bestelling'),
         help_text=_('Bv: extra extra mayonaise graag!')
     )
+    payment = models.OneToOneField(
+        'django_gocardless.Payment',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name=_('betaling'),
+        help_text=_('Betaling.')
+    )
     payment_method = models.IntegerField(
         choices=PAYMENT_METHODS,
         default=PAYMENT_METHOD_CASH,
@@ -639,11 +752,22 @@ class Order(StatusSignalModel, AbstractOrder):
 
     @property
     def paid(self):
-        if self.payment_method == PAYMENT_METHOD_CASH:
+        if self.payment_cash:
             return self.status == ORDER_STATUS_COMPLETED
+        elif self.payment_gocardless:
+            return self.payment is None and \
+                self.payment.status == PAYMENT_STATUS_PAID_OUT
         else:
             return self.transaction is not None and \
                 self.transaction.succeeeded
+
+    @property
+    def payment_cash(self):
+        return self.payment_method == PAYMENT_METHOD_CASH
+
+    @property
+    def payment_gocardless(self):
+        return self.payment_method == PAYMENT_METHOD_GOCARDLESS
 
     @property
     def payment_payconiq(self):
@@ -759,6 +883,33 @@ class Order(StatusSignalModel, AbstractOrder):
                 self.receipt = self.receipt._datetime
 
     def clean_payment_method(self):
+        if self.payment_gocardless:
+            try:
+                paymentlink = PaymentLink.objects.get(
+                    user=self.user,
+                    store=self.store
+                )
+                if not paymentlink.redirectflow.is_completed:
+                    raise PaymentLinkNotConfirmed()
+            except PaymentLink.DoesNotExist:
+                if self.pk is None:
+                    raise NoPaymentLink()
+                self.payment_method = PAYMENT_METHOD_CASH
+                self.user.notify(
+                    _(
+                        'Er liep iets fout bij de online betaling. Gelieve '
+                        'contant te betalen bij het ophalen.'
+                    )
+                )
+        elif self.payment_cash \
+                and self.pk is None \
+                and self.group is not None \
+                and self.group.payment_online_only \
+                and (
+                    self.store.staff.gocardless_ready
+                    or self.store.staff.gocardless_ready
+                ):
+            raise OnlinePaymentRequired()
         # if self.payment_method == PAYMENT_METHOD_PAYCONIQ:
         #     transaction = getattr(self, 'transaction', None)
         #     if transaction is not None and not transaction.waiting and not transaction.succeeded:
@@ -768,12 +919,6 @@ class Order(StatusSignalModel, AbstractOrder):
         #                 'contant te betalen bij het ophalen.'
         #             )
         #         )
-        if self.payment_method == PAYMENT_METHOD_CASH \
-                and self.pk is None \
-                and self.group is not None \
-                and self.group.payment_online_only \
-                and self.store.staff.is_merchant:
-            raise OnlinePaymentRequired()
 
     def clean_group_order(self):
         if self.group is not None:
@@ -785,6 +930,55 @@ class Order(StatusSignalModel, AbstractOrder):
                 raise LinkingError(
                     _('Je kan enkel bestellen bij groepen waartoe je behoort.')
                 )
+
+    def create_payment(self):
+        if self.payment_gocardless:
+            try:
+                paymentlink = self.user.paymentlink_set.select_related(
+                    'redirectflow__mandate'
+                ).get(
+                    store=self.store
+                )
+
+                if paymentlink.redirectflow.is_completed:
+                    mandate = paymentlink.redirectflow.mandate
+                    self.payment = Payment.create(
+                        given={
+                            'amount': int(self.total * 100),
+                            'currency': CURRENCY_EUR,
+                            'links': {
+                                'mandate': mandate
+                            },
+                            'description': _(
+                                'Lunchbreak bestelling #%(order_id)s bij %(store)s.'
+                            ) % {
+                                'order_id': self.id,
+                                'store': self.store.name
+                            }
+                        }
+                    )
+                    self.save()
+                    return
+            except MerchantAccessError as e:
+                merchant = self.store.staff.gocardless
+                if merchant is not None:
+                    merchant.delete()
+                    self.store.staff.notify(
+                        _('GoCardless account ontkoppelt wegens fout.')
+                    )
+            except (PaymentLink.DoesNotExist, DjangoGoCardlessException):
+                pass
+            # Could not create payment
+            if paymentlink is not None:
+                paymentlink.delete()
+            self.payment_method = PAYMENT_METHOD_CASH
+            self.user.notify(
+                _(
+                    'Er liep iets fout bij de online betaling. Gelieve '
+                    'contant te betalen bij het ophalen.'
+                )
+            )
+            self.save()
 
     @classmethod
     def created(cls, sender, order, **kwargs):
@@ -810,6 +1004,7 @@ class Order(StatusSignalModel, AbstractOrder):
 
     @classmethod
     def completed(cls, sender, order, **kwargs):
+        order.create_payment()
         order.update_hard_delete()
 
     @classmethod
@@ -821,6 +1016,7 @@ class Order(StatusSignalModel, AbstractOrder):
 
     @classmethod
     def not_collected(cls, sender, order, **kwargs):
+        order.create_payment()
         order.update_hard_delete()
 
 
@@ -1095,7 +1291,8 @@ class OrderedFood(CleanModelMixin, StatusSignalModel):
 
         Args:
             ingredients (list): List of ingredient ids
-            food (Food): Food to base the calculation off of, most of the timethe original/closest food.
+            food (Food): Food to base the calculation off of, most of the time
+            the original/closest food.
 
         Returns:
             Decimal: Base cost of edited food.

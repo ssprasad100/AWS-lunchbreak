@@ -290,10 +290,13 @@ class GroupOrderTestCase(BaseGroupTestCase):
     @mock.patch('lunch.models.Store.is_open')
     @mock.patch('customers.tasks.send_group_order_email.apply_async')
     @mock.patch('django.core.mail.EmailMultiAlternatives.send')
-    def test_payment_online_only(self, mock_send, mock_task, mock_is_open, mock_staff):
-        """Test whether groups where only online payments are allowed block cash orders."""
+    def test_payment_online_only_gocardless(self, mock_send, mock_task, mock_is_open, mock_staff):
+        """Test whether groups where only online payments are allowed block cash orders.
 
-        mock_staff.is_merchant = True
+        TODO: Add payconiq tests.
+        """
+
+        mock_staff.gocardless_ready = True
 
         # Creating a group order when payments online only is True,
         # should result in an error.
@@ -327,7 +330,7 @@ class GroupOrderTestCase(BaseGroupTestCase):
 
         # Cash payments should still be allowed even if the group only allows
         # online payments if the store has it disabled.
-        mock_staff.is_merchant = False
+        mock_staff.gocardless_ready = False
         self.create_order(group_order)
 
     @mock.patch('lunch.models.Store.is_open')

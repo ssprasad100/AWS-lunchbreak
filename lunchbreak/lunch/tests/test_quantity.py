@@ -1,5 +1,5 @@
 import mock
-from Lunchbreak.test import LunchbreakTestCase
+from Lunchbreak.tests.testcase import LunchbreakTestCase
 from Lunchbreak.exceptions import LunchbreakException
 
 from ..models import FoodType, Quantity, Store

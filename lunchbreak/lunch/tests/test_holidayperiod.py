@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 
 import mock
 from Lunchbreak.exceptions import LunchbreakException
-from Lunchbreak.test import LunchbreakTestCase
+from Lunchbreak.tests.testcase import LunchbreakTestCase
 
 from ..models import HolidayPeriod, Store
 

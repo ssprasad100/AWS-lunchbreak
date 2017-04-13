@@ -38,7 +38,8 @@ class StoreDetailSerializer(serializers.ModelSerializer):
             'wait',
             'preorder_time',
             'enabled',
-            'online_payments_enabled',
+            'gocardless_enabled',
+            'payconiq_enabled',
         )
         read_only_fields = (
             'id',
@@ -49,7 +50,15 @@ class StoreDetailSerializer(serializers.ModelSerializer):
         )
 
 
-class StoreMerchantSerializer(MerchantSerializer):
+class StoreGoCardlessSerializer(serializers.BaseSerializer):
+
+    def to_representation(self, url):
+        return {
+            'authorisation_link': url
+        }
+
+
+class StorePayconiqSerializer(MerchantSerializer):
     store = serializers.HiddenField(
         write_only=True,
         default=serializers.CreateOnlyDefault(

@@ -284,9 +284,18 @@ class Store(AbstractAddress):
         help_text=_('Tijdzone.')
     )
 
-    online_payments_enabled = models.BooleanField(
+    gocardless_enabled = models.BooleanField(
         default=True,
-        verbose_name=_('online betalingen ingeschakeld'),
+        verbose_name=_('gocardless betalingen ingeschakeld'),
+        help_text=_(
+            'Online betalingen ingeschakeld, er moet een GoCardless '
+            'merchant gelinkt worden voor online betalingen '
+            'aanvaard kunnen worden.'
+        )
+    )
+    payconiq_enabled = models.BooleanField(
+        default=True,
+        verbose_name=_('payconiq betalingen ingeschakeld'),
         help_text=_(
             'Online betalingen ingeschakeld, er moet een Payconiq '
             'merchant gelinkt worden voor online betalingen '

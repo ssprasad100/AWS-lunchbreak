@@ -23,9 +23,8 @@ Je bent slechts enkele stappen verwijderd van deze moderne manier van bestellen:
 
     2. Bestel met Lunchbreak via de iOS app, Android app of web app.
 
-
-{% if group.store.staff.is_merchant %}
-Je zal zien dat je bestellingen zelfs online kan betalen zonder dat je het bakje van de bank nodig hebt. Lunchbreak werkt hiervoor met domiciliëring via Payconiq. Gewoon in de app jouw bankrekeningnummer invullen en jouw bestellingen worden automatisch betaald. Is dit wel veilig? Geen zorgen, jouw bank verwittigt je van elke betaling via hun online bankieren portaal, jij hebt dus volledige controle!
+{% if group.store.staff.gocardless_enabled or group.store.staff.payconiq_emabled %}
+Je zal zien dat je bestellingen zelfs online kan betalen zonder dat je het bakje van de bank nodig hebt.{%- if group.store.staff.gocardless_enabled and group.store.staff.payconiq_emabled -%}Lunchbreak werkt hiervoor met domiciliëring via Payconiq en GoCardless. Bij Payconiq wordt je doorverwezen naar hun app. Daar heb je de veiligheid van de Belgische banken die ervoor zorgen dat jouw betaling veilig bij de winkel terechtkomt! GoCardless is net zo veilig, maar werkt zonder app. Het voordeel van GoCardless is dat bijvoorbeeld slagers hun prijs lichtjes kunnen aanpassen omdat gewichten kunnen afwijken. Zo wordt er je zeker niet te veel aangerekend.{%- elif group.store.staff.gocardless_enabled -%}Lunchbreak werkt hiervoor met domiciliëring via GoCardless. Gewoon in de app jouw bankrekeningnummer invullen en jouw bestellingen worden automatisch betaald. Is dit wel veilig? Geen zorgen, jouw bank verwittigt je van elke betaling via hun online bankieren portaal, jij hebt dus volledige controle! Het voordeel van GoCardless is dat bijvoorbeeld slagers hun prijs lichtjes kunnen aanpassen omdat gewichten kunnen afwijken. Zo wordt er je zeker niet te veel aangerekend.{%- else -%}Lunchbreak werkt hiervoor met domiciliëring via Payconiq. Je wordt doorverwezen naar de Payconiq app waar je je betaling afrondt. Hierbij heb je de veiligheid van de Belgische banken die ervoor zorgen dat jouw betaling veilig bij de winkel terechtkomt!{%- endif -%}
 {% endif %}
 
 Smakelijk!

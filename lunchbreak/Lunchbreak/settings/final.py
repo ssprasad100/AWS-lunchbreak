@@ -65,6 +65,30 @@ PUSH_NOTIFICATIONS_SETTINGS = {
     'APNS_CERTIFICATE': CUSTOMERS_APNS_CERTIFICATE,
 }
 
+GOCARDLESS = {
+    'access_token': get_variable('GOCARDLESS_ACCESS_TOKEN'),
+    'environment': get_variable('GOCARDLESS_ENVIRONMENT'),
+    'webhook': {
+        'secret': get_variable('GOCARDLESS_WEBHOOK_SECRET'),
+    },
+    'app': {
+        'domain': get_variable('GOCARDLESS_APP_DOMAIN'),
+        'client_id': get_variable('GOCARDLESS_APP_CLIENT_ID'),
+        'client_secret': get_variable('GOCARDLESS_APP_CLIENT_SECRET'),
+        'oauth_baseurl': {
+            'live': 'https://connect.gocardless.com',
+            'sandbox': 'https://connect-sandbox.gocardless.com'
+        },
+        'webhook': {
+            'secret': get_variable('GOCARDLESS_APP_WEBHOOK_SECRET')
+        },
+        'redirect': {
+            'success': 'lunchbreakstore://gocardless/redirect/success',
+            'error': 'lunchbreakstore://gocardless/redirect/error'
+        }
+    }
+}
+
 SMS = {
     'phone': '+32466900406',
     'text_template': '{pin} is je Lunchbreak authenticatie code, welkom!',

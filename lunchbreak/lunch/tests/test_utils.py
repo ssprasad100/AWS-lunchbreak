@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from Lunchbreak.test import LunchbreakTestCase
+from Lunchbreak.tests.testcase import LunchbreakTestCase
 from pendulum import Pendulum
 
 from ..models import Store

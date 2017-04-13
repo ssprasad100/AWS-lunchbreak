@@ -129,8 +129,8 @@ class OrderManager(models.Manager):
             payment_method = kwargs.get('payment_method')
             if payment_method == PAYMENT_METHOD_PAYCONIQ:
                 instance.transaction = Transaction.start(
-                    amount=int(instance.total * 100),
-                    merchant=store.staff.merchant
+                    amount=instance.total,
+                    merchant=store.staff.payconiq
                 )
 
             instance.save()

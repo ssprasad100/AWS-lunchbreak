@@ -2,7 +2,7 @@ from datetime import timedelta
 
 import mock
 from django.utils import timezone
-from Lunchbreak.test import LunchbreakTestCase
+from Lunchbreak.tests.testcase import LunchbreakTestCase
 from rest_framework.test import APIRequestFactory
 
 from ..models import (Food, FoodType, HolidayPeriod, Ingredient,

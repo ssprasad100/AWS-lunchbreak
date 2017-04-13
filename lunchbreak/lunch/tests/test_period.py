@@ -2,7 +2,7 @@ from datetime import time, timedelta
 
 import mock
 import pendulum
-from Lunchbreak.test import LunchbreakTestCase
+from Lunchbreak.tests.testcase import LunchbreakTestCase
 from pendulum import Pendulum
 
 from ..config import WEEKDAYS

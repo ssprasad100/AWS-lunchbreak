@@ -12,9 +12,9 @@ USER_DISABLED = 707
 # 709
 # 710
 # 711
-ONLINE_PAYMENTS_DISABLED = 712
-# 713
-# 714
+GOCARDLESS_DISABLED = 712
+NO_PAYMENT_LINK = 713
+PAYMENT_LINK_NOT_CONFIRMED = 714
 ORDEREDFOOD_NOT_ORIGINAL = 715
 ONLINE_PAYMENT_REQUIRED = 716
 
@@ -55,10 +55,22 @@ class UserDisabled(LunchbreakException):
     default_detail = 'Deze account werd uitgeschakeld.'
 
 
-class OnlinePaymentDisabled(LunchbreakException):
+class GoCardlessDisabled(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
-    default_code = ONLINE_PAYMENTS_DISABLED
-    default_detail = 'Deze winkel heeft online betalingen uitgeschakeld.'
+    default_code = GOCARDLESS_DISABLED
+    default_detail = 'Deze winkel heeft GoCardless uitgeschakeld.'
+
+
+class NoPaymentLink(LunchbreakException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_code = NO_PAYMENT_LINK
+    default_detail = 'Gebruiker heeft geen mandaat met deze winkel getekend.'
+
+
+class PaymentLinkNotConfirmed(LunchbreakException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_code = PAYMENT_LINK_NOT_CONFIRMED
+    default_detail = 'Gebruiker heeft het mandaat nog niet bevestigd.'
 
 
 class OrderedFoodNotOriginal(LunchbreakException):

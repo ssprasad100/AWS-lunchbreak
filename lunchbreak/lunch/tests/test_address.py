@@ -1,5 +1,5 @@
 import mock
-from Lunchbreak.test import LunchbreakTestCase
+from Lunchbreak.tests.testcase import LunchbreakTestCase
 
 from ..exceptions import AddressNotFound
 from ..models import Store

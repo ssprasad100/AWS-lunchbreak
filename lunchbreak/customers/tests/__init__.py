@@ -1,7 +1,8 @@
 from business.models import Staff
+from django_gocardless.models import Merchant as GoCardlessMerchant
 from django_sms.models import Phone
 from lunch.tests import LunchTestCase
-from payconiq.models import Merchant
+from payconiq.models import Merchant as PayconiqMerchant
 from push_notifications.models import SERVICE_APNS
 
 from ..models import User, UserToken
@@ -59,12 +60,14 @@ class CustomersTestCase(LunchTestCase):
             service=SERVICE_APNS
         )
 
-        self.merchant = Merchant.objects.create(
+        self.gocardless = GoCardlessMerchant.objects.create()
+        self.payconiq = PayconiqMerchant.objects.create(
             remote_id='12345',
             access_token='secret'
         )
         self.staff = Staff.objects.create(
             store=self.store,
             email=self.EMAIL,
-            merchant=self.merchant
+            gocardless=self.gocardless,
+            payconiq=self.payconiq
         )

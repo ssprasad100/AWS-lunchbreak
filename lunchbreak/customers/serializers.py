@@ -1,3 +1,4 @@
+from django_gocardless.serializers import RedirectFlowSerializer
 from django_sms.models import Phone
 from lunch import serializers as lunch_serializers
 from lunch.models import Food, Store
@@ -6,8 +7,9 @@ from Lunchbreak.serializers import MoneyField, PrimaryModelSerializer
 from phonenumber_field.validators import validate_international_phonenumber
 from rest_framework import serializers
 
-from .models import (Address, Group, GroupOrder, Order, OrderedFood, User,
-                     UserToken)
+from .config import PAYMENTLINK_COMPLETION_REDIRECT_URL
+from .models import (Address, Group, GroupOrder, Order, OrderedFood,
+                     PaymentLink, User, UserToken)
 
 
 class StoreHeartSerializer(lunch_serializers.StoreDetailSerializer):
@@ -432,4 +434,39 @@ class UserTokenUpdateSerializer(UserTokenDetailSerializer):
             'device',
             'active',
             'user',
+        )
+
+
+class PaymentLinkSerializer(serializers.ModelSerializer):
+    user = serializers.HiddenField(
+        default=serializers.CurrentUserDefault()
+    )
+    redirectflow = RedirectFlowSerializer(
+        read_only=True
+    )
+
+    class Meta:
+        model = PaymentLink
+        fields = (
+            'user',
+            'redirectflow',
+        )
+        read_only_fields = (
+            'store',
+            'redirectflow',
+        )
+
+    def create(self, validated_data):
+        return PaymentLink.create(
+            user=validated_data['user'],
+            store=self.context['store'],
+            completion_redirect_url=PAYMENTLINK_COMPLETION_REDIRECT_URL
+        )
+
+    def update(self, instance, validated_data):
+        return PaymentLink.create(
+            user=validated_data['user'],
+            store=self.context['store'],
+            instance=instance,
+            completion_redirect_url=PAYMENTLINK_COMPLETION_REDIRECT_URL
         )

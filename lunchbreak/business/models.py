@@ -74,7 +74,15 @@ class Staff(AbstractPassword, NotifyModelMixin):
         verbose_name=_('familienaam'),
         help_text=_('Familienaam.')
     )
-    merchant = models.OneToOneField(
+    gocardless = models.OneToOneField(
+        'django_gocardless.Merchant',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name=_('GoCardless account'),
+        help_text=_('GoCardless account.')
+    )
+    payconiq = models.OneToOneField(
         'payconiq.Merchant',
         on_delete=models.SET_NULL,
         null=True,
@@ -93,15 +101,29 @@ class Staff(AbstractPassword, NotifyModelMixin):
         )
 
     @property
-    def is_merchant(self):
-        """Whether the store is a merchant.
+    def gocardless_ready(self):
+        """Whether the store is ready to use GoCardless.
 
         Returns:
-            True if the store has online payments enabled and has a merchant linked.
+            True if the store has GoCardless enabled and has a confirmed
+            GoCardless merchant linked.
             bool
         """
-        return self.store.online_payments_enabled \
-            and self.merchant
+        return self.store.gocardless_enabled \
+            and self.gocardless is not None \
+            and self.gocardless.confirmed
+
+    @property
+    def payconiq_ready(self):
+        """Whether the store is ready go use Payconiq.
+
+        Returns:
+            True if the store has Payconiq enabled and has a Payconiq
+            merchant linked.
+            bool
+        """
+        return self.store.payconiq_enabled \
+            and self.payconiq
 
 
 class StaffToken(BaseToken):

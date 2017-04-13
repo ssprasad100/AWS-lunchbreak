@@ -10,6 +10,8 @@ from django.core.validators import validate_email
 from django.db.models import Count
 from django.http import Http404
 from django.utils import timezone
+from django_gocardless.serializers import \
+    MerchantSerializer as GoCardlessMerchantSerializer
 from lunch import views as lunch_views
 from lunch.models import (Food, FoodType, HolidayPeriod, Ingredient,
                           IngredientGroup, Menu, Quantity, Store)
@@ -37,8 +39,8 @@ from .serializers import (EmployeeSerializer, FoodDetailSerializer,
                           OrderDetailSerializer, OrderedFoodSerializer,
                           OrderSerializer, OrderSpreadSerializer,
                           PopularFoodSerializer, StaffSerializer,
-                          StoreDetailSerializer, StoreHeaderSerializer,
-                          StoreMerchantSerializer)
+                          StoreDetailSerializer, StoreGoCardlessSerializer,
+                          StoreHeaderSerializer, StorePayconiqSerializer)
 
 AVAILABLE_STATUSES = [
     ORDER_STATUS_PLACED,
@@ -128,14 +130,15 @@ class StoreViewSet(TargettedViewSet,
 
     serializer_class = StoreDetailSerializer
     serializer_class_header = StoreHeaderSerializer
+    serializer_class_merchant = GoCardlessMerchantSerializer
+
+    queryset = Store.objects.all()
 
     @property
     def parser_classes(self):
         parser_classes = super().parser_classes
         parser_classes.append(FileUploadParser)
         return parser_classes
-
-    queryset = Store.objects.all()
 
     @detail_route(methods=['get', 'post'])
     def header(self, request, pk=None):
@@ -162,18 +165,49 @@ class StoreViewSet(TargettedViewSet,
                 serializer.save()
                 return Response(status=status.HTTP_200_OK)
 
+    @detail_route(methods=['get'], permission_classes=[StoreOwnerOnlyPermission])
+    def merchant(self, request, pk=None):
+        """Create a GoCardless Merchant.
 
-class StoreMerchantViewSet(TargettedViewSet,
+        .. deprecated:: 2.2.0
+            Use /store/{pk}/gocardless instead.
+        """
+
+        store = self.get_object()
+
+        if store.staff.is_merchant:
+            return Response(
+                self.get_serializer_class()(
+                    store.staff.gocardless
+                ).data
+            )
+
+        if store.staff.gocardless is not None:
+            store.staff.gocardless.delete()
+
+        merchant, url = Merchant.authorisation_link(
+            email=store.staff.email
+        )
+        store.staff.gocardless = merchant
+        store.staff.save()
+
+        return Response(
+            StoreGoCardlessSerializer(url).data
+        )
+
+
+class StorePayconiqViewSet(TargettedViewSet,
                            NestedViewSetMixin,
                            mixins.RetrieveModelMixin,
                            mixins.CreateModelMixin,
                            mixins.DestroyModelMixin):
+    # TODO Implement the same for GoCardless
     authentication_classes = (StoreOwnerOnlyPermission,)
-    serializer_class = StoreMerchantSerializer
+    serializer_class = StorePayconiqSerializer
 
     def get_queryset(self):
         return Merchant.objects.filter(
-            merchant__store_id=self.kwargs['parent_lookup_pk']
+            store_id=self.kwargs['parent_lookup_pk']
         )
 
 

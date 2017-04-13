@@ -1,5 +1,5 @@
 import mock
-from Lunchbreak.test import LunchbreakTestCase
+from Lunchbreak.tests.testcase import LunchbreakTestCase
 
 from ..config import INPUT_AMOUNT, INPUT_SI_SET, INPUT_SI_VARIABLE
 from ..models import FoodType, Quantity, Store

@@ -10,6 +10,10 @@ handler500 = views.ServerError.as_view()
 
 urlpatterns = [
     url(
+        r'^gocardless/',
+        include('django_gocardless.urls')
+    ),
+    url(
         r'^api/',
         include('Lunchbreak.urls.api')
     ),

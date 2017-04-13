@@ -33,6 +33,8 @@ class ValidatedView(CSRFExemptView):
 class WebhookView(ValidatedView):
 
     def is_valid(self, request):
+        return True
+
         signature = request.META.get('HTTP_X_SECURITY_SIGNATURE')
         timestamp = request.META.get('HTTP_X_SECURITY_TIMESTAMP')
         key = request.META.get('HTTP_X_SECURITY_KEY')
@@ -43,14 +45,6 @@ class WebhookView(ValidatedView):
         print('timestamp', timestamp)
         print('key', key)
         print('algorithm', algorithm)
-
-        return True
-
-        pre_signature = '{merchant_id}|{timestamp}|{crc32}'.format(
-            merchant_id='',
-            timestamp='',
-            crc32=''
-        )
 
     def post(self, request, *args, **kwargs):
         try:

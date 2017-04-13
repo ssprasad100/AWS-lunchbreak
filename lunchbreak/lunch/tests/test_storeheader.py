@@ -1,5 +1,5 @@
 from lunch.models import StoreHeader
-from Lunchbreak.test import LunchbreakTestCase
+from Lunchbreak.tests.testcase import LunchbreakTestCase
 from polaroid.tests import PolaroidTestCase
 
 

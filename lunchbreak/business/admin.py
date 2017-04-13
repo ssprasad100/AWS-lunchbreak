@@ -10,8 +10,10 @@ class StaffChangeForm(PasswordChangeForm):
 
     class Meta:
         model = Staff
-        fields = ('password', 'password1', 'password2', 'store',
-                  'email', 'first_name', 'last_name', 'merchant',)
+        fields = (
+            'password', 'password1', 'password2', 'store', 'email',
+            'first_name', 'last_name', 'gocardless', 'payconiq',
+        )
 
 
 class EmployeeInline(admin.TabularInline):
@@ -45,7 +47,7 @@ class StaffAdmin(admin.ModelAdmin):
         (
             _('Online betalingen'),
             {
-                'fields': ('merchant',)
+                'fields': ('gocardless', 'payconiq',)
             },
         ),
     )

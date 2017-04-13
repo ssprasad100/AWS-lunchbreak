@@ -97,6 +97,18 @@ router_extended.register(
         'pk'
     ]
 )
+router_extended.register(
+    r'store',
+    views.StoreViewSet,
+    base_name='store'
+).register(
+    r'payconiq',
+    views.StorePayconiqViewSet,
+    base_name='store-payconiq',
+    parents_query_lookups=[
+        'pk'
+    ]
+)
 
 urlpatterns = [
     url(

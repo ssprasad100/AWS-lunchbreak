@@ -4,7 +4,8 @@
 
 {% set header_class='white' %}
 
-{% set payconiq = store.staff is defined and store.staff.is_merchant %}
+{% set gocardless = store.staff is defined and store.staff.gocardless_ready %}
+{% set payconiq = store.staff is defined and store.staff.payconiq_ready %}
 
 <div id="checkout" class="block fullsize">
     <div class="container">
@@ -42,11 +43,16 @@
                         </label>
 
                         <label class="radio-item mdl-radio mdl-js-radio mdl-js-ripple-effect" for="checkout-payment-1">
-                          <input type="radio" id="checkout-payment-1" class="mdl-radio__button" name="{{ order_form.payment_method.html_name }}" value="{{ order_form.fields['payment_method'].choices[1][0] }}" {% if not payconiq %}disabled{% endif %}>
+                          <input type="radio" id="checkout-payment-1" class="mdl-radio__button" name="{{ order_form.payment_method.html_name }}" value="{{ order_form.fields['payment_method'].choices[1][0] }}" {% if not gocardless %}disabled{% endif %}>
                           <span class="mdl-radio__label">{{ order_form.fields['payment_method'].choices[1][1] }}</span>
                         </label>
+
+                        <label class="radio-item mdl-radio mdl-js-radio mdl-js-ripple-effect" for="checkout-payment-2">
+                          <input type="radio" id="checkout-payment-2" class="mdl-radio__button" name="{{ order_form.payment_method.html_name }}" value="{{ order_form.fields['payment_method'].choices[2][0] }}" {% if not payconiq %}disabled{% endif %}>
+                          <span class="mdl-radio__label">{{ order_form.fields['payment_method'].choices[2][1] }}</span>
+                        </label>
                     </div>
-                    {% if not payconiq %}
+                    {% if not gocardless and not payconiq %}
                     <p class="subscript">
                         Deze winkel heeft online betalingen uitgeschakeld.
                     </p>

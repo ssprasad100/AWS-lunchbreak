@@ -3,7 +3,7 @@ from datetime import time, timedelta
 import mock
 from customers.exceptions import (PastOrderDenied, PreorderTimeExceeded,
                                   StoreClosed)
-from Lunchbreak.test import LunchbreakTestCase
+from Lunchbreak.tests.testcase import LunchbreakTestCase
 
 from ..models import HolidayPeriod, OpeningPeriod, Store
 

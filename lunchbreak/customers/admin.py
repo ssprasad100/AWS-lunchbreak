@@ -8,9 +8,14 @@ from Lunchbreak.forms import PasswordChangeForm
 from Lunchbreak.utils import format_decimal
 
 from .models import (Address, Group, GroupOrder, Heart, Order, OrderedFood,
-                     TemporaryOrder, User, UserToken)
+                     PaymentLink, TemporaryOrder, User, UserToken)
 
 admin.site.unregister(DjangoGroup)
+
+
+class PaymentLinkInline(admin.TabularInline):
+    model = PaymentLink
+    extra = 0
 
 
 class GroupInline(admin.TabularInline):
@@ -32,7 +37,7 @@ class UserAdmin(BaseUserAdmin):
     add_form = UserChangeForm
 
     list_display = ('get_name', 'phone', 'email',)
-    inlines = (GroupInline,)
+    inlines = (GroupInline, PaymentLinkInline,)
     search_fields = ('name', 'phone__phone', 'email',)
     list_filter = ('enabled',)
     ordering = ('id',)
@@ -69,6 +74,27 @@ class AddressAdmin(admin.ModelAdmin):
     list_display = ('user', 'city', 'country',)
     search_fields = ('user__name', 'city', 'country',)
     list_filter = ('city', 'country',)
+
+
+@admin.register(PaymentLink)
+class PaymentLinkAdmin(admin.ModelAdmin):
+    list_display = ('user', 'store', 'redirectflow', 'created_at', 'is_completed')
+    readonly_fields = ('store', 'user', 'redirectflow',)
+    search_fields = ('user__name', 'store__name',)
+    list_filter = ('store',)
+    ordering = ('redirectflow__created_at',)
+
+    def created_at(self, paymentlink):
+        return paymentlink.redirectflow.created_at
+
+    created_at.short_description = _('aangemaakt')
+    created_at.admin_order_field = 'redirectflow__created_at'
+
+    def is_completed(self, paymentlink):
+        return paymentlink.redirectflow.is_completed
+
+    is_completed.boolean = True
+    is_completed.short_description = _('afgerond')
 
 
 @admin.register(Group)

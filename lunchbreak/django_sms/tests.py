@@ -3,7 +3,7 @@ from datetime import timedelta
 import mock
 from django.test.utils import override_settings
 from django.utils import timezone
-from Lunchbreak.test import LunchbreakTestCase
+from Lunchbreak.tests.testcase import LunchbreakTestCase
 
 from .exceptions import PinExpired, PinIncorrect, PinTimeout, PinTriesExceeded
 from .models import Phone

@@ -25,8 +25,9 @@ class StoreSerializer(serializers.ModelSerializer):
         many=True,
         read_only=True
     )
+    # TODO: Add Payconiq support
     online_payments = serializers.BooleanField(
-        source='staff.is_merchant'
+        source='staff.gocardless_enabled'
     )
 
     class Meta:

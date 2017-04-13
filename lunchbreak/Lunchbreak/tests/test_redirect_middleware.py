@@ -2,7 +2,7 @@ from django.test import RequestFactory
 from django.test.utils import override_settings
 
 from ..middleware import RedirectHostMiddleware
-from ..test import LunchbreakTestCase
+from .testcase import LunchbreakTestCase
 
 
 class RedirectMiddlewareTestCase(LunchbreakTestCase):

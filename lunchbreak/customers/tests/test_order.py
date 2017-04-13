@@ -2,7 +2,11 @@ import json
 from decimal import Decimal
 
 import mock
+from business.models import Staff
 from django.core.urlresolvers import reverse
+from django_gocardless.exceptions import MerchantAccessError
+from django_gocardless.models import Merchant as GoCardlessMerchant
+from django_gocardless.models import RedirectFlow
 from lunch.exceptions import LinkingError, NoDeliveryToAddress
 from lunch.models import Food
 from payconiq.models import Transaction
@@ -15,9 +19,10 @@ from .. import views
 from ..config import (ORDER_STATUS_COMPLETED, ORDER_STATUS_DENIED,
                       ORDER_STATUS_NOT_COLLECTED, ORDER_STATUS_PLACED,
                       ORDER_STATUS_RECEIVED, ORDER_STATUS_STARTED,
-                      ORDER_STATUS_WAITING, PAYMENT_METHOD_PAYCONIQ)
+                      ORDER_STATUS_WAITING, PAYMENT_METHOD_CASH,
+                      PAYMENT_METHOD_GOCARDLESS, PAYMENT_METHOD_PAYCONIQ)
 from ..exceptions import OrderedFoodNotOriginal
-from ..models import Address, ConfirmedOrder, Order, OrderedFood
+from ..models import Address, ConfirmedOrder, Order, OrderedFood, PaymentLink
 
 
 class OrderTestCase(CustomersTestCase):
@@ -320,7 +325,7 @@ class OrderTestCase(CustomersTestCase):
         transaction = Transaction.objects.create(
             remote_id='12345',
             amount=int(total * 100),
-            merchant=self.merchant
+            merchant=self.payconiq
         )
         mock_transaction.return_value = transaction
 
@@ -394,3 +399,61 @@ class OrderTestCase(CustomersTestCase):
                 mock_geocode, mock_timezone, mock_is_open, mock_notify,
                 mock_transaction, transaction_status=failed_status, confirmed=False
             )
+
+    @mock.patch('business.models.Staff.notify')
+    @mock.patch('customers.models.User.notify')
+    @mock.patch('customers.models.PaymentLink.delete')
+    @mock.patch(
+        'django_gocardless.models.RedirectFlow.is_completed',
+        new_callable=mock.PropertyMock
+    )
+    @mock.patch('django_gocardless.models.Payment.create')
+    def test_create_payment(self, mock_payment, mock_is_completed,
+                            mock_pl_delete, mock_user_notify, mock_staff_notify):
+        """Test whether the statuses completed and not collected trigger the
+        creation of a payment."""
+
+        mock_payment.return_value = None
+        mock_is_completed.return_value = True
+        redirectflow = RedirectFlow.objects.create(
+            id='RED12345',
+            merchant=self.gocardless
+        )
+        PaymentLink.objects.create(
+            user=self.user,
+            store=self.store,
+            redirectflow=redirectflow
+        )
+        order = Order.objects.create(
+            store=self.store,
+            receipt=self.midday.add(days=1)._datetime,
+            user=self.user,
+            payment_method=PAYMENT_METHOD_GOCARDLESS
+        )
+
+        for order_status in [ORDER_STATUS_COMPLETED, ORDER_STATUS_NOT_COLLECTED]:
+            order.status = order_status
+            order.save()
+            self.assertTrue(mock_payment.called)
+            mock_payment.reset_mock()
+            self.assertFalse(mock_user_notify.called)
+            mock_user_notify.reset_mock()
+
+        mock_payment.side_effect = MerchantAccessError()
+        order.status = ORDER_STATUS_COMPLETED
+        order.save()
+
+        self.assertEqual(
+            order.payment_method,
+            PAYMENT_METHOD_CASH
+        )
+        self.assertRaises(
+            GoCardlessMerchant.DoesNotExist,
+            self.gocardless.refresh_from_db
+        )
+        self.assertTrue(mock_pl_delete.called)
+        mock_pl_delete.reset_mock()
+        self.assertTrue(mock_staff_notify.called)
+        mock_staff_notify.reset_mock()
+        self.assertTrue(mock_user_notify.called)
+        mock_user_notify.reset_mock()
