@@ -42,11 +42,21 @@ def get_classes(module):
                 yield obj
 
 
-def import_base(base, cls='Unknown'):
+def assert_versioned_mixin(serializer):
+    from .mixins import VersionedMixin
+    assert issubclass(serializer, VersionedMixin), (
+        '{serializer} is trying to be used in a Transformation, but '
+        'does not subclass the VersionedMixin.'.format(
+            serializer=serializer
+        )
+    )
+
+
+def import_base(base, transformation='Unknown'):
     """Import the base of transformation as a serializer or field.
 
     Args:
-        cls: ``Transformation`` class with this base.
+        transformation: ``Transformation`` class with this base. (optional)
         base: Fully qualified class name of serializer, field or a specific serializer's field.
 
     Returns:
@@ -55,30 +65,34 @@ def import_base(base, cls='Unknown'):
         tuple
     """
     try:
-        return import_from_string(base, 'bases'), None
+        serializer = import_from_string(base, 'bases')
+        assert_versioned_mixin(serializer)
+        return serializer, None
     except (ValueError, ImportError):
         parts = base.split('.')
         try:
-            serializer = '.'.join(parts[:-1])
+            serializer_name = '.'.join(parts[:-1])
             field_name = parts[-1]
         except IndexError:
             logger.error(
-                '{cls} has an invalid base: "{base}".\nCould not import '
+                '{transformation} has an invalid base: "{base}".\nCould not import '
                 'it as a serializer nor field.'.format(
-                    cls=cls,
+                    transformation=transformation,
                     base=base
                 )
             )
             return None, None
         try:
-            return import_from_string(serializer, 'bases'), field_name
+            serializer = import_from_string(serializer_name, 'bases')
+            assert_versioned_mixin(serializer)
+            return serializer, field_name
         except (ValueError, ImportError):
             logger.error(
-                '{cls} has an invalid base: "{base}".\nCould not import '
+                '{transformation} has an invalid base: "{base}".\nCould not import '
                 'the serializer "{serializer}" with the field "{field_name}".'.format(
-                    cls=cls,
+                    transformation=transformation,
                     base=base,
-                    serializer=serializer,
+                    serializer=serializer_name,
                     field_name=field_name
                 )
             )
@@ -115,7 +129,7 @@ def generate_transformations():
                     continue
 
                 for base in bases:
-                    base, field_name = import_base(base, cls=transformation)
+                    base, field_name = import_base(base, transformation=transformation)
                     if base is None:
                         continue
                     base.add_transformation(transformation, field_name=field_name)

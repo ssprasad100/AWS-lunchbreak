@@ -1,5 +1,6 @@
 from Lunchbreak.serializers import RequestAttributeDefault
 from rest_framework import serializers
+from versioning_prime.mixins import VersionedMixin
 
 from .fields import CurrentUserAttributeDefault
 from .models import (BaseToken, Food, FoodType, HolidayPeriod, Ingredient,
@@ -20,14 +21,10 @@ class StoreCategorySerializer(serializers.ModelSerializer):
         )
 
 
-class StoreSerializer(serializers.ModelSerializer):
+class StoreSerializer(VersionedMixin, serializers.ModelSerializer):
     categories = StoreCategorySerializer(
         many=True,
         read_only=True
-    )
-    # TODO: Add Payconiq support
-    online_payments = serializers.BooleanField(
-        source='staff.gocardless_enabled'
     )
 
     class Meta:
@@ -42,7 +39,8 @@ class StoreSerializer(serializers.ModelSerializer):
             'categories',
             'hearts_count',
             'last_modified',
-            'online_payments',
+            'gocardless_enabled',
+            'payconiq_enabled',
         )
         read_only_fields = (
             'id',
@@ -50,7 +48,8 @@ class StoreSerializer(serializers.ModelSerializer):
             'longitude',
             'hearts_count',
             'last_modified',
-            'online_payments',
+            'gocardless_enabled',
+            'payconiq_enabled',
         )
 
 
