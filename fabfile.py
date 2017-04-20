@@ -67,6 +67,7 @@ print('Current git branch: ' + str(git_branch))
 is_production = bool(git_tag)
 if is_production:
     print('We\'re currently on production!')
+is_staging = git_branch == 'master' and not is_production
 is_development = git_branch == 'development'
 version = 'production' if is_production else 'staging' if not is_development else 'development'
 
@@ -162,13 +163,16 @@ class Deployer:
         docker_tags = [
             # Each commit will have a history in the registry
             git_commit,
-            'latest'
         ]
         # Each tag will have a history in the registry
         if git_tag:
             docker_tags.append(git_tag)
         if is_production:
             docker_tags.append('production')
+        if is_staging:
+            docker_tags.append('staging')
+        if is_development:
+            docker_tags.append('development')
 
         # Generate all the image names from the tags
         image_names = [self._image_name(tag=tag) for tag in docker_tags]

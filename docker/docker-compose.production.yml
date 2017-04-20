@@ -36,6 +36,8 @@ services:
     extends:
       file: common-services.yml
       service: lunchbreak
+    # TODO Change this tag to staging when first deploying to staging
+    image: 'andreasbackx/lunchbreak:latest'
     container_name: lunchbreak_staging
     links:
       - rabbitmq
@@ -57,6 +59,7 @@ services:
     extends:
       file: common-services.yml
       service: lunchbreak
+    image: 'andreasbackx/lunchbreak:development'
     container_name: lunchbreak_development
     links:
       - rabbitmq
