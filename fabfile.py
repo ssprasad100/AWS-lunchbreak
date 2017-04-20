@@ -101,7 +101,7 @@ def deploy(username=None, password=None, skiptests=False, check_deploy=False):
 
     if not skiptests:
         test()
-    if check_deploy and git_branch != 'master':
+    if check_deploy and git_branch not in [ 'master', 'development']:
         print('Not deploying, not on the master branch.')
         return
     deployer = Deployer()
