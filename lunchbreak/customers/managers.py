@@ -126,6 +126,8 @@ class OrderManager(models.Manager):
                 instance.delete()
                 raise
 
+            instance.save()
+
             payment_method = kwargs.get('payment_method')
             if payment_method == PAYMENT_METHOD_PAYCONIQ:
                 instance.transaction = Transaction.start(
@@ -194,9 +196,6 @@ class OrderedFoodManager(models.Manager):
     def create_for_order(self, original, amount, total, ingredients=None, **kwargs):
         if not isinstance(amount, Decimal):
             amount = Decimal(amount).quantize(Decimal('1.' + ('0' * 3)))
-
-        if not isinstance(total, Decimal):
-            total = Decimal(total).quantize(Decimal('1.' + ('0' * 2)))
 
         original.foodtype.is_valid_amount(
             amount=amount,

@@ -371,7 +371,8 @@ class FoodDetailSerializer(BaseFoodSerializer):
                     )
 
         result['ingredients'] += IngredientRelationDetailSerializer(
-            many=True
+            many=True,
+            context=self.context
         ).to_representation(
             ingredientrelations_added
         )
@@ -387,7 +388,8 @@ class FoodDetailSerializer(BaseFoodSerializer):
                 )
 
         result['ingredientgroups'] = IngredientGroupSerializer(
-            many=True
+            many=True,
+            context=self.context
         ).to_representation(
             ingredientgroups_added + list(ingredientgroups)
         )

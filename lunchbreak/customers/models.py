@@ -743,7 +743,7 @@ class Order(StatusSignalModel, AbstractOrder):
             for f in orderedfood:
                 total += f.total
             return total
-        return self.total * Decimal(100) / (Decimal(100) - self.discount)
+        return int(self.total * Decimal(100) / (Decimal(100) - self.discount))
 
     @cached_property
     def discounted_amount(self):
@@ -827,7 +827,9 @@ class Order(StatusSignalModel, AbstractOrder):
 
         if self.group is not None:
             self.discount = self.group.discount
+
         self.total *= (Decimal(100) - self.discount) / Decimal(100)
+        self.total = int(self.total)
 
     def clean_delivery_address(self):
         if self.delivery_address is not None:
@@ -944,7 +946,7 @@ class Order(StatusSignalModel, AbstractOrder):
                     mandate = paymentlink.redirectflow.mandate
                     self.payment = Payment.create(
                         given={
-                            'amount': int(self.total * 100),
+                            'amount': self.total,
                             'currency': CURRENCY_EUR,
                             'links': {
                                 'mandate': mandate
@@ -1146,17 +1148,6 @@ class OrderedFood(CleanModelMixin, StatusSignalModel):
         return self.original.amount if self.original.foodtype.inputtype == INPUT_SI_SET else 1
 
     @cached_property
-    def _amount(self):
-        """Amount representative of real value.
-
-        If the input type is set to amounts, then the amount already reflects
-        the exact value. If it's a weight, then it needs to be divided by a thousand.
-        """
-        return self.amount \
-            if self.original.foodtype.inputtype == INPUT_AMOUNT \
-            else self.amount / 1000
-
-    @cached_property
     def changes(self):
         return self.calculate_changes(
             orderedfood=self
@@ -1165,7 +1156,7 @@ class OrderedFood(CleanModelMixin, StatusSignalModel):
     @cached_property
     def discounted_total(self):
         if self.order is not None:
-            return self.total * Decimal(100 - self.order.discount) / Decimal(100)
+            return int(self.total * Decimal(100 - self.order.discount) / Decimal(100))
 
     def save(self, *args, **kwargs):
         self.full_clean()
@@ -1203,7 +1194,7 @@ class OrderedFood(CleanModelMixin, StatusSignalModel):
         else:
             self.total = int(
                 math.ceil(
-                    self.cost * self._amount * self.food_amount
+                    self.cost * self.amount * self.food_amount
                 )
             )
 

@@ -26,6 +26,7 @@ class Transaction:
         merchant_token = merchant_token \
             if merchant_token is not None else payconiq.merchant_token
 
+        payconiq.environment = 'testing'
         response = cls.request(
             method='POST',
             url=cls.get_base_url(),

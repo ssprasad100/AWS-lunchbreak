@@ -5,7 +5,7 @@ from django.contrib.contenttypes.admin import GenericTabularInline
 from django.utils.translation import ugettext as _
 from lunch.admin import BaseTokenAdmin
 from Lunchbreak.forms import PasswordChangeForm
-from Lunchbreak.utils import format_decimal
+from Lunchbreak.utils import format_money
 
 from .models import (Address, Group, GroupOrder, Heart, Order, OrderedFood,
                      PaymentLink, TemporaryOrder, User, UserToken)
@@ -136,7 +136,7 @@ class OrderedFoodAdmin(admin.ModelAdmin):
     list_filter = ('is_original', 'status',)
 
     def total_display(self, instance):
-        return format_decimal(instance.total)
+        return format_money(instance.total)
 
     total_display.short_description = _('totale prijs')
 
@@ -154,7 +154,7 @@ class AbstractOrderAdmin(admin.ModelAdmin):
         total = instance.total_confirmed \
             if instance.total_confirmed is not None \
             else instance.total
-        return format_decimal(total)
+        return format_money(total)
 
     total_display.short_description = _('totale prijs')
 

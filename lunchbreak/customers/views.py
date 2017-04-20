@@ -301,7 +301,7 @@ class StoreFoodViewSet(TargettedViewSet,
             menu__store_id=self.kwargs['parent_lookup_pk'],
             deleted__isnull=True
         ).select_related(
-            'menu',
+            'menu__store',
             'foodtype',
         ).prefetch_related(
             'ingredients',  # Food.has_ingredients

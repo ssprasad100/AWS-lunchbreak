@@ -5,7 +5,7 @@ from lunch.config import TOKEN_IDENTIFIER_LENGTH
 from lunch.models import (Food, Ingredient, IngredientGroup,
                           IngredientRelation, Store, StoreHeader)
 from Lunchbreak.serializers import RequestAttributeDefault
-from payconiq.serializers import MerchantSerializer
+from payconiq.serializers import MerchantSerializer, TransactionSerializer
 from rest_framework import serializers
 
 from .models import (AbstractPassword, Employee, EmployeeToken, Staff,
@@ -299,6 +299,9 @@ class OrderSerializer(customers_serializers.OrderSerializer):
     group = GroupSerializer(
         read_only=True
     )
+    transaction = TransactionSerializer(
+        read_only=True
+    )
 
     class Meta(customers_serializers.OrderSerializer.Meta):
         fields = (
@@ -315,6 +318,7 @@ class OrderSerializer(customers_serializers.OrderSerializer):
             'paid',
             'group',
             'group_order',
+            'transaction',
         )
         read_only_fields = (
             'id',
@@ -329,6 +333,7 @@ class OrderSerializer(customers_serializers.OrderSerializer):
             'paid',
             'group',
             'group_order',
+            'transaction',
         )
 
 

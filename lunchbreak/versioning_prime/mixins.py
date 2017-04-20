@@ -28,12 +28,14 @@ class VersionedMixin:
     def _request(self):
         request = self.context.get('request')
         assert request is not None, \
-            'No request passed in the context of {cls}.'.format(
-                cls=self.__class__.__name__
+            'No request passed in the context of {cls}: {context}'.format(
+                cls=self.__class__.__name__,
+                context=self.context
             )
         assert hasattr(request, 'version'), \
-            'No version passed in the request of {cls}.'.format(
-                cls=self.__class__.__name__
+            'No version passed in the request of {cls}: {context}'.format(
+                cls=self.__class__.__name__,
+                context=self.context
         )
         return request
 
@@ -59,8 +61,7 @@ class VersionedMixin:
             request=self._request
         )
 
-        obj = super().to_internal_value(transformed_data)
-        return obj
+        return super().to_internal_value(transformed_data)
 
     def to_representation(self, obj):
         data = super().to_representation(obj)

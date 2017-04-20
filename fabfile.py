@@ -1,6 +1,8 @@
 import getpass
+import json
 import os
 
+import requests
 from fabric.api import env, lcd, local, run, sudo
 from fabric.context_managers import cd, hide, quiet, settings
 from fabric.contrib import django
@@ -40,6 +42,10 @@ with hide('running', 'output'):
             capture=True
         )
     )
+    git_previous_commit = local(
+        'git rev-parse --verify HEAD~1',
+        capture=True
+    )
     git_branch = os.environ.get(
         'TRAVIS_BRANCH',
         local(
@@ -58,12 +64,11 @@ else:
 print('Current git commit: ' + str(git_commit))
 print('Current git branch: ' + str(git_branch))
 
-
 is_production = bool(git_tag)
 if is_production:
     print('We\'re currently on production!')
-version = 'production' if is_production else 'staging'
-
+is_development = git_branch == 'development'
+version = 'production' if is_production else 'staging' if not is_development else 'development'
 
 os.environ.setdefault(
     'DJANGO_SETTINGS_VERSION',
@@ -102,6 +107,11 @@ def deploy(username=None, password=None, skiptests=False, check_deploy=False):
     deployer = Deployer()
     push(deployer=deployer)
     deployer.update_server()
+    deployer.add_release()
+
+
+def add_release():
+    deployer = Deployer()
     deployer.add_release()
 
 
@@ -431,16 +441,39 @@ class Deployer:
             run('docker images -q -f dangling=true | xargs --no-run-if-empty docker rmi')
 
     def add_release(self):
-        return
-        with hide('running'):
-            local(
-                'curl https://sentry.io/api/hooks/release/builtin/130866/6470dd2af48c751aeeea53d5833c2dc5add47596e3bc76b5157e97ebba312f62/ '
-                '-X POST '
-                '-H \'Content-Type: application/json\' '
-                '-d \'{{"version": "{version}", "ref": "{ref}", "url": "{url}", "dateStarted": "{started_at}"}}\' '.format(
-                    version=git_tag if git_tag else git_commit,
-                    ref=git_commit,
-                    url='https://github.com/AndreasBackx/Lunchbreak-Backend/commit/' + git_commit,
-                    started_at=started_at.isoformat()
-                )
+        data = {
+            'version': git_tag if git_tag else git_commit,
+            'url': 'https://github.com/AndreasBackx/Lunchbreak-Backend/commit/' + git_commit,
+            'refs': [
+                {
+                    'repository': 'Lunchbreak-Backend',
+                    'commit': git_commit,
+                    'previousCommit': git_previous_commit,
+                }
+            ],
+            'projects': [
+                'backend',
+            ],
+            'dateStarted': started_at.isoformat(),
+        }
+        response = requests.post(
+            'https://sentry.io/api/hooks/release/builtin/130866/6470dd2af48c751aeeea53d5833c2dc5add47596e3bc76b5157e97ebba312f62/',
+            json=data
+        )
+        if response.status_code == 201:
+            print('Release committed successfully to Sentry.io!')
+        else:
+            print('Failed to commit release to Sentry.io!')
+        print('Request:')
+        print(
+            json.dumps(
+                data,
+                indent=4
             )
+        )
+        print('Response:')
+        print(
+            json.dumps(
+                response.json(), indent=4
+            )
+        )

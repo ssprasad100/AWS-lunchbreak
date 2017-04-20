@@ -4,6 +4,7 @@ from lunch import serializers as lunch_serializers
 from lunch.models import Food, Store
 from lunch.serializers import FoodSerializer
 from Lunchbreak.serializers import MoneyField, PrimaryModelSerializer
+from payconiq.serializers import TransactionSerializer
 from phonenumber_field.validators import validate_international_phonenumber
 from rest_framework import serializers
 
@@ -220,6 +221,9 @@ class OrderSerializer(serializers.ModelSerializer):
         queryset=Group.objects.all(),
         required=False
     )
+    transaction = TransactionSerializer(
+        read_only=True
+    )
 
     class Meta:
         model = Order
@@ -239,6 +243,7 @@ class OrderSerializer(serializers.ModelSerializer):
             'paid',
             'group',
             'group_order',
+            'transaction',
         )
         read_only_fields = (
             'id',
@@ -249,6 +254,7 @@ class OrderSerializer(serializers.ModelSerializer):
             'paid',
             'group',
             'group_order',
+            'transaction',
         )
 
     def create(self, validated_data):

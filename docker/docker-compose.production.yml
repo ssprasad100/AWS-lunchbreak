@@ -52,3 +52,24 @@ services:
       - /var/lunchbreak/staging/media:/var/lunchbreak/media:rw
       - /var/lunchbreak/staging/media-private:/var/lunchbreak/media-private:rw
     network_mode: bridge
+
+  lunchbreak_development:
+    extends:
+      file: common-services.yml
+      service: lunchbreak
+    container_name: lunchbreak_development
+    links:
+      - rabbitmq
+    depends_on:
+      - nginx
+      - rabbitmq
+    env_file:
+      - ./development.env
+    volumes:
+      - /var/run/mysqld/mysqld.sock:/var/run/mysqld/mysqld.sock:ro
+      - ./lunchbreak/secrets/development:/var/secrets:ro
+      - /var/lunchbreak/development/log:/var/lunchbreak/log:rw
+      - /var/lunchbreak/development/static:/var/lunchbreak/static:rw
+      - /var/lunchbreak/development/media:/var/lunchbreak/media:rw
+      - /var/lunchbreak/development/media-private:/var/lunchbreak/media-private:rw
+    network_mode: bridge
