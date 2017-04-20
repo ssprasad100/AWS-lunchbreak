@@ -1,9 +1,11 @@
 from rest_framework import serializers
 
+from ..mixins import VersionedMixin
 
-class TestSerializer(serializers.Serializer):
+
+class TestSerializer(VersionedMixin, serializers.Serializer):
     specific_field = serializers.IntegerField()
 
 
-class TestField(serializers.Field):
+class TestField(VersionedMixin, serializers.Field):
     pass

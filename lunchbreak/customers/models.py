@@ -21,8 +21,8 @@ from django_gocardless.exceptions import (DjangoGoCardlessException,
 from django_gocardless.models import Payment, RedirectFlow
 from django_sms.exceptions import PinTimeout
 from django_sms.models import Phone
-from lunch.config import (COST_GROUP_ADDITIONS, COST_GROUP_BOTH, INPUT_AMOUNT,
-                          INPUT_SI_SET, TOKEN_IDENTIFIER_LENGTH, random_token)
+from lunch.config import (COST_GROUP_ADDITIONS, COST_GROUP_BOTH, INPUT_SI_SET,
+                          TOKEN_IDENTIFIER_LENGTH, random_token)
 from lunch.exceptions import LinkingError, NoDeliveryToAddress
 from lunch.models import AbstractAddress, BaseToken, Food, Ingredient, Store
 from lunch.utils import timezone_for_store, uggettext_summation

@@ -8,6 +8,7 @@ class Transaction:
 
     @classmethod
     def get_base_url(cls):
+        payconiq.environment = 'testing'
         return '{base_url}/transactions'.format(
             base_url=payconiq.get_base_url()
         )
@@ -26,7 +27,6 @@ class Transaction:
         merchant_token = merchant_token \
             if merchant_token is not None else payconiq.merchant_token
 
-        payconiq.environment = 'testing'
         response = cls.request(
             method='POST',
             url=cls.get_base_url(),
