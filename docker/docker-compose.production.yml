@@ -9,6 +9,9 @@ services:
       - /var/lunchbreak/staging/static:/var/lunchbreak_staging/static:ro
       - /var/lunchbreak/staging/media:/var/lunchbreak_staging/media:ro
       - /var/lunchbreak/staging/media-private:/var/lunchbreak_staging/media-private:ro
+      - /var/lunchbreak/development/static:/var/lunchbreak_development/static:ro
+      - /var/lunchbreak/development/media:/var/lunchbreak_development/media:ro
+      - /var/lunchbreak/development/media-private:/var/lunchbreak_development/media-private:ro
 
   lunchbreak_production:
     extends:
