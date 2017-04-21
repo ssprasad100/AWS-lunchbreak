@@ -32,7 +32,8 @@ class RedirectHostMiddleware:
         split_host = request.get_host().split(':')
         host = split_host[0]
 
-        redirected_host = settings.REDIRECTED_HOSTS.get(host)
+        redirected_hosts = getattr(settings, 'REDIRECTED_HOSTS', {})
+        redirected_host = redirected_hosts.get(host)
         if redirected_host is not None:
             port = None
             if len(split_host) > 1:
