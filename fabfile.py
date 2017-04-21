@@ -206,7 +206,7 @@ class Deployer:
         self._setup_fail2ban()
 
         self._compose_up(
-            service='lunchbreak_' + str('staging' if not is_production else 'production')
+            service='lunchbreak_' + version
         )
 
     def update_compose_config(self, configs=None):
