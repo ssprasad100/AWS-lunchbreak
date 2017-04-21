@@ -1,10 +1,10 @@
 GOCARDLESS_ENVIRONMENT = 'sandbox'
-GOCARDLESS_APP_DOMAIN = 'api.development.lunchbreakapp.be'
+GOCARDLESS_APP_DOMAIN = 'api.dev.lunchbreak.io'
 
 ALLOWED_HOSTS = [
-    'development.lunchbreak.io',
-    'www.development.lunchbreak.io',
-    'api.development.lunchbreak.io',
+    'dev.lunchbreak.io',
+    'www.dev.lunchbreak.io',
+    'api.dev.lunchbreak.io',
 ]
 
 APNS_HOST = 'gateway.sandbox.push.apple.com'
