@@ -229,6 +229,7 @@ class OrderSerializer(serializers.ModelSerializer):
         model = Order
         fields = (
             'id',
+            'placed',
             'store',
             'receipt',
             'total',
@@ -247,6 +248,7 @@ class OrderSerializer(serializers.ModelSerializer):
         )
         read_only_fields = (
             'id',
+            'placed',
             'total',
             'total_confirmed',
             'discount',
@@ -277,13 +279,11 @@ class OrderDetailSerializer(OrderSerializer):
 
     class Meta(OrderSerializer.Meta):
         fields = OrderSerializer.Meta.fields + (
-            'placed',
             'description',
             'paid',
         )
         read_only_fields = OrderSerializer.Meta.read_only_fields + (
             'store',
-            'placed',
             'receipt',
             'orderedfood',
             'description',
