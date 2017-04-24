@@ -759,7 +759,7 @@ class Order(StatusSignalModel, AbstractOrder):
                 self.payment.status == PAYMENT_STATUS_PAID_OUT
         else:
             return self.transaction is not None and \
-                self.transaction.succeeeded
+                self.transaction.succeeded
 
     @property
     def payment_cash(self):
