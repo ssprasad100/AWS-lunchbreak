@@ -114,7 +114,10 @@ class StoreHeaderView(APIView):
             int(width),
             int(height)
         )
-        return sendfile(request, image.path)
+        try:
+            return sendfile(request, image.path)
+        except FileNotFoundError:
+            raise Http404('File was not found.')
 
 
 class StoreCategoryListViewBase(generics.ListAPIView):
