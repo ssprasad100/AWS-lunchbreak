@@ -755,7 +755,7 @@ class Order(StatusSignalModel, AbstractOrder):
         if self.payment_cash:
             return self.status == ORDER_STATUS_COMPLETED
         elif self.payment_gocardless:
-            return self.payment is None and \
+            return self.payment is not None and \
                 self.payment.status == PAYMENT_STATUS_PAID_OUT
         else:
             return self.transaction is not None and \
