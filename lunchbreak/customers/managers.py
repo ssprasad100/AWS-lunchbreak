@@ -283,7 +283,7 @@ class GroupManager(models.Manager):
         else:
             raise TypeError('"timestamp" needs to be of the type datetime.date.')
 
-        return apps.get_model('Order').objects.filter(
+        return apps.get_model('ConfirmedOrder').objects.filter(
             group__in=self,
             receipt__date=date
         )
