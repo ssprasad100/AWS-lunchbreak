@@ -36,15 +36,19 @@ class UserAdmin(BaseUserAdmin):
     form = UserChangeForm
     add_form = UserChangeForm
 
-    list_display = ('get_name', 'phone', 'email',)
+    list_display = ('get_name', 'phone', 'email', 'confirmed_at',)
     inlines = (GroupInline, PaymentLinkInline,)
     search_fields = ('name', 'phone__phone', 'email',)
     list_filter = ('enabled',)
-    ordering = ('id',)
+    ordering = ('-phone__confirmed_at',)
 
     def get_name(self, obj):
         return str(obj)
     get_name.short_description = _('naam')
+
+    def confirmed_at(self, obj):
+        return obj.phone.confirmed_at
+    confirmed_at.short_description = _('bevestigd op')
 
     fieldsets = (
         (
@@ -62,7 +66,7 @@ class UserAdmin(BaseUserAdmin):
         (
             _('Beheer'),
             {
-                'fields': ('is_staff', 'is_superuser', 'user_permissions',)
+                'fields': ('is_staff', 'is_superuser',)
             },
         ),
     )
