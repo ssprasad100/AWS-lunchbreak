@@ -341,22 +341,30 @@ class OrderTestCase(CustomersTestCase):
             ]
         }
 
-        def assert_confirmed(order, confirmed):
+        def assert_confirmed(order, confirmed, denied):
             self.assertEqual(
                 ConfirmedOrder.objects.filter(
                     pk=order.pk
                 ).exists(),
                 confirmed
             )
-            self.assertTrue(
-                Order.objects.filter(
-                    pk=order.pk
-                ).exists()
+            order = Order.objects.get(
+                pk=order.pk
             )
+            if denied:
+                self.assertEqual(
+                    order.status,
+                    ORDER_STATUS_DENIED
+                )
+            else:
+                self.assertEqual(
+                    order.status,
+                    ORDER_STATUS_PLACED
+                )
 
         response, order = self.place_order(content)
         self.assertIsNotNone(order)
-        assert_confirmed(order, False)
+        assert_confirmed(order, False, False)
 
         url = reverse('payconiq:webhook')
         data = {
@@ -373,7 +381,7 @@ class OrderTestCase(CustomersTestCase):
             response.status_code,
             status.HTTP_200_OK
         )
-        assert_confirmed(order, confirmed)
+        assert_confirmed(order, confirmed, not confirmed)
         Transaction.objects.all().delete()
 
     @mock.patch('payconiq.models.Transaction.start')

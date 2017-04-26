@@ -35,7 +35,7 @@ class DefaultTimeZoneDateTimeField(serializers.DateTimeField):
         return super().to_representation(value)
 
 
-class StatusSignalField(models.PositiveIntegerField):
+class StatusSignalMixin:
 
     def __init__(self, choices, *args, **kwargs):
         # Check if choices contain signals.
@@ -63,6 +63,10 @@ class StatusSignalField(models.PositiveIntegerField):
                     field=self
                 )
             )
+
+
+class StatusSignalField(StatusSignalMixin, models.PositiveIntegerField):
+    pass
 
 
 class MoneyField(models.PositiveIntegerField):

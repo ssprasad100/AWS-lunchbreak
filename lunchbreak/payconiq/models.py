@@ -5,7 +5,12 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.translation import ugettext as _
+from Lunchbreak.models import StatusSignalModel
 from payconiq import Transaction as PayconiqTransaction
+
+from .fields import StatusSignalCharField
+from .signals import (transaction_canceled, transaction_failed,
+                      transaction_succeeded, transaction_timedout)
 
 
 class Merchant(models.Model):
@@ -34,7 +39,7 @@ class Merchant(models.Model):
     )
 
 
-class Transaction(models.Model):
+class Transaction(StatusSignalModel):
 
     class Meta:
         verbose_name = _('transactie')
@@ -63,11 +68,11 @@ class Transaction(models.Model):
     FAILED = 'FAILED'
     SUCCEEDED = 'SUCCEEDED'
     STATUSES = (
-        (UNKNOWN, _('Onbekend')),
-        (TIMEDOUT, _('Verlopen')),
-        (CANCELED, _('Geannuleerd')),
-        (FAILED, _('Gefaald')),
-        (SUCCEEDED, _('Succesvol')),
+        (UNKNOWN, _('Onbekend'), None),
+        (TIMEDOUT, _('Verlopen'), transaction_timedout),
+        (CANCELED, _('Geannuleerd'), transaction_canceled),
+        (FAILED, _('Gefaald'), transaction_failed),
+        (SUCCEEDED, _('Succesvol'), transaction_succeeded),
     )
 
     id = models.UUIDField(
@@ -92,7 +97,7 @@ class Transaction(models.Model):
         verbose_name=_('valuta'),
         help_text=_('Valuta.')
     )
-    status = models.CharField(
+    status = StatusSignalCharField(
         max_length=9,
         default=UNKNOWN,
         choices=STATUSES,

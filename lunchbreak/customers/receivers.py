@@ -1,4 +1,5 @@
 from django.db.models.signals import post_delete, post_save
+from payconiq.signals import *  # NOQA
 
 from .models import Group, GroupOrder, Order, OrderedFood, PaymentLink
 from .signals import *  # NOQA
@@ -45,4 +46,21 @@ post_save.connect(
     Group.post_save,
     sender=Group,
     weak=False
+)
+
+transaction_timedout.connect(
+    Order.transaction_timedout,
+    dispatch_uid='customers_transaction_timedout'
+)
+transaction_canceled.connect(
+    Order.transaction_canceled,
+    dispatch_uid='customers_transaction_canceled'
+)
+transaction_failed.connect(
+    Order.transaction_failed,
+    dispatch_uid='customers_transaction_failed'
+)
+transaction_succeeded.connect(
+    Order.transaction_succeeded,
+    dispatch_uid='customers_transaction_succeeded'
 )

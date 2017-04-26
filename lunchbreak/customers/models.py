@@ -38,12 +38,13 @@ from rest_framework.response import Response
 from safedelete import HARD_DELETE
 
 from .config import (GROUP_ORDER_STATUSES, ORDER_STATUS_COMPLETED,
-                     ORDER_STATUS_PLACED, ORDER_STATUS_STARTED,
-                     ORDER_STATUS_WAITING, ORDER_STATUSES,
-                     ORDER_STATUSES_ACTIVE, ORDEREDFOOD_STATUS_OK,
-                     ORDEREDFOOD_STATUS_OUT_OF_STOCK, ORDEREDFOOD_STATUSES,
-                     PAYMENT_METHOD_CASH, PAYMENT_METHOD_GOCARDLESS,
-                     PAYMENT_METHOD_PAYCONIQ, PAYMENT_METHODS)
+                     ORDER_STATUS_DENIED, ORDER_STATUS_PLACED,
+                     ORDER_STATUS_STARTED, ORDER_STATUS_WAITING,
+                     ORDER_STATUSES, ORDER_STATUSES_ACTIVE,
+                     ORDEREDFOOD_STATUS_OK, ORDEREDFOOD_STATUS_OUT_OF_STOCK,
+                     ORDEREDFOOD_STATUSES, PAYMENT_METHOD_CASH,
+                     PAYMENT_METHOD_GOCARDLESS, PAYMENT_METHOD_PAYCONIQ,
+                     PAYMENT_METHODS)
 from .exceptions import (CostCheckFailed, GoCardlessDisabled, MinDaysExceeded,
                          NoPaymentLink, OnlinePaymentRequired,
                          PaymentLinkNotConfirmed, PreorderTimeExceeded,
@@ -912,15 +913,6 @@ class Order(StatusSignalModel, AbstractOrder):
                     or self.store.staff.payconiq_ready
                 ):
             raise OnlinePaymentRequired()
-        # if self.payment_method == PAYMENT_METHOD_PAYCONIQ:
-        #     transaction = getattr(self, 'transaction', None)
-        #     if transaction is not None and not transaction.waiting and not transaction.succeeded:
-        #         self.user.notify(
-        #             _(
-        #                 'Er liep iets fout bij de online betaling. Gelieve '
-        #                 'contant te betalen bij het ophalen.'
-        #             )
-        #         )
 
     def clean_group_order(self):
         if self.group is not None:
@@ -1020,6 +1012,35 @@ class Order(StatusSignalModel, AbstractOrder):
     def not_collected(cls, sender, order, **kwargs):
         order.create_payment()
         order.update_hard_delete()
+
+    @classmethod
+    def deny_order(cls, transaction):
+        """Deny the order with the given transaction."""
+        order = Order.objects.get(
+            transaction=transaction
+        )
+        order.status = ORDER_STATUS_DENIED
+        order.save()
+
+    @classmethod
+    def transaction_timedout(cls, sender, transaction, **kwargs):
+        print('transaction_timedout')
+        cls.deny_order(transaction=transaction)
+
+    @classmethod
+    def transaction_canceled(cls, sender, transaction, **kwargs):
+        print('transaction_canceled')
+        cls.deny_order(transaction=transaction)
+
+    @classmethod
+    def transaction_failed(cls, sender, transaction, **kwargs):
+        print('transaction_failed')
+        cls.deny_order(transaction=transaction)
+
+    @classmethod
+    def transaction_succeeded(cls, sender, transaction, **kwargs):
+        print('transaction_succeeded')
+        pass
 
 
 class ConfirmedOrder(Order):
