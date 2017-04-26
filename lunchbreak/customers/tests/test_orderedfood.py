@@ -167,9 +167,11 @@ class OrderedFoodTestCase(CustomersTestCase):
             self.food.cost - cost_separate_ingredients
         )
 
+    @mock.patch('lunch.models.Food.is_orderable')
     @mock.patch('lunch.models.Store.is_open')
-    def test_status(self, mock_is_open):
+    def test_status(self, mock_is_open, mock_is_orderable):
         """Test whether updating the status updates the order's total."""
+        mock_is_orderable.return_value = True
 
         orderedfood_data = [
             {
@@ -394,9 +396,12 @@ class OrderedFoodTestCase(CustomersTestCase):
             )
             mock_summation.reset_mock()
 
+    @mock.patch('lunch.models.Food.is_orderable')
     @mock.patch('lunch.models.Store.is_open')
-    def test_save_cascade(self, mock_is_open):
+    def test_save_cascade(self, mock_is_open, mock_is_orderable):
         """Test whether saving an OrderedFood also saved the order attached."""
+        mock_is_orderable.return_value = True
+
         orderedfood_data = [
             {
                 'original': self.food,

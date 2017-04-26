@@ -419,7 +419,7 @@ class Store(AbstractAddress):
             **kwargs
         )
 
-    def openingperiods_for(self, period=None, start=None, orderedfood=None,  **kwargs):
+    def openingperiods_for(self, period=None, start=None, orderedfood=None, **kwargs):
         """Get opening periods for given period.
 
         Return a list of periods indicating when the store is open for the given period.
@@ -1204,12 +1204,13 @@ class Food(CleanModelMixin, SafeDeleteMixin):
         verbose_name=_('type etenswaar'),
         help_text=('Type etenswaar.')
     )
-    preorder_days = models.PositiveIntegerField(
-        default=0,
+    preorder_days = models.IntegerField(
+        default=-1,
         verbose_name=_('dagen op voorhand bestellen'),
         help_text=(
-            'Minimum dagen op voorhand bestellen voor het uur ingesteld op de '
-            'winkel.'
+            'Minimum dagen op voorhand bestellen voor het uur ingesteld op '
+            'de winkel. (-1 is uitgeschakeld, 0 is dezelfde dag voor het '
+            'bepaalde uur.)'
         )
     )
     commentable = models.BooleanField(

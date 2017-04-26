@@ -2,7 +2,8 @@ import pendulum
 from customers.config import (ORDER_STATUS_COMPLETED, ORDER_STATUS_PLACED,
                               ORDER_STATUS_RECEIVED, ORDER_STATUS_STARTED,
                               ORDER_STATUS_WAITING)
-from customers.models import Group, GroupOrder, Order, OrderedFood
+from customers.models import (ConfirmedOrder, Group, GroupOrder, Order,
+                              OrderedFood)
 from customers.serializers import (GroupOrderDetailSerializer,
                                    GroupOrderSerializer)
 from django.conf import settings
@@ -419,12 +420,12 @@ class OrderView(generics.ListAPIView):
                     and self.request.GET['order_by'] == 'receipt':
                 if since is not None:
                     filters['receipt__gt'] = since
-                return Order.objects.filter(**filters).order_by('receipt')
+                return ConfirmedOrder.objects.filter(**filters).order_by('receipt')
             else:
                 if since is not None:
                     filters['placed__gt'] = since
-                return Order.objects.filter(**filters).order_by('-placed')
-        return Order.objects.filter(**filters)
+                return ConfirmedOrder.objects.filter(**filters).order_by('-placed')
+        return ConfirmedOrder.objects.filter(**filters)
 
 
 class OrderDetailView(generics.RetrieveUpdateAPIView):
@@ -433,7 +434,7 @@ class OrderDetailView(generics.RetrieveUpdateAPIView):
     pagination_class = None
 
     def get_queryset(self):
-        return Order.objects.filter(
+        return ConfirmedOrder.objects.filter(
             store_id=self.request.user.staff.store_id,
             status__in=AVAILABLE_STATUSES
         )
