@@ -13,9 +13,10 @@ class ReceiptWidget(widgets.Widget):
     name_weekday = '-weekday'
     name_time = '-time'
 
-    def __init__(self, store, *args, **kwargs):
+    def __init__(self, store, orderedfood, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.store = store
+        self.orderedfood = orderedfood
 
     def render(self, name, value, attrs=None):
         return mark_safe(
@@ -26,7 +27,8 @@ class ReceiptWidget(widgets.Widget):
                     'name_time': name + self.name_time,
                     'value': value,
                     'attrs': attrs,
-                    'store': self.store
+                    'store': self.store,
+                    'orderedfood': self.orderedfood,
                 }
             )
         )

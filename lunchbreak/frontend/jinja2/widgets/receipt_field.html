@@ -1,4 +1,4 @@
-{% set openingperiods = store.openingperiods_for(days=7) %}
+{% set openingperiods = store.openingperiods_for(days=7, orderedfood=orderedfood) %}
 {% if openingperiods %}
     {% set first_openingperiod = openingperiods[0] %}
     {% set weekday_openingperiods = store.periods_per_weekday(periods=openingperiods) %}

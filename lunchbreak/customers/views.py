@@ -92,6 +92,13 @@ class OrderViewSet(TargettedViewSet,
     queryset = Order.objects.all()
     queryset_retrieve = Order.objects.select_related(
         'store',
+        'transaction',
+        'user',
+        'delivery_address',
+        'group_order',
+    ).prefetch_related(
+        'orderedfood',
+        'store__categories',
     ).all()
 
     @property
@@ -102,6 +109,10 @@ class OrderViewSet(TargettedViewSet,
     def queryset_list(self):
         return Order.objects.select_related(
             'store',
+            'transaction',
+            'user',
+            'delivery_address',
+            'group_order',
         ).filter(
             user=self.request.user
         ).order_by(

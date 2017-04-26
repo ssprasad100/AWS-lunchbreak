@@ -116,6 +116,10 @@
                                 -webkit-box-orient: vertical;
                                 overflow: hidden;
                                 text-overflow: ellipsis;
+
+                                .food-preorderdays {
+                                    display: none;
+                                }
                             }
                         }
 
@@ -150,10 +154,10 @@
                             }
 
                             .food-form {
-                                float: right;
-                                direction: ltr;
                                 border-spacing: 8px 0;
                                 display: block;
+                                float: right;
+                                direction: ltr;
 
                                 .food-amount, .food-confirm {
                                     margin-right: 8px;
@@ -165,6 +169,13 @@
                                     padding-left: 0;
                                     width: 224px;
                                 }
+                            }
+
+                            .food-preorderdays {
+                                display: block;
+                                max-width: none;
+                                width: 100%;
+                                height: auto;
                             }
                         }
 

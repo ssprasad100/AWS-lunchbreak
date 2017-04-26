@@ -640,6 +640,7 @@
                 return;
 
             this.element.find('.food-top .food-text .food-form').remove();
+            this.element.find('.food-top .food-text .food-preorderdays').remove();
             if (!this.foodFormRender)
                 this.foodFormRender = nunjucks.render(
                     'food_form.html', {

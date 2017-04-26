@@ -14,7 +14,8 @@ class FatModelForm(forms.ModelForm):
             **self.cleaned_data,
             **getattr(self, 'instance_data', {})
         )
-        self.instance._form = self
+        if self.instance is not None:
+            self.instance._form = self
         super()._post_clean()
 
     def create_instance(self, **kwargs):

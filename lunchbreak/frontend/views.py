@@ -149,7 +149,8 @@ class OrderView(LoginForwardMixin, TemplateView):
         context['order_form'] = OrderForm(
             data=form_data,
             store=context['store'],
-            user=self.request.user
+            user=self.request.user,
+            temporary_order=context['order']
         )
 
         return context

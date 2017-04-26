@@ -3,12 +3,19 @@ import json
 from customers.config import PAYMENT_METHOD_GOCARDLESS, PAYMENT_METHODS
 from customers.models import Group, GroupOrder, Order, User
 from django import forms
+from django.core.exceptions import ValidationError
+from django.db import transaction
 from django.utils.translation import ugettext as _
 from lunch.exceptions import AddressNotFound
 from lunch.models import AbstractAddress
+from Lunchbreak.exceptions import LunchbreakException
 from Lunchbreak.forms import FatModelForm
 
 from .widgets import DayWidget, ReceiptWidget
+
+
+class CancelTransaction(Exception):
+    pass
 
 
 class SearchForm(forms.Form):
@@ -68,6 +75,7 @@ class OrderForm(FatModelForm):
     def __init__(self, *args, **kwargs):
         self.store = kwargs.pop('store')
         self.user = kwargs.pop('user')
+        self.temporary_order = kwargs.pop('temporary_order')
         super().__init__(*args, **kwargs)
 
         self.instance_data = {
@@ -81,7 +89,10 @@ class OrderForm(FatModelForm):
         )
         self.fields['receipt'].required = True
         self.fields['receipt'].widget = ReceiptWidget(
-            store=self.store
+            store=self.store,
+            orderedfood=self.temporary_order.orderedfood.select_related(
+                'original',
+            ).all()
         )
 
         description = self.fields['description']
@@ -106,11 +117,24 @@ class OrderForm(FatModelForm):
         group_field.widget.attrs['class'] = 'input-icon icon-dropdown input-icon-right'
 
     def create_instance(self, **kwargs):
-        return Order.objects.create_with_orderedfood(
-            orderedfood=None,
-            save=False,
-            **kwargs
-        )
+        try:
+            with transaction.atomic():
+                order = self.temporary_order.place(
+                    **self.cleaned_data
+                )
+                raise CancelTransaction()
+        except CancelTransaction:
+            return order
+        except ValidationError as e:
+            self.add_error(
+                'receipt',
+                e
+            )
+        except LunchbreakException as e:
+            self.add_error(
+                'receipt',
+                e.detail
+            )
 
     def save(self, temporary_order):
         return temporary_order.place(

@@ -1047,13 +1047,15 @@ class TemporaryOrder(AbstractOrder):
     )
 
     def place(self, **kwargs):
+        save = kwargs.get('save')
         order = Order.objects.create_with_orderedfood(
             orderedfood=self.orderedfood.all(),
             user=self.user,
             store=self.store,
             **kwargs
         )
-        self.delete()
+        if save:
+            self.delete()
         return order
 
 

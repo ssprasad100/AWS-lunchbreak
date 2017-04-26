@@ -419,7 +419,7 @@ class Store(AbstractAddress):
             **kwargs
         )
 
-    def openingperiods_for(self, period=None, start=None, **kwargs):
+    def openingperiods_for(self, period=None, start=None, orderedfood=None,  **kwargs):
         """Get opening periods for given period.
 
         Return a list of periods indicating when the store is open for the given period.
@@ -448,8 +448,25 @@ class Store(AbstractAddress):
 
         if period is None:
             if start is None:
-                start = pendulum.instance(timezone.now())
+                now = timezone.now()
+                start = pendulum.instance(now)
                 start += self.wait
+                if orderedfood is not None:
+                    preorder_days = -1
+                    for of in orderedfood:
+                        if of.original.preorder_days > preorder_days:
+                            preorder_days = of.original.preorder_days
+                    if preorder_days >= 0:
+                        # Amount of days needed to order in advance
+                        # (add 1 if it isn't before the preorder_time)
+                        preorder_days = preorder_days + (
+                            1 if now.time() > self.preorder_time else 0
+                        )
+                        start = start.add(
+                            days=preorder_days
+                        )
+                        if 'days' in kwargs:
+                            kwargs['days'] = max(0, kwargs['days'] - preorder_days)
             end = start.add(**kwargs)
 
             period = pendulum.Period(
@@ -1301,7 +1318,7 @@ class Food(CleanModelMixin, SafeDeleteMixin):
         Check whether this food can be ordered for the given day.
         This does not check whether the Store.wait has been exceeded!
         """
-        if self.preorder_days == 0:
+        if self.preorder_days == -1:
             return True
         else:
             now = timezone.now() if now is None else now

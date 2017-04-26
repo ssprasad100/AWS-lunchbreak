@@ -7,3 +7,9 @@
     <div class="food-confirm button">Toevoegen</div>
     <div class="food-cancel button transparent">Sluiten</div>
 </div>
+
+{% if food.preorderDays > 0 -%}
+<p class="food-preorderdays">
+    Dit item moet {{ food.preorderDays }} {% if food.preorderDays == 1 %}dag{% else %}dagen{% endif %} op voorhand besteld worden.
+</p>
+{%- endif %}
