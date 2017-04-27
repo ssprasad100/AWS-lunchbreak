@@ -15,7 +15,8 @@ from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from .authentication import CustomerAuthentication
 from .config import DEMO_PHONE
-from .models import ConfirmedOrder, Group, Heart, PaymentLink, User, UserToken
+from .models import (ConfirmedOrder, Group, Heart, Order, PaymentLink, User,
+                     UserToken)
 from .serializers import (GroupSerializer, OrderDetailSerializer,
                           OrderedFoodPriceSerializer, OrderSerializer,
                           PaymentLinkSerializer, StoreHeartSerializer,
@@ -90,7 +91,7 @@ class OrderViewSet(TargettedViewSet,
     serializer_class_list = OrderSerializer
 
     queryset = ConfirmedOrder.objects.all()
-    queryset_retrieve = ConfirmedOrder.objects.select_related(
+    queryset_retrieve = Order.objects.select_related(
         'store',
         'transaction',
         'user',
