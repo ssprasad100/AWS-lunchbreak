@@ -6,7 +6,8 @@ from django.test.utils import override_settings
 from freezegun import freeze_time
 from lunch.models import Store
 from pendulum import Pendulum
-from rest_framework.test import APITestCase, force_authenticate
+from rest_framework.test import (APIRequestFactory, APITestCase,
+                                 force_authenticate)
 
 
 class LunchbreakTestCase(APITestCase):
@@ -79,6 +80,8 @@ class LunchbreakTestCase(APITestCase):
 
         self.freezer = freeze_time(self.midday, tick=True)
         self.freezer.start()
+
+        self.factory = APIRequestFactory()
 
     def tearDown(self):
         super().tearDown()

@@ -3,7 +3,6 @@ from datetime import timedelta
 import mock
 from django.utils import timezone
 from Lunchbreak.tests.testcase import LunchbreakTestCase
-from rest_framework.test import APIRequestFactory
 
 from ..models import (Food, FoodType, HolidayPeriod, Ingredient,
                       IngredientGroup, IngredientRelation, Menu, Store)
@@ -16,7 +15,6 @@ class LunchTestCase(LunchbreakTestCase):
     def setUp(self, mock_geocode, mock_timezone):
         self.mock_timezone_result(mock_timezone)
         super().setUp()
-        self.factory = APIRequestFactory()
 
         self.mock_geocode_results(
             mock_geocode,

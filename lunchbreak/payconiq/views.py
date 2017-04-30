@@ -8,6 +8,7 @@ from django.views.generic.base import View
 from rest_framework import status
 
 from .models import Transaction
+from .utils import is_signature_valid
 
 
 class CSRFExemptView(View):
@@ -33,18 +34,26 @@ class ValidatedView(CSRFExemptView):
 class WebhookView(ValidatedView):
 
     def is_valid(self, request):
-        return True
+        signature = request.META.get('HTTP_X_SECURITY_SIGNATURE')
+        merchant_id = request.GET.get('merchant_id')
+        timestamp = request.META.get('HTTP_X_SECURITY_TIMESTAMP')
+        key = request.META.get('HTTP_X_SECURITY_KEY')
+        algorithm = request.META.get('HTTP_X_SECURITY_ALGORITHM')
 
-        # signature = request.META.get('HTTP_X_SECURITY_SIGNATURE')
-        # timestamp = request.META.get('HTTP_X_SECURITY_TIMESTAMP')
-        # key = request.META.get('HTTP_X_SECURITY_KEY')
-        # algorithm = request.META.get('HTTP_X_SECURITY_ALGORITHM')
+        if signature is None \
+                or merchant_id is None \
+                or timestamp is None \
+                or key is None \
+                or algorithm is None:
+            return False
 
-        # print('request.META', request.META)
-        # print('signature', signature)
-        # print('timestamp', timestamp)
-        # print('key', key)
-        # print('algorithm', algorithm)
+        return is_signature_valid(
+            signature=signature,
+            merchant_id=merchant_id,
+            timestamp=timestamp,
+            algorithm=algorithm,
+            body=request.body
+        )
 
     def post(self, request, *args, **kwargs):
         try:

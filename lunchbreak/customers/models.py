@@ -1024,22 +1024,18 @@ class Order(StatusSignalModel, AbstractOrder):
 
     @classmethod
     def transaction_timedout(cls, sender, transaction, **kwargs):
-        print('transaction_timedout')
         cls.deny_order(transaction=transaction)
 
     @classmethod
     def transaction_canceled(cls, sender, transaction, **kwargs):
-        print('transaction_canceled')
         cls.deny_order(transaction=transaction)
 
     @classmethod
     def transaction_failed(cls, sender, transaction, **kwargs):
-        print('transaction_failed')
         cls.deny_order(transaction=transaction)
 
     @classmethod
     def transaction_succeeded(cls, sender, transaction, **kwargs):
-        print('transaction_succeeded')
         pass
 
 

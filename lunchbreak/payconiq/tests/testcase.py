@@ -1,5 +1,5 @@
-from django.test import TestCase
+from Lunchbreak.tests.testcase import LunchbreakTestCase
 
 
-class PayconiqTestCase(TestCase):
+class PayconiqTestCase(LunchbreakTestCase):
     pass

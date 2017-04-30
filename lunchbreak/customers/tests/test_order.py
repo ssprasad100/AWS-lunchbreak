@@ -384,13 +384,15 @@ class OrderTestCase(CustomersTestCase):
         assert_confirmed(order, confirmed, not confirmed)
         Transaction.objects.all().delete()
 
+    @mock.patch('payconiq.views.WebhookView.is_valid')
     @mock.patch('payconiq.models.Transaction.start')
     @mock.patch('customers.models.User.notify')
     @mock.patch('lunch.models.Store.is_open')
     @mock.patch('googlemaps.Client.timezone')
     @mock.patch('googlemaps.Client.geocode')
     def test_payconiq_order(self, mock_geocode, mock_timezone,
-                            mock_is_open, mock_notify, mock_transaction):
+                            mock_is_open, mock_notify, mock_transaction, mock_is_valid):
+        mock_is_valid.return_value = True
         self.place_payconiq_order(
             mock_geocode, mock_timezone, mock_is_open, mock_notify,
             mock_transaction, transaction_status=Transaction.SUCCEEDED, confirmed=True
