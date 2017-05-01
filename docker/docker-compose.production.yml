@@ -40,7 +40,7 @@ services:
       file: common-services.yml
       service: lunchbreak
     # TODO Change this tag to staging when first deploying to staging
-    image: 'andreasbackx/lunchbreak:latest'
+    image: 'andreasbackx/lunchbreak:staging'
     container_name: lunchbreak_staging
     links:
       - rabbitmq
