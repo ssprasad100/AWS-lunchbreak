@@ -17,6 +17,13 @@ class SignatureTestCase(PayconiqTestCase):
     ALGORITHM = 'SHA256WithRSA'
     BODY = '{"_id":"58eb9ead15f970006d509589","status":"SUCCEEDED"}'
 
+    def setUp(self):
+        super().setUp()
+        merchant = mock.MagicMock()
+        merchant.remote_id = self.MERCHANT_ID
+        self.transaction = mock.MagicMock()
+        self.transaction.merchant = merchant
+
     def test_valid(self):
         self.assertTrue(
             is_signature_valid(
@@ -42,8 +49,9 @@ class SignatureTestCase(PayconiqTestCase):
     @mock.patch('payconiq.views.get_object_or_404')
     @mock.patch('payconiq.models.Transaction.save')
     def test_valid_webhook(self, mock_save, mock_get):
+        mock_get.return_value = self.transaction
         request = self.factory.post(
-            reverse('payconiq:webhook') + '?merchant_id=' + self.MERCHANT_ID,
+            reverse('payconiq:webhook'),
             data=self.BODY,
             content_type='application/json',
             HTTP_X_SECURITY_SIGNATURE=self.VALID_SIGNATURE,
@@ -60,8 +68,9 @@ class SignatureTestCase(PayconiqTestCase):
     @mock.patch('payconiq.views.get_object_or_404')
     @mock.patch('payconiq.models.Transaction.save')
     def test_invalid_webhook(self, mock_save, mock_get):
+        mock_get.return_value = self.transaction
         request = self.factory.post(
-            reverse('payconiq:webhook') + '?merchant_id=' + self.MERCHANT_ID,
+            reverse('payconiq:webhook'),
             data=self.BODY,
             content_type='application/json',
             HTTP_X_SECURITY_SIGNATURE=self.INVALID_SIGNATURE,
@@ -79,8 +88,9 @@ class SignatureTestCase(PayconiqTestCase):
     @mock.patch('payconiq.views.get_object_or_404')
     @mock.patch('payconiq.models.Transaction.save')
     def test_malformed_webhook(self, mock_save, mock_get):
+        mock_get.return_value = self.transaction
         request = self.factory.post(
-            reverse('payconiq:webhook') + '?merchant_id=' + self.MERCHANT_ID,
+            reverse('payconiq:webhook'),
             data=self.BODY,
             content_type='application/json'
         )

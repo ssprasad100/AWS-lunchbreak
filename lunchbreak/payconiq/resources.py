@@ -36,7 +36,7 @@ class Transaction:
             json={
                 'amount': amount,
                 'currency': currency,
-                'callback_url': webhook_url,
+                'callbackUrl': webhook_url,
             }
         )
         return response.json()['transactionId']

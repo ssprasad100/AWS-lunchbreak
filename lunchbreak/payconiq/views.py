@@ -11,31 +11,14 @@ from .models import Transaction
 from .utils import is_signature_valid
 
 
-class CSRFExemptView(View):
+class WebhookView(View):
 
     @method_decorator(csrf_exempt)
     def dispatch(self, *args, **kwargs):
-        return super(CSRFExemptView, self).dispatch(*args, **kwargs)
+        return super(WebhookView, self).dispatch(*args, **kwargs)
 
-
-class ValidatedView(CSRFExemptView):
-
-    def is_valid(self, request):
-        raise NotImplementedError(
-            'ValidatedView subclasses need to implement `is_valid`.'
-        )
-
-    def dispatch(self, request, *args, **kwargs):
-        if self.is_valid(request):
-            return super().dispatch(request, *args, **kwargs)
-        raise Http404()
-
-
-class WebhookView(ValidatedView):
-
-    def is_valid(self, request):
+    def is_valid(self, request, merchant_id):
         signature = request.META.get('HTTP_X_SECURITY_SIGNATURE')
-        merchant_id = request.GET.get('merchant_id')
         timestamp = request.META.get('HTTP_X_SECURITY_TIMESTAMP')
         key = request.META.get('HTTP_X_SECURITY_KEY')
         algorithm = request.META.get('HTTP_X_SECURITY_ALGORITHM')
@@ -77,9 +60,15 @@ class WebhookView(ValidatedView):
             )
 
         transaction = get_object_or_404(
-            Transaction,
+            Transaction.objects.select_related(
+                'merchant'
+            ),
             remote_id=transaction_remote_id
         )
+
+        if not self.is_valid(request, transaction.merchant.remote_id):
+            raise Http404()
+
         transaction.status = transaction_status
         transaction.save()
 
