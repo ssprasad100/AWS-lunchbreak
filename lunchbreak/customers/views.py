@@ -90,17 +90,15 @@ class OrderViewSet(TargettedViewSet,
     serializer_class_create = OrderSerializer
     serializer_class_list = OrderSerializer
 
-    queryset = ConfirmedOrder.objects.all()
-    queryset_retrieve = Order.objects.select_related(
+    queryset = ConfirmedOrder.objects.select_related(
         'store',
         'transaction',
         'user',
         'delivery_address',
         'group_order',
-    ).prefetch_related(
-        'orderedfood',
-        'store__categories',
-    ).all()
+    ).filter(
+        store__enabled=True
+    )
 
     @property
     def queryset_create(self):
@@ -108,14 +106,19 @@ class OrderViewSet(TargettedViewSet,
 
     @property
     def queryset_list(self):
-        return ConfirmedOrder.objects.select_related(
-            'store',
-            'transaction',
-            'user',
-            'delivery_address',
-            'group_order',
-        ).filter(
-            user=self.request.user
+        return self.queryset.filter(
+            user=self.request.user,
+        ).order_by(
+            '-receipt'
+        )
+
+    @property
+    def queryset_retrieve(self):
+        return self.queryset_list.filter(
+            user=self.request.user,
+        ).prefetch_related(
+            'orderedfood',
+            'store__categories',
         ).order_by(
             '-receipt'
         )
