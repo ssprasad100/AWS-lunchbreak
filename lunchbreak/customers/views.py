@@ -15,8 +15,7 @@ from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from .authentication import CustomerAuthentication
 from .config import DEMO_PHONE
-from .models import (ConfirmedOrder, Group, Heart, Order, PaymentLink, User,
-                     UserToken)
+from .models import ConfirmedOrder, Group, Heart, PaymentLink, User, UserToken
 from .serializers import (GroupSerializer, OrderDetailSerializer,
                           OrderedFoodPriceSerializer, OrderSerializer,
                           PaymentLinkSerializer, StoreHeartSerializer,
