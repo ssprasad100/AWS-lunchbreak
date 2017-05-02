@@ -22,7 +22,7 @@ class UserManager(BaseUserManager):
 
     def _create_user(self, phone, name, password=None, **kwargs):
         user = self.model(
-            phone__phone=phone,
+            phone_id=phone,
             name=name,
             **kwargs
         )

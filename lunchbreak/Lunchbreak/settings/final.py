@@ -30,7 +30,7 @@ if HOST not in ALLOWED_HOSTS:
 DJANGO_SETTINGS_VERSION = os.environ.get('DJANGO_SETTINGS_VERSION')
 DB_NAME = get_variable(
     'DB_NAME',
-    'LB_%s' % DJANGO_SETTINGS_VERSION
+    'lb_%s' % DJANGO_SETTINGS_VERSION
 )
 DB_USER = get_variable('DB_USER', DB_NAME)
 DB_PASS = get_variable('DB_PASS', DB_NAME)
@@ -38,19 +38,18 @@ DB_HOST = get_variable('DB_HOST', '127.0.0.1')
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': DB_NAME,
         'USER': DB_USER,
         'PASSWORD': DB_PASS,
         'HOST': DB_HOST,
-        'PORT': '3306',
-        'OPTIONS': {
-            'charset': 'utf8mb4',
-        },
-        'TEST': {
-            'CHARSET': 'utf8mb4',
-            'COLLATION': 'utf8mb4_unicode_ci',
-        }
+        'PORT': '',
+        # 'OPTIONS': {
+        #     'charset': 'UTF8',
+        # },
+        # 'TEST': {
+        #     'CHARSET': 'UTF8',
+        # }
     }
 }
 
