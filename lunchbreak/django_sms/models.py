@@ -1,7 +1,5 @@
-
 from random import randint
 
-import plivo
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db import models
@@ -10,13 +8,10 @@ from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
 from phonenumber_field.modelfields import PhoneNumberField
 
-from .conf import (DOMAIN, EXPIRY_TIME, GATEWAY_TWILIO, GATEWAYS, MAX_TRIES,
-                   MESSAGE_STATUS_QUEUED, MESSAGE_STATUSES, PLIVO_AUTH_ID,
-                   PLIVO_AUTH_TOKEN, PLIVO_PHONE, STATUS_DELIVERED,
-                   STATUS_FAILED, STATUS_REJECTED, STATUS_UNDELIVERED,
-                   TEXT_TEMPLATE, TIMEOUT)
-from .exceptions import (PinExpired, PinIncorrect, PinTimeout,
-                         PinTriesExceeded, SmsException)
+from .conf import (DOMAIN, EXPIRY_TIME, MAX_TRIES, PLIVO_AUTH_ID,
+                   PLIVO_AUTH_TOKEN, PLIVO_PHONE, RETRY_TIMEOUT, TEXT_TEMPLATE,
+                   TIMEOUT)
+from .exceptions import PinExpired, PinIncorrect, PinTimeout, PinTriesExceeded
 from .tasks import send_pin
 
 
@@ -46,12 +41,6 @@ class Phone(models.Model):
         help_text=_('Aantal keer PIN code geprobeerd.')
     )
 
-    last_message = models.DateTimeField(
-        null=True,
-        blank=True,
-        verbose_name=_('laatst verstuurd bericht'),
-        help_text=_('Moment waarop het laatste bericht werd verstuurd.')
-    )
     confirmed_at = models.DateTimeField(
         null=True,
         blank=True,
@@ -75,11 +64,9 @@ class Phone(models.Model):
         return self.confirmed_at is not None
 
     @cached_property
-    def last_messsage(self):
+    def last_message(self):
         try:
-            return Message.objects.filter(
-                phone_id=self.id
-            ).order_by(
+            return self.messages.order_by(
                 '-sent_at'
             ).first()
         except IndexError:
@@ -101,41 +88,35 @@ class Phone(models.Model):
         return pin
 
     def can_retry(self, gateway):
-        return self.messages.filter(
-            gateway=gateway,
+        try:
+            last_message = self.messages.filter(
+                gateway=gateway
+            ).order_by(
+                '-sent_at'
+            ).first()
 
-        )
+            timeout = last_message.replace(
+                tzinfo=timezone.utc
+            ) + TIMEOUT
+            if timezone.now() < timeout:
+                return False
+        except IndexError:
+            pass
+        return True
 
-    def send_pin(self, new_pin=True):
+    def send_pin(self):
         if self.last_message is not None:
-            timeout = self.last_message.replace(
+            timeout = self.last_message.sent_at.replace(
                 tzinfo=timezone.utc
             ) + TIMEOUT
             if timezone.now() < timeout:
                 raise PinTimeout()
 
-        if new_pin:
-            self.new_pin()
-
-        api = plivo.RestAPI(
-            PLIVO_AUTH_ID,
-            PLIVO_AUTH_TOKEN
+        send_pin.delay(
+            phone_pk=self.pk
         )
-        params = {
-            'src': PLIVO_PHONE,
-            'dst': str(self.phone),
-            'text': TEXT_TEMPLATE.format(
-                pin=self.pin
-            ),
-            'method': 'POST'
-        }
-        status, details = api.send_message(params)
-        self.last_message = timezone.now()
-        self.save()
-        if status != 202:
-            raise SmsException(details)
 
-    def new_pin(self, save=True):
+    def reset_pin(self, save=True):
         self.pin = self.random_pin()
         self.tries = 0
         self.expires_at = timezone.now() + EXPIRY_TIME
@@ -197,6 +178,30 @@ class Message(models.Model):
     def __str__(self):
         return str(self.uuid)
 
+    PLIVO = 'plivo'
+    TWILIO = 'twilio'
+    GATEWAYS = (
+        (PLIVO, 'Plivo'),
+        (TWILIO, 'Twilio'),
+    )
+
+    QUEUED = 'queued'
+    SENDING = 'sending'
+    SENT = 'sent'
+    FAILED = 'failed'
+    DELIVERED = 'delivered'
+    UNDELIVERED = 'undelivered'
+    REJECTED = 'rejected'
+    STATUSES = (
+        (QUEUED, _('In de wachtrij')),
+        (SENDING, _('Wordt verzonden')),
+        (SENT, _('Verzonden')),
+        (FAILED, _('Gefaald')),
+        (DELIVERED, _('Afgeleverd')),
+        (UNDELIVERED, _('Niet afgeleverd')),
+        (REJECTED, _('Afgewezen')),
+    )
+
     id = models.UUIDField(
         primary_key=True,
         editable=False
@@ -207,11 +212,13 @@ class Message(models.Model):
         related_name='messages'
     )
     gateway = models.CharField(
+        max_length=6,
         choices=GATEWAYS
     )
     status = models.CharField(
-        default=MESSAGE_STATUS_QUEUED,
-        choices=MESSAGE_STATUSES
+        max_length=11,
+        default=QUEUED,
+        choices=STATUSES
     )
     sent_at = models.DateTimeField(
         # This allows for overriding it on creation
@@ -226,19 +233,19 @@ class Message(models.Model):
 
     @property
     def success(self):
-        return self.status == STATUS_DELIVERED
+        return self.status == self.DELIVERED
 
     @property
     def failure(self):
-        return self.status in (
-            STATUS_FAILED,
-            STATUS_UNDELIVERED,
-            STATUS_REJECTED,
-        )
+        return self.status in {
+            self.FAILED,
+            self.UNDELIVERED,
+            self.REJECTED,
+        }
 
     @property
     def sid(self):
-        assert self.status == GATEWAY_TWILIO, \
+        assert self.status == self.TWILIO, \
             'Only messages sent via Twilio have an sid.'
         return 'MM' + str(self.id)
 
@@ -259,9 +266,9 @@ class Message(models.Model):
                 phone_pk=self.phone_id
             )
 
-    @staticmethod
-    def get_webhook_uri(gateway):
-        if gateway == GATEWAY_TWILIO:
+    @classmethod
+    def get_webhook_uri(cls, gateway):
+        if gateway == cls.TWILIO:
             path = reverse('django_sms:twilio')
         else:
             path = reverse('django_sms:plivo')

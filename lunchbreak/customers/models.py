@@ -150,7 +150,7 @@ class User(AbstractBaseUser, PermissionsMixin):
                 except PinTimeout:
                     pass
             else:
-                user.phone.new_pin()
+                user.phone.reset_pin()
 
             if user.name:
                 return Response(

@@ -2,24 +2,20 @@ import pendulum
 import plivo
 from celery import shared_task
 from Lunchbreak.tasks import DebugLoggingTask
-from twilio import TwilioRestException
+from twilio.base.exceptions import TwilioException
 from twilio.rest import Client as TwilioClient
 
-from .conf import (GATEWAY_PLIVO, GATEWAY_TWILIO, PLIVO_AUTH_ID,
-                   PLIVO_AUTH_TOKEN, PLIVO_PHONE, TEXT_TEMPLATE,
+from .conf import (PLIVO_AUTH_ID, PLIVO_AUTH_TOKEN, PLIVO_PHONE, TEXT_TEMPLATE,
                    TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE)
 
 
 @shared_task(base=DebugLoggingTask)
 def send_pin(phone_pk):
     from .models import Phone
-    try:
-        phone = Phone.objects.get(
-            pk=phone_pk
-        )
-    except Phone.DoesNotExist:
-        return
-    phone.new_pin()
+    phone = Phone.objects.get(
+        pk=phone_pk
+    )
+    phone.reset_pin()
     send_message(
         phone=phone,
         body=TEXT_TEMPLATE.format(
@@ -29,25 +25,27 @@ def send_pin(phone_pk):
 
 
 def send_message(phone, body):
+    from .models import Message
+
     last_message = phone.last_message
     use_plivo = last_message is None or (
-        last_message.gateway == GATEWAY_PLIVO and
+        last_message.gateway == Message.PLIVO and
         last_message.success
     ) or (
-        last_message.gateway == GATEWAY_TWILIO and
+        last_message.gateway == Message.TWILIO and
         last_message.failure
     )
 
     if use_plivo:
-        message = send_message_plivo(str(phone.phone), body)
+        message = send_message_plivo(phone, body)
     else:
-        message = send_message_twilio(str(phone.phone), body)
+        message = send_message_twilio(phone, body)
 
-    if message is None or message.failed:
+    if message is None or message.failure:
         if use_plivo:
-            message = send_message_twilio(str(phone.phone), body)
+            message = send_message_twilio(phone, body)
         else:
-            message = send_message_plivo(str(phone.phone), body)
+            message = send_message_plivo(phone, body)
 
 
 def send_message_plivo(phone, body):
@@ -57,7 +55,7 @@ def send_message_plivo(phone, body):
     )
     message = api.Message.send(
         src=PLIVO_PHONE,
-        dst=phone,
+        dst=str(phone.phone),
         text=body,
         url=''
     )
@@ -72,7 +70,7 @@ def send_message_plivo(phone, body):
     return Message.objects.create(
         id=uuid,
         phone=phone,
-        gateway=GATEWAY_PLIVO
+        gateway=Message.PLIVO
     )
 
 
@@ -83,19 +81,19 @@ def send_message_twilio(phone, body):
     )
     try:
         message = client.messages.create(
-            to=phone,
+            to=str(phone.phone),
             from_=TWILIO_PHONE,
             body=body,
             status_callback=''
         )
-    except TwilioRestException:
+    except TwilioException:
         return None
 
     from .models import Message
     return Message.objects.create(
         id=message['sid'][2:],
         phone=phone,
-        gateway=GATEWAY_TWILIO,
+        gateway=Message.TWILIO,
         status=message['status'],
         sent_at=pendulum.parse(message['date_sent'])._datetime,
     )

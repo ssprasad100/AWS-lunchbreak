@@ -91,6 +91,7 @@ GOCARDLESS = {
 
 SMS = {
     'text_template': '{pin} is je Lunchbreak authenticatie code, welkom!',
+    'domain': get_variable('SMS_DOMAIN'),
     'plivo': {
         'phone': '+32466900406',
         'auth_id': get_variable('PLIVO_AUTH_ID'),
@@ -99,7 +100,7 @@ SMS = {
     'twilio': {
         'phone': '+32460206701',
         'account_sid': get_variable('TWILIO_ACCOUNT_SID'),
-        'auth_token': get_variable('TWILIO_AUTH_TOKEN')
+        'auth_token': get_variable('TWILIO_AUTH_TOKEN'),
     }
 }
 

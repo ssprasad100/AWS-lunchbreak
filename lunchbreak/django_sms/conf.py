@@ -1,7 +1,6 @@
 from datetime import timedelta
 
 from django.conf import settings as django_settings
-from django.utils.translation import ugettext as _
 
 settings = getattr(django_settings, 'SMS', {})
 EXPIRY_TIME = settings.get(
@@ -33,27 +32,3 @@ TWILIO_SETTINGS = settings['twilio']
 TWILIO_PHONE = TWILIO_SETTINGS['phone']
 TWILIO_ACCOUNT_SID = TWILIO_SETTINGS['account_sid']
 TWILIO_AUTH_TOKEN = TWILIO_SETTINGS['auth_token']
-
-STATUS_QUEUED = 'queued'
-STATUS_SENDING = 'sending'
-STATUS_SENT = 'sent'
-STATUS_FAILED = 'failed'
-STATUS_DELIVERED = 'delivered'
-STATUS_UNDELIVERED = 'undelivered'
-STATUS_REJECTED = 'rejected'
-STATUSES = (
-    (STATUS_QUEUED, _('In de wachtrij')),
-    (STATUS_SENDING, _('Wordt verzonden')),
-    (STATUS_SENT, _('Verzonden')),
-    (STATUS_FAILED, _('Gefaald')),
-    (STATUS_DELIVERED, _('Afgeleverd')),
-    (STATUS_UNDELIVERED, _('Niet afgeleverd')),
-    (STATUS_REJECTED, _('Afgewezen')),
-)
-
-GATEWAY_PLIVO = 'plivo'
-GATEWAY_TWILIO = 'twilio'
-GATEWAYS = (
-    (GATEWAY_PLIVO, 'Plivo'),
-    (GATEWAY_TWILIO, 'Twilio'),
-)

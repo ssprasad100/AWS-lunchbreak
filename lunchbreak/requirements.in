@@ -29,6 +29,7 @@ Pillow==3.2.0
 plivo==0.11.1
 raven==6.0.0
 requests==2.9.1
+twilio==6.1.0
 
 # user-agents: https://github.com/selwin/python-user-agents/issues/67
 pyyaml==3.11
