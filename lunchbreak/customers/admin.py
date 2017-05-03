@@ -7,8 +7,8 @@ from lunch.admin import BaseTokenAdmin
 from Lunchbreak.forms import PasswordChangeForm
 from Lunchbreak.utils import format_money
 
-from .models import (Address, Group, GroupOrder, Heart, Order, OrderedFood,
-                     PaymentLink, TemporaryOrder, User, UserToken)
+from .models import (Address, ConfirmedOrder, Group, GroupOrder, Heart, Order,
+                     OrderedFood, PaymentLink, TemporaryOrder, User, UserToken)
 
 admin.site.unregister(DjangoGroup)
 
@@ -172,13 +172,15 @@ class AbstractOrderAdmin(admin.ModelAdmin):
     count_display.short_description = OrderedFood._meta.verbose_name_plural
 
 
-@admin.register(Order)
 class OrderAdmin(AbstractOrderAdmin):
     list_display = ('store', 'user', 'placed', 'receipt',
                     'status', 'total_display', 'count_display',)
     search_fields = ('store__name', 'user__name',)
     list_filter = ('store', 'status',)
     ordering = ('-placed', '-receipt',)
+
+
+admin.site.register([Order, ConfirmedOrder], OrderAdmin)
 
 
 @admin.register(TemporaryOrder)

@@ -1220,7 +1220,10 @@ class OrderedFood(CleanModelMixin, StatusSignalModel):
     def clean_order(self):
         if self.original is not None \
                 and isinstance(self.order, Order) \
-                and not self.original.is_orderable(self.order.receipt):
+                and not self.original.is_orderable(
+                    self.order.receipt,
+                    now=self.order.placed
+                ):
             raise MinDaysExceeded()
 
     def clean_amount(self):

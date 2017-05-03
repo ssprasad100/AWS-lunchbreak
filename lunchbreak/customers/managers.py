@@ -9,7 +9,7 @@ from payconiq.models import Transaction
 from pendulum import Pendulum
 
 from .config import (ORDER_STATUSES_ACTIVE, PAYMENT_METHOD_CASH,
-                     PAYMENT_METHOD_PAYCONIQ)
+                     PAYMENT_METHOD_GOCARDLESS, PAYMENT_METHOD_PAYCONIQ)
 from .exceptions import OrderedFoodNotOriginal
 
 
@@ -144,7 +144,10 @@ class ConfirmedOrderManager(OrderManager):
     def get_queryset(self):
         return super().get_queryset().filter(
             models.Q(
-                payment_method=PAYMENT_METHOD_CASH
+                payment_method__in=[
+                    PAYMENT_METHOD_CASH,
+                    PAYMENT_METHOD_GOCARDLESS
+                ]
             ) | models.Q(
                 payment_method=PAYMENT_METHOD_PAYCONIQ,
                 transaction__status=Transaction.SUCCEEDED
