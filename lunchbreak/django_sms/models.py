@@ -1,3 +1,4 @@
+import uuid
 from random import randint
 
 from django.conf import settings
@@ -176,7 +177,7 @@ class Message(models.Model):
         verbose_name_plural = _('berichten')
 
     def __str__(self):
-        return str(self.uuid)
+        return str(self.id)
 
     PLIVO = 'plivo'
     TWILIO = 'twilio'
@@ -204,7 +205,11 @@ class Message(models.Model):
 
     id = models.UUIDField(
         primary_key=True,
-        editable=False
+        editable=False,
+        default=uuid.uuid4
+    )
+    remote_uuid = models.UUIDField(
+        null=True
     )
     phone = models.ForeignKey(
         Phone,
@@ -226,8 +231,7 @@ class Message(models.Model):
         default=timezone.now,
         blank=True
     )
-    error_code = models.PositiveIntegerField(
-        null=True,
+    error = models.TextField(
         blank=True
     )
 
@@ -247,7 +251,7 @@ class Message(models.Model):
     def sid(self):
         assert self.status == self.TWILIO, \
             'Only messages sent via Twilio have an sid.'
-        return 'MM' + str(self.id)
+        return 'MM' + str(self.remote_uuid)
 
     def handle_status(self, status):
         self.status = status

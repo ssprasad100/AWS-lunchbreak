@@ -99,7 +99,7 @@ class DjangoSmsTestCase(LunchbreakTestCase):
         self.plivo_message = mock.MagicMock()
         self.plivo_message.status_code = 202
         self.plivo_message.json_data = {
-            'message_uid': [
+            'message_uuid': [
                 uuid.uuid4(),
             ],
         }
