@@ -13,6 +13,58 @@ class MessageTestCase(DjangoSmsTestCase):
             phone=self.PHONE
         )
 
+    def test_last_confirmed_message(self):
+        last_message = Message.objects.create(
+            phone=self.phone,
+            gateway=Message.TWILIO,
+            status=Message.FAILED
+        )
+        self.phone.last_confirmed_message = last_message
+        self.phone.save()
+
+        send_message(
+            phone=self.phone,
+            body='body'
+        )
+
+        self.assertEqual(
+            self.mock_plivo.call_count,
+            0
+        )
+        self.assertEqual(
+            self.mock_twilio.call_count,
+            1
+        )
+        self.assertEqual(
+            Message.objects.all().count(),
+            2
+        )
+
+        last_message.gateway = Message.PLIVO
+        last_message.save()
+        self.phone.refresh_from_db()
+
+        self.mock_plivo.reset_mock()
+        self.mock_twilio.reset_mock()
+
+        send_message(
+            phone=self.phone,
+            body='body'
+        )
+
+        self.assertEqual(
+            self.mock_plivo.call_count,
+            1
+        )
+        self.assertEqual(
+            self.mock_twilio.call_count,
+            0
+        )
+        self.assertEqual(
+            Message.objects.all().count(),
+            3
+        )
+
     def test_failed_twilio(self):
         last_message = Message.objects.create(
             phone=self.phone,

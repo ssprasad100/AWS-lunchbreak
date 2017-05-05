@@ -40,6 +40,14 @@ class Phone(models.Model):
         help_text=_('Aantal keer PIN code geprobeerd.')
     )
 
+    last_confirmed_message = models.OneToOneField(
+        'Message',
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='confirmed_phone',
+        verbose_name=_('laatst bevestigd bericht'),
+        help_text=_('Bericht dat laatst bevestigd werd.')
+    )
     confirmed_at = models.DateTimeField(
         null=True,
         blank=True,
@@ -57,10 +65,6 @@ class Phone(models.Model):
         verbose_name=_('aangemaakt op'),
         help_text=_('Moment waarop dit telefoonnummer werd toegevoegd.')
     )
-
-    @property
-    def confirmed(self):
-        return self.confirmed_at is not None
 
     @cached_property
     def last_message(self):
@@ -112,6 +116,7 @@ class Phone(models.Model):
             self.save()
 
     def confirm(self, save=True):
+        self.last_confirmed_message = self.last_message
         self.confirmed_at = timezone.now()
         if save:
             self.save()

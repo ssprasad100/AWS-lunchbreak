@@ -12,7 +12,9 @@ from .conf import settings
 @shared_task(base=DebugLoggingTask)
 def send_pin(phone_pk):
     from .models import Phone
-    phone = Phone.objects.get(
+    phone = Phone.objects.select_related(
+        'last_confirmed_message'
+    ).get(
         pk=phone_pk
     )
     phone.reset_pin()
@@ -27,22 +29,26 @@ def send_pin(phone_pk):
 def send_message(phone, body):
     from .models import Message
 
-    last_message = phone.last_message
-    use_plivo = last_message is None or (
-        last_message.gateway == Message.PLIVO and
-        last_message.success
-    ) or (
-        last_message.gateway == Message.TWILIO and
-        last_message.failure
-    )
+    if phone.last_confirmed_message is not None:
+        gateway = phone.last_confirmed_message.gateway
+    else:
+        last_message = phone.last_message
+        use_plivo = last_message is None or (
+            last_message.gateway == Message.PLIVO and
+            last_message.success
+        ) or (
+            last_message.gateway == Message.TWILIO and
+            last_message.failure
+        )
+        gateway = Message.PLIVO if use_plivo else Message.TWILIO
 
-    if use_plivo:
+    if gateway == Message.PLIVO:
         message = send_message_plivo(phone, body)
     else:
         message = send_message_twilio(phone, body)
 
     if message is None or message.failure:
-        if use_plivo:
+        if gateway == Message.PLIVO:
             message = send_message_twilio(phone, body)
         else:
             message = send_message_plivo(phone, body)
