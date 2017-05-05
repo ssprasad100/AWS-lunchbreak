@@ -9,9 +9,7 @@ from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
 from phonenumber_field.modelfields import PhoneNumberField
 
-from .conf import (DOMAIN, EXPIRY_TIME, MAX_TRIES, PLIVO_AUTH_ID,
-                   PLIVO_AUTH_TOKEN, PLIVO_PHONE, RETRY_TIMEOUT, TEXT_TEMPLATE,
-                   TIMEOUT)
+from .conf import DOMAIN, EXPIRY_TIME, MAX_TRIES, TIMEOUT
 from .exceptions import PinExpired, PinIncorrect, PinTimeout, PinTriesExceeded
 from .tasks import send_pin
 
@@ -88,30 +86,18 @@ class Phone(models.Model):
             pin += str(randint(0, 9))
         return pin
 
-    def can_retry(self, gateway):
-        try:
-            last_message = self.messages.filter(
-                gateway=gateway
-            ).order_by(
-                '-sent_at'
-            ).first()
+    def can_send_pin(self):
+        if self.last_message is None or self.last_message.failure:
+            return True
 
-            timeout = last_message.replace(
-                tzinfo=timezone.utc
-            ) + TIMEOUT
-            if timezone.now() < timeout:
-                return False
-        except IndexError:
-            pass
-        return True
+        timeout = self.last_message.sent_at.replace(
+            tzinfo=timezone.utc
+        ) + TIMEOUT
+        return not (timezone.now() < timeout)
 
     def send_pin(self):
-        if self.last_message is not None:
-            timeout = self.last_message.sent_at.replace(
-                tzinfo=timezone.utc
-            ) + TIMEOUT
-            if timezone.now() < timeout:
-                raise PinTimeout()
+        if not self.can_send_pin():
+            raise PinTimeout()
 
         send_pin.delay(
             phone_pk=self.pk
@@ -206,33 +192,47 @@ class Message(models.Model):
     id = models.UUIDField(
         primary_key=True,
         editable=False,
-        default=uuid.uuid4
+        default=uuid.uuid4,
+        verbose_name=_('UUID'),
+        help_text=_('UUID.')
     )
     remote_uuid = models.UUIDField(
-        null=True
+        null=True,
+        verbose_name=_('gateway UUID'),
+        help_text=_('UUID bij gateway.')
     )
     phone = models.ForeignKey(
         Phone,
         on_delete=models.CASCADE,
-        related_name='messages'
+        related_name='messages',
+        verbose_name=_('telefoon'),
+        help_text=_('Telefoon.')
     )
     gateway = models.CharField(
         max_length=6,
-        choices=GATEWAYS
+        choices=GATEWAYS,
+        verbose_name=_('gateway'),
+        help_text=_('SMS gateway.')
     )
     status = models.CharField(
         max_length=11,
         default=QUEUED,
-        choices=STATUSES
+        choices=STATUSES,
+        verbose_name=_('status'),
+        help_text=_('Status.')
     )
     sent_at = models.DateTimeField(
         # This allows for overriding it on creation
         # auto_now_add does not allow overriding.
         default=timezone.now,
-        blank=True
+        blank=True,
+        verbose_name=_('verzonden om'),
+        help_text=_('Verzonden om.')
     )
     error = models.TextField(
-        blank=True
+        blank=True,
+        verbose_name=_('fout'),
+        help_text=_('Fout informatie.')
     )
 
     @property
@@ -265,7 +265,7 @@ class Message(models.Model):
         assert self.failure, \
             'Only failed messages can be retried.'
 
-        if self.phone.can_retry(self.gateway):
+        if self.phone.can_send_pin():
             send_pin.delay(
                 phone_pk=self.phone_id
             )

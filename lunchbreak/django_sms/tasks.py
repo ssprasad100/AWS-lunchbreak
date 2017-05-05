@@ -6,8 +6,9 @@ from Lunchbreak.tasks import DebugLoggingTask
 from twilio.base.exceptions import TwilioException, TwilioRestException
 from twilio.rest import Client as TwilioClient
 
-from .conf import (PLIVO_AUTH_ID, PLIVO_AUTH_TOKEN, PLIVO_PHONE, TEXT_TEMPLATE,
-                   TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE)
+from .conf import (PLIVO_AUTH_ID, PLIVO_AUTH_TOKEN, PLIVO_PHONE,
+                   PLIVO_WEBHOOK_URL, TEXT_TEMPLATE, TWILIO_ACCOUNT_SID,
+                   TWILIO_AUTH_TOKEN, TWILIO_PHONE, TWILIO_WEBHOOK_URL)
 
 
 @shared_task(base=DebugLoggingTask)
@@ -58,7 +59,7 @@ def send_message_plivo(phone, body):
         src=PLIVO_PHONE,
         dst=str(phone.phone),
         text=body,
-        url=''
+        url=PLIVO_WEBHOOK_URL
     )
 
     from .models import Message
@@ -104,7 +105,7 @@ def send_message_twilio(phone, body):
             to=str(phone.phone),
             from_=TWILIO_PHONE,
             body=body,
-            status_callback=''
+            status_callback=TWILIO_WEBHOOK_URL
         )
     except TwilioRestException as e:
         message.status = Message.FAILED
@@ -129,7 +130,7 @@ def send_message_twilio(phone, body):
         message.save()
         return message
 
-    message.remote_uuid = twilio_message['sid'][2:]
-    message.status = twilio_message['status']
+    message.remote_uuid = twilio_message.sid[2:]
+    message.status = twilio_message.status
     message.save()
     return message

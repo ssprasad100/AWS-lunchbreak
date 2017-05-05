@@ -1,6 +1,9 @@
 GOCARDLESS_ENVIRONMENT = 'sandbox'
 GOCARDLESS_APP_DOMAIN = 'api.andreas.cloock.be'
 
+PLIVO_WEBHOOK_URL = 'http://api.andreas.cloock.be/sms/plivo'
+TWILIO_WEBHOOK_URL = 'http://api.andreas.cloock.be/sms/twilio'
+
 MIDDLEWARE_CLASSES += (
     'lunch.middleware.PrintExceptionMiddleware',
     'qinspect.middleware.QueryInspectMiddleware',

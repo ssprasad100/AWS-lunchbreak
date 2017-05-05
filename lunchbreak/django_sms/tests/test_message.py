@@ -1,4 +1,3 @@
-from mock import MagicMock, patch
 from twilio.base.exceptions import TwilioRestException
 
 from ..models import Message, Phone

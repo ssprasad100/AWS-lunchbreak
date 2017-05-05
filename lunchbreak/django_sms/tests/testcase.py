@@ -88,11 +88,12 @@ class DjangoSmsTestCase(LunchbreakTestCase):
         self.twilio_message = mock.MagicMock()
 
         def create(*args, **kwargs):
-            return {
-                'sid': 'aa' + str(uuid.uuid4()),
-                'status': Message.QUEUED,
-                'date_sent': Pendulum.now().isoformat(),
-            }
+            message = mock.MagicMock()
+            message.sid = 'aa' + str(uuid.uuid4())
+            message.status = Message.QUEUED
+            message.date_sent = Pendulum.now().isoformat()
+            return message
+
         self.twilio_message.create = create
         self.mock_twilio.return_value = self.twilio_message
 

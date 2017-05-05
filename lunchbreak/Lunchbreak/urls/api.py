@@ -32,6 +32,10 @@ urlpatterns = [
         include('payconiq.urls')
     ),
     url(
+        r'^sms/',
+        include('django_sms.urls')
+    ),
+    url(
         r'^',
         include('private_media.urls')
     ),

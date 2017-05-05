@@ -1,6 +1,9 @@
 GOCARDLESS_ENVIRONMENT = 'live'
 GOCARDLESS_APP_DOMAIN = 'api.lunchbreakapp.be'
 
+PLIVO_WEBHOOK_URL = 'https://api.lunchbreak.io/sms/plivo'
+TWILIO_WEBHOOK_URL = 'https://api.lunchbreak.io/sms/twilio'
+
 ALLOWED_HOSTS = [
     'lunchbreakapp.be',
     'www.lunchbreakapp.be',

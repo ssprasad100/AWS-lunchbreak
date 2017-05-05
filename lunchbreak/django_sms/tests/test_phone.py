@@ -5,10 +5,50 @@ from freezegun import freeze_time
 
 from ..exceptions import PinExpired, PinIncorrect, PinTimeout, PinTriesExceeded
 from ..models import Phone
-from .testcase import DjangoSmsTestCase, settings
+from .testcase import DjangoSmsTestCase, Message, settings
 
 
 class PhoneTestCase(DjangoSmsTestCase):
+
+    def test_can_send_pin(self):
+        phone = Phone.objects.create(
+            phone=self.PHONE
+        )
+
+        # No last message should return True
+        self.assertTrue(
+            phone.can_send_pin()
+        )
+
+        # A failed last message should return True
+        del phone.last_message
+        last_message = Message.objects.create(
+            phone=phone,
+            gateway=Message.TWILIO,
+            status=Message.FAILED
+        )
+        self.assertTrue(
+            phone.can_send_pin()
+        )
+
+        # A successful last message under the timeout should return False
+        del phone.last_message
+        last_message.status = Message.DELIVERED
+        last_message.save()
+        phone.refresh_from_db()
+        self.assertFalse(
+            phone.can_send_pin()
+        )
+
+        # A successful last message outside of the timeout should return False
+        del phone.last_message
+        now = self.midday.add_timedelta(
+            settings['timeout']
+        )._datetime
+        with freeze_time(now):
+            self.assertTrue(
+                phone.can_send_pin()
+            )
 
     def test_register(self):
         phone, created = Phone.register(

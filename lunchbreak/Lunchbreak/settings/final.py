@@ -95,12 +95,14 @@ SMS = {
     'plivo': {
         'phone': '+32466900406',
         'auth_id': get_variable('PLIVO_AUTH_ID'),
-        'auth_token': get_variable('PLIVO_AUTH_TOKEN')
+        'auth_token': get_variable('PLIVO_AUTH_TOKEN'),
+        'webhook_url': get_variable('PLIVO_WEBHOOK_URL'),
     },
     'twilio': {
         'phone': '+32460206701',
         'account_sid': get_variable('TWILIO_ACCOUNT_SID'),
         'auth_token': get_variable('TWILIO_AUTH_TOKEN'),
+        'webhook_url': get_variable('TWILIO_WEBHOOK_URL'),
     }
 }
 
