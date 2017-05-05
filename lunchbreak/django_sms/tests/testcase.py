@@ -6,11 +6,11 @@ from django.test.utils import override_settings
 from Lunchbreak.tests.testcase import LunchbreakTestCase
 from pendulum import Pendulum
 
-from .. import conf
 from ..models import Message
 from ..tasks import send_pin
 
-settings = {
+
+@override_settings(SMS={
     'text_template': 'Pin: {pin} test template.',
     'max_tries': 3,
     'expiry_time': timedelta(minutes=15),
@@ -20,16 +20,15 @@ settings = {
         'phone': '1234',
         'auth_id': 'something',
         'auth_token': 'something',
+        'webhook_url': 'something',
     },
     'twilio': {
         'phone': '1234',
         'account_sid': 'something',
         'auth_token': 'something',
+        'webhook_url': 'something',
     },
-}
-
-
-@override_settings(SMS=settings)
+})
 class DjangoSmsTestCase(LunchbreakTestCase):
 
     PHONE = '+32472907605'
@@ -38,36 +37,6 @@ class DjangoSmsTestCase(LunchbreakTestCase):
 
     def setUp(self):
         super().setUp()
-
-        conf.EXPIRY_TIME = settings.get(
-            'expiry_time',
-            timedelta(minutes=15)
-        )
-        conf.TIMEOUT = settings.get(
-            'timeout',
-            timedelta(seconds=30)
-        )
-        conf.RETRY_TIMEOUT = settings.get(
-            'retry_timeout',
-            timedelta(hours=2)
-        )
-        conf.MAX_TRIES = settings.get(
-            'max_tries',
-            3
-        )
-        # 'Hi, here is your code: {code}.'
-        conf.TEXT_TEMPLATE = settings['text_template']
-        conf.DOMAIN = settings['domain']
-
-        conf.PLIVO_SETTINGS = settings['plivo']
-        conf.PLIVO_PHONE = conf.PLIVO_SETTINGS['phone']
-        conf.PLIVO_AUTH_ID = conf.PLIVO_SETTINGS['auth_id']
-        conf.PLIVO_AUTH_TOKEN = conf.PLIVO_SETTINGS['auth_token']
-
-        conf.TWILIO_SETTINGS = settings['twilio']
-        conf.TWILIO_PHONE = conf.TWILIO_SETTINGS['phone']
-        conf.TWILIO_ACCOUNT_SID = conf.TWILIO_SETTINGS['account_sid']
-        conf.TWILIO_AUTH_TOKEN = conf.TWILIO_SETTINGS['auth_token']
 
         # Patch requests
         patcher_send_pin = mock.patch('django_sms.models.send_pin.delay')

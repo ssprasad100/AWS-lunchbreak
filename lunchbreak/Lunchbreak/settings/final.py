@@ -106,12 +106,6 @@ SMS = {
     }
 }
 
-OPBEAT = {
-    'ORGANIZATION_ID': '5d9db7394a424d27b704ace52cf4f9ef',
-    'APP_ID': get_variable('OPBEAT_APP_ID'),
-    'SECRET_TOKEN': get_variable('OPBEAT_SECRET_TOKEN'),
-}
-
 TEMPLATES = [
     {
         'BACKEND': 'django_jinja.backend.Jinja2',

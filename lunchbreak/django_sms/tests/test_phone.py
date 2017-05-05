@@ -3,9 +3,10 @@ from datetime import timedelta
 from django.utils import timezone
 from freezegun import freeze_time
 
+from ..conf import settings
 from ..exceptions import PinExpired, PinIncorrect, PinTimeout, PinTriesExceeded
 from ..models import Phone
-from .testcase import DjangoSmsTestCase, Message, settings
+from .testcase import DjangoSmsTestCase, Message
 
 
 class PhoneTestCase(DjangoSmsTestCase):
@@ -43,7 +44,7 @@ class PhoneTestCase(DjangoSmsTestCase):
         # A successful last message outside of the timeout should return False
         del phone.last_message
         now = self.midday.add_timedelta(
-            settings['timeout']
+            settings.TIMEOUT + timedelta(seconds=1)
         )._datetime
         with freeze_time(now):
             self.assertTrue(
@@ -76,7 +77,7 @@ class PhoneTestCase(DjangoSmsTestCase):
         )
 
         now = self.midday.add_timedelta(
-            settings['timeout']
+            settings.TIMEOUT + timedelta(seconds=1)
         )._datetime
         with freeze_time(now):
             phone2, created = Phone.register(
@@ -105,7 +106,7 @@ class PhoneTestCase(DjangoSmsTestCase):
             )
 
     def test_valid_pin(self):
-        expires_at = timezone.now() + settings['expiry_time']
+        expires_at = timezone.now() + settings.EXPIRY_TIME
 
         invalid_pins = [None, '']
 
@@ -175,7 +176,7 @@ class PhoneTestCase(DjangoSmsTestCase):
         phone.delete()
 
     def test_expiry_time(self):
-        expired_datetime = timezone.now() - settings['expiry_time'] - timedelta(seconds=1)
+        expired_datetime = timezone.now() - settings.EXPIRY_TIME - timedelta(seconds=1)
         phone = Phone.objects.create(
             phone=self.PHONE,
             pin=self.PIN,
@@ -188,13 +189,13 @@ class PhoneTestCase(DjangoSmsTestCase):
         )
 
     def test_max_tries(self):
-        expires_at = timezone.now() + settings['expiry_time']
+        expires_at = timezone.now() + settings.EXPIRY_TIME
 
         phone = Phone.objects.create(
             phone=self.PHONE,
             pin=self.PIN,
             expires_at=expires_at,
-            tries=settings['max_tries']
+            tries=settings.MAX_TRIES
         )
         self.assertRaises(
             PinTriesExceeded,

@@ -1,7 +1,7 @@
 import uuid
 from random import randint
 
-from django.conf import settings
+from django.conf import settings as django_settings
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils import timezone
@@ -9,7 +9,7 @@ from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
 from phonenumber_field.modelfields import PhoneNumberField
 
-from .conf import DOMAIN, EXPIRY_TIME, MAX_TRIES, TIMEOUT
+from .conf import settings
 from .exceptions import PinExpired, PinIncorrect, PinTimeout, PinTriesExceeded
 from .tasks import send_pin
 
@@ -92,7 +92,7 @@ class Phone(models.Model):
 
         timeout = self.last_message.sent_at.replace(
             tzinfo=timezone.utc
-        ) + TIMEOUT
+        ) + settings.TIMEOUT
         return not (timezone.now() < timeout)
 
     def send_pin(self):
@@ -106,7 +106,7 @@ class Phone(models.Model):
     def reset_pin(self, save=True):
         self.pin = self.random_pin()
         self.tries = 0
-        self.expires_at = timezone.now() + EXPIRY_TIME
+        self.expires_at = timezone.now() + settings.EXPIRY_TIME
 
         if save:
             self.save()
@@ -123,7 +123,7 @@ class Phone(models.Model):
             self.save()
 
     def is_valid(self, pin, raise_exception=True):
-        if self.tries >= MAX_TRIES:
+        if self.tries >= settings.MAX_TRIES:
             if raise_exception:
                 raise PinTriesExceeded()
             return False
@@ -278,7 +278,7 @@ class Message(models.Model):
             path = reverse('django_sms:plivo')
 
         return '{protocol}://{domain}{path}'.format(
-            protocol='https' if settings.SSL else 'http',
-            domain=DOMAIN,
+            protocol='https' if django_settings.SSL else 'http',
+            domain=settings.DOMAIN,
             path=path
         )

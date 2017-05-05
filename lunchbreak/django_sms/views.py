@@ -4,8 +4,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import View
 from twilio.request_validator import RequestValidator
 
-from .conf import (PLIVO_AUTH_TOKEN, PLIVO_WEBHOOK_URL, TWILIO_AUTH_TOKEN,
-                   TWILIO_WEBHOOK_URL)
+from .conf import settings
 from .models import Message
 from .utils import validate_plivo_signature
 
@@ -27,9 +26,9 @@ class ValidatedView(View):
 class TwilioWebhookView(ValidatedView):
 
     def is_valid(self, request):
-        validator = RequestValidator(TWILIO_AUTH_TOKEN)
+        validator = RequestValidator(settings.TWILIO_AUTH_TOKEN)
         return validator.validate(
-            uri=TWILIO_WEBHOOK_URL,
+            uri=settings.TWILIO_WEBHOOK_URL,
             params=request.POST,
             signature=request.META.get('HTTP_X_TWILIO_SIGNATURE', '')
         )
@@ -64,8 +63,8 @@ class PlivoWebhookView(ValidatedView):
         return validate_plivo_signature(
             signature=request.META.get('HTTP_X_PLIVO_SIGNATURE', ''),
             post_params=request.POST,
-            webhook_url=PLIVO_WEBHOOK_URL,
-            auth_token=PLIVO_AUTH_TOKEN
+            webhook_url=settings.PLIVO_WEBHOOK_URL,
+            auth_token=settings.PLIVO_AUTH_TOKEN
         )
 
     def post(self, request, *args, **kwargs):
