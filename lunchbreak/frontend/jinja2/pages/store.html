@@ -77,7 +77,7 @@
                                 </div>
 
                                 <div class="food-add">
-                                    <span class="button transparent" alt="Toevoegen">&euro; {{ food.cost | replace('.', ',') }}</span>
+                                    <span class="button transparent" alt="Toevoegen">&euro; {{ food.get_cost_display() }}</span>
                                 </div>
                             </div>
                         </div>

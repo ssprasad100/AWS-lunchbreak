@@ -1,11 +1,13 @@
-from base64 import b64decode
+from base64 import b64decode, b64encode
 from binascii import Error, crc32
+from hashlib import sha256
 
 import payconiq
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.backends.openssl import backend as openssl_backend
 from cryptography.hazmat.primitives.asymmetric.padding import PKCS1v15
 from cryptography.hazmat.primitives.hashes import SHA256
+from django.conf import settings
 
 from .exceptions import PayconiqError
 
@@ -65,3 +67,31 @@ def is_signature_valid(signature, merchant_id, timestamp, algorithm, body):
         except InvalidSignature:
             pass
     return False
+
+
+def generate_web_signature(merchant_id, webhook_id, currency, amount, widget_token):
+    formatted_signature = '{merchant_id}{webhook_id}{currency}{amount}{widget_token}'.format(
+        merchant_id=merchant_id,
+        webhook_id=webhook_id,
+        currency=currency,
+        amount=amount,
+        widget_token=widget_token
+    ).encode('utf8')
+
+    signature = sha256()
+    signature.update(formatted_signature)
+
+    return b64encode(
+        signature.digest()
+    ).decode('utf-8')
+
+
+def get_widget_url():
+    return 'https://{subdomain}.payconiq.com/v2/online/static/widget.js'.format(
+        subdomain='api' if getattr(settings, 'PAYCONIQ_ENVIRONMENT', 'testing') == 'production' else 'dev'
+    )
+    return 'https://api.payconiq.com/v2/online/static/widget.js' \
+        if getattr(settings, 'PAYCONIQ_ENVIRONMENT', 'testing') == 'production' \
+        else 'https://dev.payconiq.com/v2/online/static/widget.js'
+
+    return

@@ -1,3 +1,7 @@
+from django.conf import settings
+
+from .resources import *  # noqa
+
 version = (0, 1, 0)
 extra = ''
 __version__ = '.'.join(map(str, version)) + extra
@@ -11,13 +15,11 @@ merchant_token = None
 
 api_base = 'https://api.payconiq.com/v2'
 api_base_test = 'https://dev.payconiq.com/v2'
-environment = 'production'
-
-from .resources import *  # noqa
-
 
 default_app_config = 'payconiq.apps.PayconiqAppConfig'
 
 
 def get_base_url():
-    return api_base if environment == 'production' else api_base_test
+    return api_base \
+        if getattr(settings, 'PAYCONIQ_ENVIRONMENT', 'testing') == 'production' \
+        else api_base_test

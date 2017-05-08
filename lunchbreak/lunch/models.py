@@ -1,5 +1,6 @@
 from collections import defaultdict
 from datetime import datetime, time, timedelta
+from decimal import Decimal
 
 import googlemaps
 import pendulum
@@ -1286,6 +1287,15 @@ class Food(CleanModelMixin, SafeDeleteMixin):
             )
         except Quantity.DoesNotExist:
             return None
+
+    def get_cost_display(self):
+        return str(
+            (
+                Decimal(self.cost) / Decimal(100)
+            ).quantize(
+                Decimal('0.01')
+            )
+        ).replace('.', ',')
 
     def get_ingredients_display(self):
 

@@ -11,6 +11,7 @@ from payconiq import Transaction as PayconiqTransaction
 from .fields import StatusSignalCharField
 from .signals import (transaction_canceled, transaction_failed,
                       transaction_succeeded, transaction_timedout)
+from .utils import generate_web_signature
 
 
 class Merchant(models.Model):
@@ -20,23 +21,48 @@ class Merchant(models.Model):
         verbose_name_plural = _('handelaars')
 
     def __str__(self):
-        return str(self.remote_id)
+        return self.name
 
     id = models.UUIDField(
         primary_key=True,
         default=uuid.uuid4,
         editable=False
     )
+    name = models.CharField(
+        unique=True,
+        max_length=191,
+        verbose_name=_('naam'),
+        help_text=_('Naam.')
+    )
     remote_id = models.CharField(
         unique=True,
         max_length=24,
-        verbose_name=_('payconiq id'),
-        help_text=_('ID in Payconiq systeem.')
+        verbose_name=_('payconiq merchant id'),
+        help_text=_('Merchant ID in Payconiq systeem.')
     )
     access_token = models.TextField(
         verbose_name=_('toegangstoken'),
-        help_text=_('Toegangstoken.')
+        help_text=_(
+            'Geheime toegangstoken voor backend transactions, ook wel access '
+            'token of auth token genoemd'
+        )
     )
+    widget_token = models.UUIDField(
+        verbose_name=_('widget token'),
+        help_text=_(
+            'Widget token voor web widget gebruik, ook wel online key of '
+            'secret key genoemd.'
+        )
+    )
+
+    def generate_web_signature(self, webhook_id, currency, amount):
+        return generate_web_signature(
+            merchant_id=self.remote_id,
+            webhook_id=webhook_id,
+            currency=currency,
+            amount=amount,
+            widget_token=self.widget_token
+        )
 
 
 class Transaction(StatusSignalModel):

@@ -54,7 +54,7 @@ PAYMENT_METHOD_GOCARDLESS = 1
 PAYMENT_METHOD_PAYCONIQ = 2
 
 PAYMENT_METHODS = (
-    (PAYMENT_METHOD_CASH, _('Cash')),
+    (PAYMENT_METHOD_CASH, _('Betalen in winkel')),
     (PAYMENT_METHOD_GOCARDLESS, _('Online (veilig via GoCardless)')),
     (PAYMENT_METHOD_PAYCONIQ, _('Online (veilig via Payconiq)')),
 )

@@ -1,5 +1,6 @@
 import json
 from datetime import date, datetime
+from decimal import Decimal
 
 from django.conf import settings
 from django.template.defaultfilters import date as date_filter
@@ -106,7 +107,13 @@ def money(value):
     return Markup(
         '{symbol}&euro; {value:.2f}'.format(
             symbol='- ' if value < 0 else '',
-            value=abs(value),
+            value=abs(
+                (
+                    Decimal(value) / Decimal(100)
+                ).quantize(
+                    Decimal('0.01')
+                )
+            ),
         ).replace('.', ',')
     )
 

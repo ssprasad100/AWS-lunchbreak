@@ -55,7 +55,8 @@ class UserManager(BaseUserManager):
 
 class OrderManager(models.Manager):
 
-    def create_with_orderedfood(self, orderedfood, group=None, save=True, **kwargs):
+    def create_with_orderedfood(self, orderedfood, group=None, save=True,
+                                create_transaction=True, **kwargs):
         if save:
             self.model.is_valid(orderedfood, **kwargs)
 
@@ -67,9 +68,9 @@ class OrderManager(models.Manager):
             receipt = Pendulum.instance(
                 receipt
             ).with_time(
-                hour=group.receipt.hour,
-                minute=group.receipt.minute,
-                second=group.receipt.second
+                hour=group.receipt_time.hour,
+                minute=group.receipt_time.minute,
+                second=group.receipt_time.second
             ).timezone_(
                 store.timezone
             )._datetime
@@ -117,6 +118,8 @@ class OrderManager(models.Manager):
                             **f
                         )
                     elif isinstance(f, OrderedFood):
+                        # Clone the OrderedFood so the TemporaryOrder remains intact.
+                        f.pk = None
                         f.order = instance
                         f.save()
             except Exception:
@@ -129,7 +132,7 @@ class OrderManager(models.Manager):
             instance.save()
 
             payment_method = kwargs.get('payment_method')
-            if payment_method == PAYMENT_METHOD_PAYCONIQ:
+            if payment_method == PAYMENT_METHOD_PAYCONIQ and create_transaction:
                 instance.transaction = Transaction.start(
                     amount=instance.total,
                     merchant=store.staff.payconiq

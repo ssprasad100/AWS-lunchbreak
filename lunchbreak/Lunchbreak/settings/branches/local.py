@@ -46,7 +46,7 @@ QUERY_INSPECT_LOG_STATS = True
 # Whether to add stats headers (default: True)
 QUERY_INSPECT_HEADER_STATS = True
 # Whether to log duplicate queries (default: False)
-QUERY_INSPECT_LOG_QUERIES = True
+QUERY_INSPECT_LOG_QUERIES = False
 # Whether to log queries that are above an absolute limit (default: None - disabled)
 QUERY_INSPECT_ABSOLUTE_LIMIT = None # in milliseconds
 # Whether to log queries that are more than X standard deviations above the mean query time (default: None - disabled)

@@ -1,7 +1,8 @@
 import json
 
 from customers.config import ORDER_STATUSES_ENDED
-from customers.models import Group, Order, PaymentLink, TemporaryOrder
+from customers.models import (ConfirmedOrder, Group, Order, PaymentLink,
+                              TemporaryOrder)
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -15,6 +16,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView, View
 from django.views.generic.base import RedirectView
 from lunch.models import Food, Store
+from payconiq.utils import get_widget_url
 from user_agents import parse as parse_user_agent
 
 from .forms import GroupForm, OrderForm, SearchForm, UserForm
@@ -201,6 +203,17 @@ class OrderView(LoginForwardMixin, TemplateView):
             placed_order = order_form.save(
                 temporary_order=context['order']
             )
+
+            if placed_order.payment_payconiq:
+                return HttpResponseRedirect(
+                    reverse(
+                        'frontend:payconiq',
+                        kwargs={
+                            'store_id': placed_order.store_id,
+                            'order_id': placed_order.id
+                        }
+                    )
+                )
             return HttpResponseRedirect(
                 reverse(
                     'frontend:confirm',
@@ -285,7 +298,7 @@ class ConfirmView(TemplateView):
                 id=kwargs['store_id'],
                 enabled=True
             )
-            context['order'] = Order.objects.get(
+            context['order'] = ConfirmedOrder.objects.get(
                 id=kwargs['order_id']
             )
         except (Store.DoesNotExist, Order.DoesNotExist):
@@ -302,6 +315,58 @@ class ConfirmView(TemplateView):
             store_id=store_id,
             order_id=order_id
         )
+
+        return render(
+            request=request,
+            template_name=self.template_name,
+            context=context
+        )
+
+
+class PayconiqView(TemplateView):
+    template_name = 'pages/payconiq.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        try:
+            context['store'] = Store.objects.get(
+                id=kwargs['store_id'],
+                enabled=True
+            )
+            context['order'] = Order.objects.select_related(
+                'transaction'
+            ).get(
+                id=kwargs['order_id']
+            )
+        except (Store.DoesNotExist, Order.DoesNotExist):
+            raise Http404()
+
+        if context['order'].user != self.request.user \
+                or context['order'].status in ORDER_STATUSES_ENDED \
+                or not context['order'].payment_payconiq:
+            raise Http404()
+
+        context['payconiq_widget_url'] = get_widget_url()
+
+        return context
+
+    def get(self, request, store_id, order_id):
+        context = self.get_context_data(
+            store_id=store_id,
+            order_id=order_id
+        )
+
+        if context['order'].confirmed:
+            return HttpResponseRedirect(
+                reverse(
+                    'frontend:confirm',
+                    kwargs={
+                        'store_id': self.kwargs['store_id'],
+                        'order_id': self.kwargs['order_id']
+                    }
+                )
+            )
 
         return render(
             request=request,

@@ -400,14 +400,12 @@ class Group(models.Model):
     )
 
     @property
-    def receipt(self):
-        return Pendulum.now(self.store.timezone).with_time(
-            hour=self.deadline.hour,
-            minute=self.deadline.minute,
-            second=self.deadline.second
-        ).add_timedelta(
-            self.delay
-        )
+    def receipt_time(self):
+        return (
+            datetime.datetime.combine(
+                timezone.now(), self.deadline
+            ) + self.delay
+        ).time()
 
     @staticmethod
     def post_save(sender, instance, created, **kwargs):
@@ -752,6 +750,12 @@ class Order(StatusSignalModel, AbstractOrder):
         return self.total_no_discount - self.total
 
     @property
+    def confirmed(self):
+        return not self.payment_payconiq \
+            or (self.transaction is not None
+                and self.transaction.succeeded)
+
+    @property
     def paid(self):
         if self.payment_cash:
             return self.status == ORDER_STATUS_COMPLETED
@@ -1036,7 +1040,12 @@ class Order(StatusSignalModel, AbstractOrder):
 
     @classmethod
     def transaction_succeeded(cls, sender, transaction, **kwargs):
-        pass
+        order = Order.objects.get(
+            transaction=transaction
+        )
+        TemporaryOrder.objects.filter(
+            user=order.user
+        ).delete()
 
 
 class ConfirmedOrder(Order):
@@ -1071,7 +1080,7 @@ class TemporaryOrder(AbstractOrder):
             store=self.store,
             **kwargs
         )
-        if save:
+        if save and not order.payment_payconiq:
             self.delete()
         return order
 

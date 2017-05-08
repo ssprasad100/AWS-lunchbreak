@@ -30,6 +30,11 @@ urlpatterns = [
         name='confirm'
     ),
     url(
+        r'^store/(?P<store_id>\d+)/order/(?P<order_id>\d+)/payconiq/?$',
+        views.PayconiqView.as_view(),
+        name='payconiq'
+    ),
+    url(
         r'^group/(?P<pk>\d+)/?$',
         views.GroupView.as_view(),
         name='group'

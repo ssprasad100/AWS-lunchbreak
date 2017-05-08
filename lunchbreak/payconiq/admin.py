@@ -5,9 +5,9 @@ from .models import Merchant, Transaction
 
 @admin.register(Merchant)
 class MerchantAdmin(admin.ModelAdmin):
-    list_display = ('id', 'remote_id',)
-    search_fields = ('id', 'remote_id',)
-    ordering = ('id',)
+    list_display = ('name', 'id', 'remote_id',)
+    search_fields = ('name', 'id', 'remote_id',)
+    ordering = ('name',)
 
 
 @admin.register(Transaction)

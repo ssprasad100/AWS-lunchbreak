@@ -9,7 +9,7 @@
         <div class="order-total-cost">
             {% if not empty %}
                 {% set total = orderedfoods | sum(attribute='total') %}
-                &euro; {{ '{:.2f}'.format(total).replace('.', ',') }}
+                {{ total | money }}
             {% else %}
                 &hellip;
             {% endif %}

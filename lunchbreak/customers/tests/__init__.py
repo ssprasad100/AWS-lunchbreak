@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from business.models import Staff
 from django_gocardless.models import Merchant as GoCardlessMerchant
 from django_sms.models import Phone
@@ -63,7 +65,8 @@ class CustomersTestCase(LunchTestCase):
         self.gocardless = GoCardlessMerchant.objects.create()
         self.payconiq = PayconiqMerchant.objects.create(
             remote_id='12345',
-            access_token='secret'
+            access_token='secret',
+            widget_token=uuid4()
         )
         self.staff = Staff.objects.create(
             store=self.store,
