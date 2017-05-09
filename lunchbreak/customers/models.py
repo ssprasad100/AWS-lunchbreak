@@ -1007,9 +1007,10 @@ class Order(StatusSignalModel, AbstractOrder):
 
     @classmethod
     def denied(cls, sender, order, **kwargs):
-        order.user.notify(
-            _('Je bestelling werd spijtig genoeg geweigerd!')
-        )
+        if order.confirmed:
+            order.user.notify(
+                _('Je bestelling werd spijtig genoeg geweigerd!')
+            )
         order.update_hard_delete()
 
     @classmethod

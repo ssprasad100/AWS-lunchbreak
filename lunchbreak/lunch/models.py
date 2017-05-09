@@ -233,6 +233,16 @@ class AbstractAddress(models.Model, DirtyFieldsMixin):
 
 
 class Store(AbstractAddress):
+
+    class Meta:
+        verbose_name = _('winkel')
+        verbose_name_plural = _('winkels')
+
+    def __str__(self):
+        return self.name
+
+    objects = StoreManager()
+
     name = models.CharField(
         max_length=191,
         verbose_name=_('naam'),
@@ -286,7 +296,7 @@ class Store(AbstractAddress):
     )
 
     gocardless_enabled = models.BooleanField(
-        default=True,
+        default=False,
         verbose_name=_('gocardless betalingen ingeschakeld'),
         help_text=_(
             'Online betalingen ingeschakeld, er moet een GoCardless '
@@ -295,7 +305,7 @@ class Store(AbstractAddress):
         )
     )
     payconiq_enabled = models.BooleanField(
-        default=True,
+        default=False,
         verbose_name=_('payconiq betalingen ingeschakeld'),
         help_text=_(
             'Online betalingen ingeschakeld, er moet een Payconiq '
@@ -313,15 +323,6 @@ class Store(AbstractAddress):
         verbose_name=_('ingeschakeld'),
         help_text=_('Ingeschakeld.')
     )
-
-    objects = StoreManager()
-
-    class Meta:
-        verbose_name = _('winkel')
-        verbose_name_plural = _('winkels')
-
-    def __str__(self):
-        return self.name
 
     @cached_property
     def category(self):
