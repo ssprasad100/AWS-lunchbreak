@@ -16,7 +16,7 @@ class FatModelForm(forms.ModelForm):
         )
         if self.instance is not None:
             self.instance._form = self
-        super()._post_clean()
+            super()._post_clean()
 
     def create_instance(self, **kwargs):
         return self._meta.model(**kwargs)
