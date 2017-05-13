@@ -1,4 +1,5 @@
 import json
+import logging
 
 import plivo
 from celery import shared_task
@@ -7,6 +8,8 @@ from twilio.base.exceptions import TwilioException, TwilioRestException
 from twilio.rest import Client as TwilioClient
 
 from .conf import settings
+
+logger = logging.getLogger('lunchbreak')
 
 
 @shared_task(base=DebugLoggingTask)
@@ -73,14 +76,21 @@ def send_message_plivo(phone, body):
     )
 
     if plivo_message.status_code != 202:
+        logger.exception(
+            'Failed to send Plivo message.',
+            extra={
+                'phone': phone,
+                'body': body,
+                'plivo_message.status_code': plivo_message.status_code,
+                'plivo_message.json_data': plivo_message.json_data
+            }
+        )
+
         message.status = Message.FAILED
         message.error = (
             'Status code {status_code}, JSON data: \n{json_data}'.format(
                 status_code=plivo_message.status_code,
-                json_data=json.dumps(
-                    plivo_message.json_data,
-                    indent=4
-                )
+                json_data=plivo_message.json_data
             )
         )
         message.save()
@@ -112,6 +122,20 @@ def send_message_twilio(phone, body):
             status_callback=settings.TWILIO_WEBHOOK_URL
         )
     except TwilioRestException as e:
+        logger.exception(
+            str(e),
+            exc_info=True,
+            extra={
+                'phone': phone,
+                'body': body,
+                'exception uri': getattr(e, 'uri', '?'),
+                'exception status': getattr(e, 'status', '?'),
+                'exception msg': getattr(e, 'msg', '?'),
+                'exception code': getattr(e, 'code', '?'),
+                'exception method': getattr(e, 'method', '?'),
+            }
+        )
+
         message.status = Message.FAILED
         message.error = (
             'uri: {uri}\n'
@@ -119,16 +143,30 @@ def send_message_twilio(phone, body):
             'msg: {msg}\n'
             'code: {code}\n'
             'method: {method}\n'.format(
-                uri=e.uri,
-                status=e.status,
-                msg=e.msg,
-                code=e.code,
-                method=e.method
+                uri=getattr(e, 'uri', '?'),
+                status=getattr(e, 'status', '?'),
+                msg=getattr(e, 'msg', '?'),
+                code=getattr(e, 'code', '?'),
+                method=getattr(e, 'method', '?')
             )
         )
         message.save()
         return message
     except TwilioException as e:
+        logger.exception(
+            str(e),
+            exc_info=True,
+            extra={
+                'phone': phone,
+                'body': body,
+                'exception uri': getattr(e, 'uri', '?'),
+                'exception status': getattr(e, 'status', '?'),
+                'exception msg': getattr(e, 'msg', '?'),
+                'exception code': getattr(e, 'code', '?'),
+                'exception method': getattr(e, 'method', '?'),
+            }
+        )
+
         message.status = Message.FAILED
         message.error = str(e)
         message.save()
