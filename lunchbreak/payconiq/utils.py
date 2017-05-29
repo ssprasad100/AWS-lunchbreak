@@ -93,5 +93,3 @@ def get_widget_url():
     return 'https://api.payconiq.com/v2/online/static/widget.js' \
         if getattr(settings, 'PAYCONIQ_ENVIRONMENT', 'testing') == 'production' \
         else 'https://dev.payconiq.com/v2/online/static/widget.js'
-
-    return
