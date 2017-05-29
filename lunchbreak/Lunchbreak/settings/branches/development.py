@@ -14,3 +14,5 @@ APNS_HOST = 'gateway.sandbox.push.apple.com'
 APNS_FEEDBACK_HOST = 'feedback.sandbox.push.apple.com'
 
 RAVEN_ENVIRONMENT = 'development'
+
+PAYCONIQ_WEBHOOK_DOMAIN = 'dev.lunchbreak.io'

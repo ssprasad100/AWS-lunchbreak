@@ -203,3 +203,8 @@ RAVEN_CONFIG = {
         'django.exceptions.http.Http404',
     ]
 }
+
+PAYCONIQ = {
+    'webhook_domain': get_variable('PAYCONIQ_WEBHOOK_DOMAIN'),
+    'environment': get_variable('PAYCONIQ_ENVIRONMENT', 'testing'),
+}

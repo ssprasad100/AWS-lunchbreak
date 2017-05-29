@@ -61,3 +61,5 @@ APNS_FEEDBACK_HOST = 'feedback.sandbox.push.apple.com'
 AMQP_USER = 'guest'
 AMQP_PASSWORD = 'guest'
 AMQP_HOST = '127.0.0.1'
+
+PAYCONIQ_WEBHOOK_DOMAIN = 'api.andreas.cloock.be'

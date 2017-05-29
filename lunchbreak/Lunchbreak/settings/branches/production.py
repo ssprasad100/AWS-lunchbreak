@@ -22,3 +22,4 @@ REDIRECTED_HOSTS = {
 VERSION = '2.0.13'
 RAVEN_ENVIRONMENT = 'production'
 PAYCONIQ_ENVIRONMENT = 'production'
+PAYCONIQ_WEBHOOK_DOMAIN = 'api.lunchbreak.io'

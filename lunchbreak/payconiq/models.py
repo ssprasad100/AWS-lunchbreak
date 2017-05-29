@@ -7,6 +7,7 @@ from django.db import models
 from django.utils.translation import ugettext as _
 from Lunchbreak.models import StatusSignalModel
 from payconiq import Transaction as PayconiqTransaction
+from payconiq import get_webhook_domain
 
 from .fields import StatusSignalCharField
 from .signals import (transaction_canceled, transaction_failed,
@@ -141,7 +142,7 @@ class Transaction(StatusSignalModel):
     def webhook_url(self):
         return '{protocol}://{domain}{path}'.format(
             protocol='https' if settings.SSL else 'http',
-            domain='api.andreas.cloock.be',
+            domain=get_webhook_domain(),
             path=reverse('payconiq:webhook')
         )
 

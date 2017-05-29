@@ -19,7 +19,15 @@ api_base_test = 'https://dev.payconiq.com/v2'
 default_app_config = 'payconiq.apps.PayconiqAppConfig'
 
 
+def get_payconiq_settings():
+    return getattr(settings, 'PAYCONIQ', {})
+
+
 def get_base_url():
     return api_base \
-        if getattr(settings, 'PAYCONIQ_ENVIRONMENT', 'testing') == 'production' \
+        if get_payconiq_settings().get('environment', 'testing') == 'production' \
         else api_base_test
+
+
+def get_webhook_domain():
+    return get_payconiq_settings().get('webhook_domain')
