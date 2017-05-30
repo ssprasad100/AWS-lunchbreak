@@ -1278,6 +1278,72 @@ class Food(CleanModelMixin, SafeDeleteMixin):
         return self.ingredients.count() > 0 or self.ingredientgroups.count() > 0
 
     @cached_property
+    def selected_ingredients(self):
+        return self.ingredients.filter(
+            selected=True
+        )
+
+    @cached_property
+    def nonempty_ingredientgroups(self):
+        return self.ingredientgroups.filter(
+            # Do not include empty groups
+            ingredients__isnull=False
+        ).prefetch_related(
+            'ingredients'
+        ).distinct()
+
+    @cached_property
+    def all_ingredients(self):
+        relations = self.ingredientrelations.select_related(
+            'ingredient'
+        ).all()
+
+        deselected_ingredients = []
+        selected_ingredients = []
+
+        for relation in relations:
+            if relation.selected:
+                selected_ingredients.append(relation.ingredient)
+            else:
+                deselected_ingredients.append(relation.ingredient)
+
+        for ingredientgroup in self.nonempty_ingredientgroups:
+            group_ingredients = ingredientgroup.ingredients.all()
+            for ingredient in group_ingredients:
+                if ingredient not in selected_ingredients \
+                        and ingredient not in deselected_ingredients:
+                    deselected_ingredients.append(ingredient)
+
+        return selected_ingredients, deselected_ingredients
+
+    @cached_property
+    def all_ingredientgroups(self):
+        ingredientgroups = self.ingredientgroups.filter(
+            # Do not include empty groups
+            ingredients__isnull=False
+        ).prefetch_related(
+            'ingredients'
+        ).distinct()
+
+        ingredients = self.ingredients.all().select_related(
+            'group'
+        )
+
+        ingredientgroups_added = []
+        for ingredient in ingredients:
+            if ingredient.group not in ingredientgroups \
+                    and ingredient.group not in ingredientgroups_added:
+                ingredientgroups_added.append(
+                    ingredient.group
+                )
+
+        all_ingredientgroups = []
+        all_ingredientgroups.extend(ingredientgroups)
+        all_ingredientgroups.extend(ingredientgroups_added)
+
+        return all_ingredientgroups
+
+    @cached_property
     def quantity(self):
         try:
             return Quantity.objects.get(

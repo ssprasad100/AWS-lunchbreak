@@ -1320,46 +1320,44 @@ class OrderedFood(CleanModelMixin, StatusSignalModel):
         Returns:
             Decimal: Base cost of edited food.
         """
-        food_ingredient_relations = food.ingredientrelations.select_related(
-            'ingredient__group',
-        ).filter(
-            selected=True
-        )
 
-        # All of the selected ingredients of a food
-        food_ingredients = []
-        # All of the ingredient groups of selected ingredients
-        food_groups = []
-        for ingredient_relation in food_ingredient_relations:
-            ingredient = ingredient_relation.ingredient
-            ingredient.selected = ingredient_relation.selected
-            food_ingredients.append(ingredient)
-            if ingredient_relation.selected and ingredient.group not in food_groups:
-                food_groups.append(ingredient.group)
+        food_selected_ingredients, food_deselected_ingredients = food.all_ingredients
+        food_selected_groups = {ingredient.group for ingredient in food_selected_ingredients}
 
-        groups_ordered = []
+        added_ingredients = {
+            ingredient for ingredient in ingredients
+            if ingredient not in food_selected_ingredients
+        }
+        removed_ingredients = {
+            ingredient for ingredient in food_selected_ingredients
+            if ingredient not in ingredients
+        }
+
+        selected_groups = {
+            ingredient.group for ingredient in ingredients
+        }
+        added_groups = {
+            ingredient.group for ingredient in added_ingredients
+            if ingredient.group not in food_selected_groups
+        }
+        removed_groups = {
+            group for group in food_selected_groups
+            if group not in selected_groups
+        }
+
         cost = food.cost
 
-        for ingredient in ingredients:
-            if ingredient not in food_ingredients:
-                if ingredient.group.calculation in [COST_GROUP_BOTH, COST_GROUP_ADDITIONS]:
-                    cost += ingredient.cost
-                elif ingredient.group not in food_groups:
-                    cost += ingredient.group.cost
-            if ingredient.group not in groups_ordered:
-                groups_ordered.append(ingredient.group)
+        for group in added_groups:
+            cost += group.cost
+        for group in removed_groups:
+            cost -= group.cost
 
-        groups_removed = []
-        for ingredient in food_ingredients:
-            if ingredient.selected and ingredient not in ingredients:
-                if ingredient.group.calculation == COST_GROUP_BOTH:
-                    cost -= ingredient.cost
-                elif ingredient.group not in groups_removed:
-                    groups_removed.append(ingredient.group)
-
-        for group in groups_removed:
-            if group not in groups_ordered:
-                cost -= group.cost
+        for ingredient in added_ingredients:
+            if ingredient.group.calculation in [COST_GROUP_BOTH, COST_GROUP_ADDITIONS]:
+                cost += ingredient.cost
+        for ingredient in removed_ingredients:
+            if ingredient.group.calculation == COST_GROUP_BOTH:
+                cost -= ingredient.cost
 
         return cost
 

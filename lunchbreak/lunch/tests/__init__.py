@@ -55,72 +55,42 @@ class LunchTestCase(LunchbreakTestCase):
         )
 
         self.ingredientgroup = IngredientGroup.objects.create(
-            name='IngredientGroup test',
+            name='IngredientGroup 1',
             foodtype=self.foodtype,
             store=self.store,
-            cost=1
+            cost=10
         )
 
         self.food = Food.objects.create(
             name='Food test',
-            cost=100.00,
+            cost=100,
             foodtype=self.foodtype,
             menu=self.menu,
         )
 
         self.ingredient = Ingredient.objects.create(
-            name='Ingredient 1',
+            name='Selected ingredient 1',
             group=self.ingredientgroup,
-            cost=0.1
+            cost=10
         )
 
         self.food, self.other_food = self.clone_model(self.food)
 
-        ingredient_relations = [
-            IngredientRelation(
-                ingredient=self.ingredient,
-                food=self.food,
-                selected=True
-            ),
-            IngredientRelation(
-                ingredient=Ingredient.objects.create(
-                    name='Ingredient 2',
-                    group=self.ingredientgroup,
-                    cost=0.1
-                ),
-                food=self.food,
-                selected=True
-            ),
-            IngredientRelation(
-                ingredient=Ingredient.objects.create(
-                    name='Ingredient 3',
-                    group=self.ingredientgroup,
-                    cost=0.1
-                ),
-                food=self.food,
-                selected=True
-            ),
-            IngredientRelation(
-                ingredient=Ingredient.objects.create(
-                    name='Ingredient 4',
-                    group=self.ingredientgroup,
-                    cost=0.1
-                ),
-                food=self.food,
-                selected=True
-            ),
-            IngredientRelation(
-                ingredient=Ingredient.objects.create(
-                    name='Ingredient 5',
-                    group=self.ingredientgroup,
-                    cost=0.1
-                ),
-                food=self.food,
-                selected=False
-            )
-        ]
-        for rel in ingredient_relations:
-            rel.save()
+        self.selected_ingredient = IngredientRelation.objects.create(
+            ingredient=self.ingredient,
+            food=self.food,
+            selected=True
+        )
+        self.deselected_ingredient = Ingredient.objects.create(
+            name='Deselected ingredient 11',
+            group=self.ingredientgroup,
+            cost=10
+        )
+        IngredientRelation.objects.create(
+            ingredient=self.deselected_ingredient,
+            food=self.food,
+            selected=False
+        )
 
         self.unique_food = Food.objects.create(
             name='Unique food',
@@ -132,7 +102,7 @@ class LunchTestCase(LunchbreakTestCase):
         self.unique_ingredient = Ingredient.objects.create(
             name='Unique ingredient',
             group=self.ingredientgroup,
-            cost=0.1
+            cost=10
         )
 
         self.unique_ingredientrelation = IngredientRelation.objects.create(
