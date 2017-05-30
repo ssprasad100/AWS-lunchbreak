@@ -17,7 +17,16 @@ def get_api_base():
         if payconiq.environment == 'production' else payconiq.api_base_test
 
 
-public_pem_data = b'''-----BEGIN PUBLIC KEY-----
+public_key_production = b'''-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7c+Bl6e/jUBTn/QsNMeD
+jyvrI8iZl3koxNohCwe0HnP/l1NhYtzAPuCoPd3NLt7ttjicIaG51n3hoZFrNSPD
+ZD1O5KG9wlbh5X4potUyEHeRHynCfJggNyrJC2/77ZRcBhZllsjCzQUSk0iDIdbW
+ISQrAvYqHLTF4Ckk+c29CRavbN6jWPS1otxkkCdITrw+iIi+Msr3AkUC0EAxwDrT
+sLAypN35v6jOxyTfzO5h+upypGWH+gCqJ3jxOrgP90a7ylUXO2BTKktoS/9C9v8h
+/7hyhgr9bVU+yYtmb9xP9s7RBOz8tQYS2HGkoM1hKCDuWUEbEdK3AdJQCBDzRF3z
+OQIDAQAB
+-----END PUBLIC KEY-----'''
+public_key_testing = b'''-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtxS9KJhwYLQ88Y5B5ZRL
 QHuJLAbYUBk6aFKeTZvLLTYd+ptfcVzoL6tnF4TV1D/0kkweoVk5WuQEbL5kP9H4
 hqPUlg7anI4B6PZTQ37FysCmvPoxjJLKT7LQ0lDD9qGV7IbYZZ0Oep3Sp3i0chrn
@@ -26,6 +35,11 @@ wf/u5dyM0Rx0cNJQZgmPDhqRKbRv7CtLt06rK78RRLAfZmwknP7pIV7MHtlX4yzk
 FDf1Ig/onw8x+ej/yb/IOed5BQkiyuwS0lCWnywncA1eVNcCI7o9OuJsiIklL5ku
 DwIDAQAB
 -----END PUBLIC KEY-----'''
+
+
+def get_public_key():
+    return public_key_production \
+        if payconiq.environment == 'production' else public_key_testing
 
 
 def is_signature_valid(signature, merchant_id, timestamp, algorithm, body):
@@ -51,7 +65,7 @@ def is_signature_valid(signature, merchant_id, timestamp, algorithm, body):
 
         try:
             public_key = openssl_backend.load_pem_public_key(
-                data=public_pem_data
+                data=get_public_key()
             )
         except ValueError as e:
             raise PayconiqError(str(e))
@@ -88,7 +102,8 @@ def generate_web_signature(merchant_id, webhook_id, currency, amount, widget_tok
 
 def get_widget_url():
     return 'https://{subdomain}.payconiq.com/v2/online/static/widget.js'.format(
-        subdomain='api' if getattr(settings, 'PAYCONIQ_ENVIRONMENT', 'testing') == 'production' else 'dev'
+        subdomain='api' if getattr(settings, 'PAYCONIQ_ENVIRONMENT',
+                                   'testing') == 'production' else 'dev'
     )
     return 'https://api.payconiq.com/v2/online/static/widget.js' \
         if getattr(settings, 'PAYCONIQ_ENVIRONMENT', 'testing') == 'production' \
