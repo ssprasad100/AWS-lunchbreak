@@ -1,4 +1,5 @@
 import json
+import logging
 
 from customers.models import Order
 from django.http import Http404, HttpResponse, HttpResponseBadRequest
@@ -11,6 +12,8 @@ from rest_framework import status
 
 from .models import Transaction
 from .utils import is_signature_valid
+
+logger = logging.getLogger('lunchbreak')
 
 
 class WebhookView(View):
@@ -45,10 +48,26 @@ class WebhookView(View):
             data = json.loads(request.body.decode('utf-8'))
 
             if not isinstance(data, dict):
+                logger.exception(
+                    'JSON was not a dictionary.',
+                    extra={
+                        'request': request,
+                        'extra_args': args,
+                        'extra_kwargs': kwargs,
+                    }
+                )
                 return HttpResponseBadRequest(
                     'JSON must be a dictionary.'
                 )
         except json.JSONDecodeError as e:
+            logger.exception(
+                'Invalid JSON sent.',
+                extra={
+                    'request': request,
+                    'extra_args': args,
+                    'extra_kwargs': kwargs,
+                }
+            )
             return HttpResponseBadRequest(
                 'Invalid JSON: ' + str(e)
             )
@@ -57,6 +76,14 @@ class WebhookView(View):
         transaction_status = data.get('status')
 
         if transaction_remote_id is None or transaction_status is None:
+            logger.exception(
+                'JSON must contain an _id and status key.',
+                extra={
+                    'request': request,
+                    'extra_args': args,
+                    'extra_kwargs': kwargs,
+                }
+            )
             return HttpResponseBadRequest(
                 'JSON must contain an _id and status key.'
             )
@@ -72,17 +99,46 @@ class WebhookView(View):
         except Transaction.DoesNotExist:
             webhook_id = request.GET.get('webhookId')
             if webhook_id is not None:
-                order = get_object_or_404(
-                    Order.objects.select_related(
-                        'store__staff__payconiq'
-                    ),
-                    pk=webhook_id
-                )
+                try:
+                    order = get_object_or_404(
+                        Order.objects.select_related(
+                            'store__staff__payconiq'
+                        ),
+                        pk=webhook_id
+                    )
+                except Order.DoesNotExist as e:
+                    logger.exception(
+                        str(e),
+                        exc_info=True,
+                        extra={
+                            'request': request,
+                            'extra_args': args,
+                            'extra_kwargs': kwargs,
+                        }
+                    )
                 merchant = order.store.staff.payconiq
             else:
-                raise Http404()
+                logger.exception(
+                    'No webhook id provided in Payconiq POST request.',
+                    exc_info=True,
+                    extra={
+                        'request': request,
+                        'extra_args': args,
+                        'extra_kwargs': kwargs,
+                    }
+                )
+            raise Http404()
 
         if not self.is_valid(request, merchant.remote_id):
+            logger.exception(
+                'Invalid request signature used.',
+                extra={
+                    'request': request,
+                    'extra_args': args,
+                    'extra_kwargs': kwargs,
+                    'merchant.remote_id': merchant.remote_id,
+                }
+            )
             raise Http404()
 
         if order is not None:
