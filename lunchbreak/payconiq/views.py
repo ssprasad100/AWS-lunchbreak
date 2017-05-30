@@ -106,7 +106,7 @@ class WebhookView(View):
                         ),
                         pk=webhook_id
                     )
-                except Order.DoesNotExist as e:
+                except Exception as e:
                     logger.exception(
                         str(e),
                         exc_info=True,
@@ -127,7 +127,7 @@ class WebhookView(View):
                         'extra_kwargs': kwargs,
                     }
                 )
-            raise Http404()
+                raise Http404()
 
         if not self.is_valid(request, merchant.remote_id):
             logger.exception(

@@ -16,7 +16,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView, View
 from django.views.generic.base import RedirectView
 from lunch.models import Food, Store
-from payconiq.utils import get_widget_url
+from payconiq import get_widget_url
 from user_agents import parse as parse_user_agent
 
 from .forms import GroupForm, OrderForm, SearchForm, UserForm

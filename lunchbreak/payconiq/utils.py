@@ -6,7 +6,6 @@ from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.backends.openssl import backend as openssl_backend
 from cryptography.hazmat.primitives.asymmetric.padding import PKCS1v15
 from cryptography.hazmat.primitives.hashes import SHA256
-from django.conf import settings
 from payconiq import get_public_key
 
 from .exceptions import PayconiqError
@@ -68,13 +67,3 @@ def generate_web_signature(merchant_id, webhook_id, currency, amount, widget_tok
     return b64encode(
         signature.digest()
     ).decode('utf-8')
-
-
-def get_widget_url():
-    return 'https://{subdomain}.payconiq.com/v2/online/static/widget.js'.format(
-        subdomain='api' if getattr(settings, 'PAYCONIQ_ENVIRONMENT',
-                                   'testing') == 'production' else 'dev'
-    )
-    return 'https://api.payconiq.com/v2/online/static/widget.js' \
-        if getattr(settings, 'PAYCONIQ_ENVIRONMENT', 'testing') == 'production' \
-        else 'https://dev.payconiq.com/v2/online/static/widget.js'

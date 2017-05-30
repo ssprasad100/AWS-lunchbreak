@@ -63,3 +63,11 @@ def get_public_key():
     return public_key_production \
         if get_payconiq_settings().get('environment', 'testing') == 'production' \
         else public_key_testing
+
+
+def get_widget_url():
+    return 'https://{subdomain}.payconiq.com/v2/online/static/widget.js'.format(
+        subdomain='api'
+        if get_payconiq_settings().get('environment', 'testing') == 'production'
+        else 'dev'
+    )
