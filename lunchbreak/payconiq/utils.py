@@ -2,44 +2,14 @@ from base64 import b64decode, b64encode
 from binascii import Error, crc32
 from hashlib import sha256
 
-import payconiq
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.backends.openssl import backend as openssl_backend
 from cryptography.hazmat.primitives.asymmetric.padding import PKCS1v15
 from cryptography.hazmat.primitives.hashes import SHA256
 from django.conf import settings
+from payconiq import get_public_key
 
 from .exceptions import PayconiqError
-
-
-def get_api_base():
-    return payconiq.api_base \
-        if payconiq.environment == 'production' else payconiq.api_base_test
-
-
-public_key_production = b'''-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7c+Bl6e/jUBTn/QsNMeD
-jyvrI8iZl3koxNohCwe0HnP/l1NhYtzAPuCoPd3NLt7ttjicIaG51n3hoZFrNSPD
-ZD1O5KG9wlbh5X4potUyEHeRHynCfJggNyrJC2/77ZRcBhZllsjCzQUSk0iDIdbW
-ISQrAvYqHLTF4Ckk+c29CRavbN6jWPS1otxkkCdITrw+iIi+Msr3AkUC0EAxwDrT
-sLAypN35v6jOxyTfzO5h+upypGWH+gCqJ3jxOrgP90a7ylUXO2BTKktoS/9C9v8h
-/7hyhgr9bVU+yYtmb9xP9s7RBOz8tQYS2HGkoM1hKCDuWUEbEdK3AdJQCBDzRF3z
-OQIDAQAB
------END PUBLIC KEY-----'''
-public_key_testing = b'''-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtxS9KJhwYLQ88Y5B5ZRL
-QHuJLAbYUBk6aFKeTZvLLTYd+ptfcVzoL6tnF4TV1D/0kkweoVk5WuQEbL5kP9H4
-hqPUlg7anI4B6PZTQ37FysCmvPoxjJLKT7LQ0lDD9qGV7IbYZZ0Oep3Sp3i0chrn
-2ec4KpkTl1bbEueItMaJGZMJjQhDg6sOXPOFewn/OvttRzTSLkhzIQEbmcJXpk7L
-wf/u5dyM0Rx0cNJQZgmPDhqRKbRv7CtLt06rK78RRLAfZmwknP7pIV7MHtlX4yzk
-FDf1Ig/onw8x+ej/yb/IOed5BQkiyuwS0lCWnywncA1eVNcCI7o9OuJsiIklL5ku
-DwIDAQAB
------END PUBLIC KEY-----'''
-
-
-def get_public_key():
-    return public_key_production \
-        if payconiq.environment == 'production' else public_key_testing
 
 
 def is_signature_valid(signature, merchant_id, timestamp, algorithm, body):
