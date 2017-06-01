@@ -116,6 +116,7 @@ class WebhookView(View):
                             'extra_kwargs': kwargs,
                         }
                     )
+                    raise
                 merchant = order.store.staff.payconiq
             else:
                 logger.exception(

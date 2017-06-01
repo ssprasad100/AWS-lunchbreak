@@ -1205,11 +1205,11 @@ class Food(CleanModelMixin, SafeDeleteMixin):
         help_text=('Type etenswaar.')
     )
     preorder_days = models.IntegerField(
-        default=-1,
+        default=0,
         verbose_name=_('dagen op voorhand bestellen'),
         help_text=(
             'Minimum dagen op voorhand bestellen voor het uur ingesteld op '
-            'de winkel. (-1 is uitgeschakeld, 0 is dezelfde dag voor het '
+            'de winkel. (0 is uitgeschakeld, >=1 is dezelfde dag voor het '
             'bepaalde uur.)'
         )
     )
@@ -1394,7 +1394,7 @@ class Food(CleanModelMixin, SafeDeleteMixin):
         Check whether this food can be ordered for the given day.
         This does not check whether the Store.wait has been exceeded!
         """
-        if self.preorder_days == -1:
+        if self.preorder_days == 0:
             return True
         else:
             now = timezone.now() if now is None else now
