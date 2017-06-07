@@ -170,7 +170,7 @@ class StoreViewSet(TargettedViewSet,
     def queryset_list(self):
         if 'latitude' in self.kwargs and 'longitude' in self.kwargs:
             proximity = self.kwargs['proximity'] if 'proximity' in self.kwargs else 5
-            return Store.objects.nearby(
+            result = Store.objects.nearby(
                 self.kwargs['latitude'],
                 self.kwargs['longitude'],
                 proximity
@@ -178,11 +178,20 @@ class StoreViewSet(TargettedViewSet,
                 enabled=True
             )
         else:
-            return Store.objects.prefetch_related(
+            result = Store.objects.prefetch_related(
                 'categories',
             ).filter(
                 enabled=True
             ).distinct()
+
+        # TODO Use semver.
+        only_cash_enabled = self.request.version not in ['2.2.1', '2.3.0']
+        if only_cash_enabled:
+            result = result.filter(
+                cash_enabled=True
+            )
+
+        return result
 
     @property
     def queryset_recent(self):

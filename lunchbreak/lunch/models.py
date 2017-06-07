@@ -313,6 +313,13 @@ class Store(AbstractAddress):
             'aanvaard kunnen worden.'
         )
     )
+    cash_enabled = models.BooleanField(
+        default=True,
+        verbose_name=_('betalingen in winkel ingeschakeld'),
+        help_text=_(
+            'Betalingen in winkel ingeschakeld.'
+        )
+    )
     last_modified = models.DateTimeField(
         auto_now=True,
         verbose_name=_('laatst aangepast'),
