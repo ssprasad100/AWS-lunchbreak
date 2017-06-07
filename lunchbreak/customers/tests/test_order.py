@@ -20,7 +20,7 @@ from ..config import (ORDER_STATUS_COMPLETED, ORDER_STATUS_DENIED,
                       ORDER_STATUS_RECEIVED, ORDER_STATUS_STARTED,
                       ORDER_STATUS_WAITING, PAYMENT_METHOD_CASH,
                       PAYMENT_METHOD_GOCARDLESS, PAYMENT_METHOD_PAYCONIQ)
-from ..exceptions import OrderedFoodNotOriginal
+from ..exceptions import CashDisabled, OrderedFoodNotOriginal
 from ..models import Address, ConfirmedOrder, Order, OrderedFood, PaymentLink
 
 
@@ -408,6 +408,40 @@ class OrderTestCase(CustomersTestCase):
                 mock_geocode, mock_timezone, mock_is_open, mock_notify,
                 mock_transaction, transaction_status=failed_status, confirmed=False
             )
+
+    @mock.patch('customers.models.User.notify')
+    @mock.patch('lunch.models.Store.is_open')
+    @mock.patch('googlemaps.Client.timezone')
+    @mock.patch('googlemaps.Client.geocode')
+    def test_cash_order(self, mock_geocode, mock_timezone,
+                        mock_is_open, mock_notify):
+        self.store.cash_enabled = False
+        self.store.save()
+
+        content = {
+            'receipt': self.midday.add(days=1).isoformat(),
+            'store': self.store.id,
+            'payment_method': PAYMENT_METHOD_CASH,
+            'orderedfood': [
+                {
+                    'original': self.food.id,
+                    'total': self.food.cost,
+                    'amount': self.food.amount
+                }
+            ]
+        }
+
+        response, order = self.place_order(content)
+        self.assertEqualException(
+            response,
+            CashDisabled
+        )
+
+        self.store.cash_enabled = True
+        self.store.save()
+
+        response, order = self.place_order(content)
+        self.assertIsNotNone(order)
 
     @mock.patch('business.models.Staff.notify')
     @mock.patch('customers.models.User.notify')

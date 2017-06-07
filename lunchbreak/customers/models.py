@@ -45,8 +45,8 @@ from .config import (GROUP_ORDER_STATUSES, ORDER_STATUS_COMPLETED,
                      ORDEREDFOOD_STATUSES, PAYMENT_METHOD_CASH,
                      PAYMENT_METHOD_GOCARDLESS, PAYMENT_METHOD_PAYCONIQ,
                      PAYMENT_METHODS)
-from .exceptions import (CostCheckFailed, GoCardlessDisabled, MinDaysExceeded,
-                         NoPaymentLink, OnlinePaymentRequired,
+from .exceptions import (CashDisabled, CostCheckFailed, GoCardlessDisabled,
+                         MinDaysExceeded, NoPaymentLink, OnlinePaymentRequired,
                          PaymentLinkNotConfirmed, PreorderTimeExceeded,
                          UserDisabled)
 from .managers import (ConfirmedOrderManager, GroupManager, OrderedFoodManager,
@@ -908,15 +908,18 @@ class Order(StatusSignalModel, AbstractOrder):
                         'contant te betalen bij het ophalen.'
                     )
                 )
-        elif self.payment_cash \
-                and self.pk is None \
-                and self.group is not None \
-                and self.group.payment_online_only \
-                and (
-                    self.store.staff.gocardless_ready
-                    or self.store.staff.payconiq_ready
-                ):
-            raise OnlinePaymentRequired()
+        elif self.payment_cash:
+            if not self.store.cash_enabled:
+                raise CashDisabled()
+
+            if self.pk is None \
+                    and self.group is not None \
+                    and self.group.payment_online_only \
+                    and (
+                        self.store.staff.gocardless_ready
+                        or self.store.staff.payconiq_ready
+                    ):
+                raise OnlinePaymentRequired()
 
     def clean_group_order(self):
         if self.group is not None:
