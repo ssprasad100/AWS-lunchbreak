@@ -140,7 +140,7 @@ class HeartAdmin(admin.ModelAdmin):
 @admin.register(OrderedFood)
 class OrderedFoodAdmin(admin.ModelAdmin):
     list_display = ('original', 'order', 'total_display', 'is_original',)
-    search_fields = ('order', 'order__user', 'original',)
+    search_fields = ('order', 'order__user', 'original',),
     list_filter = ('is_original', 'status',)
 
     def total_display(self, instance):
@@ -174,10 +174,15 @@ class AbstractOrderAdmin(admin.ModelAdmin):
 
 class OrderAdmin(AbstractOrderAdmin):
     list_display = ('store', 'user', 'placed', 'receipt',
-                    'status', 'total_display', 'count_display',)
+                    'status', 'total_display', 'count_display', 'confirmed',)
     search_fields = ('store__name', 'user__name',)
     list_filter = ('store', 'status',)
     ordering = ('-placed', '-receipt',)
+    readonly_fields = ('confirmed',)
+
+    def confirmed(self, obj):
+        return obj.confirmed
+    confirmed.short_description = _('bevestigd')
 
 
 admin.site.register([Order, ConfirmedOrder], OrderAdmin)

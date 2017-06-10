@@ -1670,8 +1670,8 @@ class BaseToken(CleanModelMixin, BareDevice, DirtyFieldsMixin):
     )
     identifier = models.CharField(
         max_length=191,
-        verbose_name=_('idenfitifcatie'),
-        help_text=_('Idenfitifcatie code die toegang geeft to Lunchbreak.')
+        verbose_name=_('identificatie'),
+        help_text=_('Identificatie code die toegang geeft tot Lunchbreak.')
     )
 
     objects = BaseTokenManager()
