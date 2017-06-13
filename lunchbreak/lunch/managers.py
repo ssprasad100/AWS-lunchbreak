@@ -1,13 +1,13 @@
 import copy
+from decimal import Decimal
 
 import pendulum
 from django.core.exceptions import MultipleObjectsReturned
 from django.db import models
 from django.db.models.expressions import RawSQL
-from push_notifications.models import DeviceManager
+from push_notifications.models import BareDeviceManager
 
 from .config import random_token
-from decimal import Decimal
 
 
 class StoreManager(models.Manager):
@@ -121,7 +121,7 @@ class HolidayPeriodQuerySet(PeriodQuerySet):
         )
 
 
-class BaseTokenManager(DeviceManager):
+class BaseTokenManager(BareDeviceManager):
 
     def create_token(self, arguments, defaults, clone=False):
         identifier_raw = random_token()
