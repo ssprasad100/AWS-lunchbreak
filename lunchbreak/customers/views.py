@@ -28,7 +28,9 @@ class FoodViewSet(TargettedViewSet,
                   mixins.RetrieveModelMixin,
                   mixins.ListModelMixin):
 
-    queryset = Food.objects.all()
+    queryset = Food.objects.filter(
+        enabled=True
+    )
 
     serializer_class_retrieve = FoodDetailSerializer
     serializer_class_list = FoodSerializer
@@ -36,6 +38,7 @@ class FoodViewSet(TargettedViewSet,
     @property
     def queryset_retrieve(self):
         result = Food.objects.filter(
+            enabled=True,
             deleted__isnull=True
         ).select_related(
             'foodtype',
@@ -53,6 +56,7 @@ class FoodViewSet(TargettedViewSet,
             raise Http404()
 
         return Food.objects.filter(
+            enabled=True,
             menu_id=self.kwargs['menu_id'],
             deleted__isnull=True
         ).select_related(
@@ -329,6 +333,7 @@ class StoreFoodViewSet(TargettedViewSet,
     @property
     def queryset(self):
         return Food.objects.filter(
+            enabled=True,
             menu__store_id=self.kwargs['parent_lookup_pk'],
             deleted__isnull=True
         ).select_related(
@@ -355,11 +360,12 @@ class StoreMenuViewSet(TargettedViewSet,
     def queryset(self):
         # Check if filter for store_id is required
         return Menu.objects.filter(
-            store_id=self.kwargs['parent_lookup_pk']
+            store_id=self.kwargs['parent_lookup_pk'],
+            food__enabled=True
         ).order_by(
             '-priority',
             'name'
-        )
+        ).distinct()
 
 
 class StoreGroupViewSet(viewsets.GenericViewSet,

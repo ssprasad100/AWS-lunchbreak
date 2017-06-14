@@ -454,6 +454,7 @@ class FoodSerializer(serializers.ModelSerializer):
 
             'ingredientrelations',
             'deleted',
+            'enabled',
             'last_modified',
         )
         read_only_fields = (
@@ -534,6 +535,7 @@ class FoodDetailSerializer(lunch_serializers.FoodDetailSerializer):
 
     class Meta(lunch_serializers.FoodDetailSerializer.Meta):
         fields = lunch_serializers.FoodDetailSerializer.Meta.fields + (
+            'enabled',
             'deleted',
         )
 

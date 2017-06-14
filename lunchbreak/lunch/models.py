@@ -1254,6 +1254,11 @@ class Food(CleanModelMixin, SafeDeleteMixin):
         help_text=('Ingrediëntengroep.')
     )
 
+    enabled = models.BooleanField(
+        default=True,
+        verbose_name=_('ingeschakeld'),
+        help_text=_('Ingeschakeld.')
+    )
     last_modified = models.DateTimeField(
         auto_now=True,
         verbose_name=_('laatst aangepast'),
