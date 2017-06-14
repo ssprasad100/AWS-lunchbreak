@@ -4,7 +4,7 @@ from lunch import serializers as lunch_serializers
 from lunch.config import TOKEN_IDENTIFIER_LENGTH
 from lunch.models import (Food, Ingredient, IngredientGroup,
                           IngredientRelation, Store, StoreHeader)
-from Lunchbreak.serializers import RequestAttributeDefault
+from Lunchbreak.serializers import MoneyField, RequestAttributeDefault
 from payconiq.serializers import MerchantSerializer, TransactionSerializer
 from rest_framework import serializers
 
@@ -227,18 +227,15 @@ class OrderedFoodSerializer(serializers.ModelSerializer):
         )
 
 
-class OrderSpreadSerializer(serializers.BaseSerializer):
+class OrderSpreadSerializer(serializers.Serializer):
     amount = serializers.IntegerField(
         read_only=True
     )
-    average = serializers.DecimalField(
-        decimal_places=2,
-        max_digits=7
+    average = MoneyField(
+        read_only=True
     )
-    # 'sum' is a built-in function in Python, use 'sm' in code and return 'sum'
-    sm = serializers.DecimalField(
-        decimal_places=2,
-        max_digits=7
+    sum = MoneyField(
+        read_only=True
     )
     unit = serializers.IntegerField(
         read_only=True
@@ -248,18 +245,10 @@ class OrderSpreadSerializer(serializers.BaseSerializer):
         fields = (
             'amount',
             'average',
-            'sm',
+            'sum',
             'unit',
         )
         read_only_fields = fields
-
-    def to_representation(self, obj):
-        return {
-            'amount': obj.amount,
-            'average': obj.average,
-            'sum': obj.sm,
-            'unit': obj.unit
-        }
 
 
 class GroupSerializer(serializers.ModelSerializer):

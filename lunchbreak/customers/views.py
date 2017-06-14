@@ -140,7 +140,9 @@ class OrderViewSet(TargettedViewSet,
         serializer = OrderedFoodPriceSerializer(
             data=request.data,
             many=True,
-            context={'request': request}
+            context={
+                'request': request
+            }
         )
         serializer.is_valid(raise_exception=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)

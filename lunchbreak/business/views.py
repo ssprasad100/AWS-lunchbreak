@@ -440,7 +440,7 @@ class OrderDetailView(generics.RetrieveUpdateAPIView):
         )
 
 
-class OrderSpreadView(viewsets.ReadOnlyModelViewSet):
+class OrderSpreadView(viewsets.ReadOnlyModelViewSet, generics.ListAPIView):
     authentication_classes = (EmployeeAuthentication,)
     serializer_class = OrderSpreadSerializer
     units = [
@@ -452,10 +452,7 @@ class OrderSpreadView(viewsets.ReadOnlyModelViewSet):
         'quarter',
         'year'
     ]
-
-    def list(self, request):
-        serializer = self.serializer_class(self.get_queryset(), many=True)
-        return Response(serializer.data)
+    pagination_class = None
 
     def get_queryset(self):
         unit = self.request.query_params.get('unit')
@@ -477,7 +474,7 @@ class OrderSpreadView(viewsets.ReadOnlyModelViewSet):
             SELECT
                 customers_order.id,
                 COUNT(customers_order.id) as amount,
-                SUM(customers_order.total) as sm,
+                SUM(customers_order.total) as sum,
                 AVG(customers_order.total) as average,
                 {unit}(customers_order.receipt) as unit
             FROM
