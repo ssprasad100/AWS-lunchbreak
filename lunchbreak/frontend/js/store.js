@@ -629,6 +629,10 @@
                 ingredient.group = ingredientgroup;
             }
 
+            this.ingredientgroups.sort(function(first, second) {
+                return second.priority - first.priority;
+            });
+
             this.updated = true;
         };
 

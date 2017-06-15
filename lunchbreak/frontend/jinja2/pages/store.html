@@ -64,7 +64,17 @@
                 {% if menu.food.all() %}
                 <div class="menu" data-id="{{ menu.id }}">
                     <h3>{{ menu.name }}</h3>
-                    {% for food in menu.food.all() %}
+                    {% set menu_food = menu.food.select_related(
+                        'menu__store',
+                        'foodtype',
+                    ).prefetch_related(
+                        'ingredients',
+                        'ingredientgroups',
+                    ).order_by(
+                        '-priority',
+                        'name'
+                    ).all() %}
+                    {% for food in menu_food %}
                         <div class="food" data-id="{{ food.id }}" data-has-ingredients="{{ food.has_ingredients }}">
                             <div class="food-top">
                                 <div class="food-text">

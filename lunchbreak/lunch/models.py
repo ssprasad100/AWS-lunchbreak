@@ -1286,8 +1286,28 @@ class Food(CleanModelMixin, SafeDeleteMixin):
         return self.menu.store
 
     @cached_property
+    def ingredients_count(self):
+        try:
+            self._prefetched_objects_cache[self.ingredients.prefetch_cache_name]
+            # Ingredients is prefetched
+            return len(self.ingredients.all())
+        except (AttributeError, KeyError):
+            # Not prefetched
+            return self.ingredients.count()
+
+    @cached_property
+    def ingredientgroups_count(self):
+        try:
+            self._prefetched_objects_cache[self.ingredientgroups.prefetch_cache_name]
+            # Ingredientgroups is prefetched
+            return len(self.ingredientgroups.all())
+        except (AttributeError, KeyError):
+            # Not prefetched
+            return self.ingredientgroups.count()
+
+    @cached_property
     def has_ingredients(self):
-        return self.ingredients.count() > 0 or self.ingredientgroups.count() > 0
+        return self.ingredients_count > 0 or self.ingredientgroups_count > 0
 
     @cached_property
     def selected_ingredients(self):
