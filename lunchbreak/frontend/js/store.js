@@ -442,7 +442,7 @@
          * @return {string} Example: "&euro; 3,50".
          */
         this.getCostDisplay = function() {
-            var simpleQuantifier = this.foodtype.inputtype === FoodType.InputType.SIVariable ? 'kg' : 'stuk';
+            var simpleQuantifier = this.foodtype.inputtype === FoodType.InputType.Amount ? 'stuk' : 'kg';
             return moneyFilter(this.cost) + ' / ' + simpleQuantifier;
         };
 
