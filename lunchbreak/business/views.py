@@ -176,7 +176,7 @@ class StoreViewSet(TargettedViewSet,
 
         store = self.get_object()
 
-        if store.staff.is_merchant:
+        if store.staff.gocardless_ready:
             return Response(
                 self.get_serializer_class()(
                     store.staff.gocardless

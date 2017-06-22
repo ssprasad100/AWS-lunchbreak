@@ -468,6 +468,8 @@
         this.getIntegerAmount = function() {
             if (this.foodtype.inputtype === FoodType.InputType.SIVariable) {
                 return this.amount * 1000;
+            } else if (this.foodtype.inputtype === FoodType.InputType.SIAmount) {
+                return 1;
             }
 
             return this.amount;
@@ -701,11 +703,16 @@
          */
         this.validate = function() {
             var value = this.getDecimalAmount();
-            if (value === NaN)
+            console.log(value);
+            console.log(value === NaN);
+            console.log(value == 0);
+            if (isNaN(value) || value == 0) {
                 return new Validation(
-                    'Gelieve een geldig nummer in te geven.'
+                    'Gelieve een geldige hoeveelheid in te geven.'
                 );
+            }
 
+            console.log(1);
             if (this.foodtype.inputtype !== FoodType.InputType.SIVariable) {
                 if (value % 1 != 0) {
                     // The value is a decimal
@@ -715,6 +722,7 @@
                 }
             }
 
+            console.log(2);
             if (this.quantity !== null) {
                 if (value < this.quantity.minimum) {
                     return new Validation(
@@ -726,6 +734,7 @@
                     );
                 }
             }
+            console.log(3);
             return new Validation();
         };
 

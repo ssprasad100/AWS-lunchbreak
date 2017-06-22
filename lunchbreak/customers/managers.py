@@ -107,9 +107,6 @@ class OrderManager(models.Manager):
                 group_order.delete()
             raise
 
-        print('instance', instance)
-        print('instance.pk', instance.pk)
-
         if save:
             OrderedFood = apps.get_model('customers.OrderedFood')
             try:
