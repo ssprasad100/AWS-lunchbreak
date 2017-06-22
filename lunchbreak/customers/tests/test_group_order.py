@@ -1,8 +1,8 @@
-from datetime import timedelta
 from decimal import Decimal
 
 import mock
 from lunch.exceptions import LinkingError
+from pendulum import Pendulum
 
 from ..config import (ORDER_STATUS_COMPLETED, ORDER_STATUS_PLACED,
                       ORDER_STATUS_RECEIVED, ORDER_STATUS_STARTED,
@@ -15,6 +15,18 @@ from .test_group import BaseGroupTestCase
 
 class GroupOrderTestCase(BaseGroupTestCase):
 
+    @property
+    def receipt(self):
+        return Pendulum.now(
+            self.group.store.timezone
+        ).with_time(
+            hour=self.group.receipt_time.hour,
+            minute=self.group.receipt_time.minute,
+            second=self.group.receipt_time.second
+        ).add(
+            minutes=1
+        )
+
     @mock.patch('customers.tasks.send_group_order_email.apply_async')
     @mock.patch('lunch.models.Store.is_open')
     @mock.patch('customers.models.Order.is_valid')
@@ -26,7 +38,7 @@ class GroupOrderTestCase(BaseGroupTestCase):
             Order.objects.create_with_orderedfood,
             orderedfood=[],
             store=self.other_store,
-            receipt=self.group.receipt + timedelta(minutes=1),
+            receipt=self.receipt,
             group=self.group,
             user=self.user
         )
@@ -54,7 +66,7 @@ class GroupOrderTestCase(BaseGroupTestCase):
         order = Order.objects.create_with_orderedfood(
             orderedfood=[],
             store=self.store,
-            receipt=self.group.receipt + timedelta(minutes=1),
+            receipt=self.receipt,
             group=self.group,
             user=self.user
         )
@@ -74,7 +86,7 @@ class GroupOrderTestCase(BaseGroupTestCase):
         order = Order.objects.create_with_orderedfood(
             orderedfood=[],
             store=self.store,
-            receipt=self.group.receipt + timedelta(minutes=1),
+            receipt=self.receipt,
             group=self.group,
             user=self.user
         )
@@ -89,7 +101,11 @@ class GroupOrderTestCase(BaseGroupTestCase):
         order = Order.objects.create_with_orderedfood(
             orderedfood=[],
             store=self.store,
-            receipt=self.group.receipt + timedelta(days=1),
+            receipt=Pendulum.now().add(days=1).with_time(
+                hour=self.group.receipt_time.hour,
+                minute=self.group.receipt_time.minute,
+                second=self.group.receipt_time.second
+            ),
             group=self.group,
             user=self.user
         )
@@ -123,7 +139,11 @@ class GroupOrderTestCase(BaseGroupTestCase):
         total = Decimal(self.food.cost) * Decimal(self.food.amount)
         order = Order.objects.create_with_orderedfood(
             store=self.store,
-            receipt=self.group.receipt + timedelta(days=1),
+            receipt=Pendulum.now().add(days=1).with_time(
+                hour=self.group.receipt_time.hour,
+                minute=self.group.receipt_time.minute,
+                second=self.group.receipt_time.second
+            ),
             group=group,
             user=self.user,
             orderedfood=[

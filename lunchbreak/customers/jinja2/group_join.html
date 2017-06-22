@@ -9,9 +9,9 @@
 </p>
 <p>
 {% if group.delivery %}
-    {{ group.store.name }} aanvaardt bestellingen tot {{ group.deadline | time('H:i') }} uur en levert rond {{ group.receipt | time('H:i') }} uur.
+    {{ group.store.name }} aanvaardt bestellingen tot {{ group.deadline | time('H:i') }} uur en levert rond {{ group.receipt_time | time('H:i') }} uur.
 {% else %}
-    {{ group.store.name }} aanvaardt bestellingen tot {{ group.deadline | time('H:i') }} uur en kan worden opgehaald vanaf {{ group.receipt | time('H:i') }} uur.
+    {{ group.store.name }} aanvaardt bestellingen tot {{ group.deadline | time('H:i') }} uur en kan worden opgehaald vanaf {{ group.receipt_time | time('H:i') }} uur.
 {% endif %}
 {% if group.discount > 0 -%}
     Hierbovenop krijg je een korting van {{ group.discount | percentage }}.

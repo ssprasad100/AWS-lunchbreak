@@ -4,10 +4,8 @@ import os
 from django_jinja.builtins import DEFAULT_EXTENSIONS
 from kombu import Exchange, Queue
 
-if DEBUG:
-    SENDFILE_BACKEND = 'sendfile.backends.development'
-else:
-    SENDFILE_BACKEND = 'sendfile.backends.nginx'
+SENDFILE_BACKEND = 'sendfile.backends.development' \
+    if DEBUG else 'sendfile.backends.nginx'
 
 
 def get_variable(field, *args):
@@ -30,7 +28,7 @@ if HOST not in ALLOWED_HOSTS:
 DJANGO_SETTINGS_VERSION = os.environ.get('DJANGO_SETTINGS_VERSION')
 DB_NAME = get_variable(
     'DB_NAME',
-    'lb_%s' % DJANGO_SETTINGS_VERSION
+    'LB_%s' % DJANGO_SETTINGS_VERSION
 )
 DB_USER = get_variable('DB_USER', DB_NAME)
 DB_PASS = get_variable('DB_PASS', DB_NAME)
@@ -43,13 +41,22 @@ DATABASES = {
         'USER': DB_USER,
         'PASSWORD': DB_PASS,
         'HOST': DB_HOST,
-        'PORT': '',
-        # 'OPTIONS': {
-        #     'charset': 'UTF8',
-        # },
-        # 'TEST': {
-        #     'CHARSET': 'UTF8',
-        # }
+        'PORT': '5432',
+    },
+    'mysql': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': DB_NAME,
+        'USER': DB_USER,
+        'PASSWORD': DB_PASS,
+        'HOST': DB_HOST,
+        'PORT': '3306',
+        'OPTIONS': {
+            'charset': 'utf8mb4',
+        },
+        'TEST': {
+            'CHARSET': 'utf8mb4',
+            'COLLATION': 'utf8mb4_unicode_ci',
+        },
     }
 }
 
@@ -89,18 +96,20 @@ GOCARDLESS = {
 }
 
 SMS = {
-    'phone': '+32466900406',
     'text_template': '{pin} is je Lunchbreak authenticatie code, welkom!',
+    'domain': get_variable('SMS_DOMAIN'),
     'plivo': {
+        'phone': '+32466900406',
         'auth_id': get_variable('PLIVO_AUTH_ID'),
-        'auth_token': get_variable('PLIVO_AUTH_TOKEN')
+        'auth_token': get_variable('PLIVO_AUTH_TOKEN'),
+        'webhook_url': get_variable('PLIVO_WEBHOOK_URL'),
+    },
+    'twilio': {
+        'phone': '+32460200109',
+        'account_sid': get_variable('TWILIO_ACCOUNT_SID'),
+        'auth_token': get_variable('TWILIO_AUTH_TOKEN'),
+        'webhook_url': get_variable('TWILIO_WEBHOOK_URL'),
     }
-}
-
-OPBEAT = {
-    'ORGANIZATION_ID': '5d9db7394a424d27b704ace52cf4f9ef',
-    'APP_ID': get_variable('OPBEAT_APP_ID'),
-    'SECRET_TOKEN': get_variable('OPBEAT_SECRET_TOKEN'),
 }
 
 TEMPLATES = [
@@ -199,4 +208,9 @@ RAVEN_CONFIG = {
         'Http404',
         'django.exceptions.http.Http404',
     ]
+}
+
+PAYCONIQ = {
+    'webhook_domain': get_variable('PAYCONIQ_WEBHOOK_DOMAIN'),
+    'environment': get_variable('PAYCONIQ_ENVIRONMENT', 'testing'),
 }

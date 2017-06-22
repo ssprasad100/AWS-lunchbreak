@@ -14,14 +14,12 @@ from .testcase import BusinessTestCase
 
 class SafeDeleteTestCase(BusinessTestCase):
 
-    @mock.patch('lunch.managers.FoodManager.closest')
-    def setUp(self, mock_closest):
+    def setUp(self):
         super().setUp()
 
-        mock_closest.return_value = self.food
         self.orderedfood = {
             'original': self.food,
-            'ingredients': [self.ingredient],
+            'ingredients': [self.deselected_ingredient],
             'total': self.food.cost,
             'amount': 1
         }
@@ -160,16 +158,16 @@ class SafeDeleteTestCase(BusinessTestCase):
     def test_ingredient_completion(self, mock_notify):
         # Trying to delete it while there still is a depending OrderedFood
         # should return 200
-        response = self.request_ingredient_deletion(pk=self.ingredient.pk)
+        response = self.request_ingredient_deletion(pk=self.deselected_ingredient.pk)
 
         self.assertFalse(
             Ingredient.objects.filter(
-                pk=self.ingredient.pk
+                pk=self.deselected_ingredient.pk
             ).exists()
         )
         self.assertTrue(
             Ingredient.objects.all_with_deleted().filter(
-                pk=self.ingredient.pk
+                pk=self.deselected_ingredient.pk
             ).exists()
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -179,7 +177,7 @@ class SafeDeleteTestCase(BusinessTestCase):
         self.order.status = ORDER_STATUS_COMPLETED
         self.order.save()
 
-        response = self.request_ingredient_deletion(pk=self.ingredient.pk)
+        response = self.request_ingredient_deletion(pk=self.deselected_ingredient.pk)
 
         self.assertEqual(
             response.status_code,
@@ -188,11 +186,11 @@ class SafeDeleteTestCase(BusinessTestCase):
         self.assertRaises(
             Ingredient.DoesNotExist,
             Ingredient.objects.get,
-            pk=self.ingredient.pk
+            pk=self.deselected_ingredient.pk
         )
         self.orderedfood.refresh_from_db()
         self.assertFalse(self.orderedfood.ingredients.filter(
-            pk__in=[self.ingredient.pk]
+            pk__in=[self.deselected_ingredient.pk]
         ).exists())
 
     @mock.patch('customers.models.User.notify')
@@ -203,15 +201,15 @@ class SafeDeleteTestCase(BusinessTestCase):
 
         # If the food is not yet marked as deleted, but has no
         # unfinished orders, a 204 should be returned.
-        response = self.request_ingredient_deletion(pk=self.ingredient.pk)
+        response = self.request_ingredient_deletion(pk=self.deselected_ingredient.pk)
 
-        self.assertFalse(Ingredient.objects.filter(pk=self.ingredient.pk).exists())
+        self.assertFalse(Ingredient.objects.filter(pk=self.deselected_ingredient.pk).exists())
         self.assertFalse(Ingredient.objects.all_with_deleted().filter(
-            pk=self.ingredient.pk).exists())
+            pk=self.deselected_ingredient.pk).exists())
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.orderedfood.refresh_from_db()
         self.assertFalse(self.orderedfood.ingredients.filter(
-            pk__in=[self.ingredient.pk]
+            pk__in=[self.deselected_ingredient.pk]
         ).exists())
 
     @mock.patch('customers.models.User.notify')
@@ -221,11 +219,11 @@ class SafeDeleteTestCase(BusinessTestCase):
 
         # If the food is not yet marked as deleted, but has no
         # unfinished orders, a 204 should be returned.
-        response = self.request_ingredient_deletion(pk=self.ingredient.pk)
+        response = self.request_ingredient_deletion(pk=self.deselected_ingredient.pk)
 
-        self.assertFalse(Ingredient.objects.filter(pk=self.ingredient.pk).exists())
+        self.assertFalse(Ingredient.objects.filter(pk=self.deselected_ingredient.pk).exists())
         self.assertFalse(Ingredient.objects.all_with_deleted().filter(
-            pk=self.ingredient.pk).exists())
+            pk=self.deselected_ingredient.pk).exists())
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     def request_deletion(self, pk, url_name, viewset, user=None):

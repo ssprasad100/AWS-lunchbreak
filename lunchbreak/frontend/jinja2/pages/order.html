@@ -36,25 +36,30 @@
 
                 <div class="radio-container">
                     <label>Betaalmethode</label>
+                    {% if gocardless or payconiq %}
                     <div>
                         <label class="radio-item mdl-radio mdl-js-radio mdl-js-ripple-effect" for="checkout-payment-0">
                           <input type="radio" id="checkout-payment-0" class="mdl-radio__button" name="{{ order_form.payment_method.html_name }}" value="{{ order_form.fields['payment_method'].choices[0][0] }}" checked>
                           <span class="mdl-radio__label">{{ order_form.fields['payment_method'].choices[0][1] }}</span>
                         </label>
 
+                        {% if gocardless %}
                         <label class="radio-item mdl-radio mdl-js-radio mdl-js-ripple-effect" for="checkout-payment-1">
-                          <input type="radio" id="checkout-payment-1" class="mdl-radio__button" name="{{ order_form.payment_method.html_name }}" value="{{ order_form.fields['payment_method'].choices[1][0] }}" {% if not gocardless %}disabled{% endif %}>
+                          <input type="radio" id="checkout-payment-1" class="mdl-radio__button" name="{{ order_form.payment_method.html_name }}" value="{{ order_form.fields['payment_method'].choices[1][0] }}">
                           <span class="mdl-radio__label">{{ order_form.fields['payment_method'].choices[1][1] }}</span>
                         </label>
+                        {% endif %}
 
+                        {% if payconiq %}
                         <label class="radio-item mdl-radio mdl-js-radio mdl-js-ripple-effect" for="checkout-payment-2">
-                          <input type="radio" id="checkout-payment-2" class="mdl-radio__button" name="{{ order_form.payment_method.html_name }}" value="{{ order_form.fields['payment_method'].choices[2][0] }}" {% if not payconiq %}disabled{% endif %}>
+                          <input type="radio" id="checkout-payment-2" class="mdl-radio__button" name="{{ order_form.payment_method.html_name }}" value="{{ order_form.fields['payment_method'].choices[2][0] }}">
                           <span class="mdl-radio__label">{{ order_form.fields['payment_method'].choices[2][1] }}</span>
                         </label>
+                        {% endif %}
                     </div>
-                    {% if not gocardless and not payconiq %}
+                    {% else %}
                     <p class="subscript">
-                        Deze winkel heeft online betalingen uitgeschakeld.
+                        {{ store.name }} aanvaardt enkel betalingen in de winkel.
                     </p>
                     {% endif %}
                     {{ forms.render_errors(order_form.payment_method.errors) }}

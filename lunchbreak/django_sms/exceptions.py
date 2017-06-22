@@ -32,4 +32,4 @@ class PinIncorrect(SmsException):
 class PinTimeout(SmsException):
     status_code = status.HTTP_400_BAD_REQUEST
     default_code = PIN_TIMEOUT
-    default_detail = 'Given pin code is incorrect.'
+    default_detail = 'A pin cannot be requested that quickly after another.'

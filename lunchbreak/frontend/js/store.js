@@ -442,7 +442,7 @@
          * @return {string} Example: "&euro; 3,50".
          */
         this.getCostDisplay = function() {
-            var simpleQuantifier = this.foodtype.inputtype === FoodType.InputType.SIVariable ? 'kg' : 'stuk';
+            var simpleQuantifier = this.foodtype.inputtype === FoodType.InputType.Amount ? 'stuk' : 'kg';
             return moneyFilter(this.cost) + ' / ' + simpleQuantifier;
         };
 
@@ -628,6 +628,10 @@
                     );
                 ingredient.group = ingredientgroup;
             }
+
+            this.ingredientgroups.sort(function(first, second) {
+                return second.priority - first.priority;
+            });
 
             this.updated = true;
         };

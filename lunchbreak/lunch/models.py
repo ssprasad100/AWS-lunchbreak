@@ -1,5 +1,6 @@
 from collections import defaultdict
 from datetime import datetime, time, timedelta
+from decimal import Decimal
 
 import googlemaps
 import pendulum
@@ -32,8 +33,8 @@ from .config import (CCTLDS, COST_GROUP_BOTH, COST_GROUP_CALCULATIONS,
 from .exceptions import (AddressNotFound, IngredientGroupMaxExceeded,
                          IngredientGroupsMinimumNotMet, InvalidFoodTypeAmount,
                          LinkingError)
-from .managers import (BaseTokenManager, FoodManager, HolidayPeriodQuerySet,
-                       PeriodQuerySet, StoreManager)
+from .managers import (BaseTokenManager, HolidayPeriodQuerySet, PeriodQuerySet,
+                       StoreManager)
 from .specs import HDPI, LDPI, MDPI, XHDPI, XXHDPI, XXXHDPI
 from .utils import timezone_for_store, uggettext_summation
 
@@ -232,6 +233,16 @@ class AbstractAddress(models.Model, DirtyFieldsMixin):
 
 
 class Store(AbstractAddress):
+
+    class Meta:
+        verbose_name = _('winkel')
+        verbose_name_plural = _('winkels')
+
+    def __str__(self):
+        return self.name
+
+    objects = StoreManager()
+
     name = models.CharField(
         max_length=191,
         verbose_name=_('naam'),
@@ -285,7 +296,7 @@ class Store(AbstractAddress):
     )
 
     gocardless_enabled = models.BooleanField(
-        default=True,
+        default=False,
         verbose_name=_('gocardless betalingen ingeschakeld'),
         help_text=_(
             'Online betalingen ingeschakeld, er moet een GoCardless '
@@ -294,12 +305,19 @@ class Store(AbstractAddress):
         )
     )
     payconiq_enabled = models.BooleanField(
-        default=True,
+        default=False,
         verbose_name=_('payconiq betalingen ingeschakeld'),
         help_text=_(
             'Online betalingen ingeschakeld, er moet een Payconiq '
             'merchant gelinkt worden voor online betalingen '
             'aanvaard kunnen worden.'
+        )
+    )
+    cash_enabled = models.BooleanField(
+        default=True,
+        verbose_name=_('betalingen in winkel ingeschakeld'),
+        help_text=_(
+            'Betalingen in winkel ingeschakeld.'
         )
     )
     last_modified = models.DateTimeField(
@@ -312,15 +330,6 @@ class Store(AbstractAddress):
         verbose_name=_('ingeschakeld'),
         help_text=_('Ingeschakeld.')
     )
-
-    objects = StoreManager()
-
-    class Meta:
-        verbose_name = _('winkel')
-        verbose_name_plural = _('winkels')
-
-    def __str__(self):
-        return self.name
 
     @cached_property
     def category(self):
@@ -518,9 +527,7 @@ class Store(AbstractAddress):
         if dt < now:
             if not raise_exception:
                 return False
-            raise PastOrderDenied("{} < {}".format(
-                dt, now
-            ))
+            raise PastOrderDenied()
 
         if not ignore_wait and dt - now < self.wait:
             if not raise_exception:
@@ -1165,8 +1172,6 @@ class Quantity(CleanModelMixin, SafeDeleteMixin):
 
 class Food(CleanModelMixin, SafeDeleteMixin):
 
-    objects = FoodManager()
-
     class Meta:
         verbose_name = _('etenswaar')
         verbose_name_plural = _('etenswaren')
@@ -1205,11 +1210,11 @@ class Food(CleanModelMixin, SafeDeleteMixin):
         help_text=('Type etenswaar.')
     )
     preorder_days = models.IntegerField(
-        default=-1,
+        default=0,
         verbose_name=_('dagen op voorhand bestellen'),
         help_text=(
             'Minimum dagen op voorhand bestellen voor het uur ingesteld op '
-            'de winkel. (-1 is uitgeschakeld, 0 is dezelfde dag voor het '
+            'de winkel. (0 is uitgeschakeld, >=1 is dezelfde dag voor het '
             'bepaalde uur.)'
         )
     )
@@ -1247,6 +1252,11 @@ class Food(CleanModelMixin, SafeDeleteMixin):
         help_text=('Ingrediëntengroep.')
     )
 
+    enabled = models.BooleanField(
+        default=True,
+        verbose_name=_('ingeschakeld'),
+        help_text=_('Ingeschakeld.')
+    )
     last_modified = models.DateTimeField(
         auto_now=True,
         verbose_name=_('laatst aangepast'),
@@ -1274,8 +1284,94 @@ class Food(CleanModelMixin, SafeDeleteMixin):
         return self.menu.store
 
     @cached_property
+    def ingredients_count(self):
+        try:
+            self._prefetched_objects_cache[self.ingredients.prefetch_cache_name]
+            # Ingredients is prefetched
+            return len(self.ingredients.all())
+        except (AttributeError, KeyError):
+            # Not prefetched
+            return self.ingredients.count()
+
+    @cached_property
+    def ingredientgroups_count(self):
+        try:
+            self._prefetched_objects_cache[self.ingredientgroups.prefetch_cache_name]
+            # Ingredientgroups is prefetched
+            return len(self.ingredientgroups.all())
+        except (AttributeError, KeyError):
+            # Not prefetched
+            return self.ingredientgroups.count()
+
+    @cached_property
     def has_ingredients(self):
-        return self.ingredients.count() > 0 or self.ingredientgroups.count() > 0
+        return self.ingredients_count > 0 or self.ingredientgroups_count > 0
+
+    @cached_property
+    def selected_ingredients(self):
+        return self.ingredients.filter(
+            selected=True
+        )
+
+    @cached_property
+    def nonempty_ingredientgroups(self):
+        return self.ingredientgroups.filter(
+            # Do not include empty groups
+            ingredients__isnull=False
+        ).prefetch_related(
+            'ingredients'
+        ).distinct()
+
+    @cached_property
+    def all_ingredients(self):
+        relations = self.ingredientrelations.select_related(
+            'ingredient'
+        ).all()
+
+        deselected_ingredients = []
+        selected_ingredients = []
+
+        for relation in relations:
+            if relation.selected:
+                selected_ingredients.append(relation.ingredient)
+            else:
+                deselected_ingredients.append(relation.ingredient)
+
+        for ingredientgroup in self.nonempty_ingredientgroups:
+            group_ingredients = ingredientgroup.ingredients.all()
+            for ingredient in group_ingredients:
+                if ingredient not in selected_ingredients \
+                        and ingredient not in deselected_ingredients:
+                    deselected_ingredients.append(ingredient)
+
+        return selected_ingredients, deselected_ingredients
+
+    @cached_property
+    def all_ingredientgroups(self):
+        ingredientgroups = self.ingredientgroups.filter(
+            # Do not include empty groups
+            ingredients__isnull=False
+        ).prefetch_related(
+            'ingredients'
+        ).distinct()
+
+        ingredients = self.ingredients.all().select_related(
+            'group'
+        )
+
+        ingredientgroups_added = []
+        for ingredient in ingredients:
+            if ingredient.group not in ingredientgroups \
+                    and ingredient.group not in ingredientgroups_added:
+                ingredientgroups_added.append(
+                    ingredient.group
+                )
+
+        all_ingredientgroups = []
+        all_ingredientgroups.extend(ingredientgroups)
+        all_ingredientgroups.extend(ingredientgroups_added)
+
+        return all_ingredientgroups
 
     @cached_property
     def quantity(self):
@@ -1286,6 +1382,15 @@ class Food(CleanModelMixin, SafeDeleteMixin):
             )
         except Quantity.DoesNotExist:
             return None
+
+    def get_cost_display(self):
+        return str(
+            (
+                Decimal(self.cost) / Decimal(100)
+            ).quantize(
+                Decimal('0.01')
+            )
+        ).replace('.', ',')
 
     def get_ingredients_display(self):
 
@@ -1319,7 +1424,7 @@ class Food(CleanModelMixin, SafeDeleteMixin):
         Check whether this food can be ordered for the given day.
         This does not check whether the Store.wait has been exceeded!
         """
-        if self.preorder_days == -1:
+        if self.preorder_days == 0:
             return True
         else:
             now = timezone.now() if now is None else now
@@ -1588,8 +1693,8 @@ class BaseToken(CleanModelMixin, BareDevice, DirtyFieldsMixin):
     )
     identifier = models.CharField(
         max_length=191,
-        verbose_name=_('idenfitifcatie'),
-        help_text=_('Idenfitifcatie code die toegang geeft to Lunchbreak.')
+        verbose_name=_('identificatie'),
+        help_text=_('Identificatie code die toegang geeft tot Lunchbreak.')
     )
 
     objects = BaseTokenManager()

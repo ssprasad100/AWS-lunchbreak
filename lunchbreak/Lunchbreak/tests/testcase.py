@@ -58,7 +58,7 @@ class LunchbreakTestCase(APITestCase):
         gocardless_settings = settings.GOCARDLESS
         gocardless_settings['access_token'] = 'something'
         with override_settings(GOCARDLESS=gocardless_settings):
-            super(LunchbreakTestCase, self).run(*args, **kwargs)
+            super().run(*args, **kwargs)
 
     @mock.patch('googlemaps.Client.timezone')
     @mock.patch('googlemaps.Client.geocode')

@@ -440,26 +440,24 @@ class OrderDetailView(generics.RetrieveUpdateAPIView):
         )
 
 
-class OrderSpreadView(viewsets.ReadOnlyModelViewSet):
+class OrderSpreadView(viewsets.ReadOnlyModelViewSet, generics.ListAPIView):
     authentication_classes = (EmployeeAuthentication,)
     serializer_class = OrderSpreadSerializer
-    units = [
-        'hour',
-        'week',
-        'weekday',
-        'day',
-        'month',
-        'quarter',
-        'year'
-    ]
-
-    def list(self, request):
-        serializer = self.serializer_class(self.get_queryset(), many=True)
-        return Response(serializer.data)
+    units = {
+        'hour': 'hour',
+        'week': 'week',
+        'weekday': 'dow',
+        'day': 'day',
+        'month': 'month',
+        'quarter': 'quarter',
+        'year': 'year',
+    }
+    pagination_class = None
 
     def get_queryset(self):
-        unit = self.request.query_params.get('unit')
-        if unit not in self.units:
+        unit_key = self.request.query_params.get('unit')
+        unit = self.units.get(unit_key, None)
+        if unit is None:
             raise Http404()
 
         store_id = self.request.user.staff.store_id
@@ -477,9 +475,9 @@ class OrderSpreadView(viewsets.ReadOnlyModelViewSet):
             SELECT
                 customers_order.id,
                 COUNT(customers_order.id) as amount,
-                SUM(customers_order.total) as sm,
+                SUM(customers_order.total) as sum,
                 AVG(customers_order.total) as average,
-                {unit}(customers_order.receipt) as unit
+                EXTRACT({unit} FROM customers_order.receipt) as unit
             FROM
                 customers_order
             WHERE

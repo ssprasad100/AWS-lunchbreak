@@ -3,15 +3,17 @@ import copy
 import pendulum
 from django.core.exceptions import MultipleObjectsReturned
 from django.db import models
+from django.db.models.expressions import RawSQL
 from push_notifications.models import DeviceManager
-from safedelete.managers import SafeDeleteManager
 
 from .config import random_token
+from decimal import Decimal
 
 
 class StoreManager(models.Manager):
 
     def nearby(self, latitude, longitude, proximity):
+        # TODO Use Pointfields instead of 2 decimalfields.
         # Haversine formule is het beste om te gebruiken bij korte afstanden.
         # d = 2 * r * asin(
         #   sqrt(
@@ -23,7 +25,7 @@ class StoreManager(models.Manager):
         #   )
         # )
         haversine = '''
-        (
+        CAST(
             (2*6371)
             * ASIN(
                 SQRT(
@@ -41,10 +43,9 @@ class StoreManager(models.Manager):
                         )
                     )
                 )
-            )
+            )  as DECIMAL(10,7)
         )
         '''
-        haversine_where = "{} < %s".format(haversine)
         return self.get_queryset().filter(
             enabled=True
         ).exclude(
@@ -53,77 +54,20 @@ class StoreManager(models.Manager):
             ) | models.Q(
                 longitude=None
             )
-        ).extra(
-            select={
-                'distance': haversine
-            },
-            select_params=[
-                latitude,
-                latitude,
-                longitude
-            ],
-            where=[
-                haversine_where
-            ],
-            params=[
-                latitude,
-                latitude,
-                longitude,
-                proximity
-            ],
-            order_by=[
-                'distance'
-            ]
+        ).annotate(
+            distance=RawSQL(
+                haversine,
+                (
+                    latitude,
+                    latitude,
+                    longitude,
+                ),
+            )
+        ).filter(
+            distance__lt=Decimal(proximity)
+        ).order_by(
+            'distance'
         )
-
-
-class FoodManager(SafeDeleteManager):
-
-    def closest(self, ingredients, original):
-        if not original.foodtype.customisable:
-            return original
-
-        ingredients_in = '-1' if len(ingredients) == 0 else '''
-            CASE WHEN lunch_ingredient.id IN (%s)
-                THEN
-                    1
-                ELSE
-                    -1
-                END''' % ','.join([str(i.id) for i in ingredients])
-
-        return self.model.objects.raw('''
-            SELECT
-                lunch_food.*,
-                SUM(
-                    CASE WHEN lunch_ingredient.id IS NULL
-                        THEN
-                            0
-                        ELSE
-                            ''' + ingredients_in + '''
-                        END
-                ) as score
-            FROM
-                `lunch_food`
-                INNER JOIN
-                    `lunch_menu` ON lunch_menu.store_id = %s AND lunch_food.menu_id = lunch_menu.id
-                LEFT JOIN
-                    `lunch_ingredientrelation` ON lunch_food.id = lunch_ingredientrelation.food_id
-                    AND lunch_ingredientrelation.typical = 1
-                LEFT JOIN
-                    `lunch_ingredient` ON lunch_ingredientrelation.ingredient_id = lunch_ingredient.id
-            WHERE
-                lunch_food.foodtype_id = %s
-            GROUP BY
-                lunch_food.id
-            ORDER BY
-                score DESC,
-                lunch_food.id = %s DESC,
-                lunch_food.cost ASC;
-            ''', [
-            original.store.id,
-            original.foodtype.id,
-            original.id
-        ])[0]
 
 
 class PeriodQuerySet(models.QuerySet):

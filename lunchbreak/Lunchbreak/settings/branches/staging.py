@@ -1,6 +1,9 @@
 GOCARDLESS_ENVIRONMENT = 'sandbox'
 GOCARDLESS_APP_DOMAIN = 'api.staging.lunchbreakapp.be'
 
+PLIVO_WEBHOOK_URL = 'https://api.staging.lunchbreak.io/sms/plivo'
+TWILIO_WEBHOOK_URL = 'https://api.staging.lunchbreak.io/sms/twilio'
+
 ALLOWED_HOSTS = [
     'staging.lunchbreakapp.be',
     'www.staging.lunchbreakapp.be',
@@ -20,3 +23,5 @@ APNS_HOST = 'gateway.sandbox.push.apple.com'
 APNS_FEEDBACK_HOST = 'feedback.sandbox.push.apple.com'
 
 RAVEN_ENVIRONMENT = 'staging'
+
+PAYCONIQ_WEBHOOK_DOMAIN = 'api.staging.lunchbreak.io'

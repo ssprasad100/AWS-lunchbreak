@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<script data-payconiq-script="bootstrap" src="{{ payconiq_widget_url }}" charset="utf-8"></script>
+<script type="text/javascript">
+    var webhookId = {{ order.id }};
+    var signature = '{{ order.store.staff.payconiq.generate_web_signature(
+        webhook_id=order.id,
+        currency='EUR',
+        amount=order.total
+    ) }}';
+    var merchantId = '{{ order.store.staff.payconiq.remote_id }}';
+    var amount = {{ order.total }};
+    var currency = 'EUR';
+    var successUrl = '{{ url(
+        'frontend:confirm',
+        store_id=order.store_id,
+        order_id=order.id
+    ) }}';
+    var errorUrl = '{{ url(
+        'frontend:order',
+        store_id=order.store_id
+    ) }}';
+</script>
+<script src="{{ static('payconiq.js') }}" type="text/javascript"></script>
+{% endblock head %}
+
+{% block content %}
+
+{% set header_class='white' %}
+
+<div id="payconiq" class="block fullsize">
+</div>
+
+<div id="payconiq-block" class="block fullsize">
+    <div id="payconiq-box">
+        <h1>Betalen met Payconiq</h1>
+        <p id="payconiq-info">
+            Payconiq wordt geladen, gelieve je de Payconiq app al te openen.
+        </p>
+    </div>
+</div>
+
+{% include 'includes/header.html' %}
+
+{% endblock content %}

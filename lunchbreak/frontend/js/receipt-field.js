@@ -82,10 +82,12 @@
         this.init = function() {
             var self = this;
 
-            this.dropdown.change(function() {
-                self.onGroupChange();
-            });
-            this.onGroupChange();
+            if (this.groups) {
+                this.dropdown.change(function() {
+                    self.onGroupChange();
+                });
+                this.onGroupChange();
+            }
         };
 
         /**

@@ -8,9 +8,15 @@ class Transaction:
 
     @classmethod
     def get_base_url(cls):
-        payconiq.environment = 'testing'
         return '{base_url}/transactions'.format(
             base_url=payconiq.get_base_url()
+        )
+
+    @classmethod
+    def get_url(cls, id):
+        return '{base_url}/{id}'.format(
+            base_url=cls.get_base_url(),
+            id=id
         )
 
     @classmethod
@@ -40,3 +46,18 @@ class Transaction:
             }
         )
         return response.json()['transactionId']
+
+    @classmethod
+    def get(cls, id, merchant_token=None):
+        merchant_token = merchant_token \
+            if merchant_token is not None else payconiq.merchant_token
+
+        response = cls.request(
+            method='GET',
+            url=cls.get_url(id),
+            headers={
+                'Authorization': merchant_token,
+            }
+        )
+
+        return response.json()

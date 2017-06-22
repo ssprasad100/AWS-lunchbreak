@@ -104,6 +104,10 @@ USE_TZ = True
 LOGIN_REDIRECT_URL = reverse_lazy('frontend:index')
 LOGIN_URL = reverse_lazy('frontend:login')
 
+FIXTURE_DIRS = [
+    os.path.normpath(os.path.join(BASE_DIR, 'fixtures'))
+]
+
 STATIC_ROOT = os.environ.get(
     'STATIC_ROOT',
     os.path.normpath(os.path.join(BASE_DIR, 'static'))

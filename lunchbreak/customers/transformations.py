@@ -16,5 +16,9 @@ class MoneyTransformation(Transformation):
         return result
 
     def forwards_field(self, data, request):
-        result = int(Decimal(data) * Decimal(10 ** 2))
+        result = int(
+            Decimal(data).quantize(
+                Decimal('0.01')
+            ) * Decimal(10 ** 2)
+        )
         return result

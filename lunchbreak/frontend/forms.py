@@ -108,7 +108,7 @@ class OrderForm(FatModelForm):
             {
                 group.id: {
                     'deadline': group.deadline.strftime('%H:%M'),
-                    'receipt': group.receipt.strftime('%H:%M'),
+                    'receipt': group.receipt_time.strftime('%H:%M'),
                     'delivery': group.delivery
                 } for group in group_field.queryset
             }
@@ -120,6 +120,7 @@ class OrderForm(FatModelForm):
         try:
             with transaction.atomic():
                 order = self.temporary_order.place(
+                    create_transaction=False,
                     **self.cleaned_data
                 )
                 raise CancelTransaction()
@@ -138,6 +139,7 @@ class OrderForm(FatModelForm):
 
     def save(self, temporary_order):
         return temporary_order.place(
+            create_transaction=False,
             **self.cleaned_data
         )
 

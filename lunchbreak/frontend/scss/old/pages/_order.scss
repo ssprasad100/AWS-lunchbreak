@@ -41,33 +41,41 @@
             }
 
             .radio-container {
-                label {
-                    &.radio-item {
-                        @extend %base-input;
-                        height: auto;
+                div, p {
+                    display: table;
+                    box-sizing: border-box;
+                    width: 100%;
+                    //padding-right: 24px;
+                    margin-bottom: 16px;
+                    margin-top: 16px;
+                    padding: 0;
 
-                        display: inline-block;
-                        vertical-align: middle;
-                        box-sizing: border-box;
-                        padding-right: 8px;
-                        margin-bottom: 13px;
-                        margin-top: 13px;
+                    label {
 
-                        input {
-                            margin: 0;
-                            margin-right: 8px;
+                        &.radio-item {
+                            @extend %base-input;
+                            height: auto;
+
                             display: inline-block;
-                        }
+                            vertical-align: middle;
 
-                        &:last-child {
-                            float: right;
+                            display: table-cell;
+
+                            input {
+                                margin: 0;
+                                display: inline-block;
+                            }
+
+                            &:last-child {
+                                padding-right: 0;
+                            }
                         }
                     }
-                }
 
-                input[type='radio'] {
-                    width: auto;
-                    display: inline-block;
+                    input[type='radio'] {
+                        width: auto;
+                        display: inline-block;
+                    }
                 }
             }
 

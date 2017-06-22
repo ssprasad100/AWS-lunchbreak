@@ -1,25 +1,9 @@
-import logging
-import traceback
-
-from celery import Task, shared_task
+from celery import shared_task
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext as _
-
-logger = logging.getLogger('lunchbreak')
-
-
-class DebugLoggingTask(Task):
-    """Base Celery task for logging errors."""
-    abstract = True
-
-    def on_failure(self, exception, *args, **kwargs):
-        """Log the exceptions to sentry."""
-
-        if settings.DEBUG:
-            traceback.print_exc()
-        super().on_failure(exception, *args, **kwargs)
+from Lunchbreak.tasks import DebugLoggingTask
 
 
 @shared_task(base=DebugLoggingTask)

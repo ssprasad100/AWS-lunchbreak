@@ -17,6 +17,7 @@ NO_PAYMENT_LINK = 713
 PAYMENT_LINK_NOT_CONFIRMED = 714
 ORDEREDFOOD_NOT_ORIGINAL = 715
 ONLINE_PAYMENT_REQUIRED = 716
+CASH_DISABLED = 717
 
 
 class PastOrderDenied(LunchbreakException):
@@ -83,3 +84,9 @@ class OnlinePaymentRequired(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
     default_code = ONLINE_PAYMENT_REQUIRED
     default_detail = 'Online betalen is verplicht bij deze bestelling.'
+
+
+class CashDisabled(LunchbreakException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_code = CASH_DISABLED
+    default_detail = 'Deze winkel heeft cash betalingen uitgeschakeld.'

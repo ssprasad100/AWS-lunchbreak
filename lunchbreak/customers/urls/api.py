@@ -127,8 +127,8 @@ urlpatterns = [
     ),
     url(
         r'^store/nearby'
-        r'/(?P<latitude>-?\d+.?\d*)'
-        r'/(?P<longitude>-?\d+.?\d*)/?$',
+        r'/(?P<latitude>-?\d+(.?\d+)?)'
+        r'/(?P<longitude>-?\d+(.?\d+)?)/?$',
         views.StoreViewSet.as_view(
             {
                 'get': 'list'
@@ -137,9 +137,9 @@ urlpatterns = [
     ),
     url(
         r'^store/nearby'
-        r'/(?P<latitude>-?\d+.?\d*)'
-        r'/(?P<longitude>-?\d+.?\d*)'
-        r'/(?P<proximity>\d+.?\d*)/?$',
+        r'/(?P<latitude>-?\d+(.?\d+)?)'
+        r'/(?P<longitude>-?\d+(.?\d+)?)'
+        r'/(?P<proximity>\d+(.?\d+)?)/?$',
         views.StoreViewSet.as_view(
             {
                 'get': 'list'

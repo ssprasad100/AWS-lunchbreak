@@ -1,87 +1,112 @@
 from datetime import timedelta
 
-import mock
-from django.test.utils import override_settings
 from django.utils import timezone
-from Lunchbreak.tests.testcase import LunchbreakTestCase
+from freezegun import freeze_time
 
-from .exceptions import PinExpired, PinIncorrect, PinTimeout, PinTriesExceeded
-from .models import Phone
-
-settings = {
-    'phone': '1234',
-    'text_template': '{pin} is je Lunchbreak authenticatie code, welkom!',
-    'max_tries': 3,
-    'expiry_time': timedelta(minutes=15),
-    'timeout': timedelta(minutes=1, seconds=30),
-    'plivo': {
-        'auth_id': 'something',
-        'auth_token': 'something'
-    }
-}
+from ..conf import settings
+from ..exceptions import PinExpired, PinIncorrect, PinTimeout, PinTriesExceeded
+from ..models import Phone
+from .testcase import DjangoSmsTestCase, Message
 
 
-@override_settings(SMS=settings)
-class SmsTestCase(LunchbreakTestCase):
+class PhoneTestCase(DjangoSmsTestCase):
 
-    PHONE = '+32472907605'
-    PIN = '123456'
-    INVALID_PIN = '654321'
-
-    @mock.patch('django.utils.timezone.now')
-    @mock.patch('plivo.RestAPI.send_message')
-    def test_register(self, mock_message, mock_now):
-        mock_message.return_value = (
-            202,
-            'Success'
-        )
-        mock_now.return_value = self.midday._datetime
-        phone, created = Phone.register(
+    def test_can_send_pin(self):
+        phone = Phone.objects.create(
             phone=self.PHONE
         )
 
+        # No last message should return True
+        self.assertTrue(
+            phone.can_send_pin()
+        )
+
+        # A failed last message should return True
+        del phone.last_message
+        last_message = Message.objects.create(
+            phone=phone,
+            gateway=Message.TWILIO,
+            status=Message.FAILED
+        )
+        self.assertTrue(
+            phone.can_send_pin()
+        )
+
+        # A successful last message under the timeout should return False
+        del phone.last_message
+        last_message.status = Message.DELIVERED
+        last_message.save()
+        phone.refresh_from_db()
+        self.assertFalse(
+            phone.can_send_pin()
+        )
+
+        # A successful last message outside of the timeout should return False
+        del phone.last_message
+        now = self.midday.add_timedelta(
+            settings.TIMEOUT + timedelta(seconds=1)
+        )._datetime
+        with freeze_time(now):
+            self.assertTrue(
+                phone.can_send_pin()
+            )
+
+    def test_register(self):
+        phone, created = Phone.register(
+            phone=self.PHONE
+        )
+        phone.refresh_from_db()
+
+        # This is a new phone
         self.assertTrue(created)
+        # The tries should be set to 0 by default.
         self.assertEqual(
             phone.tries,
             0
         )
+        # The phone is unconfirmed.
         self.assertIsNone(phone.confirmed_at)
+        # A pin expiration should be set.
         self.assertIsNotNone(phone.expires_at)
+        # A creation datetime should be set.
         self.assertIsNotNone(phone.created_at)
+        # A new pin should be created.
         self.assertNotEqual(
             phone.pin,
             ''
         )
 
-        mock_now.return_value = self.midday.add_timedelta(
-            settings['timeout']
+        now = self.midday.add_timedelta(
+            settings.TIMEOUT + timedelta(seconds=1)
         )._datetime
-        phone2, created = Phone.register(
-            phone=self.PHONE
-        )
+        with freeze_time(now):
+            phone2, created = Phone.register(
+                phone=self.PHONE
+            )
+            phone2.refresh_from_db()
 
-        self.assertFalse(created)
-        self.assertEqual(
-            phone.pk,
-            phone2.pk
-        )
-        self.assertNotEqual(
-            phone.pin,
-            phone2.pin
-        )
-        self.assertEqual(
-            phone2.tries,
-            0
-        )
-        self.assertIsNone(phone2.confirmed_at)
-        self.assertIsNotNone(phone2.created_at)
-        self.assertNotEqual(
-            phone.expires_at,
-            phone2.expires_at
-        )
+            self.assertFalse(created)
+            self.assertEqual(
+                phone.pk,
+                phone2.pk
+            )
+            self.assertNotEqual(
+                phone.pin,
+                phone2.pin
+            )
+            self.assertEqual(
+                phone2.tries,
+                0
+            )
+            self.assertIsNone(phone2.confirmed_at)
+            self.assertIsNotNone(phone2.created_at)
+            self.assertNotEqual(
+                phone.expires_at,
+                phone2.expires_at
+            )
 
     def test_valid_pin(self):
-        expires_at = timezone.now() + settings['expiry_time']
+        expires_at = timezone.now() + settings.EXPIRY_TIME
 
         invalid_pins = [None, '']
 
@@ -151,7 +176,7 @@ class SmsTestCase(LunchbreakTestCase):
         phone.delete()
 
     def test_expiry_time(self):
-        expired_datetime = timezone.now() - settings['expiry_time'] - timedelta(seconds=1)
+        expired_datetime = timezone.now() - settings.EXPIRY_TIME - timedelta(seconds=1)
         phone = Phone.objects.create(
             phone=self.PHONE,
             pin=self.PIN,
@@ -164,13 +189,13 @@ class SmsTestCase(LunchbreakTestCase):
         )
 
     def test_max_tries(self):
-        expires_at = timezone.now() + settings['expiry_time']
+        expires_at = timezone.now() + settings.EXPIRY_TIME
 
         phone = Phone.objects.create(
             phone=self.PHONE,
             pin=self.PIN,
             expires_at=expires_at,
-            tries=settings['max_tries']
+            tries=settings.MAX_TRIES
         )
         self.assertRaises(
             PinTriesExceeded,
@@ -178,12 +203,7 @@ class SmsTestCase(LunchbreakTestCase):
             self.PIN
         )
 
-    @mock.patch('plivo.RestAPI.send_message')
-    def test_timeout(self, mock_message):
-        mock_message.return_value = (
-            202,
-            'Success'
-        )
+    def test_timeout(self):
         Phone.register(
             phone=self.PHONE,
         )

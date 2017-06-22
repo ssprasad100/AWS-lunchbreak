@@ -15,7 +15,8 @@ from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from .authentication import CustomerAuthentication
 from .config import DEMO_PHONE
-from .models import ConfirmedOrder, Group, Heart, PaymentLink, User, UserToken
+from .models import (ConfirmedOrder, Group, Heart, Order, PaymentLink, User,
+                     UserToken)
 from .serializers import (GroupSerializer, OrderDetailSerializer,
                           OrderedFoodPriceSerializer, OrderSerializer,
                           PaymentLinkSerializer, StoreHeartSerializer,
@@ -27,7 +28,9 @@ class FoodViewSet(TargettedViewSet,
                   mixins.RetrieveModelMixin,
                   mixins.ListModelMixin):
 
-    queryset = Food.objects.all()
+    queryset = Food.objects.filter(
+        enabled=True
+    )
 
     serializer_class_retrieve = FoodDetailSerializer
     serializer_class_list = FoodSerializer
@@ -35,6 +38,7 @@ class FoodViewSet(TargettedViewSet,
     @property
     def queryset_retrieve(self):
         result = Food.objects.filter(
+            enabled=True,
             deleted__isnull=True
         ).select_related(
             'foodtype',
@@ -52,6 +56,7 @@ class FoodViewSet(TargettedViewSet,
             raise Http404()
 
         return Food.objects.filter(
+            enabled=True,
             menu_id=self.kwargs['menu_id'],
             deleted__isnull=True
         ).select_related(
@@ -113,8 +118,15 @@ class OrderViewSet(TargettedViewSet,
 
     @property
     def queryset_retrieve(self):
-        return self.queryset_list.filter(
-            user=self.request.user,
+        return Order.objects.select_related(
+            'store',
+            'transaction',
+            'user',
+            'delivery_address',
+            'group_order',
+        ).filter(
+            store__enabled=True,
+            user=self.request.user
         ).prefetch_related(
             'orderedfood',
             'store__categories',
@@ -128,7 +140,9 @@ class OrderViewSet(TargettedViewSet,
         serializer = OrderedFoodPriceSerializer(
             data=request.data,
             many=True,
-            context={'request': request}
+            context={
+                'request': request
+            }
         )
         serializer.is_valid(raise_exception=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
@@ -161,8 +175,8 @@ class StoreViewSet(TargettedViewSet,
     @property
     def queryset_list(self):
         if 'latitude' in self.kwargs and 'longitude' in self.kwargs:
-            proximity = self.kwargs['proximity'] if 'proximity' in self.kwargs else 5
-            return Store.objects.nearby(
+            proximity = self.kwargs['proximity'] if 'proximity' in self.kwargs else 25
+            result = Store.objects.nearby(
                 self.kwargs['latitude'],
                 self.kwargs['longitude'],
                 proximity
@@ -170,11 +184,20 @@ class StoreViewSet(TargettedViewSet,
                 enabled=True
             )
         else:
-            return Store.objects.prefetch_related(
+            result = Store.objects.prefetch_related(
                 'categories',
             ).filter(
                 enabled=True
             ).distinct()
+
+        # TODO Use semver.
+        only_cash_enabled = self.request.version not in ['2.2.1', '2.3.0']
+        if only_cash_enabled:
+            result = result.filter(
+                cash_enabled=True
+            )
+
+        return result
 
     @property
     def queryset_recent(self):
@@ -312,6 +335,7 @@ class StoreFoodViewSet(TargettedViewSet,
     @property
     def queryset(self):
         return Food.objects.filter(
+            enabled=True,
             menu__store_id=self.kwargs['parent_lookup_pk'],
             deleted__isnull=True
         ).select_related(
@@ -338,11 +362,12 @@ class StoreMenuViewSet(TargettedViewSet,
     def queryset(self):
         # Check if filter for store_id is required
         return Menu.objects.filter(
-            store_id=self.kwargs['parent_lookup_pk']
+            store_id=self.kwargs['parent_lookup_pk'],
+            food__enabled=True
         ).order_by(
             '-priority',
             'name'
-        )
+        ).distinct()
 
 
 class StoreGroupViewSet(viewsets.GenericViewSet,

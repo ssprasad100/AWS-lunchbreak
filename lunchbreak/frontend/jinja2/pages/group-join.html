@@ -12,9 +12,9 @@
             <p>
                 Je werd succesvol toegevoegd aan de {{ group.name }} groep. Je kan nu bij het bestellen ervoor kiezen om je bestelling te plaatsen op {{ group.name }}. Deze bestellingen moeten <strong>voor {{ group.deadline | time('H:i') }} geplaatst worden</strong>.
             {% if group.delivery -%}
-                Alle bestellingen worden <strong>geleverd rond {{ group.receipt | time('H:i') }}</strong>.
+                Alle bestellingen worden <strong>geleverd rond {{ group.receipt_time | time('H:i') }}</strong>.
             {%- else -%}
-                De bestellingen worden door de verantwoordelijke van {{ group.name }} <strong>opgehaald rond {{ group.receipt | time('H:i') }}</strong>.
+                De bestellingen worden door de verantwoordelijke van {{ group.name }} <strong>opgehaald rond {{ group.receipt_time | time('H:i') }}</strong>.
             {%- endif %}
             {% if group.discount > 0 -%}
                 Hierboven krijg je ook een korting van {{ group.discount | percentage }}.

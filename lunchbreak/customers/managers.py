@@ -4,13 +4,12 @@ from decimal import Decimal
 from django.apps import apps
 from django.contrib.auth.base_user import BaseUserManager
 from django.db import models
-from lunch.models import Food, Ingredient
+from lunch.models import Ingredient
 from payconiq.models import Transaction
 from pendulum import Pendulum
 
 from .config import (ORDER_STATUSES_ACTIVE, PAYMENT_METHOD_CASH,
-                     PAYMENT_METHOD_PAYCONIQ)
-from .exceptions import OrderedFoodNotOriginal
+                     PAYMENT_METHOD_GOCARDLESS, PAYMENT_METHOD_PAYCONIQ)
 
 
 class UserManager(BaseUserManager):
@@ -55,7 +54,8 @@ class UserManager(BaseUserManager):
 
 class OrderManager(models.Manager):
 
-    def create_with_orderedfood(self, orderedfood, group=None, save=True, **kwargs):
+    def create_with_orderedfood(self, orderedfood, group=None, save=True,
+                                create_transaction=True, **kwargs):
         if save:
             self.model.is_valid(orderedfood, **kwargs)
 
@@ -67,9 +67,9 @@ class OrderManager(models.Manager):
             receipt = Pendulum.instance(
                 receipt
             ).with_time(
-                hour=group.receipt.hour,
-                minute=group.receipt.minute,
-                second=group.receipt.second
+                hour=group.receipt_time.hour,
+                minute=group.receipt_time.minute,
+                second=group.receipt_time.second
             ).timezone_(
                 store.timezone
             )._datetime
@@ -107,6 +107,9 @@ class OrderManager(models.Manager):
                 group_order.delete()
             raise
 
+        print('instance', instance)
+        print('instance.pk', instance.pk)
+
         if save:
             OrderedFood = apps.get_model('customers.OrderedFood')
             try:
@@ -117,6 +120,8 @@ class OrderManager(models.Manager):
                             **f
                         )
                     elif isinstance(f, OrderedFood):
+                        # Clone the OrderedFood so the TemporaryOrder remains intact.
+                        f.pk = None
                         f.order = instance
                         f.save()
             except Exception:
@@ -129,7 +134,7 @@ class OrderManager(models.Manager):
             instance.save()
 
             payment_method = kwargs.get('payment_method')
-            if payment_method == PAYMENT_METHOD_PAYCONIQ:
+            if payment_method == PAYMENT_METHOD_PAYCONIQ and create_transaction:
                 instance.transaction = Transaction.start(
                     amount=instance.total,
                     merchant=store.staff.payconiq
@@ -144,7 +149,10 @@ class ConfirmedOrderManager(OrderManager):
     def get_queryset(self):
         return super().get_queryset().filter(
             models.Q(
-                payment_method=PAYMENT_METHOD_CASH
+                payment_method__in=[
+                    PAYMENT_METHOD_CASH,
+                    PAYMENT_METHOD_GOCARDLESS
+                ]
             ) | models.Q(
                 payment_method=PAYMENT_METHOD_PAYCONIQ,
                 transaction__status=Transaction.SUCCEEDED
@@ -226,14 +234,6 @@ class OrderedFoodManager(models.Manager):
             original.check_ingredients(
                 ingredients=ingredients
             )
-
-            closest_food = Food.objects.closest(
-                ingredients=ingredients,
-                original=original
-            )
-
-            if closest_food != original:
-                raise OrderedFoodNotOriginal()
 
             base_cost = self.model.calculate_cost(
                 ingredients=ingredients,

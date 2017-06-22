@@ -1,7 +1,7 @@
 from django_gocardless.serializers import RedirectFlowSerializer
 from django_sms.models import Phone
 from lunch import serializers as lunch_serializers
-from lunch.models import Food, Store
+from lunch.models import Store
 from lunch.serializers import FoodSerializer
 from Lunchbreak.serializers import MoneyField, PrimaryModelSerializer
 from payconiq.serializers import TransactionSerializer
@@ -93,13 +93,12 @@ class OrderedFoodPriceSerializer(serializers.ModelSerializer):
         original = obj['original']
         if 'ingredients' in obj:
             ingredients = obj['ingredients']
-            food_closest = Food.objects.closest(ingredients, original)
-            food_closest.check_ingredients(
+            original.check_ingredients(
                 ingredients=ingredients
             )
 
-            obj['cost'] = OrderedFood.calculate_cost(ingredients, food_closest)
-            obj['food'] = food_closest
+            obj['cost'] = OrderedFood.calculate_cost(ingredients, original)
+            obj['food'] = original
         else:
             obj['cost'] = original.cost
             obj['food'] = original

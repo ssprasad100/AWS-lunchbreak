@@ -7,8 +7,8 @@ from lunch.admin import BaseTokenAdmin
 from Lunchbreak.forms import PasswordChangeForm
 from Lunchbreak.utils import format_money
 
-from .models import (Address, Group, GroupOrder, Heart, Order, OrderedFood,
-                     PaymentLink, TemporaryOrder, User, UserToken)
+from .models import (Address, ConfirmedOrder, Group, GroupOrder, Heart, Order,
+                     OrderedFood, PaymentLink, TemporaryOrder, User, UserToken)
 
 admin.site.unregister(DjangoGroup)
 
@@ -140,7 +140,7 @@ class HeartAdmin(admin.ModelAdmin):
 @admin.register(OrderedFood)
 class OrderedFoodAdmin(admin.ModelAdmin):
     list_display = ('original', 'order', 'total_display', 'is_original',)
-    search_fields = ('order', 'order__user', 'original',)
+    search_fields = ('order', 'order__user', 'original',),
     list_filter = ('is_original', 'status',)
 
     def total_display(self, instance):
@@ -172,13 +172,20 @@ class AbstractOrderAdmin(admin.ModelAdmin):
     count_display.short_description = OrderedFood._meta.verbose_name_plural
 
 
-@admin.register(Order)
 class OrderAdmin(AbstractOrderAdmin):
     list_display = ('store', 'user', 'placed', 'receipt',
-                    'status', 'total_display', 'count_display',)
+                    'status', 'total_display', 'count_display', 'confirmed',)
     search_fields = ('store__name', 'user__name',)
     list_filter = ('store', 'status',)
     ordering = ('-placed', '-receipt',)
+    readonly_fields = ('confirmed',)
+
+    def confirmed(self, obj):
+        return obj.confirmed
+    confirmed.short_description = _('bevestigd')
+
+
+admin.site.register([Order, ConfirmedOrder], OrderAdmin)
 
 
 @admin.register(TemporaryOrder)

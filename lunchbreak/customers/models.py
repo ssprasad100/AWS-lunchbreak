@@ -45,8 +45,8 @@ from .config import (GROUP_ORDER_STATUSES, ORDER_STATUS_COMPLETED,
                      ORDEREDFOOD_STATUSES, PAYMENT_METHOD_CASH,
                      PAYMENT_METHOD_GOCARDLESS, PAYMENT_METHOD_PAYCONIQ,
                      PAYMENT_METHODS)
-from .exceptions import (CostCheckFailed, GoCardlessDisabled, MinDaysExceeded,
-                         NoPaymentLink, OnlinePaymentRequired,
+from .exceptions import (CashDisabled, CostCheckFailed, GoCardlessDisabled,
+                         MinDaysExceeded, NoPaymentLink, OnlinePaymentRequired,
                          PaymentLinkNotConfirmed, PreorderTimeExceeded,
                          UserDisabled)
 from .managers import (ConfirmedOrderManager, GroupManager, OrderedFoodManager,
@@ -150,7 +150,7 @@ class User(AbstractBaseUser, PermissionsMixin):
                 except PinTimeout:
                     pass
             else:
-                user.phone.new_pin()
+                user.phone.reset_pin()
 
             if user.name:
                 return Response(
@@ -400,14 +400,12 @@ class Group(models.Model):
     )
 
     @property
-    def receipt(self):
-        return Pendulum.now(self.store.timezone).with_time(
-            hour=self.deadline.hour,
-            minute=self.deadline.minute,
-            second=self.deadline.second
-        ).add_timedelta(
-            self.delay
-        )
+    def receipt_time(self):
+        return (
+            datetime.datetime.combine(
+                timezone.now(), self.deadline
+            ) + self.delay
+        ).time()
 
     @staticmethod
     def post_save(sender, instance, created, **kwargs):
@@ -752,6 +750,12 @@ class Order(StatusSignalModel, AbstractOrder):
         return self.total_no_discount - self.total
 
     @property
+    def confirmed(self):
+        return not self.payment_payconiq \
+            or (self.transaction is not None
+                and self.transaction.succeeded)
+
+    @property
     def paid(self):
         if self.payment_cash:
             return self.status == ORDER_STATUS_COMPLETED
@@ -904,15 +908,18 @@ class Order(StatusSignalModel, AbstractOrder):
                         'contant te betalen bij het ophalen.'
                     )
                 )
-        elif self.payment_cash \
-                and self.pk is None \
-                and self.group is not None \
-                and self.group.payment_online_only \
-                and (
-                    self.store.staff.gocardless_ready
-                    or self.store.staff.payconiq_ready
-                ):
-            raise OnlinePaymentRequired()
+        elif self.payment_cash:
+            if not self.store.cash_enabled:
+                raise CashDisabled()
+
+            if self.pk is None \
+                    and self.group is not None \
+                    and self.group.payment_online_only \
+                    and (
+                        self.store.staff.gocardless_ready
+                        or self.store.staff.payconiq_ready
+                    ):
+                raise OnlinePaymentRequired()
 
     def clean_group_order(self):
         if self.group is not None:
@@ -1003,9 +1010,10 @@ class Order(StatusSignalModel, AbstractOrder):
 
     @classmethod
     def denied(cls, sender, order, **kwargs):
-        order.user.notify(
-            _('Je bestelling werd spijtig genoeg geweigerd!')
-        )
+        if order.confirmed:
+            order.user.notify(
+                _('Je bestelling werd spijtig genoeg geweigerd!')
+            )
         order.update_hard_delete()
 
     @classmethod
@@ -1036,7 +1044,12 @@ class Order(StatusSignalModel, AbstractOrder):
 
     @classmethod
     def transaction_succeeded(cls, sender, transaction, **kwargs):
-        pass
+        order = Order.objects.get(
+            transaction=transaction
+        )
+        TemporaryOrder.objects.filter(
+            user=order.user
+        ).delete()
 
 
 class ConfirmedOrder(Order):
@@ -1071,7 +1084,7 @@ class TemporaryOrder(AbstractOrder):
             store=self.store,
             **kwargs
         )
-        if save:
+        if save and not order.payment_payconiq:
             self.delete()
         return order
 
@@ -1108,8 +1121,8 @@ class OrderedFood(CleanModelMixin, StatusSignalModel):
         ContentType,
         on_delete=models.CASCADE,
         limit_choices_to=(
-            models.Q(app_label='customers', model='Order') |
-            models.Q(app_label='customers', model='TemporaryOrder')
+            models.Q(app_label='customers', model='order') |
+            models.Q(app_label='customers', model='temporaryorder')
         )
     )
     object_id = models.PositiveIntegerField()
@@ -1220,7 +1233,10 @@ class OrderedFood(CleanModelMixin, StatusSignalModel):
     def clean_order(self):
         if self.original is not None \
                 and isinstance(self.order, Order) \
-                and not self.original.is_orderable(self.order.receipt):
+                and not self.original.is_orderable(
+                    self.order.receipt,
+                    now=self.order.placed
+                ):
             raise MinDaysExceeded()
 
     def clean_amount(self):
@@ -1307,46 +1323,44 @@ class OrderedFood(CleanModelMixin, StatusSignalModel):
         Returns:
             Decimal: Base cost of edited food.
         """
-        food_ingredient_relations = food.ingredientrelations.select_related(
-            'ingredient__group',
-        ).filter(
-            selected=True
-        )
 
-        # All of the selected ingredients of a food
-        food_ingredients = []
-        # All of the ingredient groups of selected ingredients
-        food_groups = []
-        for ingredient_relation in food_ingredient_relations:
-            ingredient = ingredient_relation.ingredient
-            ingredient.selected = ingredient_relation.selected
-            food_ingredients.append(ingredient)
-            if ingredient_relation.selected and ingredient.group not in food_groups:
-                food_groups.append(ingredient.group)
+        food_selected_ingredients, food_deselected_ingredients = food.all_ingredients
+        food_selected_groups = {ingredient.group for ingredient in food_selected_ingredients}
 
-        groups_ordered = []
+        added_ingredients = {
+            ingredient for ingredient in ingredients
+            if ingredient not in food_selected_ingredients
+        }
+        removed_ingredients = {
+            ingredient for ingredient in food_selected_ingredients
+            if ingredient not in ingredients
+        }
+
+        selected_groups = {
+            ingredient.group for ingredient in ingredients
+        }
+        added_groups = {
+            ingredient.group for ingredient in added_ingredients
+            if ingredient.group not in food_selected_groups
+        }
+        removed_groups = {
+            group for group in food_selected_groups
+            if group not in selected_groups
+        }
+
         cost = food.cost
 
-        for ingredient in ingredients:
-            if ingredient not in food_ingredients:
-                if ingredient.group.calculation in [COST_GROUP_BOTH, COST_GROUP_ADDITIONS]:
-                    cost += ingredient.cost
-                elif ingredient.group not in food_groups:
-                    cost += ingredient.group.cost
-            if ingredient.group not in groups_ordered:
-                groups_ordered.append(ingredient.group)
+        for group in added_groups:
+            cost += group.cost
+        for group in removed_groups:
+            cost -= group.cost
 
-        groups_removed = []
-        for ingredient in food_ingredients:
-            if ingredient.selected and ingredient not in ingredients:
-                if ingredient.group.calculation == COST_GROUP_BOTH:
-                    cost -= ingredient.cost
-                elif ingredient.group not in groups_removed:
-                    groups_removed.append(ingredient.group)
-
-        for group in groups_removed:
-            if group not in groups_ordered:
-                cost -= group.cost
+        for ingredient in added_ingredients:
+            if ingredient.group.calculation in [COST_GROUP_BOTH, COST_GROUP_ADDITIONS]:
+                cost += ingredient.cost
+        for ingredient in removed_ingredients:
+            if ingredient.group.calculation == COST_GROUP_BOTH:
+                cost -= ingredient.cost
 
         return cost
 
