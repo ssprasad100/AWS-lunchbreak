@@ -1,438 +1,6 @@
 [
     {
         "fields": {
-            "app_label": "admin",
-            "model": "logentry"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 1
-    },
-    {
-        "fields": {
-            "app_label": "auth",
-            "model": "permission"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 2
-    },
-    {
-        "fields": {
-            "app_label": "auth",
-            "model": "group"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 3
-    },
-    {
-        "fields": {
-            "app_label": "contenttypes",
-            "model": "contenttype"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 4
-    },
-    {
-        "fields": {
-            "app_label": "sessions",
-            "model": "session"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 5
-    },
-    {
-        "fields": {
-            "app_label": "push_notifications",
-            "model": "simpledevice"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 6
-    },
-    {
-        "fields": {
-            "app_label": "push_notifications",
-            "model": "gcmdevice"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 7
-    },
-    {
-        "fields": {
-            "app_label": "push_notifications",
-            "model": "apnsdevice"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 8
-    },
-    {
-        "fields": {
-            "app_label": "polaroid",
-            "model": "polaroidbase"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 9
-    },
-    {
-        "fields": {
-            "app_label": "django_sms",
-            "model": "phone"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 10
-    },
-    {
-        "fields": {
-            "app_label": "django_gocardless",
-            "model": "merchant"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 11
-    },
-    {
-        "fields": {
-            "app_label": "django_gocardless",
-            "model": "customer"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 12
-    },
-    {
-        "fields": {
-            "app_label": "django_gocardless",
-            "model": "customerbankaccount"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 13
-    },
-    {
-        "fields": {
-            "app_label": "django_gocardless",
-            "model": "mandate"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 14
-    },
-    {
-        "fields": {
-            "app_label": "django_gocardless",
-            "model": "redirectflow"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 15
-    },
-    {
-        "fields": {
-            "app_label": "django_gocardless",
-            "model": "payout"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 16
-    },
-    {
-        "fields": {
-            "app_label": "django_gocardless",
-            "model": "subscription"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 17
-    },
-    {
-        "fields": {
-            "app_label": "django_gocardless",
-            "model": "payment"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 18
-    },
-    {
-        "fields": {
-            "app_label": "django_gocardless",
-            "model": "refund"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 19
-    },
-    {
-        "fields": {
-            "app_label": "business",
-            "model": "staff"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 20
-    },
-    {
-        "fields": {
-            "app_label": "business",
-            "model": "stafftoken"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 21
-    },
-    {
-        "fields": {
-            "app_label": "business",
-            "model": "employee"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 22
-    },
-    {
-        "fields": {
-            "app_label": "business",
-            "model": "employeetoken"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 23
-    },
-    {
-        "fields": {
-            "app_label": "customers",
-            "model": "user"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 24
-    },
-    {
-        "fields": {
-            "app_label": "customers",
-            "model": "address"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 25
-    },
-    {
-        "fields": {
-            "app_label": "customers",
-            "model": "paymentlink"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 26
-    },
-    {
-        "fields": {
-            "app_label": "customers",
-            "model": "group"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 28
-    },
-    {
-        "fields": {
-            "app_label": "customers",
-            "model": "heart"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 30
-    },
-    {
-        "fields": {
-            "app_label": "customers",
-            "model": "order"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 32
-    },
-    {
-        "fields": {
-            "app_label": "customers",
-            "model": "temporaryorder"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 33
-    },
-    {
-        "fields": {
-            "app_label": "customers",
-            "model": "orderedfood"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 34
-    },
-    {
-        "fields": {
-            "app_label": "customers",
-            "model": "usertoken"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 35
-    },
-    {
-        "fields": {
-            "app_label": "lunch",
-            "model": "storecategory"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 36
-    },
-    {
-        "fields": {
-            "app_label": "lunch",
-            "model": "storeheader"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 37
-    },
-    {
-        "fields": {
-            "app_label": "lunch",
-            "model": "store"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 38
-    },
-    {
-        "fields": {
-            "app_label": "lunch",
-            "model": "region"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 39
-    },
-    {
-        "fields": {
-            "app_label": "lunch",
-            "model": "openingperiod"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 40
-    },
-    {
-        "fields": {
-            "app_label": "lunch",
-            "model": "deliveryperiod"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 41
-    },
-    {
-        "fields": {
-            "app_label": "lunch",
-            "model": "holidayperiod"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 42
-    },
-    {
-        "fields": {
-            "app_label": "lunch",
-            "model": "foodtype"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 43
-    },
-    {
-        "fields": {
-            "app_label": "lunch",
-            "model": "ingredientgroup"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 44
-    },
-    {
-        "fields": {
-            "app_label": "lunch",
-            "model": "ingredient"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 45
-    },
-    {
-        "fields": {
-            "app_label": "lunch",
-            "model": "menu"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 46
-    },
-    {
-        "fields": {
-            "app_label": "lunch",
-            "model": "quantity"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 47
-    },
-    {
-        "fields": {
-            "app_label": "lunch",
-            "model": "food"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 48
-    },
-    {
-        "fields": {
-            "app_label": "lunch",
-            "model": "ingredientrelation"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 49
-    },
-    {
-        "fields": {
-            "app_label": "frontend",
-            "model": "forward"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 50
-    },
-    {
-        "fields": {
-            "app_label": "customers",
-            "model": "grouporder"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 51
-    },
-    {
-        "fields": {
-            "app_label": "payconiq",
-            "model": "merchant"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 52
-    },
-    {
-        "fields": {
-            "app_label": "payconiq",
-            "model": "transaction"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 53
-    },
-    {
-        "fields": {
-            "app_label": "customers",
-            "model": "confirmedorder"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 54
-    },
-    {
-        "fields": {
-            "app_label": "django_sms",
-            "model": "message"
-        },
-        "model": "contenttypes.contenttype",
-        "pk": 55
-    },
-    {
-        "fields": {
-            "expire_date": "2017-07-05T23:36:58.010Z",
-            "session_data": "MzlkZjEyZTcwNWQzZGY5ZmE5NzJhODFjNTFiMWQ4ODVlZjU3YTYxMDp7Il9hdXRoX3VzZXJfYmFja2VuZCI6ImRqYW5nby5jb250cmliLmF1dGguYmFja2VuZHMuTW9kZWxCYWNrZW5kIiwiX2F1dGhfdXNlcl9pZCI6IjEiLCJfYXV0aF91c2VyX2hhc2giOiJkOGJhMTVjNWNmMWQ0MzU2ZTUwZGU5YWQyMDgzZTdiMTYxMDhkZDAzIn0="
-        },
-        "model": "sessions.session",
-        "pk": "1e5dgdokt51t68kaia2aokum34ltah4z"
-    },
-    {
-        "fields": {
-            "expire_date": "2017-07-06T00:25:40.099Z",
-            "session_data": "NmMxNGE5ZWM5YmM1YjBhNGZmNjFlNDAxNGQzZGUxNzViYzk2Y2EyNDp7Il9hdXRoX3VzZXJfaGFzaCI6ImQ4YmExNWM1Y2YxZDQzNTZlNTBkZTlhZDIwODNlN2IxNjEwOGRkMDMiLCJfYXV0aF91c2VyX2JhY2tlbmQiOiJkamFuZ28uY29udHJpYi5hdXRoLmJhY2tlbmRzLk1vZGVsQmFja2VuZCIsIl9hdXRoX3VzZXJfaWQiOiIxIn0="
-        },
-        "model": "sessions.session",
-        "pk": "m34205gq47cl8d5anezco0o4aqyvpizk"
-    },
-    {
-        "fields": {
             "confirmed_at": "2017-06-21T23:37:08Z",
             "created_at": "2017-06-21T23:36:15.542Z",
             "expires_at": null,
@@ -493,6 +61,21 @@
         },
         "model": "business.employee",
         "pk": 3
+    },
+    {
+        "fields": {
+            "email": null,
+            "enabled": true,
+            "groups": [],
+            "is_staff": true,
+            "is_superuser": true,
+            "last_login": "2017-06-22T00:25:40.095Z",
+            "name": "Andreas Backx",
+            "password": "bcrypt_sha256$$2b$12$/.TMCqi4iG41H/Esut1T2utKY4VLGxDUeY4GYrhbtWF/v9Y.aLtti",
+            "phone": 1,
+            "user_permissions": []
+        },
+        "model": "customers.user"
     },
     {
         "fields": {
@@ -4965,7 +4548,7 @@
             "food": 120,
             "ingredient": 94,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 1096
@@ -4975,7 +4558,7 @@
             "food": 120,
             "ingredient": 95,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 1097
@@ -4995,7 +4578,7 @@
             "food": 120,
             "ingredient": 76,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 1099
@@ -5005,7 +4588,7 @@
             "food": 120,
             "ingredient": 89,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 1100
@@ -5035,7 +4618,7 @@
             "food": 125,
             "ingredient": 113,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 1167
@@ -5045,7 +4628,7 @@
             "food": 125,
             "ingredient": 117,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 1168
@@ -5055,7 +4638,7 @@
             "food": 125,
             "ingredient": 61,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 1169
@@ -5065,7 +4648,7 @@
             "food": 125,
             "ingredient": 102,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 1170
@@ -5095,7 +4678,7 @@
             "food": 126,
             "ingredient": 67,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 1173
@@ -5105,7 +4688,7 @@
             "food": 126,
             "ingredient": 57,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 1174
@@ -5115,7 +4698,7 @@
             "food": 126,
             "ingredient": 104,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 1175
@@ -5155,7 +4738,7 @@
             "food": 122,
             "ingredient": 55,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 1179
@@ -5165,7 +4748,7 @@
             "food": 122,
             "ingredient": 57,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 1180
@@ -5175,7 +4758,7 @@
             "food": 122,
             "ingredient": 113,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 1181
@@ -5185,7 +4768,7 @@
             "food": 122,
             "ingredient": 117,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 1182
@@ -5205,7 +4788,7 @@
             "food": 133,
             "ingredient": 67,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 1251
@@ -5215,7 +4798,7 @@
             "food": 133,
             "ingredient": 57,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 1252
@@ -5225,7 +4808,7 @@
             "food": 133,
             "ingredient": 113,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 1253
@@ -5235,7 +4818,7 @@
             "food": 133,
             "ingredient": 117,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 1254
@@ -5245,7 +4828,7 @@
             "food": 133,
             "ingredient": 71,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 1255
@@ -5255,7 +4838,7 @@
             "food": 133,
             "ingredient": 78,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 1256
@@ -5275,7 +4858,7 @@
             "food": 134,
             "ingredient": 67,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 1258
@@ -5285,7 +4868,7 @@
             "food": 134,
             "ingredient": 104,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 1259
@@ -5295,7 +4878,7 @@
             "food": 134,
             "ingredient": 117,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 1260
@@ -5305,7 +4888,7 @@
             "food": 134,
             "ingredient": 61,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 1261
@@ -5315,7 +4898,7 @@
             "food": 134,
             "ingredient": 103,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 1262
@@ -5335,7 +4918,7 @@
             "food": 139,
             "ingredient": 126,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 1264
@@ -5355,7 +4938,7 @@
             "food": 139,
             "ingredient": 76,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 1266
@@ -5385,7 +4968,7 @@
             "food": 143,
             "ingredient": 57,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 1283
@@ -5395,7 +4978,7 @@
             "food": 143,
             "ingredient": 113,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 1284
@@ -5405,7 +4988,7 @@
             "food": 143,
             "ingredient": 117,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 1285
@@ -5415,7 +4998,7 @@
             "food": 143,
             "ingredient": 71,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 1286
@@ -5425,7 +5008,7 @@
             "food": 143,
             "ingredient": 114,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 1287
@@ -5455,7 +5038,7 @@
             "food": 140,
             "ingredient": 127,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 1372
@@ -5465,7 +5048,7 @@
             "food": 140,
             "ingredient": 67,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 1373
@@ -5475,7 +5058,7 @@
             "food": 140,
             "ingredient": 104,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 1374
@@ -5505,7 +5088,7 @@
             "food": 142,
             "ingredient": 56,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 1413
@@ -5515,7 +5098,7 @@
             "food": 142,
             "ingredient": 58,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 1414
@@ -5525,7 +5108,7 @@
             "food": 142,
             "ingredient": 66,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 1415
@@ -5605,7 +5188,7 @@
             "food": 499,
             "ingredient": 76,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 2315
@@ -5615,7 +5198,7 @@
             "food": 499,
             "ingredient": 117,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 2316
@@ -5625,7 +5208,7 @@
             "food": 499,
             "ingredient": 74,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 2317
@@ -5655,7 +5238,7 @@
             "food": 500,
             "ingredient": 123,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 2320
@@ -5665,7 +5248,7 @@
             "food": 500,
             "ingredient": 76,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 2321
@@ -5675,7 +5258,7 @@
             "food": 138,
             "ingredient": 76,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 2322
@@ -5695,7 +5278,7 @@
             "food": 138,
             "ingredient": 89,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 2324
@@ -5725,7 +5308,7 @@
             "food": 138,
             "ingredient": 122,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 2327
@@ -5735,7 +5318,7 @@
             "food": 137,
             "ingredient": 57,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 2328
@@ -5745,7 +5328,7 @@
             "food": 137,
             "ingredient": 67,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 2329
@@ -5775,7 +5358,7 @@
             "food": 137,
             "ingredient": 117,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 2332
@@ -5785,7 +5368,7 @@
             "food": 121,
             "ingredient": 55,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 2333
@@ -5795,7 +5378,7 @@
             "food": 121,
             "ingredient": 57,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 2334
@@ -5815,7 +5398,7 @@
             "food": 121,
             "ingredient": 113,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 2336
@@ -5835,7 +5418,7 @@
             "food": 121,
             "ingredient": 117,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 2338
@@ -5845,7 +5428,7 @@
             "food": 124,
             "ingredient": 56,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 2339
@@ -5855,7 +5438,7 @@
             "food": 124,
             "ingredient": 61,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 2340
@@ -5875,7 +5458,7 @@
             "food": 124,
             "ingredient": 67,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 2342
@@ -5895,7 +5478,7 @@
             "food": 124,
             "ingredient": 106,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 2344
@@ -5915,7 +5498,7 @@
             "food": 124,
             "ingredient": 117,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 2346
@@ -5975,7 +5558,7 @@
             "food": 127,
             "ingredient": 55,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 2352
@@ -5985,7 +5568,7 @@
             "food": 127,
             "ingredient": 57,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 2353
@@ -5995,7 +5578,7 @@
             "food": 127,
             "ingredient": 71,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 2354
@@ -6005,7 +5588,7 @@
             "food": 127,
             "ingredient": 113,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 2355
@@ -6015,7 +5598,7 @@
             "food": 127,
             "ingredient": 114,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 2356
@@ -6035,7 +5618,7 @@
             "food": 127,
             "ingredient": 117,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 2358
@@ -6095,7 +5678,7 @@
             "food": 128,
             "ingredient": 113,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 2364
@@ -6105,7 +5688,7 @@
             "food": 128,
             "ingredient": 117,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 2365
@@ -6115,7 +5698,7 @@
             "food": 128,
             "ingredient": 102,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 2366
@@ -6135,7 +5718,7 @@
             "food": 129,
             "ingredient": 56,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 2376
@@ -6145,7 +5728,7 @@
             "food": 129,
             "ingredient": 63,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 2377
@@ -6155,7 +5738,7 @@
             "food": 129,
             "ingredient": 102,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 2378
@@ -6165,7 +5748,7 @@
             "food": 129,
             "ingredient": 113,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 2379
@@ -6185,7 +5768,7 @@
             "food": 129,
             "ingredient": 117,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 2381
@@ -6215,7 +5798,7 @@
             "food": 131,
             "ingredient": 74,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 2384
@@ -6225,7 +5808,7 @@
             "food": 131,
             "ingredient": 76,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 2385
@@ -6255,7 +5838,7 @@
             "food": 131,
             "ingredient": 117,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 2388
@@ -6275,7 +5858,7 @@
             "food": 501,
             "ingredient": 74,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 2400
@@ -6285,7 +5868,7 @@
             "food": 501,
             "ingredient": 76,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 2401
@@ -6315,7 +5898,7 @@
             "food": 501,
             "ingredient": 117,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 2404
@@ -6325,7 +5908,7 @@
             "food": 501,
             "ingredient": 118,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 2405
@@ -6345,7 +5928,7 @@
             "food": 502,
             "ingredient": 230,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 2407
@@ -6355,7 +5938,7 @@
             "food": 502,
             "ingredient": 252,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 2408
@@ -6365,7 +5948,7 @@
             "food": 502,
             "ingredient": 249,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 2409
@@ -6395,7 +5978,7 @@
             "food": 503,
             "ingredient": 117,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 2412
@@ -6405,7 +5988,7 @@
             "food": 503,
             "ingredient": 57,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 2413
@@ -6415,7 +5998,7 @@
             "food": 503,
             "ingredient": 71,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 2414
@@ -6425,7 +6008,7 @@
             "food": 503,
             "ingredient": 113,
             "selected": true,
-            "typical": false
+            "typical": true
         },
         "model": "lunch.ingredientrelation",
         "pk": 2415
@@ -7725,7 +7308,7 @@
             "food": 136,
             "ingredient": 115,
             "selected": true,
-            "typical": true
+            "typical": false
         },
         "model": "lunch.ingredientrelation",
         "pk": 2969
@@ -8489,1841 +8072,5 @@
         },
         "model": "lunch.ingredientrelation",
         "pk": 3302
-    },
-    {
-        "fields": {
-            "codename": "add_logentry",
-            "content_type": 1,
-            "name": "Can add log entry"
-        },
-        "model": "auth.permission",
-        "pk": 1
-    },
-    {
-        "fields": {
-            "codename": "change_logentry",
-            "content_type": 1,
-            "name": "Can change log entry"
-        },
-        "model": "auth.permission",
-        "pk": 2
-    },
-    {
-        "fields": {
-            "codename": "delete_logentry",
-            "content_type": 1,
-            "name": "Can delete log entry"
-        },
-        "model": "auth.permission",
-        "pk": 3
-    },
-    {
-        "fields": {
-            "codename": "add_permission",
-            "content_type": 2,
-            "name": "Can add permission"
-        },
-        "model": "auth.permission",
-        "pk": 4
-    },
-    {
-        "fields": {
-            "codename": "change_permission",
-            "content_type": 2,
-            "name": "Can change permission"
-        },
-        "model": "auth.permission",
-        "pk": 5
-    },
-    {
-        "fields": {
-            "codename": "delete_permission",
-            "content_type": 2,
-            "name": "Can delete permission"
-        },
-        "model": "auth.permission",
-        "pk": 6
-    },
-    {
-        "fields": {
-            "codename": "add_group",
-            "content_type": 3,
-            "name": "Can add group"
-        },
-        "model": "auth.permission",
-        "pk": 7
-    },
-    {
-        "fields": {
-            "codename": "change_group",
-            "content_type": 3,
-            "name": "Can change group"
-        },
-        "model": "auth.permission",
-        "pk": 8
-    },
-    {
-        "fields": {
-            "codename": "delete_group",
-            "content_type": 3,
-            "name": "Can delete group"
-        },
-        "model": "auth.permission",
-        "pk": 9
-    },
-    {
-        "fields": {
-            "codename": "add_contenttype",
-            "content_type": 4,
-            "name": "Can add content type"
-        },
-        "model": "auth.permission",
-        "pk": 10
-    },
-    {
-        "fields": {
-            "codename": "change_contenttype",
-            "content_type": 4,
-            "name": "Can change content type"
-        },
-        "model": "auth.permission",
-        "pk": 11
-    },
-    {
-        "fields": {
-            "codename": "delete_contenttype",
-            "content_type": 4,
-            "name": "Can delete content type"
-        },
-        "model": "auth.permission",
-        "pk": 12
-    },
-    {
-        "fields": {
-            "codename": "add_session",
-            "content_type": 5,
-            "name": "Can add session"
-        },
-        "model": "auth.permission",
-        "pk": 13
-    },
-    {
-        "fields": {
-            "codename": "change_session",
-            "content_type": 5,
-            "name": "Can change session"
-        },
-        "model": "auth.permission",
-        "pk": 14
-    },
-    {
-        "fields": {
-            "codename": "delete_session",
-            "content_type": 5,
-            "name": "Can delete session"
-        },
-        "model": "auth.permission",
-        "pk": 15
-    },
-    {
-        "fields": {
-            "codename": "add_simpledevice",
-            "content_type": 6,
-            "name": "Can add simple device"
-        },
-        "model": "auth.permission",
-        "pk": 16
-    },
-    {
-        "fields": {
-            "codename": "change_simpledevice",
-            "content_type": 6,
-            "name": "Can change simple device"
-        },
-        "model": "auth.permission",
-        "pk": 17
-    },
-    {
-        "fields": {
-            "codename": "delete_simpledevice",
-            "content_type": 6,
-            "name": "Can delete simple device"
-        },
-        "model": "auth.permission",
-        "pk": 18
-    },
-    {
-        "fields": {
-            "codename": "add_gcmdevice",
-            "content_type": 7,
-            "name": "Can add GCM device"
-        },
-        "model": "auth.permission",
-        "pk": 19
-    },
-    {
-        "fields": {
-            "codename": "change_gcmdevice",
-            "content_type": 7,
-            "name": "Can change GCM device"
-        },
-        "model": "auth.permission",
-        "pk": 20
-    },
-    {
-        "fields": {
-            "codename": "delete_gcmdevice",
-            "content_type": 7,
-            "name": "Can delete GCM device"
-        },
-        "model": "auth.permission",
-        "pk": 21
-    },
-    {
-        "fields": {
-            "codename": "add_apnsdevice",
-            "content_type": 8,
-            "name": "Can add APNS device"
-        },
-        "model": "auth.permission",
-        "pk": 22
-    },
-    {
-        "fields": {
-            "codename": "change_apnsdevice",
-            "content_type": 8,
-            "name": "Can change APNS device"
-        },
-        "model": "auth.permission",
-        "pk": 23
-    },
-    {
-        "fields": {
-            "codename": "delete_apnsdevice",
-            "content_type": 8,
-            "name": "Can delete APNS device"
-        },
-        "model": "auth.permission",
-        "pk": 24
-    },
-    {
-        "fields": {
-            "codename": "add_polaroidbase",
-            "content_type": 9,
-            "name": "Can add polaroid base"
-        },
-        "model": "auth.permission",
-        "pk": 25
-    },
-    {
-        "fields": {
-            "codename": "change_polaroidbase",
-            "content_type": 9,
-            "name": "Can change polaroid base"
-        },
-        "model": "auth.permission",
-        "pk": 26
-    },
-    {
-        "fields": {
-            "codename": "delete_polaroidbase",
-            "content_type": 9,
-            "name": "Can delete polaroid base"
-        },
-        "model": "auth.permission",
-        "pk": 27
-    },
-    {
-        "fields": {
-            "codename": "add_phone",
-            "content_type": 10,
-            "name": "Can add phone"
-        },
-        "model": "auth.permission",
-        "pk": 28
-    },
-    {
-        "fields": {
-            "codename": "change_phone",
-            "content_type": 10,
-            "name": "Can change phone"
-        },
-        "model": "auth.permission",
-        "pk": 29
-    },
-    {
-        "fields": {
-            "codename": "delete_phone",
-            "content_type": 10,
-            "name": "Can delete phone"
-        },
-        "model": "auth.permission",
-        "pk": 30
-    },
-    {
-        "fields": {
-            "codename": "add_merchant",
-            "content_type": 11,
-            "name": "Can add merchant"
-        },
-        "model": "auth.permission",
-        "pk": 31
-    },
-    {
-        "fields": {
-            "codename": "change_merchant",
-            "content_type": 11,
-            "name": "Can change merchant"
-        },
-        "model": "auth.permission",
-        "pk": 32
-    },
-    {
-        "fields": {
-            "codename": "delete_merchant",
-            "content_type": 11,
-            "name": "Can delete merchant"
-        },
-        "model": "auth.permission",
-        "pk": 33
-    },
-    {
-        "fields": {
-            "codename": "add_customer",
-            "content_type": 12,
-            "name": "Can add customer"
-        },
-        "model": "auth.permission",
-        "pk": 34
-    },
-    {
-        "fields": {
-            "codename": "change_customer",
-            "content_type": 12,
-            "name": "Can change customer"
-        },
-        "model": "auth.permission",
-        "pk": 35
-    },
-    {
-        "fields": {
-            "codename": "delete_customer",
-            "content_type": 12,
-            "name": "Can delete customer"
-        },
-        "model": "auth.permission",
-        "pk": 36
-    },
-    {
-        "fields": {
-            "codename": "add_customerbankaccount",
-            "content_type": 13,
-            "name": "Can add customer bank account"
-        },
-        "model": "auth.permission",
-        "pk": 37
-    },
-    {
-        "fields": {
-            "codename": "change_customerbankaccount",
-            "content_type": 13,
-            "name": "Can change customer bank account"
-        },
-        "model": "auth.permission",
-        "pk": 38
-    },
-    {
-        "fields": {
-            "codename": "delete_customerbankaccount",
-            "content_type": 13,
-            "name": "Can delete customer bank account"
-        },
-        "model": "auth.permission",
-        "pk": 39
-    },
-    {
-        "fields": {
-            "codename": "add_mandate",
-            "content_type": 14,
-            "name": "Can add mandate"
-        },
-        "model": "auth.permission",
-        "pk": 40
-    },
-    {
-        "fields": {
-            "codename": "change_mandate",
-            "content_type": 14,
-            "name": "Can change mandate"
-        },
-        "model": "auth.permission",
-        "pk": 41
-    },
-    {
-        "fields": {
-            "codename": "delete_mandate",
-            "content_type": 14,
-            "name": "Can delete mandate"
-        },
-        "model": "auth.permission",
-        "pk": 42
-    },
-    {
-        "fields": {
-            "codename": "add_redirectflow",
-            "content_type": 15,
-            "name": "Can add redirect flow"
-        },
-        "model": "auth.permission",
-        "pk": 43
-    },
-    {
-        "fields": {
-            "codename": "change_redirectflow",
-            "content_type": 15,
-            "name": "Can change redirect flow"
-        },
-        "model": "auth.permission",
-        "pk": 44
-    },
-    {
-        "fields": {
-            "codename": "delete_redirectflow",
-            "content_type": 15,
-            "name": "Can delete redirect flow"
-        },
-        "model": "auth.permission",
-        "pk": 45
-    },
-    {
-        "fields": {
-            "codename": "add_payout",
-            "content_type": 16,
-            "name": "Can add payout"
-        },
-        "model": "auth.permission",
-        "pk": 46
-    },
-    {
-        "fields": {
-            "codename": "change_payout",
-            "content_type": 16,
-            "name": "Can change payout"
-        },
-        "model": "auth.permission",
-        "pk": 47
-    },
-    {
-        "fields": {
-            "codename": "delete_payout",
-            "content_type": 16,
-            "name": "Can delete payout"
-        },
-        "model": "auth.permission",
-        "pk": 48
-    },
-    {
-        "fields": {
-            "codename": "add_subscription",
-            "content_type": 17,
-            "name": "Can add subscription"
-        },
-        "model": "auth.permission",
-        "pk": 49
-    },
-    {
-        "fields": {
-            "codename": "change_subscription",
-            "content_type": 17,
-            "name": "Can change subscription"
-        },
-        "model": "auth.permission",
-        "pk": 50
-    },
-    {
-        "fields": {
-            "codename": "delete_subscription",
-            "content_type": 17,
-            "name": "Can delete subscription"
-        },
-        "model": "auth.permission",
-        "pk": 51
-    },
-    {
-        "fields": {
-            "codename": "add_payment",
-            "content_type": 18,
-            "name": "Can add payment"
-        },
-        "model": "auth.permission",
-        "pk": 52
-    },
-    {
-        "fields": {
-            "codename": "change_payment",
-            "content_type": 18,
-            "name": "Can change payment"
-        },
-        "model": "auth.permission",
-        "pk": 53
-    },
-    {
-        "fields": {
-            "codename": "delete_payment",
-            "content_type": 18,
-            "name": "Can delete payment"
-        },
-        "model": "auth.permission",
-        "pk": 54
-    },
-    {
-        "fields": {
-            "codename": "add_refund",
-            "content_type": 19,
-            "name": "Can add refund"
-        },
-        "model": "auth.permission",
-        "pk": 55
-    },
-    {
-        "fields": {
-            "codename": "change_refund",
-            "content_type": 19,
-            "name": "Can change refund"
-        },
-        "model": "auth.permission",
-        "pk": 56
-    },
-    {
-        "fields": {
-            "codename": "delete_refund",
-            "content_type": 19,
-            "name": "Can delete refund"
-        },
-        "model": "auth.permission",
-        "pk": 57
-    },
-    {
-        "fields": {
-            "codename": "add_staff",
-            "content_type": 20,
-            "name": "Can add Personeel"
-        },
-        "model": "auth.permission",
-        "pk": 58
-    },
-    {
-        "fields": {
-            "codename": "change_staff",
-            "content_type": 20,
-            "name": "Can change Personeel"
-        },
-        "model": "auth.permission",
-        "pk": 59
-    },
-    {
-        "fields": {
-            "codename": "delete_staff",
-            "content_type": 20,
-            "name": "Can delete Personeel"
-        },
-        "model": "auth.permission",
-        "pk": 60
-    },
-    {
-        "fields": {
-            "codename": "add_stafftoken",
-            "content_type": 21,
-            "name": "Can add personeelstoken"
-        },
-        "model": "auth.permission",
-        "pk": 61
-    },
-    {
-        "fields": {
-            "codename": "change_stafftoken",
-            "content_type": 21,
-            "name": "Can change personeelstoken"
-        },
-        "model": "auth.permission",
-        "pk": 62
-    },
-    {
-        "fields": {
-            "codename": "delete_stafftoken",
-            "content_type": 21,
-            "name": "Can delete personeelstoken"
-        },
-        "model": "auth.permission",
-        "pk": 63
-    },
-    {
-        "fields": {
-            "codename": "add_employee",
-            "content_type": 22,
-            "name": "Can add werknemer"
-        },
-        "model": "auth.permission",
-        "pk": 64
-    },
-    {
-        "fields": {
-            "codename": "change_employee",
-            "content_type": 22,
-            "name": "Can change werknemer"
-        },
-        "model": "auth.permission",
-        "pk": 65
-    },
-    {
-        "fields": {
-            "codename": "delete_employee",
-            "content_type": 22,
-            "name": "Can delete werknemer"
-        },
-        "model": "auth.permission",
-        "pk": 66
-    },
-    {
-        "fields": {
-            "codename": "add_employeetoken",
-            "content_type": 23,
-            "name": "Can add werknemerstoken"
-        },
-        "model": "auth.permission",
-        "pk": 67
-    },
-    {
-        "fields": {
-            "codename": "change_employeetoken",
-            "content_type": 23,
-            "name": "Can change werknemerstoken"
-        },
-        "model": "auth.permission",
-        "pk": 68
-    },
-    {
-        "fields": {
-            "codename": "delete_employeetoken",
-            "content_type": 23,
-            "name": "Can delete werknemerstoken"
-        },
-        "model": "auth.permission",
-        "pk": 69
-    },
-    {
-        "fields": {
-            "codename": "add_user",
-            "content_type": 24,
-            "name": "Can add gebruiker"
-        },
-        "model": "auth.permission",
-        "pk": 70
-    },
-    {
-        "fields": {
-            "codename": "change_user",
-            "content_type": 24,
-            "name": "Can change gebruiker"
-        },
-        "model": "auth.permission",
-        "pk": 71
-    },
-    {
-        "fields": {
-            "codename": "delete_user",
-            "content_type": 24,
-            "name": "Can delete gebruiker"
-        },
-        "model": "auth.permission",
-        "pk": 72
-    },
-    {
-        "fields": {
-            "codename": "add_address",
-            "content_type": 25,
-            "name": "Can add adres"
-        },
-        "model": "auth.permission",
-        "pk": 73
-    },
-    {
-        "fields": {
-            "codename": "change_address",
-            "content_type": 25,
-            "name": "Can change adres"
-        },
-        "model": "auth.permission",
-        "pk": 74
-    },
-    {
-        "fields": {
-            "codename": "delete_address",
-            "content_type": 25,
-            "name": "Can delete adres"
-        },
-        "model": "auth.permission",
-        "pk": 75
-    },
-    {
-        "fields": {
-            "codename": "add_paymentlink",
-            "content_type": 26,
-            "name": "Can add betalingskoppeling"
-        },
-        "model": "auth.permission",
-        "pk": 76
-    },
-    {
-        "fields": {
-            "codename": "change_paymentlink",
-            "content_type": 26,
-            "name": "Can change betalingskoppeling"
-        },
-        "model": "auth.permission",
-        "pk": 77
-    },
-    {
-        "fields": {
-            "codename": "delete_paymentlink",
-            "content_type": 26,
-            "name": "Can delete betalingskoppeling"
-        },
-        "model": "auth.permission",
-        "pk": 78
-    },
-    {
-        "fields": {
-            "codename": "add_group",
-            "content_type": 28,
-            "name": "Can add group"
-        },
-        "model": "auth.permission",
-        "pk": 82
-    },
-    {
-        "fields": {
-            "codename": "change_group",
-            "content_type": 28,
-            "name": "Can change group"
-        },
-        "model": "auth.permission",
-        "pk": 83
-    },
-    {
-        "fields": {
-            "codename": "delete_group",
-            "content_type": 28,
-            "name": "Can delete group"
-        },
-        "model": "auth.permission",
-        "pk": 84
-    },
-    {
-        "fields": {
-            "codename": "add_heart",
-            "content_type": 30,
-            "name": "Can add hart"
-        },
-        "model": "auth.permission",
-        "pk": 88
-    },
-    {
-        "fields": {
-            "codename": "change_heart",
-            "content_type": 30,
-            "name": "Can change hart"
-        },
-        "model": "auth.permission",
-        "pk": 89
-    },
-    {
-        "fields": {
-            "codename": "delete_heart",
-            "content_type": 30,
-            "name": "Can delete hart"
-        },
-        "model": "auth.permission",
-        "pk": 90
-    },
-    {
-        "fields": {
-            "codename": "add_order",
-            "content_type": 32,
-            "name": "Can add bestelling"
-        },
-        "model": "auth.permission",
-        "pk": 94
-    },
-    {
-        "fields": {
-            "codename": "change_order",
-            "content_type": 32,
-            "name": "Can change bestelling"
-        },
-        "model": "auth.permission",
-        "pk": 95
-    },
-    {
-        "fields": {
-            "codename": "delete_order",
-            "content_type": 32,
-            "name": "Can delete bestelling"
-        },
-        "model": "auth.permission",
-        "pk": 96
-    },
-    {
-        "fields": {
-            "codename": "add_temporaryorder",
-            "content_type": 33,
-            "name": "Can add tijdelijke bestelling"
-        },
-        "model": "auth.permission",
-        "pk": 97
-    },
-    {
-        "fields": {
-            "codename": "change_temporaryorder",
-            "content_type": 33,
-            "name": "Can change tijdelijke bestelling"
-        },
-        "model": "auth.permission",
-        "pk": 98
-    },
-    {
-        "fields": {
-            "codename": "delete_temporaryorder",
-            "content_type": 33,
-            "name": "Can delete tijdelijke bestelling"
-        },
-        "model": "auth.permission",
-        "pk": 99
-    },
-    {
-        "fields": {
-            "codename": "add_orderedfood",
-            "content_type": 34,
-            "name": "Can add besteld etenswaar"
-        },
-        "model": "auth.permission",
-        "pk": 100
-    },
-    {
-        "fields": {
-            "codename": "change_orderedfood",
-            "content_type": 34,
-            "name": "Can change besteld etenswaar"
-        },
-        "model": "auth.permission",
-        "pk": 101
-    },
-    {
-        "fields": {
-            "codename": "delete_orderedfood",
-            "content_type": 34,
-            "name": "Can delete besteld etenswaar"
-        },
-        "model": "auth.permission",
-        "pk": 102
-    },
-    {
-        "fields": {
-            "codename": "add_usertoken",
-            "content_type": 35,
-            "name": "Can add gebruikerstoken"
-        },
-        "model": "auth.permission",
-        "pk": 103
-    },
-    {
-        "fields": {
-            "codename": "change_usertoken",
-            "content_type": 35,
-            "name": "Can change gebruikerstoken"
-        },
-        "model": "auth.permission",
-        "pk": 104
-    },
-    {
-        "fields": {
-            "codename": "delete_usertoken",
-            "content_type": 35,
-            "name": "Can delete gebruikerstoken"
-        },
-        "model": "auth.permission",
-        "pk": 105
-    },
-    {
-        "fields": {
-            "codename": "add_storecategory",
-            "content_type": 36,
-            "name": "Can add winkelcategorie"
-        },
-        "model": "auth.permission",
-        "pk": 106
-    },
-    {
-        "fields": {
-            "codename": "change_storecategory",
-            "content_type": 36,
-            "name": "Can change winkelcategorie"
-        },
-        "model": "auth.permission",
-        "pk": 107
-    },
-    {
-        "fields": {
-            "codename": "delete_storecategory",
-            "content_type": 36,
-            "name": "Can delete winkelcategorie"
-        },
-        "model": "auth.permission",
-        "pk": 108
-    },
-    {
-        "fields": {
-            "codename": "add_storeheader",
-            "content_type": 37,
-            "name": "Can add headerafbeelding"
-        },
-        "model": "auth.permission",
-        "pk": 109
-    },
-    {
-        "fields": {
-            "codename": "change_storeheader",
-            "content_type": 37,
-            "name": "Can change headerafbeelding"
-        },
-        "model": "auth.permission",
-        "pk": 110
-    },
-    {
-        "fields": {
-            "codename": "delete_storeheader",
-            "content_type": 37,
-            "name": "Can delete headerafbeelding"
-        },
-        "model": "auth.permission",
-        "pk": 111
-    },
-    {
-        "fields": {
-            "codename": "add_store",
-            "content_type": 38,
-            "name": "Can add winkel"
-        },
-        "model": "auth.permission",
-        "pk": 112
-    },
-    {
-        "fields": {
-            "codename": "change_store",
-            "content_type": 38,
-            "name": "Can change winkel"
-        },
-        "model": "auth.permission",
-        "pk": 113
-    },
-    {
-        "fields": {
-            "codename": "delete_store",
-            "content_type": 38,
-            "name": "Can delete winkel"
-        },
-        "model": "auth.permission",
-        "pk": 114
-    },
-    {
-        "fields": {
-            "codename": "add_region",
-            "content_type": 39,
-            "name": "Can add regio"
-        },
-        "model": "auth.permission",
-        "pk": 115
-    },
-    {
-        "fields": {
-            "codename": "change_region",
-            "content_type": 39,
-            "name": "Can change regio"
-        },
-        "model": "auth.permission",
-        "pk": 116
-    },
-    {
-        "fields": {
-            "codename": "delete_region",
-            "content_type": 39,
-            "name": "Can delete regio"
-        },
-        "model": "auth.permission",
-        "pk": 117
-    },
-    {
-        "fields": {
-            "codename": "add_openingperiod",
-            "content_type": 40,
-            "name": "Can add openingstijd"
-        },
-        "model": "auth.permission",
-        "pk": 118
-    },
-    {
-        "fields": {
-            "codename": "change_openingperiod",
-            "content_type": 40,
-            "name": "Can change openingstijd"
-        },
-        "model": "auth.permission",
-        "pk": 119
-    },
-    {
-        "fields": {
-            "codename": "delete_openingperiod",
-            "content_type": 40,
-            "name": "Can delete openingstijd"
-        },
-        "model": "auth.permission",
-        "pk": 120
-    },
-    {
-        "fields": {
-            "codename": "add_deliveryperiod",
-            "content_type": 41,
-            "name": "Can add leveringstijd"
-        },
-        "model": "auth.permission",
-        "pk": 121
-    },
-    {
-        "fields": {
-            "codename": "change_deliveryperiod",
-            "content_type": 41,
-            "name": "Can change leveringstijd"
-        },
-        "model": "auth.permission",
-        "pk": 122
-    },
-    {
-        "fields": {
-            "codename": "delete_deliveryperiod",
-            "content_type": 41,
-            "name": "Can delete leveringstijd"
-        },
-        "model": "auth.permission",
-        "pk": 123
-    },
-    {
-        "fields": {
-            "codename": "add_holidayperiod",
-            "content_type": 42,
-            "name": "Can add vakantieperiode"
-        },
-        "model": "auth.permission",
-        "pk": 124
-    },
-    {
-        "fields": {
-            "codename": "change_holidayperiod",
-            "content_type": 42,
-            "name": "Can change vakantieperiode"
-        },
-        "model": "auth.permission",
-        "pk": 125
-    },
-    {
-        "fields": {
-            "codename": "delete_holidayperiod",
-            "content_type": 42,
-            "name": "Can delete vakantieperiode"
-        },
-        "model": "auth.permission",
-        "pk": 126
-    },
-    {
-        "fields": {
-            "codename": "add_foodtype",
-            "content_type": 43,
-            "name": "Can add type etenswaar"
-        },
-        "model": "auth.permission",
-        "pk": 127
-    },
-    {
-        "fields": {
-            "codename": "change_foodtype",
-            "content_type": 43,
-            "name": "Can change type etenswaar"
-        },
-        "model": "auth.permission",
-        "pk": 128
-    },
-    {
-        "fields": {
-            "codename": "delete_foodtype",
-            "content_type": 43,
-            "name": "Can delete type etenswaar"
-        },
-        "model": "auth.permission",
-        "pk": 129
-    },
-    {
-        "fields": {
-            "codename": "add_ingredientgroup",
-            "content_type": 44,
-            "name": "Can add ingrediëntengroep"
-        },
-        "model": "auth.permission",
-        "pk": 130
-    },
-    {
-        "fields": {
-            "codename": "change_ingredientgroup",
-            "content_type": 44,
-            "name": "Can change ingrediëntengroep"
-        },
-        "model": "auth.permission",
-        "pk": 131
-    },
-    {
-        "fields": {
-            "codename": "delete_ingredientgroup",
-            "content_type": 44,
-            "name": "Can delete ingrediëntengroep"
-        },
-        "model": "auth.permission",
-        "pk": 132
-    },
-    {
-        "fields": {
-            "codename": "add_ingredient",
-            "content_type": 45,
-            "name": "Can add ingrediënt"
-        },
-        "model": "auth.permission",
-        "pk": 133
-    },
-    {
-        "fields": {
-            "codename": "change_ingredient",
-            "content_type": 45,
-            "name": "Can change ingrediënt"
-        },
-        "model": "auth.permission",
-        "pk": 134
-    },
-    {
-        "fields": {
-            "codename": "delete_ingredient",
-            "content_type": 45,
-            "name": "Can delete ingrediënt"
-        },
-        "model": "auth.permission",
-        "pk": 135
-    },
-    {
-        "fields": {
-            "codename": "add_menu",
-            "content_type": 46,
-            "name": "Can add menu"
-        },
-        "model": "auth.permission",
-        "pk": 136
-    },
-    {
-        "fields": {
-            "codename": "change_menu",
-            "content_type": 46,
-            "name": "Can change menu"
-        },
-        "model": "auth.permission",
-        "pk": 137
-    },
-    {
-        "fields": {
-            "codename": "delete_menu",
-            "content_type": 46,
-            "name": "Can delete menu"
-        },
-        "model": "auth.permission",
-        "pk": 138
-    },
-    {
-        "fields": {
-            "codename": "add_quantity",
-            "content_type": 47,
-            "name": "Can add hoeveelheid"
-        },
-        "model": "auth.permission",
-        "pk": 139
-    },
-    {
-        "fields": {
-            "codename": "change_quantity",
-            "content_type": 47,
-            "name": "Can change hoeveelheid"
-        },
-        "model": "auth.permission",
-        "pk": 140
-    },
-    {
-        "fields": {
-            "codename": "delete_quantity",
-            "content_type": 47,
-            "name": "Can delete hoeveelheid"
-        },
-        "model": "auth.permission",
-        "pk": 141
-    },
-    {
-        "fields": {
-            "codename": "add_food",
-            "content_type": 48,
-            "name": "Can add etenswaar"
-        },
-        "model": "auth.permission",
-        "pk": 142
-    },
-    {
-        "fields": {
-            "codename": "change_food",
-            "content_type": 48,
-            "name": "Can change etenswaar"
-        },
-        "model": "auth.permission",
-        "pk": 143
-    },
-    {
-        "fields": {
-            "codename": "delete_food",
-            "content_type": 48,
-            "name": "Can delete etenswaar"
-        },
-        "model": "auth.permission",
-        "pk": 144
-    },
-    {
-        "fields": {
-            "codename": "add_ingredientrelation",
-            "content_type": 49,
-            "name": "Can add ingredient relation"
-        },
-        "model": "auth.permission",
-        "pk": 145
-    },
-    {
-        "fields": {
-            "codename": "change_ingredientrelation",
-            "content_type": 49,
-            "name": "Can change ingredient relation"
-        },
-        "model": "auth.permission",
-        "pk": 146
-    },
-    {
-        "fields": {
-            "codename": "delete_ingredientrelation",
-            "content_type": 49,
-            "name": "Can delete ingredient relation"
-        },
-        "model": "auth.permission",
-        "pk": 147
-    },
-    {
-        "fields": {
-            "codename": "add_forward",
-            "content_type": 50,
-            "name": "Can add forward"
-        },
-        "model": "auth.permission",
-        "pk": 148
-    },
-    {
-        "fields": {
-            "codename": "change_forward",
-            "content_type": 50,
-            "name": "Can change forward"
-        },
-        "model": "auth.permission",
-        "pk": 149
-    },
-    {
-        "fields": {
-            "codename": "delete_forward",
-            "content_type": 50,
-            "name": "Can delete forward"
-        },
-        "model": "auth.permission",
-        "pk": 150
-    },
-    {
-        "fields": {
-            "codename": "add_grouporder",
-            "content_type": 51,
-            "name": "Can add groepsbestelling"
-        },
-        "model": "auth.permission",
-        "pk": 151
-    },
-    {
-        "fields": {
-            "codename": "change_grouporder",
-            "content_type": 51,
-            "name": "Can change groepsbestelling"
-        },
-        "model": "auth.permission",
-        "pk": 152
-    },
-    {
-        "fields": {
-            "codename": "delete_grouporder",
-            "content_type": 51,
-            "name": "Can delete groepsbestelling"
-        },
-        "model": "auth.permission",
-        "pk": 153
-    },
-    {
-        "fields": {
-            "codename": "add_merchant",
-            "content_type": 52,
-            "name": "Can add handelaar"
-        },
-        "model": "auth.permission",
-        "pk": 154
-    },
-    {
-        "fields": {
-            "codename": "change_merchant",
-            "content_type": 52,
-            "name": "Can change handelaar"
-        },
-        "model": "auth.permission",
-        "pk": 155
-    },
-    {
-        "fields": {
-            "codename": "delete_merchant",
-            "content_type": 52,
-            "name": "Can delete handelaar"
-        },
-        "model": "auth.permission",
-        "pk": 156
-    },
-    {
-        "fields": {
-            "codename": "add_transaction",
-            "content_type": 53,
-            "name": "Can add transactie"
-        },
-        "model": "auth.permission",
-        "pk": 157
-    },
-    {
-        "fields": {
-            "codename": "change_transaction",
-            "content_type": 53,
-            "name": "Can change transactie"
-        },
-        "model": "auth.permission",
-        "pk": 158
-    },
-    {
-        "fields": {
-            "codename": "delete_transaction",
-            "content_type": 53,
-            "name": "Can delete transactie"
-        },
-        "model": "auth.permission",
-        "pk": 159
-    },
-    {
-        "fields": {
-            "codename": "add_confirmedorder",
-            "content_type": 32,
-            "name": "Can add bevestigde bestelling"
-        },
-        "model": "auth.permission",
-        "pk": 160
-    },
-    {
-        "fields": {
-            "codename": "change_confirmedorder",
-            "content_type": 32,
-            "name": "Can change bevestigde bestelling"
-        },
-        "model": "auth.permission",
-        "pk": 161
-    },
-    {
-        "fields": {
-            "codename": "delete_confirmedorder",
-            "content_type": 32,
-            "name": "Can delete bevestigde bestelling"
-        },
-        "model": "auth.permission",
-        "pk": 162
-    },
-    {
-        "fields": {
-            "codename": "add_message",
-            "content_type": 55,
-            "name": "Can add bericht"
-        },
-        "model": "auth.permission",
-        "pk": 163
-    },
-    {
-        "fields": {
-            "codename": "change_message",
-            "content_type": 55,
-            "name": "Can change bericht"
-        },
-        "model": "auth.permission",
-        "pk": 164
-    },
-    {
-        "fields": {
-            "codename": "delete_message",
-            "content_type": 55,
-            "name": "Can delete bericht"
-        },
-        "model": "auth.permission",
-        "pk": 165
-    },
-    {
-        "fields": {
-            "email": null,
-            "enabled": true,
-            "groups": [],
-            "is_staff": true,
-            "is_superuser": true,
-            "last_login": "2017-06-22T00:25:40.095Z",
-            "name": "Andreas Backx",
-            "password": "bcrypt_sha256$$2b$12$/.TMCqi4iG41H/Esut1T2utKY4VLGxDUeY4GYrhbtWF/v9Y.aLtti",
-            "phone": 1,
-            "user_permissions": []
-        },
-        "model": "customers.user",
-        "pk": 1
-    },
-    {
-        "fields": {
-            "action_flag": 2,
-            "action_time": "2017-06-21T23:37:47.603Z",
-            "change_message": "confirmed_at gewijzigd.",
-            "content_type": 10,
-            "object_id": "1",
-            "object_repr": "+32472907605",
-            "user": 1
-        },
-        "model": "admin.logentry",
-        "pk": 1945
-    },
-    {
-        "fields": {
-            "action_flag": 3,
-            "action_time": "2017-06-21T23:39:27.822Z",
-            "change_message": "",
-            "content_type": 42,
-            "object_id": "3",
-            "object_repr": "2015-08-01 00:00:00+00:00-2015-09-01 00:00:00+00:00 closed",
-            "user": 1
-        },
-        "model": "admin.logentry",
-        "pk": 1946
-    },
-    {
-        "fields": {
-            "action_flag": 3,
-            "action_time": "2017-06-21T23:39:27.826Z",
-            "change_message": "",
-            "content_type": 42,
-            "object_id": "4",
-            "object_repr": "2015-11-02 00:00:00+00:00-2015-11-02 23:59:59+00:00 closed",
-            "user": 1
-        },
-        "model": "admin.logentry",
-        "pk": 1947
-    },
-    {
-        "fields": {
-            "action_flag": 3,
-            "action_time": "2017-06-21T23:39:27.828Z",
-            "change_message": "",
-            "content_type": 42,
-            "object_id": "5",
-            "object_repr": "2015-11-11 00:00:00+00:00-2015-11-11 23:59:59+00:00 closed",
-            "user": 1
-        },
-        "model": "admin.logentry",
-        "pk": 1948
-    },
-    {
-        "fields": {
-            "action_flag": 3,
-            "action_time": "2017-06-21T23:39:27.830Z",
-            "change_message": "",
-            "content_type": 42,
-            "object_id": "6",
-            "object_repr": "2015-11-18 14:00:00+00:00-2015-11-18 23:59:59+00:00 closed",
-            "user": 1
-        },
-        "model": "admin.logentry",
-        "pk": 1949
-    },
-    {
-        "fields": {
-            "action_flag": 3,
-            "action_time": "2017-06-21T23:39:27.832Z",
-            "change_message": "",
-            "content_type": 42,
-            "object_id": "7",
-            "object_repr": "2015-12-19 00:00:00+00:00-2016-01-03 23:59:59+00:00 closed",
-            "user": 1
-        },
-        "model": "admin.logentry",
-        "pk": 1950
-    },
-    {
-        "fields": {
-            "action_flag": 3,
-            "action_time": "2017-06-21T23:39:27.833Z",
-            "change_message": "",
-            "content_type": 42,
-            "object_id": "15",
-            "object_repr": "2016-02-08 00:00:00+00:00-2016-02-09 10:00:00+00:00 closed",
-            "user": 1
-        },
-        "model": "admin.logentry",
-        "pk": 1951
-    },
-    {
-        "fields": {
-            "action_flag": 3,
-            "action_time": "2017-06-21T23:39:27.835Z",
-            "change_message": "",
-            "content_type": 42,
-            "object_id": "18",
-            "object_repr": "2016-02-09 15:00:00+00:00-2016-02-10 10:00:00+00:00 closed",
-            "user": 1
-        },
-        "model": "admin.logentry",
-        "pk": 1952
-    },
-    {
-        "fields": {
-            "action_flag": 3,
-            "action_time": "2017-06-21T23:39:27.836Z",
-            "change_message": "",
-            "content_type": 42,
-            "object_id": "19",
-            "object_repr": "2016-02-10 15:00:00+00:00-2016-02-11 10:00:00+00:00 closed",
-            "user": 1
-        },
-        "model": "admin.logentry",
-        "pk": 1953
-    },
-    {
-        "fields": {
-            "action_flag": 3,
-            "action_time": "2017-06-21T23:39:27.838Z",
-            "change_message": "",
-            "content_type": 42,
-            "object_id": "20",
-            "object_repr": "2016-02-11 15:00:00+00:00-2016-02-12 10:00:00+00:00 closed",
-            "user": 1
-        },
-        "model": "admin.logentry",
-        "pk": 1954
-    },
-    {
-        "fields": {
-            "action_flag": 3,
-            "action_time": "2017-06-21T23:39:27.840Z",
-            "change_message": "",
-            "content_type": 42,
-            "object_id": "21",
-            "object_repr": "2016-02-12 10:00:00+00:00-2016-02-12 15:00:00+00:00 open",
-            "user": 1
-        },
-        "model": "admin.logentry",
-        "pk": 1955
-    },
-    {
-        "fields": {
-            "action_flag": 3,
-            "action_time": "2017-06-21T23:39:27.841Z",
-            "change_message": "",
-            "content_type": 42,
-            "object_id": "22",
-            "object_repr": "2016-03-14 00:00:18+00:00-2016-03-14 23:59:00+00:00 closed",
-            "user": 1
-        },
-        "model": "admin.logentry",
-        "pk": 1956
-    },
-    {
-        "fields": {
-            "action_flag": 3,
-            "action_time": "2017-06-21T23:39:27.843Z",
-            "change_message": "",
-            "content_type": 42,
-            "object_id": "23",
-            "object_repr": "2016-03-29 00:00:00+00:00-2016-04-11 07:30:00+00:00 closed",
-            "user": 1
-        },
-        "model": "admin.logentry",
-        "pk": 1957
-    },
-    {
-        "fields": {
-            "action_flag": 3,
-            "action_time": "2017-06-21T23:39:27.844Z",
-            "change_message": "",
-            "content_type": 42,
-            "object_id": "25",
-            "object_repr": "2016-06-09 14:00:00+00:00-2016-06-15 00:00:00+00:00 closed",
-            "user": 1
-        },
-        "model": "admin.logentry",
-        "pk": 1958
-    },
-    {
-        "fields": {
-            "action_flag": 3,
-            "action_time": "2017-06-21T23:39:27.846Z",
-            "change_message": "",
-            "content_type": 42,
-            "object_id": "26",
-            "object_repr": "2016-06-27 00:17:19+00:00-2016-06-27 23:59:59+00:00 closed",
-            "user": 1
-        },
-        "model": "admin.logentry",
-        "pk": 1959
-    },
-    {
-        "fields": {
-            "action_flag": 3,
-            "action_time": "2017-06-21T23:39:27.848Z",
-            "change_message": "",
-            "content_type": 42,
-            "object_id": "24",
-            "object_repr": "2016-07-01 00:00:00+00:00-2016-08-22 00:00:00+00:00 closed",
-            "user": 1
-        },
-        "model": "admin.logentry",
-        "pk": 1960
-    },
-    {
-        "fields": {
-            "action_flag": 3,
-            "action_time": "2017-06-21T23:39:27.849Z",
-            "change_message": "",
-            "content_type": 42,
-            "object_id": "27",
-            "object_repr": "2016-11-11 00:00:00+00:00-2016-11-11 23:00:00+00:00 closed",
-            "user": 1
-        },
-        "model": "admin.logentry",
-        "pk": 1961
-    },
-    {
-        "fields": {
-            "action_flag": 3,
-            "action_time": "2017-06-21T23:39:27.851Z",
-            "change_message": "",
-            "content_type": 42,
-            "object_id": "31",
-            "object_repr": "2017-04-16 22:00:00+00:00-2017-04-17 21:59:59+00:00 closed",
-            "user": 1
-        },
-        "model": "admin.logentry",
-        "pk": 1962
-    },
-    {
-        "fields": {
-            "action_flag": 3,
-            "action_time": "2017-06-21T23:39:27.852Z",
-            "change_message": "",
-            "content_type": 42,
-            "object_id": "32",
-            "object_repr": "2017-06-04 22:00:00+00:00-2017-06-05 21:59:59+00:00 closed",
-            "user": 1
-        },
-        "model": "admin.logentry",
-        "pk": 1963
-    },
-    {
-        "fields": {
-            "action_flag": 3,
-            "action_time": "2017-06-21T23:40:35.083Z",
-            "change_message": "",
-            "content_type": 45,
-            "object_id": "272",
-            "object_repr": "Always group cost ingredient 1 (Always group cost test) #272",
-            "user": 1
-        },
-        "model": "admin.logentry",
-        "pk": 1964
-    },
-    {
-        "fields": {
-            "action_flag": 3,
-            "action_time": "2017-06-21T23:40:35.088Z",
-            "change_message": "",
-            "content_type": 45,
-            "object_id": "273",
-            "object_repr": "Always group cost ingredient 2 (Always group cost test) #273",
-            "user": 1
-        },
-        "model": "admin.logentry",
-        "pk": 1965
-    },
-    {
-        "fields": {
-            "action_flag": 3,
-            "action_time": "2017-06-21T23:40:35.090Z",
-            "change_message": "",
-            "content_type": 45,
-            "object_id": "274",
-            "object_repr": "Always group cost ingredient 3 (Always group cost test) #274",
-            "user": 1
-        },
-        "model": "admin.logentry",
-        "pk": 1966
-    },
-    {
-        "fields": {
-            "action_flag": 3,
-            "action_time": "2017-06-21T23:40:35.092Z",
-            "change_message": "",
-            "content_type": 45,
-            "object_id": "275",
-            "object_repr": "Always group cost ingredient 4 (Always group cost test) #275",
-            "user": 1
-        },
-        "model": "admin.logentry",
-        "pk": 1967
-    },
-    {
-        "fields": {
-            "action_flag": 2,
-            "action_time": "2017-06-21T23:42:43.808Z",
-            "change_message": "description en priority gewijzigd.",
-            "content_type": 48,
-            "object_id": "780",
-            "object_repr": "Hamburgers",
-            "user": 1
-        },
-        "model": "admin.logentry",
-        "pk": 1968
-    },
-    {
-        "fields": {
-            "action_flag": 2,
-            "action_time": "2017-06-21T23:43:01.346Z",
-            "change_message": "Geen velden gewijzigd.",
-            "content_type": 48,
-            "object_id": "780",
-            "object_repr": "Hamburgers",
-            "user": 1
-        },
-        "model": "admin.logentry",
-        "pk": 1969
-    },
-    {
-        "fields": {
-            "action_flag": 2,
-            "action_time": "2017-06-21T23:43:31.369Z",
-            "change_message": "priority gewijzigd.",
-            "content_type": 48,
-            "object_id": "780",
-            "object_repr": "Hamburgers",
-            "user": 1
-        },
-        "model": "admin.logentry",
-        "pk": 1970
-    },
-    {
-        "fields": {
-            "action_flag": 2,
-            "action_time": "2017-06-21T23:44:07.844Z",
-            "change_message": "description gewijzigd.",
-            "content_type": 48,
-            "object_id": "616",
-            "object_repr": "Chocolademousse",
-            "user": 1
-        },
-        "model": "admin.logentry",
-        "pk": 1971
-    },
-    {
-        "fields": {
-            "action_flag": 2,
-            "action_time": "2017-06-22T00:26:03.271Z",
-            "change_message": "priority gewijzigd.",
-            "content_type": 48,
-            "object_id": "777",
-            "object_repr": "Gehakt",
-            "user": 1
-        },
-        "model": "admin.logentry",
-        "pk": 1972
-    },
-    {
-        "fields": {
-            "action_flag": 2,
-            "action_time": "2017-06-22T00:26:37.121Z",
-            "change_message": "description gewijzigd.",
-            "content_type": 48,
-            "object_id": "777",
-            "object_repr": "Gehakt",
-            "user": 1
-        },
-        "model": "admin.logentry",
-        "pk": 1973
-    },
-    {
-        "fields": {
-            "action_flag": 2,
-            "action_time": "2017-06-22T00:29:03.061Z",
-            "change_message": "password1 en password2 gewijzigd.",
-            "content_type": 20,
-            "object_id": "4",
-            "object_repr": "Balie: Voornaam Achternaam",
-            "user": 1
-        },
-        "model": "admin.logentry",
-        "pk": 1974
-    },
-    {
-        "fields": {
-            "action_flag": 2,
-            "action_time": "2017-06-22T00:29:33.454Z",
-            "change_message": "email, first_name en last_name gewijzigd. name aangepast voor werknemer \"Eigenaar\".",
-            "content_type": 20,
-            "object_id": "4",
-            "object_repr": "Balie: Andreas Backx",
-            "user": 1
-        },
-        "model": "admin.logentry",
-        "pk": 1975
-    },
-    {
-        "fields": {
-            "action_flag": 2,
-            "action_time": "2017-06-22T00:30:02.647Z",
-            "change_message": "password1 en password2 gewijzigd.",
-            "content_type": 22,
-            "object_id": "3",
-            "object_repr": "Eigenaar",
-            "user": 1
-        },
-        "model": "admin.logentry",
-        "pk": 1976
     }
 ]
