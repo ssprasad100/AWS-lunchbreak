@@ -43,21 +43,21 @@ DATABASES = {
         'HOST': DB_HOST,
         'PORT': '5432',
     },
-    'mysql': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': DB_NAME,
-        'USER': DB_USER,
-        'PASSWORD': DB_PASS,
-        'HOST': DB_HOST,
-        'PORT': '3306',
-        'OPTIONS': {
-            'charset': 'utf8mb4',
-        },
-        'TEST': {
-            'CHARSET': 'utf8mb4',
-            'COLLATION': 'utf8mb4_unicode_ci',
-        },
-    }
+    # 'mysql': {
+    #     'ENGINE': 'django.db.backends.mysql',
+    #     'NAME': DB_NAME,
+    #     'USER': DB_USER,
+    #     'PASSWORD': DB_PASS,
+    #     'HOST': DB_HOST,
+    #     'PORT': '3306',
+    #     'OPTIONS': {
+    #         'charset': 'utf8mb4',
+    #     },
+    #     'TEST': {
+    #         'CHARSET': 'utf8mb4',
+    #         'COLLATION': 'utf8mb4_unicode_ci',
+    #     },
+    # }
 }
 
 GOOGLE_CLOUD_SECRET = get_variable('GOOGLE_CLOUD_SECRET')

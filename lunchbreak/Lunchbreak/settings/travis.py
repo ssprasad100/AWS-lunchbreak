@@ -1,5 +1,5 @@
 DB_NAME = 'LB_development'
-DB_USER = 'root'
+DB_USER = 'postgres'
 DB_PASS = ''
 DB_HOST = '127.0.0.1'
 
