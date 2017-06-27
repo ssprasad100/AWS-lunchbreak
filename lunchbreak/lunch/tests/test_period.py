@@ -6,7 +6,7 @@ from Lunchbreak.tests.testcase import LunchbreakTestCase
 from pendulum import Pendulum
 
 from ..config import WEEKDAYS
-from ..models import OpeningPeriod, Period
+from ..models import OpeningPeriod
 
 
 class PeriodTestCase(LunchbreakTestCase):
@@ -31,7 +31,7 @@ class PeriodTestCase(LunchbreakTestCase):
             for weekday_config in WEEKDAYS:
                 day_in_week = weekday_config[0]
 
-                period = Period(
+                period = OpeningPeriod(
                     day=day_in_week,
                     time=set_time,
                     duration=time(1, 00),

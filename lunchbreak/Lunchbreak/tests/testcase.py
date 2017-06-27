@@ -69,7 +69,7 @@ class LunchbreakTestCase(APITestCase):
         self.mock_geocode_results(mock_geocode)
         self.mock_timezone_result(mock_timezone)
         self.store = Store.objects.create(
-            name='valid',
+            name='Valid Store',
             country='Belgie',
             province='Oost-Vlaanderen',
             city='Wetteren',
