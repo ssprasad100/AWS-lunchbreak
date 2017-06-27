@@ -47,7 +47,7 @@ class OrderedFoodTestCase(CustomersTestCase):
             0
         )
 
-    @mock.patch('customers.models.uggettext_summation')
+    @mock.patch('customers.models.ordered_food.uggettext_summation')
     @mock.patch('lunch.models.Food.has_ingredients')
     def test_changes(self, mock_has_ingr, mock_summation):
         """Test whether the changes are reflected well."""
