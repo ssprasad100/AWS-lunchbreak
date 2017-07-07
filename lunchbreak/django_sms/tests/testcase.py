@@ -1,3 +1,4 @@
+import logging
 import uuid
 from datetime import timedelta
 
@@ -75,3 +76,10 @@ class DjangoSmsTestCase(LunchbreakTestCase):
         }
         self.mock_plivo.return_value = self.plivo_message
         self.mock_send_pin.side_effect = send_pin
+
+        logging.disable(logging.CRITICAL)
+
+    def tearDown(self):
+        super().tearDown()
+
+        logging.disable(logging.NOTSET)
