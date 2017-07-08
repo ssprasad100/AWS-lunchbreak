@@ -50,7 +50,7 @@ services:
     env_file:
       - ./staging.env
     volumes:
-      - '/var/run/postgresql':'/var/run/postgresql':ro
+      - /var/run/postgresql:/var/run/postgresql:ro
       - ./lunchbreak/secrets/staging:/var/secrets:ro
       - /var/lunchbreak/staging/log:/var/lunchbreak/log:rw
       - /var/lunchbreak/staging/static:/var/lunchbreak/static:rw
@@ -72,7 +72,7 @@ services:
     env_file:
       - ./development.env
     volumes:
-      - '/var/run/postgresql':'/var/run/postgresql':ro
+      - /var/run/postgresql:/var/run/postgresql:ro
       - ./lunchbreak/secrets/development:/var/secrets:ro
       - /var/lunchbreak/development/log:/var/lunchbreak/log:rw
       - /var/lunchbreak/development/static:/var/lunchbreak/static:rw
