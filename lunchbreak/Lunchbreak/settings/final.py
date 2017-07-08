@@ -57,7 +57,7 @@ DATABASES = {
     #         'CHARSET': 'utf8mb4',
     #         'COLLATION': 'utf8mb4_unicode_ci',
     #     },
-    # }
+    # },
 }
 
 GOOGLE_CLOUD_SECRET = get_variable('GOOGLE_CLOUD_SECRET')

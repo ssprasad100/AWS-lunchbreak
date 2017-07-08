@@ -12,6 +12,7 @@
 -e git+git://github.com/AndreasBackx/pendulum@feature/period-exclude-merge#egg=pendulum
 amqp==2.1.4               # via kombu
 asn1crypto==0.22.0        # via cryptography
+babel==2.4.0              # via django-phonenumber-field
 bcrypt==3.1.3
 beautifulsoup4==4.6.0     # via django-livereload-server
 billiard==3.5.0.2         # via celery
@@ -29,14 +30,14 @@ django-extensions==1.7.5
 django-imagekit==3.3
 django-jsonfield==1.0.1
 django-livereload-server==0.2.1
-django-phonenumber-field==0.7.2
+django-phonenumber-field==1.3.0
 django-queryinspect==0.1.0
 django-safedelete==0.4.0
 django-sass-processor==0.3.5
 django-sendfile==0.3.11
 django-split-settings==0.1.2
 django-subdomains==2.1.0
-Django==1.9.12            # via django-dirtyfields, django-livereload-server, django-queryinspect, django-sendfile, django-split-settings, django-subdomains
+Django==1.9.12            # via django-dirtyfields, django-livereload-server, django-phonenumber-field, django-queryinspect, django-sendfile, django-split-settings, django-subdomains
 djangorestframework-jsonp==1.0.0
 djangorestframework==3.4.6
 drf-extensions==0.2.8
@@ -56,13 +57,11 @@ libsass==0.13.2           # via django-sass-processor
 MarkupSafe==1.0           # via jinja2
 mccabe==0.5.3             # via flake8
 mock==1.3.0
-mysqlclient==1.3.10
 openpyxl==2.3.4
 packaging==16.8           # via cryptography
 paramiko==1.18.3          # via fabric3
 pbr==3.1.1                # via mock
 pexpect==4.2.1            # via ipython
-phonenumbers==8.5.2       # via django-phonenumber-field
 pickleshare==0.7.4        # via ipython
 pilkit==2.0               # via django-imagekit
 Pillow==3.2.0
@@ -84,7 +83,7 @@ pyOpenSSL==17.0.0         # via twilio
 pyparsing==2.2.0          # via packaging
 pysocks==1.6.7            # via twilio
 python-dateutil==2.6.0
-pytz==2017.2              # via celery, django-dirtyfields, twilio, tzlocal
+pytz==2017.2              # via babel, celery, django-dirtyfields, twilio, tzlocal
 pyyaml==3.11
 raven==6.0.0
 rcssmin==1.0.6            # via django-compressor

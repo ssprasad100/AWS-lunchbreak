@@ -254,9 +254,16 @@ class Deployer:
             # Regenerate resolvconfig
             sudo('resolvconf -u')
 
+            # Certificate requirements
             sudo('apt-get install apt-transport-https ca-certificates -y')
+
+            # Add Docker certificates and repository
             sudo('apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D')
             sudo('echo "deb https://apt.dockerproject.org/repo ubuntu-xenial main" > /etc/apt/sources.list.d/docker.list')
+
+            # Add PostgreSQL certificates and repository
+            sudo('echo "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list')
+            sudo('wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -')
 
             sudo('apt-get update')
             sudo('apt-get -o Dpkg::Options::="--force-confnew" upgrade -y')
@@ -289,10 +296,17 @@ class Deployer:
             sudo('apt-get install python-pip -y')
             sudo('pip install --no-input docker-compose')
 
+            # PostgreSQL installation
+            sudo('sudo apt-get install postgresql-9.6')
+            sudo('sudo systemctl enable postgresql')
+            sudo('sudo systemctl start postgresql')
+
             # MySQL installation
             sudo('debconf-set-selections <<< "mysql-server-5.7 mysql-server/root_password password ditiseenzeerlangwachtwoorddatveranderdzalzijn"')
             sudo('debconf-set-selections <<< "mysql-server-5.7 mysql-server/root_password_again password ditiseenzeerlangwachtwoorddatveranderdzalzijn"')
             sudo('apt-get -y install mysql-server-5.7')
+            sudo('sudo systemctl enable mysql')
+            sudo('sudo systemctl start mysql')
 
             # Fail2Ban
             sudo('apt-get install fail2ban -y')
