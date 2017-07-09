@@ -43,6 +43,7 @@ libsass==0.13.2           # via django-sass-processor
 MarkupSafe==1.0           # via jinja2
 openpyxl==2.3.4
 packaging==16.8           # via cryptography
+phonenumbers==8.6.0
 pilkit==2.0               # via django-imagekit
 Pillow==3.2.0
 plivo==0.11.3
