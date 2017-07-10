@@ -141,7 +141,7 @@ class StoreTestCase(LunchbreakTestCase):
     @mock.patch('googlemaps.Client.geocode')
     def test_check_open(self, mock_geocode, mock_now, mock_timezone):
         self.mock_timezone_result(mock_timezone)
-        today = self.midday.with_time(
+        today = self.midday.at(
             hour=0,
             minute=0,
             second=0,

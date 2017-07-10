@@ -41,7 +41,7 @@ class Period(models.Model):
 
     @property
     def weekdays(self):
-        now = pendulum.now().with_time(
+        now = pendulum.now().at(
             hour=self.time.hour,
             minute=self.time.minute,
             second=self.time.second,
@@ -75,7 +75,7 @@ class Period(models.Model):
                 days=self.day
             )
 
-        return day.with_time(
+        return day.at(
             hour=self.time.hour,
             minute=self.time.minute,
             second=self.time.second,
@@ -104,7 +104,7 @@ class Period(models.Model):
         ).add(
             days=weekday
         )
-        result = start.with_time(
+        result = start.at(
             hour=time.hour,
             minute=time.minute,
             second=time.second,

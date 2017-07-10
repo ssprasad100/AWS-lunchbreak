@@ -10,14 +10,14 @@ from Lunchbreak.fields import CostField, RoundingDecimalField
 from Lunchbreak.mixins import CleanModelMixin
 from openpyxl import load_workbook
 from safedelete import HARD_DELETE, SOFT_DELETE
-from safedelete.models import SafeDeleteMixin
+from safedelete.models import SafeDeleteModel
 
 from ..exceptions import (IngredientGroupMaxExceeded,
                           IngredientGroupsMinimumNotMet, LinkingError)
 from ..utils import uggettext_summation
 
 
-class Food(CleanModelMixin, SafeDeleteMixin):
+class Food(CleanModelMixin, SafeDeleteModel):
 
     class Meta:
         verbose_name = _('etenswaar')

@@ -4,12 +4,12 @@ from django.utils.translation import ugettext_lazy as _
 from Lunchbreak.exceptions import LunchbreakException
 from Lunchbreak.fields import CostField
 from Lunchbreak.mixins import CleanModelMixin
-from safedelete.models import SafeDeleteMixin
+from safedelete.models import SafeDeleteModel
 
 from ..config import COST_GROUP_BOTH, COST_GROUP_CALCULATIONS
 
 
-class IngredientGroup(CleanModelMixin, SafeDeleteMixin):
+class IngredientGroup(CleanModelMixin, SafeDeleteModel):
 
     class Meta:
         verbose_name = _('ingrediëntengroep')

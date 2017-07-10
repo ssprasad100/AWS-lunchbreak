@@ -1,7 +1,7 @@
 import mock
 from django.core.urlresolvers import reverse
 from django_sms.models import Phone
-from push_notifications.models import SERVICE_APNS, SERVICE_GCM
+from push_notifications.models import BareDevice
 from rest_framework import status
 
 from . import CustomersTestCase
@@ -82,7 +82,7 @@ class UserTestCase(CustomersTestCase):
             'pin': self.PIN,
             'token': {
                 'device': self.DEVICE,
-                'service': SERVICE_APNS,
+                'service': BareDevice.APNS,
                 'registration_id': self.REGISTRATION_ID
             }
         }
@@ -141,7 +141,7 @@ class UserTestCase(CustomersTestCase):
             'pin': self.PIN,
             'token': {
                 'device': self.DEVICE,
-                'service': SERVICE_APNS,
+                'service': BareDevice.APNS,
                 'registration_id': self.REGISTRATION_ID
             }
         }
@@ -282,9 +282,9 @@ class UserTestCase(CustomersTestCase):
         self.usertoken.refresh_from_db()
         self.assertEqual(self.usertoken.registration_id, content['registration_id'])
 
-        self.usertoken.service = SERVICE_APNS
+        self.usertoken.service = BareDevice.APNS
         self.usertoken.save()
-        content['service'] = SERVICE_GCM
+        content['service'] = BareDevice.GCM
 
         request = self.factory.patch(url, content)
         response = self.authenticate_request(
@@ -294,7 +294,7 @@ class UserTestCase(CustomersTestCase):
         self.assertEqual(self.usertoken.registration_id, content['registration_id'])
         self.assertEqual(self.usertoken.service, content['service'])
 
-        self.usertoken.service = SERVICE_APNS
+        self.usertoken.service = BareDevice.APNS
         self.usertoken.save()
 
         request = self.factory.put(url, content)

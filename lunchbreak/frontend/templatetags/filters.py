@@ -89,7 +89,7 @@ def humanize_date(value, arg='j F Y'):
     if isinstance(value, datetime):
         value = Pendulum.instance(value)
     elif isinstance(value, date):
-        value = Pendulum.create_from_date(
+        value = Pendulum.create(
             year=value.year,
             month=value.month,
             day=value.day

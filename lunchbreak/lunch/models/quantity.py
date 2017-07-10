@@ -3,12 +3,12 @@ from django.utils.translation import ugettext_lazy as _
 from Lunchbreak.fields import RoundingDecimalField
 from Lunchbreak.mixins import CleanModelMixin
 from safedelete import HARD_DELETE_NOCASCADE
-from safedelete.models import SafeDeleteMixin
+from safedelete.models import SafeDeleteModel
 
 from ..exceptions import InvalidFoodTypeAmount
 
 
-class Quantity(CleanModelMixin, SafeDeleteMixin):
+class Quantity(CleanModelMixin, SafeDeleteModel):
 
     _safedelete_policy = HARD_DELETE_NOCASCADE
 

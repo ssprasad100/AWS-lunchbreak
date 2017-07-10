@@ -7,7 +7,7 @@ from lunch.serializers import (FoodDetailSerializer, FoodSerializer,
                                StoreSerializer)
 from lunch.views import StoreCategoryListViewBase
 from Lunchbreak.views import TargettedViewSet
-from push_notifications.models import SERVICE_INACTIVE
+from push_notifications.models import BareDevice
 from rest_framework import filters, generics, mixins, status, viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
@@ -423,7 +423,7 @@ class UserViewSet(viewsets.GenericViewSet):
             return UserToken.response(
                 user=user,
                 device=token['device'],
-                service=token.get('service', SERVICE_INACTIVE),
+                service=token.get('service', BareDevice.INACTIVE),
                 registration_id=token.get('registration_id', '')
             )
         except:

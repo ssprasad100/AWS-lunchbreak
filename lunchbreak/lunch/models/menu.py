@@ -2,10 +2,10 @@ from django.db import models
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from safedelete import HARD_DELETE, SOFT_DELETE_CASCADE
-from safedelete.models import SafeDeleteMixin
+from safedelete.models import SafeDeleteModel
 
 
-class Menu(SafeDeleteMixin):
+class Menu(SafeDeleteModel):
 
     class Meta:
         unique_together = ('name', 'store',)
@@ -40,7 +40,7 @@ class Menu(SafeDeleteMixin):
         Otherwise soft delete it and the food it's related to.
 
         Returns:
-            SOFT_DELETE if still used, HARD_DELETE otherwise.
+            SOFT_DELETE_CASCADE if still used, HARD_DELETE otherwise.
         """
         from customers.models import OrderedFood
 

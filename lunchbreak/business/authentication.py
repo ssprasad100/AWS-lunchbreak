@@ -6,7 +6,7 @@ from django.template.loader import render_to_string
 from lunch.authentication import TokenAuthentication
 from lunch.config import random_token
 from Lunchbreak.exceptions import LunchbreakException
-from push_notifications.models import SERVICE_INACTIVE
+from push_notifications.models import BareDevice
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
@@ -28,7 +28,7 @@ class BusinessAuthentication(TokenAuthentication):
         password_raw = request.data['password']
         device = request.data['device']
         registration_id = request.data.get('registration_id', '')
-        service = request.data.get('service', SERVICE_INACTIVE)
+        service = request.data.get('service', BareDevice.INACTIVE)
         device = request.data['device']
 
         model = cls.get_model(request.data)

@@ -115,12 +115,12 @@ class GroupOrder(StatusSignalModel):
             kwargs={
                 'group_order_id': group_order.id,
             },
-            eta=Pendulum.create_from_date(
+            eta=Pendulum.create(
                 year=group_order.date.year,
                 month=group_order.date.month,
                 day=group_order.date.day,
                 tz=group_order.group.store.timezone
-            ).with_time(
+            ).at(
                 hour=group_order.group.deadline.hour,
                 minute=group_order.group.deadline.minute,
                 second=group_order.group.deadline.second

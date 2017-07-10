@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils.translation import ugettext as _
 from lunch.models import BaseToken
-from push_notifications.models import SERVICE_INACTIVE
+from push_notifications.models import BareDevice
 from rest_framework import status
 from rest_framework.response import Response
 
@@ -21,7 +21,7 @@ class UserToken(BaseToken):
     )
 
     @staticmethod
-    def response(user, device, service=SERVICE_INACTIVE, registration_id=''):
+    def response(user, device, service=BareDevice.INACTIVE, registration_id=''):
         from ..serializers import UserTokenDetailSerializer
 
         token, created = UserToken.objects.create_token(

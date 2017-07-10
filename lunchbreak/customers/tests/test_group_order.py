@@ -19,7 +19,7 @@ class GroupOrderTestCase(BaseGroupTestCase):
     def receipt(self):
         return Pendulum.now(
             self.group.store.timezone
-        ).with_time(
+        ).at(
             hour=self.group.receipt_time.hour,
             minute=self.group.receipt_time.minute,
             second=self.group.receipt_time.second
@@ -101,7 +101,7 @@ class GroupOrderTestCase(BaseGroupTestCase):
         order = Order.objects.create_with_orderedfood(
             orderedfood=[],
             store=self.store,
-            receipt=Pendulum.now().add(days=1).with_time(
+            receipt=Pendulum.now().add(days=1).at(
                 hour=self.group.receipt_time.hour,
                 minute=self.group.receipt_time.minute,
                 second=self.group.receipt_time.second
@@ -139,7 +139,7 @@ class GroupOrderTestCase(BaseGroupTestCase):
         total = Decimal(self.food.cost) * Decimal(self.food.amount)
         order = Order.objects.create_with_orderedfood(
             store=self.store,
-            receipt=Pendulum.now().add(days=1).with_time(
+            receipt=Pendulum.now().add(days=1).at(
                 hour=self.group.receipt_time.hour,
                 minute=self.group.receipt_time.minute,
                 second=self.group.receipt_time.second

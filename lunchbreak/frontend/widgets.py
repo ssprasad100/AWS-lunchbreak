@@ -83,7 +83,7 @@ class DayWidget(widgets.Widget):
             return min(
                 self.days,
                 key=lambda date: now.diff(
-                    Pendulum.create_from_date(
+                    Pendulum.create(
                         year=date.year,
                         month=date.month,
                         day=date.day

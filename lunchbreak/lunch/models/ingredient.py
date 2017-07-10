@@ -4,12 +4,12 @@ from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from Lunchbreak.fields import CostField
 from safedelete import HARD_DELETE, SOFT_DELETE
-from safedelete.models import SafeDeleteMixin
+from safedelete.models import SafeDeleteModel
 
 from ..exceptions import LinkingError
 
 
-class Ingredient(SafeDeleteMixin, DirtyFieldsMixin):
+class Ingredient(SafeDeleteModel, DirtyFieldsMixin):
 
     class Meta:
         verbose_name = _('ingrediënt')

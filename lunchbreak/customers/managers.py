@@ -66,7 +66,7 @@ class OrderManager(models.Manager):
         if group is not None:
             receipt = Pendulum.instance(
                 receipt
-            ).with_time(
+            ).at(
                 hour=group.receipt_time.hour,
                 minute=group.receipt_time.minute,
                 second=group.receipt_time.second

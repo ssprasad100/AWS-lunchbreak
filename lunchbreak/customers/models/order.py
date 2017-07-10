@@ -210,7 +210,7 @@ class Order(StatusSignalModel, AbstractOrder):
         self.update_hard_delete()
 
     def update_hard_delete(self):
-        """Update whether the orderedfood can be deletedself.
+        """Update whether the orderedfood can be deleted.
 
         Calls all of the linked OrderedFood's update_hard_delete methods.
         """
@@ -284,7 +284,7 @@ class Order(StatusSignalModel, AbstractOrder):
             if self.group is not None:
                 self.receipt = Pendulum.instance(
                     self.receipt
-                ).with_time(
+                ).at(
                     hour=self.group_order.receipt.hour,
                     minute=self.group_order.receipt.minute,
                     second=self.group_order.receipt.second
