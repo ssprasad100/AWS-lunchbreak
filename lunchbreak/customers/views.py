@@ -180,14 +180,7 @@ class StoreViewSet(TargettedViewSet,
     def queryset_list(self):
         if 'latitude' in self.kwargs and 'longitude' in self.kwargs:
             proximity = self.kwargs['proximity'] if 'proximity' in self.kwargs else 25
-            result = Store.objects.annotate(
-                hearted=Exists(
-                    Heart.objects.filter(
-                        store=OuterRef('pk'),
-                        user=self.request.user
-                    )
-                )
-            ).nearby(
+            result = self.queryset.nearby(
                 self.kwargs['latitude'],
                 self.kwargs['longitude'],
                 proximity
