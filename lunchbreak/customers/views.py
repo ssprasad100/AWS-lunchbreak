@@ -188,6 +188,8 @@ class StoreViewSet(TargettedViewSet,
                 'categories',
             ).filter(
                 enabled=True
+            ).order_by(
+                'name'
             ).distinct()
 
         # TODO Use semver.
@@ -382,6 +384,8 @@ class StoreGroupViewSet(viewsets.GenericViewSet,
         return Group.objects.filter(
             store_id=self.kwargs['parent_lookup_pk'],
             members__in=[self.request.user]
+        ).order_by(
+            'name'
         )
 
 

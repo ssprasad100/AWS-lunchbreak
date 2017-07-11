@@ -73,7 +73,12 @@ class EmployeeView(generics.ListAPIView):
     pagination_class = None
 
     def get_queryset(self):
-        return Employee.objects.filter(staff=self.request.user)
+        return Employee.objects.filter(
+            staff=self.request.user
+        ).order_by(
+            '-owner',
+            'name',
+        )
 
     def post(self, request, *args, **kwargs):
         return EmployeeAuthentication.login(request)
