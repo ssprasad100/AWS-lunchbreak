@@ -1,5 +1,5 @@
 from customers import serializers as customers_serializers
-from customers.models import Group, Order, OrderedFood
+from customers.models import Group, Order, OrderedFood, User
 from lunch import serializers as lunch_serializers
 from lunch.config import TOKEN_IDENTIFIER_LENGTH
 from lunch.models import (Food, Ingredient, IngredientGroup,
@@ -281,8 +281,22 @@ class GroupSerializer(serializers.ModelSerializer):
         )
 
 
+class UserSerializer(serializers.ModelSerializer):
+    phone = serializers.StringRelatedField(
+        read_only=True
+    )
+
+    class Meta:
+        model = User
+        fields = (
+            'id',
+            'name',
+            'phone',
+        )
+
+
 class OrderSerializer(customers_serializers.OrderSerializer):
-    user = customers_serializers.UserSerializer(
+    user = UserSerializer(
         read_only=True
     )
     group = GroupSerializer(
