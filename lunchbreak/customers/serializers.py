@@ -1,7 +1,6 @@
 from django_gocardless.serializers import RedirectFlowSerializer
 from django_sms.models import Phone
 from lunch import serializers as lunch_serializers
-from lunch.models import Store
 from lunch.serializers import FoodSerializer
 from Lunchbreak.serializers import MoneyField, PrimaryModelSerializer
 from payconiq.serializers import TransactionSerializer
@@ -11,19 +10,6 @@ from rest_framework import serializers
 from .config import PAYMENTLINK_COMPLETION_REDIRECT_URL
 from .models import (Address, Group, GroupOrder, Order, OrderedFood,
                      PaymentLink, User, UserToken)
-
-
-class StoreHeartSerializer(lunch_serializers.StoreDetailSerializer):
-    hearted = serializers.BooleanField()
-
-    class Meta:
-        model = Store
-        fields = lunch_serializers.StoreDetailSerializer.Meta.fields + (
-            'hearted',
-        )
-        read_only_fields = lunch_serializers.StoreDetailSerializer.Meta.fields + (
-            'hearted',
-        )
 
 
 class OrderedFoodSerializer(serializers.ModelSerializer):

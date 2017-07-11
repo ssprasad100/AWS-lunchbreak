@@ -22,6 +22,7 @@ class StoreCategorySerializer(serializers.ModelSerializer):
 
 
 class StoreSerializer(VersionedMixin, serializers.ModelSerializer):
+    hearted = serializers.BooleanField()
     categories = StoreCategorySerializer(
         many=True,
         read_only=True
@@ -42,6 +43,7 @@ class StoreSerializer(VersionedMixin, serializers.ModelSerializer):
             'gocardless_enabled',
             'payconiq_enabled',
             'cash_enabled',
+            'hearted',
         )
         read_only_fields = (
             'id',
@@ -52,6 +54,7 @@ class StoreSerializer(VersionedMixin, serializers.ModelSerializer):
             'gocardless_enabled',
             'payconiq_enabled',
             'cash_enabled',
+            'hearted',
         )
 
 

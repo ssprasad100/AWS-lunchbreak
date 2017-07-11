@@ -1,10 +1,11 @@
+from django.db.models import Exists, OuterRef
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from lunch.models import Food, Menu, Store
 from lunch.pagination import SimplePagination
 from lunch.serializers import (FoodDetailSerializer, FoodSerializer,
                                MenuDetailSerializer, MenuSerializer,
-                               StoreSerializer)
+                               StoreDetailSerializer, StoreSerializer)
 from lunch.views import StoreCategoryListViewBase
 from Lunchbreak.views import TargettedViewSet
 from push_notifications.models import BareDevice
@@ -19,9 +20,9 @@ from .models import (ConfirmedOrder, Group, Heart, Order, PaymentLink, User,
                      UserToken)
 from .serializers import (GroupSerializer, OrderDetailSerializer,
                           OrderedFoodPriceSerializer, OrderSerializer,
-                          PaymentLinkSerializer, StoreHeartSerializer,
-                          UserLoginSerializer, UserRegisterSerializer,
-                          UserTokenSerializer, UserTokenUpdateSerializer)
+                          PaymentLinkSerializer, UserLoginSerializer,
+                          UserRegisterSerializer, UserTokenSerializer,
+                          UserTokenUpdateSerializer)
 
 
 class FoodViewSet(TargettedViewSet,
@@ -156,35 +157,43 @@ class StoreViewSet(TargettedViewSet,
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name', 'city', 'street',)
 
-    serializer_class_retrieve = StoreHeartSerializer
+    serializer_class_retrieve = StoreDetailSerializer
     serializer_class_create = StoreSerializer
     serializer_class_list = StoreSerializer
     serializer_class_recent = StoreSerializer
-    serializer_class_heart = StoreHeartSerializer
-    serializer_class_unheart = StoreHeartSerializer
+    serializer_class_heart = StoreDetailSerializer
+    serializer_class_unheart = StoreDetailSerializer
     serializer_class_paymentlink = PaymentLinkSerializer
 
-    queryset = Store.objects.all()
-
     @property
-    def object_retrieve(self):
-        store = super(TargettedViewSet, self).get_object()
-        store.hearted = self.request.user in store.hearts.all()
-        return store
+    def queryset(self):
+        return Store.objects.annotate(
+            hearted=Exists(
+                Heart.objects.filter(
+                    store=OuterRef('pk'),
+                    user=self.request.user
+                )
+            )
+        )
 
     @property
     def queryset_list(self):
         if 'latitude' in self.kwargs and 'longitude' in self.kwargs:
             proximity = self.kwargs['proximity'] if 'proximity' in self.kwargs else 25
-            result = Store.objects.nearby(
+            result = Store.objects.annotate(
+                hearted=Exists(
+                    Heart.objects.filter(
+                        store=OuterRef('pk'),
+                        user=self.request.user
+                    )
+                )
+            ).nearby(
                 self.kwargs['latitude'],
                 self.kwargs['longitude'],
                 proximity
-            ).filter(
-                enabled=True
             )
         else:
-            result = Store.objects.prefetch_related(
+            result = self.queryset.prefetch_related(
                 'categories',
             ).filter(
                 enabled=True
