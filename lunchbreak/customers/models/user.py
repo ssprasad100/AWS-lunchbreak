@@ -95,6 +95,11 @@ class User(AbstractBaseUser, PermissionsMixin):
             **kwargs
         )
 
+    def clean(self):
+        """AbstractUser's clean method normalise the username which results in
+        normalising the Phone instance here resulting in an error."""
+        pass
+
     @staticmethod
     def register(phone):
         try:
