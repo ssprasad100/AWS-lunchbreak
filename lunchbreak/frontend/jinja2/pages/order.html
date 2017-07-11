@@ -24,7 +24,6 @@
                     {{ forms.render_errors(user_form.name.errors) }}
                 </label>
 
-
                 <label>Telefoonnummer
                     <input type="text" value="{{ request.user.phone }}" disabled/>
                 </label>
@@ -58,6 +57,7 @@
                         {% endif %}
                     </div>
                     {% else %}
+                    <input type="hidden" id="checkout-payment-0" name="{{ order_form.payment_method.html_name }}" value="{{ order_form.fields['payment_method'].choices[0][0] }}" checked>
                     <p class="subscript">
                         {{ store.name }} aanvaardt enkel betalingen in de winkel.
                     </p>
