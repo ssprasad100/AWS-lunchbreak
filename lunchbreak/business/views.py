@@ -38,10 +38,10 @@ from .serializers import (EmployeeSerializer, FoodDetailSerializer,
                           IngredientGroupDetailSerializer,
                           IngredientGroupSerializer, IngredientSerializer,
                           OrderDetailSerializer, OrderedFoodSerializer,
-                          OrderSerializer, OrderSpreadSerializer,
-                          PopularFoodSerializer, StaffSerializer,
-                          StoreDetailSerializer, StoreGoCardlessSerializer,
-                          StoreHeaderSerializer, StorePayconiqSerializer)
+                          OrderSpreadSerializer, PopularFoodSerializer,
+                          StaffSerializer, StoreDetailSerializer,
+                          StoreGoCardlessSerializer, StoreHeaderSerializer,
+                          StorePayconiqSerializer)
 
 AVAILABLE_STATUSES = [
     ORDER_STATUS_PLACED,
@@ -406,7 +406,7 @@ class IngredientGroupDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 class OrderView(generics.ListAPIView):
     authentication_classes = (EmployeeAuthentication,)
-    serializer_class = OrderSerializer
+    serializer_class = OrderDetailSerializer
 
     def get_queryset(self):
         filters = {
@@ -425,11 +425,19 @@ class OrderView(generics.ListAPIView):
                     and self.request.GET['order_by'] == 'receipt':
                 if since is not None:
                     filters['receipt__gt'] = since
-                return ConfirmedOrder.objects.filter(**filters).order_by('receipt')
+                return ConfirmedOrder.objects.filter(
+                    **filters
+                ).order_by(
+                    'receipt'
+                )
             else:
                 if since is not None:
                     filters['placed__gt'] = since
-                return ConfirmedOrder.objects.filter(**filters).order_by('-placed')
+                return ConfirmedOrder.objects.filter(
+                    **filters
+                ).order_by(
+                    '-placed'
+                )
         return ConfirmedOrder.objects.filter(**filters)
 
 
