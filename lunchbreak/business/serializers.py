@@ -7,6 +7,7 @@ from lunch.models import (Food, Ingredient, IngredientGroup,
 from Lunchbreak.serializers import MoneyField, RequestAttributeDefault
 from payconiq.serializers import MerchantSerializer, TransactionSerializer
 from rest_framework import serializers
+from versioning_prime.mixins import VersionedMixin
 
 from .models import (AbstractPassword, Employee, EmployeeToken, Staff,
                      StaffToken)
@@ -227,7 +228,7 @@ class OrderedFoodSerializer(serializers.ModelSerializer):
         )
 
 
-class OrderSpreadSerializer(serializers.Serializer):
+class OrderSpreadSerializer(VersionedMixin, serializers.Serializer):
     amount = serializers.IntegerField(
         read_only=True
     )
