@@ -41,6 +41,7 @@ class StoreDetailSerializer(serializers.ModelSerializer):
             'enabled',
             'gocardless_enabled',
             'payconiq_enabled',
+            'cash_enabled',
         )
         read_only_fields = (
             'id',
