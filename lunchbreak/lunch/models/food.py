@@ -56,13 +56,47 @@ class Food(CleanModelMixin, SafeDeleteModel):
         verbose_name=_('type etenswaar'),
         help_text=('Type etenswaar.')
     )
+    wait = models.DurationField(
+        default=None,
+        null=True,
+        blank=True,
+        verbose_name=_('wachttijd'),
+        help_text=_(
+            'Minimum tijd dat op voorhand besteld moet worden. Dit leeg '
+            'laten betekent dat deze instelling overgenomen wordt van het '
+            'type etenswaar.'
+        )
+    )
+    preorder_time = models.TimeField(
+        default=None,
+        null=True,
+        blank=True,
+        verbose_name=_('tijd voorafgaande bestelling'),
+        help_text=_(
+            'Indien bepaalde waren meer dan een dag op voorhand besteld moeten '
+            'worden, moeten ze voor dit tijdstip besteld worden. Dit leeg '
+            'laten betekent dat deze instelling overgenomen wordt van het '
+            'type etenswaar.'
+        )
+    )
     preorder_days = models.IntegerField(
-        default=0,
+        default=None,
+        null=True,
+        blank=True,
         verbose_name=_('dagen op voorhand bestellen'),
         help_text=(
             'Minimum dagen op voorhand bestellen voor het uur ingesteld op '
-            'de winkel. (0 is uitgeschakeld, >=1 is dezelfde dag voor het '
-            'bepaalde uur.)'
+            'de winkel. (0 is dezelfde dag, >=1 is dat aantal dagen voor het '
+            'bepaalde uur.) Dit leeg laten betekent dat deze instelling '
+            'overgenomen wordt van het type etenswaar.'
+        )
+    )
+    preorder_disabled = models.BooleanField(
+        default=False,
+        verbose_name=_('voorhand bestelling uitschakelen'),
+        help_text=(
+            'Of de mogelijkheid om op voorhand te bestellen specifiek voor '
+            'dit etenswaar is uitgeschakeld.'
         )
     )
     commentable = models.BooleanField(
@@ -232,6 +266,28 @@ class Food(CleanModelMixin, SafeDeleteModel):
         except Quantity.DoesNotExist:
             return None
 
+    @cached_property
+    def inherited_wait(self):
+        return self.wait \
+            if self.wait is not None \
+            else self.foodtype.inherited_wait
+
+    @property
+    def preorder_settings(self):
+        """Returns the preorder settings and include the inherited FoodType's settings."""
+
+        if not self.preorder_disabled:
+            return None, None
+
+        preorder_days = self.preorder_days \
+            if self.preorder_days is not None \
+            else self.foodtype.preorder_days
+        preorder_time = self.preorder_time \
+            if self.preorder_time is not None \
+            else self.foodtype.preorder_time
+
+        return preorder_days, preorder_time
+
     def get_cost_display(self):
         return str(
             (
@@ -273,26 +329,28 @@ class Food(CleanModelMixin, SafeDeleteModel):
         Check whether this food can be ordered for the given day.
         This does not check whether the Store.wait has been exceeded!
         """
-        if self.preorder_days == 0:
+        preorder_days, preorder_time = self.preorder_settings
+
+        if preorder_days is None or preorder_time is None:
             return True
-        else:
-            now = timezone.now() if now is None else now
-            # Amount of days needed to order in advance
-            # (add 1 if it isn't before the preorder_time)
-            preorder_days = self.preorder_days + (
-                1 if now.time() > self.store.preorder_time else 0
-            )
 
-            # Calculate the amount of days between dt and now
-            difference_day = (dt - now).days
-            difference_day += (
-                1
-                if dt.time() < now.time() and
-                (now + (dt - now)).day != now.day
-                else 0
-            )
+        now = timezone.now() if now is None else now
+        # Amount of days needed to order in advance
+        # (add 1 if it isn't before the preorder_time)
+        preorder_days = preorder_days + (
+            1 if now.time() > preorder_time else 0
+        )
 
-            return difference_day >= preorder_days
+        # Calculate the amount of days between dt and now
+        difference_day = (dt - now).days
+        difference_day += (
+            1
+            if dt.time() < now.time() and
+            (now + (dt - now)).day != now.day
+            else 0
+        )
+
+        return difference_day >= preorder_days
 
     def is_valid_amount(self, amount, raise_exception=True):
         return self.foodtype.is_valid_amount(

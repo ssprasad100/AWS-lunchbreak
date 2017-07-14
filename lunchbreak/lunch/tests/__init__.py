@@ -45,8 +45,7 @@ class LunchTestCase(LunchbreakTestCase):
         )
 
         self.foodtype = FoodType.objects.create(
-            name='FoodType test',
-            customisable=True
+            name='FoodType test'
         )
 
         self.menu = Menu.objects.create(

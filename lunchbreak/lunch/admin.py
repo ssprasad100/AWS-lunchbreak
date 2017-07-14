@@ -83,10 +83,10 @@ class HolidayPeriodAdmin(admin.ModelAdmin):
 
 @admin.register(FoodType)
 class FoodTypeAdmin(admin.ModelAdmin):
-    list_display = ('name', 'quantifier', 'inputtype', 'customisable',)
+    list_display = ('name', 'store', 'quantifier', 'inputtype',)
     search_fields = ('name', 'quantifier',)
-    list_filter = ('customisable', 'inputtype',)
-    ordering = ('name', 'customisable',)
+    list_filter = ('store', 'inputtype',)
+    ordering = ('name', 'store', 'inputtype',)
 
 
 @admin.register(IngredientGroup)

@@ -335,7 +335,6 @@
     },
     {
         "fields": {
-            "customisable": false,
             "inputtype": 0,
             "name": "Tosti",
             "quantifier": "tosti's"
@@ -345,7 +344,6 @@
     },
     {
         "fields": {
-            "customisable": false,
             "inputtype": 0,
             "name": "Belegde broodjes",
             "quantifier": "broodjes"
@@ -355,7 +353,6 @@
     },
     {
         "fields": {
-            "customisable": false,
             "inputtype": 0,
             "name": "Schotels",
             "quantifier": "personen"
@@ -365,7 +362,6 @@
     },
     {
         "fields": {
-            "customisable": false,
             "inputtype": 0,
             "name": "Salades",
             "quantifier": "salades"
@@ -375,7 +371,6 @@
     },
     {
         "fields": {
-            "customisable": false,
             "inputtype": 0,
             "name": "Pastasalades",
             "quantifier": "salades"
@@ -385,7 +380,6 @@
     },
     {
         "fields": {
-            "customisable": false,
             "inputtype": 0,
             "name": "Panini",
             "quantifier": "panini's"
@@ -395,7 +389,6 @@
     },
     {
         "fields": {
-            "customisable": false,
             "inputtype": 0,
             "name": "Snacks",
             "quantifier": null
@@ -405,7 +398,6 @@
     },
     {
         "fields": {
-            "customisable": false,
             "inputtype": 0,
             "name": "Soep",
             "quantifier": null
@@ -415,7 +407,6 @@
     },
     {
         "fields": {
-            "customisable": false,
             "inputtype": 0,
             "name": "Dranken",
             "quantifier": ""
@@ -425,7 +416,6 @@
     },
     {
         "fields": {
-            "customisable": false,
             "inputtype": 0,
             "name": "Vlees, prijs per stuk",
             "quantifier": null
@@ -435,7 +425,6 @@
     },
     {
         "fields": {
-            "customisable": false,
             "inputtype": 2,
             "name": "Vlees per stuk, prijs per gewicht",
             "quantifier": null
@@ -445,7 +434,6 @@
     },
     {
         "fields": {
-            "customisable": false,
             "inputtype": 1,
             "name": "Vlees per gewicht",
             "quantifier": null
@@ -455,7 +443,6 @@
     },
     {
         "fields": {
-            "customisable": false,
             "inputtype": 0,
             "name": "Koffie",
             "quantifier": ""
@@ -465,7 +452,6 @@
     },
     {
         "fields": {
-            "customisable": false,
             "inputtype": 0,
             "name": "Dranken Melk",
             "quantifier": ""
@@ -475,7 +461,6 @@
     },
     {
         "fields": {
-            "customisable": false,
             "inputtype": 0,
             "name": "Smoothie",
             "quantifier": "smoothies"
@@ -485,7 +470,6 @@
     },
     {
         "fields": {
-            "customisable": false,
             "inputtype": 0,
             "name": "Alcoholische dranken",
             "quantifier": ""
@@ -495,7 +479,6 @@
     },
     {
         "fields": {
-            "customisable": false,
             "inputtype": 0,
             "name": "Warme gerechten",
             "quantifier": ""
@@ -505,7 +488,6 @@
     },
     {
         "fields": {
-            "customisable": false,
             "inputtype": 0,
             "name": "Desserts",
             "quantifier": ""
@@ -515,7 +497,6 @@
     },
     {
         "fields": {
-            "customisable": false,
             "inputtype": 0,
             "name": "Shop",
             "quantifier": ""

@@ -1,5 +1,5 @@
 from collections import defaultdict
-from datetime import time, timedelta
+from datetime import timedelta
 
 import pendulum
 from customers.exceptions import (PastOrderDenied, PreorderTimeExceeded,
@@ -40,14 +40,6 @@ class Store(AbstractAddress):
         default=timedelta(seconds=60),
         verbose_name=_('wachttijd'),
         help_text=_('Minimum tijd dat op voorhand besteld moet worden.')
-    )
-    preorder_time = models.TimeField(
-        default=time(hour=12),
-        verbose_name=_('tijd voorafgaande bestelling'),
-        help_text=_(
-            'Indien bepaalde waren meer dan een dag op voorhand besteld moeten '
-            'worden, moeten ze voor dit tijdstip besteld worden.'
-        )
     )
     hearts = models.ManyToManyField(
         'customers.User',
@@ -241,23 +233,44 @@ class Store(AbstractAddress):
             if start is None:
                 now = timezone.now()
                 start = pendulum.instance(now)
-                start += self.wait
+                wait = timedelta()
                 if orderedfood is not None:
-                    preorder_days = -1
+                    preorder_time = None
+                    preorder_days = None
+
                     for of in orderedfood:
-                        if of.original.preorder_days > preorder_days:
-                            preorder_days = of.original.preorder_days
-                    if preorder_days >= 0:
+                        food_wait = of.original.inherited_wait
+
+                        if food_wait > wait:
+                            wait = food_wait
+
+                        food_preorder_days, food_preorder_time = of.original.preorder_settings
+
+                        if food_preorder_time is None or food_preorder_days is None:
+                            continue
+
+                        if (preorder_time is None and preorder_days is None) \
+                            or food_preorder_days > preorder_days \
+                            or (
+                                food_preorder_time < preorder_time
+                                and food_preorder_days == preorder_days
+                        ):
+                            preorder_time = food_preorder_time
+                            preorder_days = food_preorder_days
+
+                    if preorder_time is not None and preorder_days is not None:
                         # Amount of days needed to order in advance
                         # (add 1 if it isn't before the preorder_time)
                         preorder_days = preorder_days + (
-                            1 if now.time() > self.preorder_time else 0
+                            1 if now.time() > preorder_time else 0
                         )
                         start = start.add(
                             days=preorder_days
                         )
                         if 'days' in kwargs:
                             kwargs['days'] = max(0, kwargs['days'] - preorder_days)
+
+                start += wait
             end = start.add(**kwargs)
 
             period = pendulum.Period(
