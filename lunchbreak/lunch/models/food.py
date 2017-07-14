@@ -276,7 +276,7 @@ class Food(CleanModelMixin, SafeDeleteModel):
     def preorder_settings(self):
         """Returns the preorder settings and include the inherited FoodType's settings."""
 
-        if not self.preorder_disabled:
+        if self.preorder_disabled:
             return None, None
 
         preorder_days = self.preorder_days \
@@ -349,7 +349,6 @@ class Food(CleanModelMixin, SafeDeleteModel):
             (now + (dt - now)).day != now.day
             else 0
         )
-
         return difference_day >= preorder_days
 
     def is_valid_amount(self, amount, raise_exception=True):

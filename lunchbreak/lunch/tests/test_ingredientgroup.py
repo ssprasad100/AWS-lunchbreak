@@ -26,7 +26,10 @@ class IngredientGroupTestCase(LunchTestCase):
             number=10
         )
 
-        foodtype = FoodType.objects.create(name='type')
+        foodtype = FoodType.objects.create(
+            name='type',
+            store=store
+        )
 
         group = IngredientGroup(
             name='group',

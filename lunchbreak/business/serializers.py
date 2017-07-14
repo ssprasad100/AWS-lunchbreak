@@ -37,7 +37,6 @@ class StoreDetailSerializer(serializers.ModelSerializer):
             'street',
             'number',
             'wait',
-            'preorder_time',
             'enabled',
             'gocardless_enabled',
             'payconiq_enabled',

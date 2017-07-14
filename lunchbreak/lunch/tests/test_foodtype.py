@@ -22,7 +22,10 @@ class FoodTypeTestCase(LunchbreakTestCase):
             number=10
         )
 
-        foodtype = FoodType.objects.create(name='type')
+        foodtype = FoodType.objects.create(
+            name='type',
+            store=store
+        )
 
         quantity = Quantity.objects.create(
             foodtype=foodtype,

@@ -73,7 +73,6 @@ class StoreDetailSerializer(StoreSerializer):
             'street',
             'number',
             'wait',
-            'preorder_time',
         )
 
 

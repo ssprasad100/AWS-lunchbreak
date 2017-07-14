@@ -12,7 +12,6 @@ class QuantityTestCase(LunchbreakTestCase):
     def test_quantity(self, mock_geocode, mock_timezone):
         self.mock_timezone_result(mock_timezone)
         self.mock_geocode_results(mock_geocode)
-        foodtype = FoodType.objects.create(name='type')
 
         store = Store.objects.create(
             name='valid',
@@ -22,6 +21,11 @@ class QuantityTestCase(LunchbreakTestCase):
             postcode='9230',
             street='Dendermondesteenweg',
             number=10
+        )
+
+        foodtype = FoodType.objects.create(
+            name='type',
+            store=store
         )
 
         self.assertRaises(
