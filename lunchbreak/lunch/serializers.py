@@ -248,6 +248,11 @@ class FoodTypeSerializer(serializers.ModelSerializer):
             'name',
             'quantifier',
             'inputtype',
+            'store',
+
+            'wait',
+            'preorder_time',
+            'preorder_days',
         )
         read_only_fields = (
             'id',
@@ -309,7 +314,10 @@ class BaseFoodSerializer(serializers.ModelSerializer):
             'priority',
             'has_ingredients',
             'quantity',
+            'wait',
+            'preorder_time',
             'preorder_days',
+            'preorder_disabled',
         )
         read_only_fields = (
             'id',

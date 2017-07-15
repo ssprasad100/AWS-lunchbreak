@@ -31,7 +31,7 @@ class Ingredient(SafeDeleteModel, DirtyFieldsMixin):
         default=0,
         verbose_name=_('basisprijs'),
         help_text=(
-            'Basisprijs diet in rekening wordt gebracht afhankelijk van de '
+            'Basisprijs die in rekening wordt gebracht afhankelijk van de '
             'prijsberekening ingesteld op de ingrediëntengroep.'
         )
     )

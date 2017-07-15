@@ -460,6 +460,11 @@ class FoodSerializer(serializers.ModelSerializer):
             'deleted',
             'enabled',
             'last_modified',
+
+            'wait',
+            'preorder_time',
+            'preorder_days',
+            'preorder_disabled',
         )
         read_only_fields = (
             'id',

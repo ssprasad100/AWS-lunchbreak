@@ -88,11 +88,36 @@ class FoodTypeAdmin(admin.ModelAdmin):
     list_filter = ('store', 'inputtype',)
     ordering = ('name', 'store', 'inputtype',)
 
+    fieldsets = (
+        (
+            _('Basis informatie'),
+            {
+                'fields': (
+                    'name',
+                    'inputtype',
+                    'store',
+                    'quantifier',
+                ),
+            },
+        ),
+        (
+            _('Bestel instellingen'),
+            {
+                'fields': (
+                    'wait',
+                    'preorder_time',
+                    'preorder_days',
+                )
+            },
+        ),
+    )
+
 
 @admin.register(IngredientGroup)
 class IngredientGroupAdmin(admin.ModelAdmin):
     list_display = ('name', 'store', 'priority', 'calculation', 'foodtype',)
-    search_fields = ('name', 'store__name', 'ingredients__name', 'ingredients__food__name', 'foodtype__name',)
+    search_fields = ('name', 'store__name', 'ingredients__name',
+                     'ingredients__food__name', 'foodtype__name',)
     list_filter = ('calculation', 'foodtype__inputtype', 'store',)
     ordering = ('store__name', 'priority', 'name',)
 
@@ -108,6 +133,20 @@ class IngredientAdmin(admin.ModelAdmin):
     def store(self, obj):
         return obj.group.store
     store.short_description = _('winkel')
+
+    fieldsets = (
+        (
+            _('Basis informatie'),
+            {
+                'fields': (
+                    'name',
+                    'cost',
+                    'group',
+                    'store',
+                ),
+            },
+        ),
+    )
 
 
 @admin.register(Quantity)
@@ -163,11 +202,50 @@ class FoodAdmin(admin.ModelAdmin):
     search_fields = ('name', 'menu__store__name', 'menu__name',)
     list_filter = ('menu__store',)
     ordering = ('menu__store__name', 'name', 'priority',)
-    readonly_fields = ('store',)
+    readonly_fields = ('store', 'last_modified')
 
     def store(self, obj):
         return obj.menu.store
     store.short_description = _('winkel')
+
+    fieldsets = (
+        (
+            _('Basis informatie'),
+            {
+                'fields': (
+                    'name',
+                    'description',
+                    'cost',
+                    'amount',
+                    'priority',
+                    'commentable',
+                    'enabled',
+                    'last_modified',
+                ),
+            },
+        ),
+        (
+            _('Inhoud'),
+            {
+                'fields': (
+                    'foodtype',
+                    'menu',
+                    'ingredientgroups',
+                ),
+            },
+        ),
+        (
+            _('Bestel instellingen'),
+            {
+                'fields': (
+                    'wait',
+                    'preorder_time',
+                    'preorder_days',
+                    'preorder_disabled',
+                )
+            },
+        ),
+    )
 
 
 class BaseTokenAdmin(admin.ModelAdmin):

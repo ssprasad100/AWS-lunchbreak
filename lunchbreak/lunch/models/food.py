@@ -36,13 +36,6 @@ class Food(CleanModelMixin, SafeDeleteModel):
         verbose_name=_('beschrijving'),
         help_text=('Beschrijving.')
     )
-    amount = RoundingDecimalField(
-        decimal_places=3,
-        max_digits=7,
-        default=1,
-        verbose_name=_('standaardhoeveelheid'),
-        help_text=('Hoeveelheid die standaard is ingevuld.')
-    )
     cost = CostField(
         verbose_name=_('basisprijs'),
         help_text=(
@@ -50,12 +43,65 @@ class Food(CleanModelMixin, SafeDeleteModel):
             'ingrediëntengroepen.'
         )
     )
+    amount = RoundingDecimalField(
+        decimal_places=3,
+        max_digits=7,
+        default=1,
+        verbose_name=_('standaardhoeveelheid'),
+        help_text=('Hoeveelheid die standaard is ingevuld.')
+    )
+    priority = models.BigIntegerField(
+        default=0,
+        verbose_name=_('prioriteit'),
+        help_text=('Prioriteit.')
+    )
+    commentable = models.BooleanField(
+        default=False,
+        verbose_name=_('commentaar mogelijk'),
+        help_text=(
+            'Of er commentaar kan achter worden gelaten bij het bestellen.'
+        )
+    )
+    enabled = models.BooleanField(
+        default=True,
+        verbose_name=_('ingeschakeld'),
+        help_text=_('Ingeschakeld.')
+    )
+    last_modified = models.DateTimeField(
+        auto_now=True,
+        verbose_name=_('laatst aangepast'),
+        help_text=('Laatst aangepast.')
+    )
+
+    # Relations
     foodtype = models.ForeignKey(
         'FoodType',
         on_delete=models.CASCADE,
         verbose_name=_('type etenswaar'),
         help_text=('Type etenswaar.')
     )
+    menu = models.ForeignKey(
+        'Menu',
+        on_delete=models.CASCADE,
+        related_name='food',
+        verbose_name=_('menu'),
+        help_text=('Menu.')
+    )
+    ingredients = models.ManyToManyField(
+        'Ingredient',
+        through='IngredientRelation',
+        blank=True,
+        verbose_name=_('ingrediënten'),
+        help_text=('Ingrediënten.')
+    )
+    ingredientgroups = models.ManyToManyField(
+        'IngredientGroup',
+        blank=True,
+        verbose_name=_('ingrediëntengroepen'),
+        help_text=('Ingrediëntengroepen.')
+    )
+
+    # Ordering settings
     wait = models.DurationField(
         default=None,
         null=True,
@@ -98,50 +144,6 @@ class Food(CleanModelMixin, SafeDeleteModel):
             'Of de mogelijkheid om op voorhand te bestellen specifiek voor '
             'dit etenswaar is uitgeschakeld.'
         )
-    )
-    commentable = models.BooleanField(
-        default=False,
-        verbose_name=_('commentaar mogelijk'),
-        help_text=(
-            'Of er commentaar kan achter worden gelaten bij het bestellen.'
-        )
-    )
-    priority = models.BigIntegerField(
-        default=0,
-        verbose_name=_('prioriteit'),
-        help_text=('Prioriteit.')
-    )
-
-    menu = models.ForeignKey(
-        'Menu',
-        on_delete=models.CASCADE,
-        related_name='food',
-        verbose_name=_('menu'),
-        help_text=('Menu.')
-    )
-    ingredients = models.ManyToManyField(
-        'Ingredient',
-        through='IngredientRelation',
-        blank=True,
-        verbose_name=_('ingrediënten'),
-        help_text=('Ingrediënten.')
-    )
-    ingredientgroups = models.ManyToManyField(
-        'IngredientGroup',
-        blank=True,
-        verbose_name=_('ingrediëntengroep'),
-        help_text=('Ingrediëntengroep.')
-    )
-
-    enabled = models.BooleanField(
-        default=True,
-        verbose_name=_('ingeschakeld'),
-        help_text=_('Ingeschakeld.')
-    )
-    last_modified = models.DateTimeField(
-        auto_now=True,
-        verbose_name=_('laatst aangepast'),
-        help_text=('Laatst aangepast.')
     )
 
     @cached_property
