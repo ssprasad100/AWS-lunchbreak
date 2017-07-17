@@ -43,14 +43,18 @@ class BaseToken(CleanModelMixin, BareDevice, DirtyFieldsMixin):
 
     def clean_device(self):
         if self.device:
-            # Convert to ASCII and strip UTF-8 characters because those are not allowed in headers.
-            self.device = bytes(self.device, 'utf-8').decode(
-                'utf-8'
-            ).encode(
-                'ascii', 'ignore'
-            ).decode(
-                'utf-8'
-            )
+            # Convert to ASCII/Punycode and convert UTF-8 characters because
+            # those are not allowed in headers.
+            try:
+                self.device.encode(
+                    'ascii'
+                )
+            except UnicodeEncodeError:
+                self.device = self.device.encode(
+                    'punycode'
+                ).decode(
+                    'ascii'
+                )
 
     def __str__(self):
         return self.device
