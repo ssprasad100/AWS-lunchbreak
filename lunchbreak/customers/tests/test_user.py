@@ -1,6 +1,7 @@
 import mock
 from django.core.urlresolvers import reverse
 from django_sms.models import Phone
+from lunch.models import Store
 from push_notifications.models import BareDevice
 from rest_framework import status
 
@@ -8,6 +9,7 @@ from . import CustomersTestCase
 from .. import views
 from ..config import DEMO_PHONE
 from ..models import Heart, User, UserToken
+from ..views import StoreViewSet
 
 
 class UserTestCase(CustomersTestCase):
@@ -304,3 +306,45 @@ class UserTestCase(CustomersTestCase):
         self.usertoken.refresh_from_db()
         self.assertEqual(self.usertoken.registration_id, content['registration_id'])
         self.assertEqual(self.usertoken.service, content['service'])
+
+    def test_cash_enabled_forced(self):
+        Store.objects.all().update(cash_enabled=False)
+
+        url = reverse('customers:store-list')
+        request = self.factory.get(url, HTTP_X_VERSION='2.2.1')
+        response = self.authenticate_request(
+            request,
+            StoreViewSet,
+            view_actions={
+                'get': 'list'
+            }
+        )
+        response.render()
+
+        self.assertNotEqual(
+            len(response.data),
+            0
+        )
+
+        for store_repr in response.data:
+            self.assertFalse(store_repr['cash_enabled'])
+
+        self.user.cash_enabled_forced = True
+        self.user.save()
+
+        response = self.authenticate_request(
+            request,
+            StoreViewSet,
+            view_actions={
+                'get': 'list'
+            }
+        )
+        response.render()
+
+        self.assertNotEqual(
+            len(response.data),
+            0
+        )
+
+        for store_repr in response.data:
+            self.assertTrue(store_repr['cash_enabled'])

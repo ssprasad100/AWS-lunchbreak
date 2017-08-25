@@ -76,6 +76,14 @@ class User(AbstractBaseUser, PermissionsMixin):
         verbose_name=_('getekende mandaten'),
         help_text=_('Getekende mandaten.')
     )
+    cash_enabled_forced = models.BooleanField(
+        default=False,
+        verbose_name=_('forceer cash betalingen'),
+        help_text=_(
+            'Of deze persoon altijd cash kan betalen, ookal staat dat '
+            'uitgeschakeld.'
+        ),
+    )
 
     @property
     def phonenumber(self):

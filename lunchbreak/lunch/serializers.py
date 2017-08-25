@@ -57,6 +57,17 @@ class StoreSerializer(VersionedMixin, serializers.ModelSerializer):
             'hearted',
         )
 
+    def to_representation(self, value):
+        value = super().to_representation(value)
+
+        if 'request' in self.context and hasattr(self.context['request'], 'user'):
+            user = self.context['request'].user
+
+            if user.cash_enabled_forced:
+                value['cash_enabled'] = True
+
+        return value
+
 
 class StoreDetailSerializer(StoreSerializer):
     categories = StoreCategorySerializer(

@@ -418,6 +418,12 @@ class OrderTestCase(CustomersTestCase):
             CashDisabled
         )
 
+        self.user.cash_enabled_forced = True
+        self.user.save()
+
+        response, order = self.place_order(content)
+        self.assertIsNotNone(order)
+
         self.store.cash_enabled = True
         self.store.save()
 

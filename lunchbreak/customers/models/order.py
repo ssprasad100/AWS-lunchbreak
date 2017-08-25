@@ -332,6 +332,10 @@ class Order(StatusSignalModel, AbstractOrder):
                     )
                 )
         elif self.payment_cash:
+            # Temprorary, users with cash_enabled_forced can always order with cash
+            if self.user.cash_enabled_forced:
+                return
+
             if not self.store.cash_enabled:
                 raise CashDisabled()
 

@@ -58,7 +58,7 @@ class UserAdmin(BaseUserAdmin):
         (
             _('Gegevens'),
             {
-                'fields': ('phone', 'name', 'email', 'enabled',)
+                'fields': ('phone', 'name', 'email', 'enabled', 'cash_enabled_forced',)
             },
         ),
         (
