@@ -1,5 +1,5 @@
 -e git://github.com/AndreasBackx/django-jinja.git@error-view-extensions#egg=django-jinja
--e git://github.com/AndreasBackx/django-push-notifications.git@9b07a27c47e46104fc5d13951f48fdd9f432404e#egg=django_push_notifications
+-e git://github.com/AndreasBackx/django-push-notifications.git@6f910031424e5ede28ce64886d4267d17bf20e4c#egg=django_push_notifications
 -e git://github.com/AndreasBackx/google-maps-services-python.git@master#egg=googlemaps
 -e git://github.com/AndreasBackx/pendulum@90e8307be78bd144fd2c0ee24953de3d182864b8#egg=pendulum
 -e git://github.com/AndreasBackx/django-private-media.git@0ef1d98ed55a44567fa17287ee4f540ef8f17caa#egg=django_private_media
@@ -24,7 +24,7 @@ drf-extensions==0.3.1
 gocardless-pro==0.2.0
 Jinja2==2.8
 openpyxl==2.3.4
-phonenumbers==8.6.0
+phonenumbers==8.8.0
 Pillow==3.2.0
 plivo==0.11.3
 psycopg2==2.7.1

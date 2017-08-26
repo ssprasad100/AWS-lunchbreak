@@ -308,6 +308,7 @@ class UserTestCase(CustomersTestCase):
         self.assertEqual(self.usertoken.service, content['service'])
 
     def test_cash_enabled_forced(self):
+        """Test whether a user with cash_enabled_forced receives all stores with `cash_enabled` set to True."""
         Store.objects.all().update(cash_enabled=False)
 
         url = reverse('customers:store-list')

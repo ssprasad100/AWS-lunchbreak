@@ -5,7 +5,7 @@ import pendulum
 from django.core.exceptions import MultipleObjectsReturned
 from django.db import models
 from django.db.models.expressions import RawSQL
-from push_notifications.models import BareDeviceManager
+from push_notifications.models import DeviceManager
 
 from .config import random_token
 
@@ -121,7 +121,7 @@ class HolidayPeriodQuerySet(PeriodQuerySet):
         )
 
 
-class BaseTokenManager(BareDeviceManager):
+class BaseTokenManager(DeviceManager):
 
     def create_token(self, arguments, defaults, clone=False):
         identifier_raw = random_token()

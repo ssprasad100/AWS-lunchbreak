@@ -6,7 +6,7 @@ from ..models import Staff
 
 class NotifyModelMixinTestCase(BusinessTestCase):
 
-    @mock.patch('push_notifications.queryset.BareDeviceQuerySet.send_message')
+    @mock.patch('push_notifications.models.DeviceQuerySet.send_message')
     def test_notify(self, mock_message):
         self.staff.notify('Hallo')
         self.assertTrue(mock_message.called)
