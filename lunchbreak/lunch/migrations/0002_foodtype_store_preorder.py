@@ -68,6 +68,8 @@ def migrate_store_preorder_time_forward(apps, schema_editor):
         ):
             if food.preorder_days > 0:
                 food.preorder_time = store.preorder_time
+            if food.preorder_days == 0:
+                food.preorder_days = None
             food.save()
 
 

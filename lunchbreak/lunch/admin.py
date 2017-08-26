@@ -197,10 +197,10 @@ class FoodForm(forms.ModelForm):
 @admin.register(Food)
 class FoodAdmin(admin.ModelAdmin):
     form = FoodForm
-    list_display = ('name', 'store', 'menu', 'priority', 'cost',)
+    list_display = ('name', 'store', 'menu', 'priority', 'cost', 'preorder_disabled',)
     inlines = (IngredientsRelationInline,)
     search_fields = ('name', 'menu__store__name', 'menu__name',)
-    list_filter = ('menu__store',)
+    list_filter = ('menu__store', 'preorder_disabled',)
     ordering = ('menu__store__name', 'name', 'priority',)
     readonly_fields = ('store', 'last_modified')
 
