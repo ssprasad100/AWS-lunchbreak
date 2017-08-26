@@ -37,10 +37,12 @@
                     <label>Betaalmethode</label>
                     {% if gocardless or payconiq %}
                     <div>
+                        {% if store.cash_enabled or user.cash_enabled_forced %}
                         <label class="radio-item mdl-radio mdl-js-radio mdl-js-ripple-effect" for="checkout-payment-0">
                           <input type="radio" id="checkout-payment-0" class="mdl-radio__button" name="{{ order_form.payment_method.html_name }}" value="{{ order_form.fields['payment_method'].choices[0][0] }}" checked>
                           <span class="mdl-radio__label">{{ order_form.fields['payment_method'].choices[0][1] }}</span>
                         </label>
+                        {% endif %}
 
                         {% if gocardless %}
                         <label class="radio-item mdl-radio mdl-js-radio mdl-js-ripple-effect" for="checkout-payment-1">
