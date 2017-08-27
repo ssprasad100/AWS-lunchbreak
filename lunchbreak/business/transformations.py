@@ -6,7 +6,7 @@ class PostgreSQLTransformation(Transformation):
     bases = [
         'business.serializers.OrderSpreadSerializer',
     ]
-    version = '2.2.2'
+    version = '2.0.0'
 
     weekdays = {
         #               PostgreSQL "dow"    MySQL "weekday"
