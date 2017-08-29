@@ -224,3 +224,6 @@ class StoreTestCase(LunchbreakTestCase):
             self.assertRaises(StoreClosed, store.is_open, before._datetime)
             self.assertRaises(StoreClosed, store.is_open, between._datetime)
             self.assertTrue(store.is_open(between.add(minutes=1)._datetime))
+
+    def test_preorder_transformation(self):
+        pass

@@ -10,7 +10,7 @@ from push_notifications.models import DeviceManager
 from .config import random_token
 
 
-class StoreManager(models.Manager):
+class StoreQuerySet(models.QuerySet):
 
     def nearby(self, latitude, longitude, proximity):
         # TODO Use Pointfields instead of 2 decimalfields.
@@ -46,7 +46,7 @@ class StoreManager(models.Manager):
             )  as DECIMAL(10,7)
         )
         '''
-        return self.get_queryset().filter(
+        return self.filter(
             enabled=True
         ).exclude(
             models.Q(

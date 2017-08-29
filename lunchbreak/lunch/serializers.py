@@ -22,7 +22,9 @@ class StoreCategorySerializer(serializers.ModelSerializer):
 
 
 class StoreSerializer(VersionedMixin, serializers.ModelSerializer):
-    hearted = serializers.BooleanField()
+    hearted = serializers.BooleanField(
+        default=False
+    )
     categories = StoreCategorySerializer(
         many=True,
         read_only=True
@@ -296,7 +298,7 @@ class QuantityDetailSerializer(QuantitySerializer):
         read_only_fields = QuantitySerializer.Meta.read_only_fields
 
 
-class BaseFoodSerializer(serializers.ModelSerializer):
+class BaseFoodSerializer(VersionedMixin, serializers.ModelSerializer):
     """This serializer is not meant to be returned!"""
 
     foodtype = FoodTypeSerializer(

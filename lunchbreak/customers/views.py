@@ -195,7 +195,7 @@ class StoreViewSet(TargettedViewSet,
             ).distinct()
 
         # TODO Use semver.
-        only_cash_enabled = self.request.version not in ['2.2.1', '2.3.0']
+        only_cash_enabled = self.request.version not in ['2.2.1', '2.2.2', '2.3.0']
         if only_cash_enabled:
             result = result.filter(
                 cash_enabled=True

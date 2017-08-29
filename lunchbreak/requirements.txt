@@ -29,9 +29,8 @@ django-sass-processor==0.3.5
 django-sendfile==0.3.11
 django-split-settings==0.1.2
 django-subdomains==2.1.0
-django==1.11.3
-djangorestframework-jsonp==1.0.0
-djangorestframework==3.6.3
+Django==1.11.4            # via django-phonenumber-field, django-sendfile, django-split-settings, django-subdomains
+djangorestframework==3.6.4
 drf-extensions==0.3.1
 et-xmlfile==1.0.1         # via openpyxl
 gocardless-pro==0.2.0

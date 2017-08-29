@@ -4,7 +4,7 @@
 
 django-extensions==1.7.5
 django-livereload-server==0.2.1
-django-queryinspect==0.1.0
+django-queryinspect==1.0.0
 Fabric3==1.12.0.post1
 flake8==3.0.3
 ipython==5.1.0

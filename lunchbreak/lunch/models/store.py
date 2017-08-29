@@ -10,7 +10,7 @@ from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
-from ..managers import StoreManager
+from ..managers import StoreQuerySet
 from .abstract_address import AbstractAddress
 
 
@@ -23,7 +23,7 @@ class Store(AbstractAddress):
     def __str__(self):
         return self.name
 
-    objects = StoreManager()
+    objects = StoreQuerySet.as_manager()
 
     name = models.CharField(
         max_length=191,

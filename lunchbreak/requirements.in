@@ -17,9 +17,8 @@ django-sass-processor==0.3.5
 django-sendfile==0.3.11
 django-split-settings==0.1.2
 django-subdomains==2.1.0
-Django==1.11.3
-djangorestframework-jsonp==1.0.0
-djangorestframework==3.6.3
+Django==1.11.4
+djangorestframework==3.6.4
 drf-extensions==0.3.1
 gocardless-pro==0.2.0
 Jinja2==2.8

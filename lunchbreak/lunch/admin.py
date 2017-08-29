@@ -47,10 +47,10 @@ class StoreHeaderInline(admin.StackedInline, StoreHeaderThumbnail):
 
 @admin.register(Store)
 class StoreAdmin(admin.ModelAdmin):
-    list_display = ('name', 'city', 'country', 'wait',)
+    list_display = ('name', 'city', 'country', 'wait', 'enabled',)
     readonly_fields = ('timezone', 'latitude', 'longitude', 'hearts',)
     search_fields = ('name', 'city', 'street', 'country')
-    list_filter = ('city', 'country',)
+    list_filter = ('city', 'country', 'enabled',)
     ordering = ('name',)
     inlines = (StoreHeaderInline,)
 
