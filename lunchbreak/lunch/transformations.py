@@ -36,6 +36,19 @@ class PreorderTransformation(Transformation):
     version = '2.2.2'
 
     def backwards_serializer(self, data, obj, request):
-        if not data['preorder_disabled']:
+        if data['preorder_disabled']:
+            # preordering is disabled, 0 means disabled on API versions pre 2.2.2.
+            data['preorder_days'] = 0
+            return data
+
+        if data['preorder_days'] is not None:
             data['preorder_days'] = data['preorder_days'] + 1
+            return data
+
+        if data['foodtype']['preorder_days'] is not None:
+            data['preorder_days'] = data['foodtype']['preorder_days'] + 1
+            return data
+
+        # preordering is disabled, 0 means disabled on API versions pre 2.2.2.
+        data['preorder_days'] = 0
         return data
