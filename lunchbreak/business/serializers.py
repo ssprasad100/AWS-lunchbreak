@@ -13,7 +13,7 @@ from .models import (AbstractPassword, Employee, EmployeeToken, Staff,
                      StaffToken)
 
 
-class StoreDetailSerializer(serializers.ModelSerializer):
+class StoreDetailSerializer(VersionedMixin, serializers.ModelSerializer):
     categories = serializers.PrimaryKeyRelatedField(
         many=True,
         read_only=True
@@ -421,7 +421,7 @@ class PopularFoodSerializer(serializers.ModelSerializer):
         )
 
 
-class FoodSerializer(serializers.ModelSerializer):
+class FoodSerializer(VersionedMixin, serializers.ModelSerializer):
     ingredients = lunch_serializers.IngredientRelationSerializer(
         source='ingredientrelations',
         many=True,

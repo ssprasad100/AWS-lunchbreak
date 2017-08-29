@@ -1,6 +1,7 @@
 from customers.tests import CustomersTestCase
+from push_notifications.models import BareDevice
 
-from ..models import Employee, Staff
+from ..models import Employee, EmployeeToken, Staff
 
 
 class BusinessTestCase(CustomersTestCase):
@@ -15,7 +16,15 @@ class BusinessTestCase(CustomersTestCase):
         )
         self.employee = Employee.objects.create(
             staff=self.staff,
-            name='Employee'
+            name='Employee',
+        )
+
+        self.ownertoken = EmployeeToken.objects.create(
+            identifier='something',
+            device='something',
+            employee=self.owner,
+            registration_id='something',
+            service=BareDevice.APNS
         )
 
         self.other_staff = Staff.objects.create(

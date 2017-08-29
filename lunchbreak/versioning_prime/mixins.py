@@ -97,6 +97,8 @@ class VersionedMixin:
 
         if isinstance(data, dict):
             for key, value in data.items():
+                if key not in self.fields:
+                    continue
                 field = self.fields[key]
                 transformations = self.get_transformations(
                     forwards=forwards,

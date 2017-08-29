@@ -70,7 +70,7 @@ class VersioningTestCase(CustomersTestCase):
 
         self.assertEqual(
             response.data['preorder_time'],
-            time(hour=0, minute=0, second=1),
+            time(hour=23, minute=59, second=59),
         )
 
         response = self.request_store(HTTP_X_VERSION='2.2.2')
@@ -91,7 +91,7 @@ class VersioningTestCase(CustomersTestCase):
         for store in response.data:
             self.assertEqual(
                 store['preorder_time'],
-                time(hour=0, minute=0, second=1),
+                time(hour=23, minute=59, second=59),
             )
 
         response = self.request_store(HTTP_X_VERSION='2.2.2')
