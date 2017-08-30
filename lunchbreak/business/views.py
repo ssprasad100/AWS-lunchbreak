@@ -315,7 +315,11 @@ class FoodTypeView(generics.ListAPIView):
     authentication_classes = (EmployeeAuthentication,)
     serializer_class = FoodTypeSerializer
     pagination_class = None
-    queryset = FoodType.objects.all()
+
+    def get_queryset(self):
+        return FoodType.objects.filter(
+            store=self.request.user.staff.store
+        )
 
 
 class IngredientViewSet(TargettedViewSet,
@@ -345,40 +349,6 @@ class IngredientViewSet(TargettedViewSet,
             '-priority',
             'name'
         )
-
-
-# class IngredientView(PerformCreateStore, generics.ListAPIView):
-#     authentication_classes = (EmployeeAuthentication,)
-#     serializer_class = IngredientSerializer
-#     permission_classes = (StoreOwnerPermission,)
-
-#     def get_queryset(self):
-#         result = Ingredient.objects.filter(
-#             group__store=self.request.user.staff.store
-#         )
-#         since = datetime_request(self.request, arg='since')
-#         if since is not None:
-#             return result.filter(last_modified__gte=since)
-#         return result
-
-
-# class IngredientDetailView(generics.RetrieveUpdateDestroyAPIView):
-#     authentication_classes = (EmployeeAuthentication,)
-#     serializer_class = IngredientSerializer
-#     permission_classes = (StoreOwnerPermission,)
-
-#     def get_queryset(self):
-#         since = datetime_request(self.request, arg='datetime')
-#         if since is not None:
-#             result = Ingredient.objects.filter(
-#                 group__store=self.request.user.staff.store,
-#                 last_modified__gte=since
-#             )
-#         else:
-#             result = Ingredient.objects.filter(
-#                 group__store=self.request.user.staff.store
-#             )
-#         return result.order_by('-priority', 'name')
 
 
 class IngredientGroupView(PerformCreateStore, generics.ListAPIView):
