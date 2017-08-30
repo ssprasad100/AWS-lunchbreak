@@ -25,6 +25,7 @@ def migrate_foodtype_stores_forward(apps, schema_editor):
         for store in stores:
             foodtype.pk = None
             foodtype.store = store
+            foodtype.preorder_time = store.preorder_time
 
             foodtype.save()
 
@@ -56,7 +57,7 @@ def migrate_foodtype_stores_backwards(apps, schema_editor):
     pass
 
 
-def migrate_store_preorder_time_forward(apps, schema_editor):
+def migrate_store_preorder_forward(apps, schema_editor):
     Store = apps.get_model('lunch.Store')
     Food = apps.get_model('lunch.Food')
 
@@ -66,14 +67,13 @@ def migrate_store_preorder_time_forward(apps, schema_editor):
         for food in Food.objects.filter(
             menu__store=store
         ):
-            if food.preorder_days > 0:
-                food.preorder_time = store.preorder_time
-            else:
+            if food.preorder_days == 0:
                 food.preorder_days = None
             food.save()
 
 
-def migrate_store_preorder_time_backwards(apps, schema_editor):
+
+def migrate_store_preorder_backwards(apps, schema_editor):
     pass
 
 
@@ -137,8 +137,8 @@ class Migration(migrations.Migration):
             field=models.IntegerField(blank=True, default=None, help_text='Minimum dagen op voorhand bestellen voor het uur ingesteld op de winkel. (0 is dezelfde dag, >=1 is dat aantal dagen voor het bepaalde uur.) Dit leeg laten betekent dat deze instelling overgenomen wordt van het type etenswaar.', null=True, verbose_name='dagen op voorhand bestellen'),
         ),
         migrations.RunPython(
-            migrate_store_preorder_time_forward,
-            migrate_store_preorder_time_backwards
+            migrate_store_preorder_forward,
+            migrate_store_preorder_backwards
         ),
         migrations.RunPython(
             migrate_foodtype_stores_forward,

@@ -25,7 +25,20 @@ class PreorderStoreTransformation(Transformation):
     version = '2.2.2'
 
     def backwards_serializer(self, data, obj, request):
-        data['preorder_time'] = time(hour=23, minute=59, second=59)
+        from .models import FoodType
+
+        foodtype_preorder_time = time(hour=23, minute=59, second=59)
+
+        try:
+            foodtype = FoodType.objects.filter(
+                store_id=obj.id
+            ).earliest('preorder_time')
+            foodtype_preorder_time = foodtype.preorder_time
+        except FoodType.DoesNotExist:
+            pass
+
+        data['preorder_time'] = foodtype_preorder_time
+
         return data
 
     def forwards_serializer(self, data, request):

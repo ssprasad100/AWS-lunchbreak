@@ -1,7 +1,7 @@
 from datetime import time
 
 from django.core.urlresolvers import reverse
-from lunch.models import Food
+from lunch.models import Food, FoodType
 
 from . import CustomersTestCase
 from ..views import FoodViewSet, StoreFoodViewSet, StoreViewSet
@@ -66,11 +66,15 @@ class VersioningTestCase(CustomersTestCase):
         return response
 
     def test_preorder_store(self):
+        min_preorder_time = FoodType.objects.filter(
+            store=self.store
+        ).earliest('preorder_time').preorder_time
+
         response = self.request_store(HTTP_X_VERSION='2.2.1')
 
         self.assertEqual(
             response.data['preorder_time'],
-            time(hour=23, minute=59, second=59),
+            min_preorder_time,
         )
 
         response = self.request_store(HTTP_X_VERSION='2.2.2')
@@ -89,9 +93,16 @@ class VersioningTestCase(CustomersTestCase):
         )
 
         for store in response.data:
+            try:
+                min_preorder_time = FoodType.objects.filter(
+                    store_id=store['id']
+                ).earliest('preorder_time').preorder_time
+            except FoodType.DoesNotExist:
+                min_preorder_time = time(hour=23, minute=59, second=59)
+
             self.assertEqual(
                 store['preorder_time'],
-                time(hour=23, minute=59, second=59),
+                min_preorder_time,
             )
 
         response = self.request_store(HTTP_X_VERSION='2.2.2')
