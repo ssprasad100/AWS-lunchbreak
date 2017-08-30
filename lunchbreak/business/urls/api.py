@@ -185,15 +185,15 @@ urlpatterns = [
     ),
     url(
         r'^staff/nearby'
-        r'/(?P<latitude>-?\d+.?\d*)'
-        r'/(?P<longitude>-?\d+.?\d*)/?$',
+        r'/(?P<latitude>-?\d+(.?\d+)?)'
+        r'/(?P<longitude>-?\d+(.?\d+)?)/?$',
         views.StaffView.as_view()
     ),
     url(
         r'^staff/nearby'
-        r'/(?P<latitude>-?\d+.?\d*)'
-        r'/(?P<longitude>-?\d+.?\d*)'
-        r'/(?P<proximity>\d+.?\d*)/?$',
+        r'/(?P<latitude>-?\d+(.?\d+)?)'
+        r'/(?P<longitude>-?\d+(.?\d+)?)'
+        r'/(?P<proximity>\d+(.?\d+)?)/?$',
         views.StaffView.as_view()
     ),
     url(
