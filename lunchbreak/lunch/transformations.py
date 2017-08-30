@@ -67,7 +67,7 @@ class PreorderTransformation(Transformation):
         return data
 
     def forwards_serializer(self, data, request):
-        if data['preorder_days'] == 0:
+        if 'preorder_days' in data and data['preorder_days'] == 0:
             data['preorder_days'] = None
             return data
 
