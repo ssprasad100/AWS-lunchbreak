@@ -11,7 +11,7 @@ from django.core.validators import validate_email
 from django.db.models import Count
 from django.http import Http404
 from django.utils import timezone
-from django_gocardless import Merchant as GoCardlessMerchant
+from django_gocardless.models import Merchant as GoCardlessMerchant
 from django_gocardless.serializers import \
     MerchantSerializer as GoCardlessMerchantSerializer
 from lunch import views as lunch_views
