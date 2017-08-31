@@ -11,6 +11,7 @@ from django.core.validators import validate_email
 from django.db.models import Count
 from django.http import Http404
 from django.utils import timezone
+from django_gocardless import Merchant as GoCardlessMerchant
 from django_gocardless.serializers import \
     MerchantSerializer as GoCardlessMerchantSerializer
 from lunch import views as lunch_views
@@ -20,7 +21,7 @@ from lunch.serializers import (FoodTypeSerializer, MenuSerializer,
                                QuantityDetailSerializer)
 from Lunchbreak.exceptions import LunchbreakException
 from Lunchbreak.views import TargettedViewSet
-from payconiq.models import Merchant
+from payconiq.models import Merchant as PayconiqMerchant
 from rest_framework import generics, mixins, status, viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.exceptions import MethodNotAllowed
@@ -191,7 +192,7 @@ class StoreViewSet(TargettedViewSet,
         if store.staff.gocardless is not None:
             store.staff.gocardless.delete()
 
-        merchant, url = Merchant.authorisation_link(
+        merchant, url = GoCardlessMerchant.authorisation_link(
             email=store.staff.email
         )
         store.staff.gocardless = merchant
@@ -212,7 +213,7 @@ class StorePayconiqViewSet(TargettedViewSet,
     serializer_class = StorePayconiqSerializer
 
     def get_queryset(self):
-        return Merchant.objects.filter(
+        return PayconiqMerchant.objects.filter(
             store_id=self.kwargs['parent_lookup_pk']
         )
 
