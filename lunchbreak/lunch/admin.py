@@ -249,7 +249,8 @@ class FoodAdmin(admin.ModelAdmin):
 
 
 class BaseTokenAdmin(admin.ModelAdmin):
-    list_display = ('device',)
+    list_display = ('device', 'service',)
+    list_filter = ('service',)
 
 
 class FoodInline(admin.StackedInline):

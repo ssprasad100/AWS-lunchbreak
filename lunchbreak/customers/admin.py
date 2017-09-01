@@ -3,6 +3,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import Group as DjangoGroup
 from django.contrib.contenttypes.admin import GenericTabularInline
 from django.utils.translation import ugettext as _
+from frontend.templatetags.filters import amount
 from lunch.admin import BaseTokenAdmin
 from Lunchbreak.forms import PasswordChangeForm
 from Lunchbreak.utils import format_money
@@ -107,9 +108,14 @@ class PaymentLinkAdmin(admin.ModelAdmin):
 
 @admin.register(Group)
 class GroupAdmin(admin.ModelAdmin):
-    list_display = ('name', 'store', 'email',)
+    list_display = ('name', 'store', 'email', 'discount',
+                    'members_count', 'delivery', 'payment_online_only',)
     search_fields = ('name', 'store__name', 'email',)
-    list_filter = ('store',)
+    list_filter = ('delivery', 'payment_online_only', 'store',)
+
+    def members_count(self, instance):
+        return instance.members.all().count()
+    members_count.short_description = _('leden')
 
 
 class OrderInline(admin.TabularInline):
@@ -134,19 +140,42 @@ class GroupOrderAdmin(admin.ModelAdmin):
 class HeartAdmin(admin.ModelAdmin):
     list_display = ('store', 'user', 'added',)
     search_fields = ('store__name', 'user__name',)
-    list_filter = ('store',)
+    list_filter = ('added', 'store',)
+    ordering = ('-added',)
 
 
 @admin.register(OrderedFood)
 class OrderedFoodAdmin(admin.ModelAdmin):
-    list_display = ('original', 'order', 'total_display', 'is_original',)
+    list_display = ('original', 'user', 'status', 'cost_display',
+                    'amount_display', 'total_display', 'is_original', )
     search_fields = ('order', 'order__user', 'original',),
     list_filter = ('is_original', 'status',)
 
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related(
+            'original__foodtype',
+        ).prefetch_related(
+            'order__user',
+        )
+
+    def cost_display(self, instance):
+        return format_money(instance.cost)
+    cost_display.short_description = _('kostprijs')
+    cost_display.admin_order_field = 'cost'
+
+    def amount_display(self, instance):
+        return amount(instance.amount, instance.original.foodtype.inputtype)
+    amount_display.short_description = _('hoeveelheid')
+    amount_display.admin_order_field = 'amount'
+
     def total_display(self, instance):
         return format_money(instance.total)
-
     total_display.short_description = _('totale prijs')
+    total_display.admin_order_field = 'total'
+
+    def user(self, instance):
+        return instance.order.user
+    user.short_description = _('gebruiker')
 
 
 class OrderedFoodInline(GenericTabularInline):
@@ -163,26 +192,26 @@ class AbstractOrderAdmin(admin.ModelAdmin):
             if instance.total_confirmed is not None \
             else instance.total
         return format_money(total)
-
-    total_display.short_description = _('totale prijs')
+    total_display.short_description = _('totaal')
+    total_display.admin_order_field = 'total'
 
     def count_display(self, instance):
         return instance.orderedfood.all().count()
-
     count_display.short_description = OrderedFood._meta.verbose_name_plural
 
 
 class OrderAdmin(AbstractOrderAdmin):
-    list_display = ('store', 'user', 'placed', 'receipt',
-                    'status', 'total_display', 'count_display', 'confirmed',)
+    list_display = ('store', 'user', 'status', 'payment_method',
+                    'total_display', 'confirmed', 'placed', 'receipt',)
     search_fields = ('store__name', 'user__name',)
-    list_filter = ('store', 'status',)
+    list_filter = ('placed', 'receipt', 'payment_method', 'status', 'store',)
     ordering = ('-placed', '-receipt',)
     readonly_fields = ('confirmed',)
 
     def confirmed(self, obj):
         return obj.confirmed
     confirmed.short_description = _('bevestigd')
+    confirmed.boolean = True
 
 
 admin.site.register([Order, ConfirmedOrder], OrderAdmin)
