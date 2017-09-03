@@ -281,7 +281,7 @@ class Order(StatusSignalModel, AbstractOrder):
 
     def clean_receipt(self):
         if self.status == ORDER_STATUS_PLACED:
-            if self.group is not None:
+            if self.pk is None and self.group is not None:
                 self.receipt = Pendulum.instance(
                     self.receipt
                 ).at(
