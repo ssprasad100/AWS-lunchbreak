@@ -200,7 +200,7 @@ class FoodAdmin(admin.ModelAdmin):
     list_display = ('name', 'store', 'menu', 'priority', 'cost', 'preorder_disabled',)
     inlines = (IngredientsRelationInline,)
     search_fields = ('name', 'menu__store__name', 'menu__name',)
-    list_filter = ('menu__store', 'preorder_disabled',)
+    list_filter = ('menu__store', 'preorder_disabled', 'preorder_days', 'preorder_time',)
     ordering = ('menu__store__name', 'name', 'priority',)
     readonly_fields = ('store', 'last_modified')
 

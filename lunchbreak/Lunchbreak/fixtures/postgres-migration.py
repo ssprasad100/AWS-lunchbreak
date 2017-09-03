@@ -47,6 +47,10 @@ def postgres_migration_forward(apps, schema_editor):
         )
 
 
+def postgres_migration_backwards(apps, schema_editor):
+    pass
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -54,5 +58,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(postgres_migration_forward)
+        migrations.RunPython(postgres_migration_forward, postgres_migration_backwards)
     ]

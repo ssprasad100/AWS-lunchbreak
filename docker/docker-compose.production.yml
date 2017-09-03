@@ -27,7 +27,7 @@ services:
     env_file:
       - ./production.env
     volumes:
-      - /var/run/mysqld/mysqld.sock:/var/run/mysqld/mysqld.sock:ro
+      - /var/run/postgresql:/var/run/postgresql:ro
       - ./lunchbreak/secrets/production:/var/secrets:ro
       - /var/lunchbreak/production/log:/var/lunchbreak/log:rw
       - /var/lunchbreak/production/static:/var/lunchbreak/static:rw
