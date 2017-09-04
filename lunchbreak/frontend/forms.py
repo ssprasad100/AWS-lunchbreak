@@ -1,15 +1,21 @@
 import json
 
-from customers.config import PAYMENT_METHOD_GOCARDLESS, PAYMENT_METHODS
+from customers.config import (ORDER_STATUS_COMPLETED,
+                              ORDER_STATUS_NOT_COLLECTED, ORDER_STATUS_PLACED,
+                              ORDER_STATUS_RECEIVED, ORDER_STATUS_STARTED,
+                              ORDER_STATUS_WAITING, PAYMENT_METHOD_CASH,
+                              PAYMENT_METHOD_GOCARDLESS, PAYMENT_METHODS)
 from customers.models import Group, GroupOrder, Order, User
 from django import forms
 from django.core.exceptions import ValidationError
 from django.db import transaction
+from django.db.models import Q
 from django.utils.translation import ugettext as _
 from lunch.exceptions import AddressNotFound
 from lunch.models import AbstractAddress
 from Lunchbreak.exceptions import LunchbreakException
 from Lunchbreak.forms import FatModelForm
+from payconiq.models import Transaction
 
 from .widgets import DayWidget, ReceiptWidget
 
@@ -166,14 +172,31 @@ class GroupForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         group_orders = self.group.group_orders.filter(
-            orders__isnull=False
+            Q(
+                orders__isnull=False,
+                orders__status__in=[
+                    ORDER_STATUS_PLACED,
+                    ORDER_STATUS_RECEIVED,
+                    ORDER_STATUS_STARTED,
+                    ORDER_STATUS_WAITING,
+                    ORDER_STATUS_COMPLETED,
+                    ORDER_STATUS_NOT_COLLECTED,
+                ]
+            ),
+            Q(
+                orders__payment_method__in=[PAYMENT_METHOD_CASH, PAYMENT_METHOD_GOCARDLESS],
+            ) | Q(
+                orders__transaction__isnull=False,
+                orders__transaction__status=Transaction.SUCCEEDED,
+            )
         ).distinct().values(
             'date'
         )
         group_order_days = [group_order['date'] for group_order in group_orders]
 
         self.fields['day'].widget = DayWidget(
-            days=group_order_days
+            group=self.group,
+            days=group_order_days,
         )
 
     @property

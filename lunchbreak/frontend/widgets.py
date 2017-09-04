@@ -53,8 +53,9 @@ class DayWidget(widgets.Widget):
     supports_microseconds = False
     query_param = 'day'
 
-    def __init__(self, days, *args, **kwargs):
+    def __init__(self, group, days, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.group = group
         self.days = days
 
     def render(self, name, value, attrs=None):
@@ -64,7 +65,8 @@ class DayWidget(widgets.Widget):
                 context={
                     'days': self.days,
                     'query_param': self.query_param,
-                    'value': value
+                    'value': value,
+                    'group': self.group,
                 }
             )
         )
