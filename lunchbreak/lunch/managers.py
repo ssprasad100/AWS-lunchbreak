@@ -25,7 +25,6 @@ class StoreQuerySet(models.QuerySet):
         #   )
         # )
         haversine = '''
-        CAST(
             (2*6371)
             * ASIN(
                 SQRT(
@@ -43,8 +42,7 @@ class StoreQuerySet(models.QuerySet):
                         )
                     )
                 )
-            )  as DECIMAL(10,7)
-        )
+            )
         '''
         return self.filter(
             enabled=True
