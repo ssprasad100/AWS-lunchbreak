@@ -8,7 +8,13 @@
         <div id="header-right">
             <ul>
                 {% if request is defined and request.user is defined and request.user.is_authenticated() %}
-                    <li>{{ request.user.name }}</li>
+                    <li>Welkom {{ request.user.name }}!</li>
+                    <li>
+                        <form action="{{ url('frontend:logout') }}" method="post">
+                            {% csrf_token %}
+                            <input type="submit" value="Uitloggen" title="Uitloggen">
+                        </form>
+                    </li>
                 {% else %}
                     <li><a href="{{ url('frontend:login') }}" alt="Inloggen">Inloggen</a></li>
                 {% endif %}

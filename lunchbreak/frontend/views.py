@@ -377,8 +377,13 @@ class PayconiqView(TemplateView):
 
 class LogoutView(View):
 
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         logout(request)
+        return HttpResponseRedirect(
+            reverse('frontend:index')
+        )
+
+    def get(self, request, *args, **kwargs):
         return HttpResponseRedirect(
             reverse('frontend:index')
         )

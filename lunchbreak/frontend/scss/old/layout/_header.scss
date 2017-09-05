@@ -10,7 +10,7 @@
     z-index: 2;
 
     .container {
-        height: $header-height + ($container-padding);
+        height: $header-height + $container-padding;
     }
 
     &.white {
@@ -43,10 +43,17 @@
         float: right;
 
         ul {
-            li {
+            li, form {
                 display: inline-block;
-                margin-right: 32px;
                 font-weight: $weight-normal;
+
+                input[type='submit'] {
+                    background: none;
+                }
+            }
+
+            li {
+                margin-right: 32px;
 
                 &:last-of-type {
                     margin-right: 0;
