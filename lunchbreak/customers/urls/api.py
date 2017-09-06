@@ -147,17 +147,6 @@ urlpatterns = [
         )
     ),
     url(
-        r'^store/recent/?$',
-        views.StoreViewSet.as_view(
-            {
-                'get': 'list'
-            }
-        ),
-        {
-            'recent': True
-        }
-    ),
-    url(
         r'^storecategory/?$',
         views.StoreCategoryListView.as_view()
     ),

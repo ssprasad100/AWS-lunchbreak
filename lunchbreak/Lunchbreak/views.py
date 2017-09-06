@@ -12,6 +12,8 @@ class TargettedViewSet(viewsets.GenericViewSet):
         try:
             return getattr(self, action_attribute)
         except AttributeError:
+            if action_attribute in dir(self):
+                raise
             if not fallback:
                 return getattr(super(), attribute)
             return getattr(super(), 'get_' + attribute)()

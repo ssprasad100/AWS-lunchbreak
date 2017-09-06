@@ -1,4 +1,4 @@
-from django.db.models import Exists, OuterRef
+from django.db.models import Exists, OuterRef, Subquery
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from lunch.models import Food, Menu, Store
@@ -205,15 +205,23 @@ class StoreViewSet(TargettedViewSet,
 
     @property
     def queryset_recent(self):
-        result = Store.objects.prefetch_related(
-            'categories',
-        ).filter(
-            placed_order__user=self.request.user,
-            enabled=True
+        latest_user_orders = Order.objects.filter(
+            user=self.request.user,
+            store=OuterRef('pk'),
         ).order_by(
-            '-placed_order__placed'
-        ).distinct()
-        return result
+            '-placed',
+        )
+
+        return self.queryset.annotate(
+            latest_placed=Subquery(
+                latest_user_orders.values('pk')[:1]
+            )
+        ).filter(
+            latest_placed__isnull=False,
+            enabled=True,
+        ).order_by(
+            '-latest_placed'
+        )
 
     @property
     def queryset_menu(self):
@@ -276,7 +284,6 @@ class StoreViewSet(TargettedViewSet,
 
     @list_route(methods=['get'])
     def recent(self, request):
-        self.kwargs['recent'] = True
         return self.list(request)
 
     @detail_route(methods=['post', 'get'])
