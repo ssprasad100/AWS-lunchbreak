@@ -44,8 +44,8 @@ class SafeDeleteTestCase(BusinessTestCase):
         # should return 200
         response = self.request_food_deletion(pk=self.food.pk)
 
-        self.assertFalse(Food.objects.filter(pk=self.food.pk).exists())
-        self.assertTrue(Food.objects.all_with_deleted().filter(pk=self.food.pk).exists())
+        self.assertFalse(Food.visisble_objects.filter(pk=self.food.pk).exists())
+        self.assertTrue(Food.objects.filter(pk=self.food.pk).exists())
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # Because the food is now marked to be deleted

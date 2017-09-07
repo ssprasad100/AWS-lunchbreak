@@ -10,6 +10,7 @@ from Lunchbreak.fields import CostField, RoundingDecimalField
 from Lunchbreak.mixins import CleanModelMixin
 from openpyxl import load_workbook
 from safedelete import HARD_DELETE, SOFT_DELETE
+from safedelete.managers import SafeDeleteAllManager, SafeDeleteManager
 from safedelete.models import SafeDeleteModel
 
 from ..exceptions import (IngredientGroupMaxExceeded,
@@ -25,6 +26,9 @@ class Food(CleanModelMixin, SafeDeleteModel):
 
     def __str__(self):
         return self.name
+
+    objects = SafeDeleteAllManager()
+    visisble_objects = SafeDeleteManager()
 
     name = models.CharField(
         max_length=191,

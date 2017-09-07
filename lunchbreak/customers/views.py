@@ -415,7 +415,7 @@ class UserViewSet(viewsets.GenericViewSet):
         try:
             serializer.is_valid(raise_exception=True)
             return User.register(phone)
-        except:
+        except Exception:
             if phone == DEMO_PHONE:
                 return Response(status=status.HTTP_200_OK)
             raise
@@ -439,7 +439,7 @@ class UserViewSet(viewsets.GenericViewSet):
                 service=token.get('service', BareDevice.INACTIVE),
                 registration_id=token.get('registration_id', '')
             )
-        except:
+        except Exception:
             if(phone == DEMO_PHONE and
                     'token' in request.data and
                     'device' in request.data['token'] and
@@ -453,7 +453,7 @@ class UserViewSet(viewsets.GenericViewSet):
                         user_demo,
                         request.data['token']['device']
                     )
-                except User.DoesNotExist as e:
+                except User.DoesNotExist:
                     pass
             raise
 
