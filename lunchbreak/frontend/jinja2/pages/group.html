@@ -89,7 +89,7 @@
                                 <td>
                                     {% if not same_user %}
                                     <h3>{{ global.total | money }}</h3>
-                                    <p>{% if order.payment_gocardless or payment_payconiq %}Online betaald{% else %}Te betalen{% endif %}</p>
+                                    <p>{% if order.payment_gocardless or order.payment_payconiq %}Online betaald{% else %}Te betalen{% endif %}</p>
                                     {% endif %}
                                 </td>
                                 {% else %}
