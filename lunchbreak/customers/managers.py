@@ -8,7 +8,10 @@ from lunch.models import Ingredient
 from payconiq.models import Transaction
 from pendulum import Pendulum
 
-from .config import (ORDER_STATUSES_ACTIVE, PAYMENT_METHOD_CASH,
+from .config import (ORDER_STATUS_COMPLETED, ORDER_STATUS_NOT_COLLECTED,
+                     ORDER_STATUS_PLACED, ORDER_STATUS_RECEIVED,
+                     ORDER_STATUS_STARTED, ORDER_STATUS_WAITING,
+                     ORDER_STATUSES_ACTIVE, PAYMENT_METHOD_CASH,
                      PAYMENT_METHOD_GOCARDLESS, PAYMENT_METHOD_PAYCONIQ)
 
 
@@ -143,8 +146,20 @@ class OrderManager(models.Manager):
 
 class ConfirmedOrderManager(OrderManager):
 
+    use_for_related_fields = True
+
     def get_queryset(self):
         return super().get_queryset().filter(
+            models.Q(
+                status__in=[
+                    ORDER_STATUS_PLACED,
+                    ORDER_STATUS_RECEIVED,
+                    ORDER_STATUS_STARTED,
+                    ORDER_STATUS_WAITING,
+                    ORDER_STATUS_COMPLETED,
+                    ORDER_STATUS_NOT_COLLECTED,
+                ]
+            ),
             models.Q(
                 payment_method__in=[
                     PAYMENT_METHOD_CASH,
@@ -271,16 +286,4 @@ class OrderedFoodManager(models.Manager):
 
 
 class GroupManager(models.Manager):
-
-    def get_orders_for(self, timestamp):
-        if isinstance(timestamp, datetime.datetime):
-            date = timestamp.date()
-        elif isinstance(timestamp, datetime.date):
-            date = timestamp
-        else:
-            raise TypeError('"timestamp" needs to be of the type datetime.date.')
-
-        return apps.get_model('ConfirmedOrder').objects.filter(
-            group__in=self,
-            receipt__date=date
-        )
+    pass

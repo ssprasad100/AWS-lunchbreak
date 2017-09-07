@@ -19,7 +19,7 @@
 </div>
 
 {% if order.group %}
-    {% set receipt = order.receipt %}
+    {% set receipt = order.group_order.receipt %}
 {% else %}
     {% set receipt = order.get_receipt_display %}
 {% endif %}

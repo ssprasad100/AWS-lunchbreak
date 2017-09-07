@@ -118,14 +118,56 @@ class GroupAdmin(admin.ModelAdmin):
     members_count.short_description = _('leden')
 
 
-class OrderInline(admin.TabularInline):
+class OrderedFoodInline(GenericTabularInline):
+    model = OrderedFood
+    readonly_fields = ('ingredients', 'comment',)
+    extra = 0
+
+
+class AbstractOrderMixin:
+
+    def total_display(self, instance):
+        total = instance.total_confirmed \
+            if instance.total_confirmed is not None \
+            else instance.total
+        return format_money(total)
+    total_display.short_description = _('totaal')
+    total_display.admin_order_field = 'total'
+
+    def count_display(self, instance):
+        return instance.orderedfood.all().count()
+    count_display.short_description = OrderedFood._meta.verbose_name_plural
+
+
+class AbstractOrderAdmin(AbstractOrderMixin, admin.ModelAdmin):
+    inlines = (OrderedFoodInline,)
+
+
+class OrderAdmin(AbstractOrderAdmin):
+    list_display = ('store', 'user', 'status', 'payment_method',
+                    'total_display', 'confirmed', 'placed', 'receipt',)
+    search_fields = ('store__name', 'user__name',)
+    list_filter = ('placed', 'receipt', 'payment_method', 'status', 'store',)
+    ordering = ('-placed', '-receipt',)
+    readonly_fields = ('confirmed',)
+
+    def confirmed(self, obj):
+        return obj.confirmed
+    confirmed.short_description = _('bevestigd')
+    confirmed.boolean = True
+
+
+admin.site.register([Order, ConfirmedOrder], OrderAdmin)
+
+
+class OrderInline(AbstractOrderMixin, admin.TabularInline):
     model = Order
-    fields = ('id', 'user', 'store', 'placed', 'receipt', 'status', 'total',
-              'total_confirmed', 'discount',)
+    fields = ('store', 'user', 'status', 'payment_method',
+              'total_display', 'confirmed', 'placed', 'receipt',)
     extra = 0
 
     def get_readonly_fields(self, request, obj=None):
-        return [field.name for field in self.model._meta.fields]
+        return self.fields
 
 
 @admin.register(GroupOrder)
@@ -176,45 +218,6 @@ class OrderedFoodAdmin(admin.ModelAdmin):
     def user(self, instance):
         return instance.order.user
     user.short_description = _('gebruiker')
-
-
-class OrderedFoodInline(GenericTabularInline):
-    model = OrderedFood
-    readonly_fields = ('ingredients', 'comment',)
-    extra = 0
-
-
-class AbstractOrderAdmin(admin.ModelAdmin):
-    inlines = (OrderedFoodInline,)
-
-    def total_display(self, instance):
-        total = instance.total_confirmed \
-            if instance.total_confirmed is not None \
-            else instance.total
-        return format_money(total)
-    total_display.short_description = _('totaal')
-    total_display.admin_order_field = 'total'
-
-    def count_display(self, instance):
-        return instance.orderedfood.all().count()
-    count_display.short_description = OrderedFood._meta.verbose_name_plural
-
-
-class OrderAdmin(AbstractOrderAdmin):
-    list_display = ('store', 'user', 'status', 'payment_method',
-                    'total_display', 'confirmed', 'placed', 'receipt',)
-    search_fields = ('store__name', 'user__name',)
-    list_filter = ('placed', 'receipt', 'payment_method', 'status', 'store',)
-    ordering = ('-placed', '-receipt',)
-    readonly_fields = ('confirmed',)
-
-    def confirmed(self, obj):
-        return obj.confirmed
-    confirmed.short_description = _('bevestigd')
-    confirmed.boolean = True
-
-
-admin.site.register([Order, ConfirmedOrder], OrderAdmin)
 
 
 @admin.register(TemporaryOrder)

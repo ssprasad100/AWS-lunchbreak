@@ -4,7 +4,7 @@
 </a>
 <div class="popup box">
     {% for day in days %}
-    <a href="{{ url('frontend:group', kwargs={query_param: day}, token=group.admin_token) }}" {% if value == day %}class="selected"{% endif %}>
+    <a href="{{ url_query('frontend:group', reverse_kwargs={'pk': group.pk}, kwargs={query_param: day}, token=group.admin_token) }}" {% if value == day %}class="selected"{% endif %}>
         <time>{{ day | naturalweekday }}</time>
         <time>{{ day | date('j F Y') }}</time>
     </a>

@@ -4,7 +4,8 @@ from customers.config import (ORDER_STATUS_COMPLETED,
                               ORDER_STATUS_NOT_COLLECTED, ORDER_STATUS_PLACED,
                               ORDER_STATUS_RECEIVED, ORDER_STATUS_STARTED,
                               ORDER_STATUS_WAITING, PAYMENT_METHOD_CASH,
-                              PAYMENT_METHOD_GOCARDLESS, PAYMENT_METHODS)
+                              PAYMENT_METHOD_GOCARDLESS,
+                              PAYMENT_METHOD_PAYCONIQ, PAYMENT_METHODS)
 from customers.models import Group, GroupOrder, Order, User
 from django import forms
 from django.core.exceptions import ValidationError
@@ -105,9 +106,10 @@ class OrderForm(FatModelForm):
         description.widget.attrs['placeholder'] = description.help_text
 
         group_field = self.fields['group']
-        group_field.queryset = self.user.store_groups.filter(
+        user_groups = self.user.store_groups.filter(
             store_id=self.store.id
         )
+        group_field.queryset = user_groups
         if len(group_field.queryset) > 0:
             group_field.initial = group_field.queryset[0]
         group_field.groups_json = json.dumps(
@@ -182,12 +184,14 @@ class GroupForm(forms.ModelForm):
                     ORDER_STATUS_COMPLETED,
                     ORDER_STATUS_NOT_COLLECTED,
                 ]
-            ),
-            Q(
-                orders__payment_method__in=[PAYMENT_METHOD_CASH, PAYMENT_METHOD_GOCARDLESS],
-            ) | Q(
-                orders__transaction__isnull=False,
-                orders__transaction__status=Transaction.SUCCEEDED,
+            ) & (
+                Q(
+                    orders__payment_method__in=[PAYMENT_METHOD_CASH, PAYMENT_METHOD_GOCARDLESS],
+                ) | Q(
+                    orders__payment_method=PAYMENT_METHOD_PAYCONIQ,
+                    orders__transaction__isnull=False,
+                    orders__transaction__status=Transaction.SUCCEEDED,
+                )
             )
         ).distinct().values(
             'date'

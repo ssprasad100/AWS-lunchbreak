@@ -9,7 +9,6 @@ from pendulum import Pendulum
 
 from ..config import GROUP_ORDER_STATUSES, ORDER_STATUS_PLACED
 from ..tasks import send_group_order_email
-from .group import Group
 
 
 class GroupOrder(StatusSignalModel):
@@ -43,11 +42,11 @@ class GroupOrder(StatusSignalModel):
     )
 
     @cached_property
-    def orders(self):
-        return Group.objects.filter(
-            id=self.group_id
-        ).orders_for(
-            timestamp=self.date
+    def confirmed_orders(self):
+        from . import ConfirmedOrder
+
+        return ConfirmedOrder.objects.filter(
+            group_order_id=self.id,
         )
 
     @property
@@ -95,7 +94,7 @@ class GroupOrder(StatusSignalModel):
         self._paid_total = Decimal(0)
         self._total_no_discount = Decimal(0)
         self._discounted_amount = Decimal(0)
-        for order in self.orders.all():
+        for order in self.confirmed_orders.all():
             self._total += order.total
             self._total_no_discount += order.total_no_discount
             self._discounted_amount += order.discounted_amount

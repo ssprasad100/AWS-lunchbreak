@@ -21,6 +21,10 @@
         & + .block {
             margin-top: $header-height-total;
         }
+
+        input[type='submit'] {
+            color: $grey-black;
+        }
     }
 
     &.fixed {

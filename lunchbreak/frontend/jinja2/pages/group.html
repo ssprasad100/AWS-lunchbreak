@@ -40,7 +40,7 @@
                         <th>Totaal</th>
                     </tr>
                 </thead>
-                {% set orders = group_order.orders.prefetch_related(
+                {% set orders = group_order.confirmed_orders.prefetch_related(
                     'orderedfood__original',
                 ).order_by('user__name')
                 %}
