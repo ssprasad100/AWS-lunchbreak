@@ -127,6 +127,17 @@ class GroupSerializer(PrimaryModelSerializer):
             'id',
         )
 
+    def to_representation(self, value):
+        value = super().to_representation(value)
+
+        if 'request' in self.context and hasattr(self.context['request'], 'user'):
+            user = self.context['request'].user
+
+            if isinstance(user, User) and user.cash_enabled_forced:
+                value['payment_online_only'] = False
+
+        return value
+
 
 class OrderNestedSerializer(serializers.ModelSerializer):
 

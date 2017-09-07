@@ -25,28 +25,28 @@ class BaseGroupTestCase(CustomersTestCase):
 
 class GroupTestCase(BaseGroupTestCase):
 
-    def test_store_groups(self):
-        """Test whether the Store groups request returns joined groups."""
+    def get_groups(self):
         url = reverse(
             'customers:store-groups-list',
             kwargs={
                 'parent_lookup_pk': self.store.id
             }
         )
+        request = self.factory.get(url)
+        return self.authenticate_request(
+            request,
+            StoreGroupViewSet,
+            view_actions={
+                'get': 'list'
+            },
+            parent_lookup_pk=self.store.id
+        )
+
+    def test_store_groups(self):
+        """Test whether the Store groups request returns joined groups."""
         self.group.members.remove(self.user)
 
-        def get_groups():
-            request = self.factory.get(url)
-            return self.authenticate_request(
-                request,
-                StoreGroupViewSet,
-                view_actions={
-                    'get': 'list'
-                },
-                parent_lookup_pk=self.store.id
-            )
-
-        response = get_groups()
+        response = self.get_groups()
         self.assertEqual(
             response.status_code,
             status.HTTP_200_OK
@@ -58,7 +58,7 @@ class GroupTestCase(BaseGroupTestCase):
 
         self.group.members.add(self.user)
 
-        response = get_groups()
+        response = self.get_groups()
         self.assertEqual(
             response.status_code,
             status.HTTP_200_OK
@@ -71,6 +71,63 @@ class GroupTestCase(BaseGroupTestCase):
             response.data[0]['id'],
             self.group.id
         )
+
+    def test_user_cash_enabled_forced(self):
+        """Test whether User.cash_enabled_forced makes Group.payment_online_only == False."""
+
+        self.group.members.add(self.user)
+
+        def validate(expected):
+            response = self.get_groups()
+            self.assertEqual(
+                response.status_code,
+                status.HTTP_200_OK
+            )
+            self.assertEqual(
+                len(response.data),
+                1
+            )
+            self.assertEqual(
+                response.data[0]['payment_online_only'],
+                expected
+            )
+
+        # Group.payment_online_only == False
+        # User.cash_enabled_forced == False
+        # Result == False
+        self.group.payment_online_only = False
+        self.group.save()
+        self.user.cash_enabled_forced = False
+        self.user.save()
+        validate(expected=False)
+
+        # Group.payment_online_only == True
+        # User.cash_enabled_forced == False
+        # Result == True
+        self.group.payment_online_only = True
+        self.group.save()
+
+        validate(expected=True)
+
+        # Group.payment_online_only == False
+        # User.cash_enabled_forced == True
+        # Result == False
+        self.group.payment_online_only = False
+        self.group.save()
+        self.user.cash_enabled_forced = True
+        self.user.save()
+
+        validate(expected=False)
+
+        # Group.payment_online_only == True
+        # User.cash_enabled_forced == True
+        # Result == False
+        self.group.payment_online_only = True
+        self.group.save()
+        self.user.cash_enabled_forced = True
+        self.user.save()
+
+        validate(expected=False)
 
     @mock.patch('customers.tasks.send_group_created_emails.apply_async')
     def test_send_created_emails(self, mock_task):
