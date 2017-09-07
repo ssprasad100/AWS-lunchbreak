@@ -193,6 +193,8 @@ class GroupForm(forms.ModelForm):
                     orders__transaction__status=Transaction.SUCCEEDED,
                 )
             )
+        ).order_by(
+            '-date'
         ).distinct().values(
             'date'
         )
