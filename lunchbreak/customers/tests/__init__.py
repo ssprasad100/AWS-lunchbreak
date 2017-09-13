@@ -24,6 +24,7 @@ class CustomersTestCase(LunchTestCase):
     EMAIL_OTHER = 'mevrouw@debolle.com'
     DEVICE = 'Test device'
     REGISTRATION_ID = '123456789'
+    PASSWORD = 'password'
 
     def setUp(self):
         super().setUp()
@@ -68,9 +69,13 @@ class CustomersTestCase(LunchTestCase):
             access_token='secret',
             widget_token=uuid4()
         )
-        self.staff = Staff.objects.create(
+        self.staff = Staff(
             store=self.store,
             email=self.EMAIL,
             gocardless=self.gocardless,
-            payconiq=self.payconiq
+            payconiq=self.payconiq,
+            first_name='First',
+            last_name='Staff'
         )
+        self.staff.set_password(self.PASSWORD)
+        self.staff.save()

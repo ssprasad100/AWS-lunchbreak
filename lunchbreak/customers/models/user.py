@@ -8,6 +8,7 @@ from django.utils.translation import ugettext as _
 from django_sms.exceptions import PinTimeout
 from django_sms.models import Phone
 from Lunchbreak.exceptions import LunchbreakException
+from Lunchbreak.mixins import CleanModelMixin
 from rest_framework import status
 from rest_framework.response import Response
 
@@ -15,7 +16,7 @@ from ..exceptions import UserDisabled
 from ..managers import UserManager
 
 
-class User(AbstractBaseUser, PermissionsMixin):
+class User(CleanModelMixin, AbstractBaseUser, PermissionsMixin):
 
     USERNAME_FIELD = 'phone'
     REQUIRED_FIELDS = [
@@ -103,10 +104,19 @@ class User(AbstractBaseUser, PermissionsMixin):
             **kwargs
         )
 
-    def clean(self):
-        """AbstractUser's clean method normalise the username which results in
-        normalising the Phone instance here resulting in an error."""
-        pass
+    @classmethod
+    def normalize_username(cls, username):
+        """The username is the phone number which does not to be normalized.
+
+        The AbstractBaseUser normalizes the username on save raising a ValueError.
+        """
+        return username
+
+    def clean_email(self):
+        """User lowercase emails in the database to remove duplicates."""
+
+        if self.email is not None:
+            self.email = self.email.lower()
 
     @staticmethod
     def register(phone):

@@ -73,11 +73,11 @@ class BusinessAuthentication(TokenAuthentication):
             model = cls.MODEL.objects.get(id=request.data['id'])
             to_email = model.staff.email
         else:
-            to_email = request.data['email']
+            to_email = request.data['email'].lower()
 
             try:
                 validate_email(to_email)
-                model = cls.MODEL.objects.get(email=to_email)
+                model = cls.MODEL.objects.get(email__iexact=to_email)
             except LunchbreakException:
                 return InvalidEmail().response
             except cls.MODEL.DoesNotExist:
@@ -131,8 +131,8 @@ class StaffAuthentication(BusinessAuthentication):
             raise ValidationError('Email or staff field is required.')
 
         uses_email = 'email' in data
-        model_field = 'email' if uses_email else 'id'
-        model_id = data['email'] if uses_email else data['staff']
+        model_field = 'email__iexact' if uses_email else 'id'
+        model_id = data['email'].lower() if uses_email else data['staff']
         return get_object_or_404(
             cls.MODEL,
             **{

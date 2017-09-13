@@ -203,14 +203,16 @@ urlpatterns = [
             'model': Staff,
             'token_model': StaffToken,
             'serializer_class': StaffPasswordSerializer
-        }
+        },
+        name='staff-password-reset'
     ),
     url(
         r'^staff/reset/request/?$',
         views.ResetRequestView.as_view(),
         {
             'authentication': StaffAuthentication
-        }
+        },
+        name='staff-password-reset-request'
     ),
 
     url(

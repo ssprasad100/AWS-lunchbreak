@@ -27,10 +27,14 @@ class BusinessTestCase(CustomersTestCase):
             service=BareDevice.APNS
         )
 
-        self.other_staff = Staff.objects.create(
+        self.other_staff = Staff(
             store=self.other_store,
-            email=self.EMAIL_OTHER
+            email=self.EMAIL_OTHER,
+            first_name='Other',
+            last_name='Staff'
         )
+        self.other_staff.set_password(self.PASSWORD)
+        self.other_staff.save()
 
         self.other_owner = Employee.objects.create(
             staff=self.other_staff,

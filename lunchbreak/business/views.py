@@ -98,12 +98,12 @@ class PasswordResetView(generics.CreateAPIView):
             validate_email(email)
             if employee:
                 m = model.objects.get(
-                    staff__email=email,
+                    staff__email__iexact=email,
                     password_reset=password_reset
                 )
             else:
                 m = model.objects.get(
-                    email=email,
+                    email__iexact=email,
                     password_reset=password_reset
                 )
         except LunchbreakException:

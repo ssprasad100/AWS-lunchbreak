@@ -1,13 +1,14 @@
 from django.db import models
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
+from Lunchbreak.mixins import CleanModelMixin
 
 from ..managers import StaffManager
 from ..mixins import NotifyModelMixin
 from .abstract_password import AbstractPassword
 
 
-class Staff(AbstractPassword, NotifyModelMixin):
+class Staff(CleanModelMixin, AbstractPassword, NotifyModelMixin):
 
     class Meta:
         verbose_name = _('Personeel')
@@ -92,3 +93,14 @@ class Staff(AbstractPassword, NotifyModelMixin):
         """
         return self.store.payconiq_enabled \
             and self.payconiq
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+
+        super().save(*args, **kwargs)
+
+    def clean_email(self):
+        """User lowercase emails in the database to remove duplicates."""
+
+        if self.email is not None:
+            self.email = self.email.lower()
