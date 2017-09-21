@@ -231,11 +231,9 @@ class Order(StatusSignalModel, AbstractOrder):
                 and self.placed.date() == self.receipt.date() \
                 and self.group.deadline <= self.placed.time():
             raise PreorderTimeExceeded(
-                '{} == {} and {} <= {}'.format(
-                    self.placed.date(),
-                    self.receipt.date(),
-                    self.group.deadline,
-                    self.placed.time()
+                'Er moet voor {time} besteld worden vandaag, gelieve voor '
+                'een latere datum te bestellen.'.format(
+                    time=self.group.deadline.strftime('%H:%M')
                 )
             )
 

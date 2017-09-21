@@ -120,9 +120,16 @@ class OrderManager(models.Manager):
                         )
                     elif isinstance(f, OrderedFood):
                         # Clone the OrderedFood so the TemporaryOrder remains intact.
+                        old_pk = f.pk
                         f.pk = None
                         f.order = instance
                         f.save()
+                        f.ingredients.add(
+                            *Ingredient.objects.filter(
+                                orderedfood__pk=old_pk
+                            )
+                        )
+
             except Exception:
                 if instance.group_order is not None \
                         and instance.group_order.orders.count() == 1:
