@@ -7,6 +7,14 @@
 {% set gocardless = store.staff is defined and store.staff.gocardless_ready %}
 {% set payconiq = store.staff is defined and store.staff.payconiq_ready %}
 
+{% set checked = [] %}
+{%- macro is_checked() -%}
+    {% if not checked %}
+        checked
+        {% do checked.append(1) %}
+    {% endif %}
+{%- endmacro -%}
+
 <div id="checkout" class="block fullsize">
     <div class="container">
         <div id="checkout-before" class="title-split">
@@ -39,21 +47,21 @@
                     <div>
                         {% if store.cash_enabled or user.cash_enabled_forced %}
                         <label class="radio-item mdl-radio mdl-js-radio mdl-js-ripple-effect" for="checkout-payment-0">
-                          <input type="radio" id="checkout-payment-0" class="mdl-radio__button" name="{{ order_form.payment_method.html_name }}" value="{{ order_form.fields['payment_method'].choices[0][0] }}" checked>
+                          <input type="radio" id="checkout-payment-0" class="mdl-radio__button" name="{{ order_form.payment_method.html_name }}" value="{{ order_form.fields['payment_method'].choices[0][0] }}" {{ is_checked() }}>
                           <span class="mdl-radio__label">{{ order_form.fields['payment_method'].choices[0][1] }}</span>
                         </label>
                         {% endif %}
 
                         {% if gocardless %}
                         <label class="radio-item mdl-radio mdl-js-radio mdl-js-ripple-effect" for="checkout-payment-1">
-                          <input type="radio" id="checkout-payment-1" class="mdl-radio__button" name="{{ order_form.payment_method.html_name }}" value="{{ order_form.fields['payment_method'].choices[1][0] }}">
+                          <input type="radio" id="checkout-payment-1" class="mdl-radio__button" name="{{ order_form.payment_method.html_name }}" value="{{ order_form.fields['payment_method'].choices[1][0] }}" {{ is_checked() }}>
                           <span class="mdl-radio__label">{{ order_form.fields['payment_method'].choices[1][1] }}</span>
                         </label>
                         {% endif %}
 
                         {% if payconiq %}
                         <label class="radio-item mdl-radio mdl-js-radio mdl-js-ripple-effect" for="checkout-payment-2">
-                          <input type="radio" id="checkout-payment-2" class="mdl-radio__button" name="{{ order_form.payment_method.html_name }}" value="{{ order_form.fields['payment_method'].choices[2][0] }}">
+                          <input type="radio" id="checkout-payment-2" class="mdl-radio__button" name="{{ order_form.payment_method.html_name }}" value="{{ order_form.fields['payment_method'].choices[2][0] }}" {{ is_checked() }}>
                           <span class="mdl-radio__label">{{ order_form.fields['payment_method'].choices[2][1] }}</span>
                         </label>
                         {% endif %}
