@@ -5,7 +5,7 @@ from rest_framework import status
 from . import CustomersTestCase
 from ..models import Group
 from ..tasks import send_group_created_emails
-from ..views import StoreGroupViewSet
+from ..views import StoreGroupViewSet, StoreViewSet
 
 
 class BaseGroupTestCase(CustomersTestCase):
@@ -152,3 +152,57 @@ class GroupTestCase(BaseGroupTestCase):
         """Test whether setting up the group created email goes okay."""
         send_group_created_emails(self.group.id)
         self.assertEqual(mock_send.call_count, 2)
+
+    def test_hide_groups_only(self):
+        """Hide stores with `group_only` if the user does not belong to any of its groups."""
+
+        # Store.groups_only = False
+        # User in group = False
+        # Result = True
+        self.store.groups_only = False
+        self.group.members.remove(self.user)
+        self.store.save()
+
+        response = self.request_stores()
+        self.assertTrue(self.store.id in [store['id'] for store in response.data])
+
+        # Store.groups_only = True
+        # User in group = False
+        # Result = False
+        self.store.groups_only = True
+        self.store.save()
+
+        response = self.request_stores()
+        self.assertFalse(self.store.id in [store['id'] for store in response.data])
+
+        # Store.groups_only = False
+        # User in group = True
+        # Result = True
+        self.store.groups_only = False
+        self.group.members.add(self.user)
+        self.store.save()
+
+        response = self.request_stores()
+        self.assertTrue(self.store.id in [store['id'] for store in response.data])
+
+        # Store.groups_only = True
+        # User in group = True
+        # Result = True
+        self.store.groups_only = True
+        self.store.save()
+
+        response = self.request_stores()
+        self.assertTrue(self.store.id in [store['id'] for store in response.data])
+
+    def request_stores(self, **kwargs):
+        url = reverse('customers:store-list')
+        request = self.factory.get(url, **kwargs)
+        response = self.authenticate_request(
+            request,
+            StoreViewSet,
+            view_actions={
+                'get': 'list'
+            }
+        )
+        response.render()
+        return response

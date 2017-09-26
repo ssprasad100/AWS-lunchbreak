@@ -94,6 +94,14 @@ class Store(AbstractAddress):
             'Betalingen in winkel ingeschakeld.'
         )
     )
+    groups_only = models.BooleanField(
+        default=False,
+        verbose_name=_('enkel groepen'),
+        help_text=_(
+            'Enkel leden van de groepen van deze winkel kunnen bij deze '
+            'winkel bestellen.'
+        )
+    )
     last_modified = models.DateTimeField(
         auto_now=True,
         verbose_name=_('laatst aangepast'),

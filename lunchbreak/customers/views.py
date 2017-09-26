@@ -1,4 +1,4 @@
-from django.db.models import Exists, OuterRef, Subquery
+from django.db.models import Q, Exists, OuterRef, Subquery
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from lunch.models import Food, Menu, Store
@@ -173,6 +173,12 @@ class StoreViewSet(TargettedViewSet,
                     store=OuterRef('pk'),
                     user=self.request.user
                 )
+            )
+        ).filter(
+            Q(
+                groups_only=False
+            ) | Q(
+                groups__members__in=[self.request.user]
             )
         )
 
