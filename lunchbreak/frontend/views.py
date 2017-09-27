@@ -7,7 +7,7 @@ from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.urlresolvers import reverse, reverse_lazy
-from django.db.models import Count
+from django.db.models import Q, Count, Exists, OuterRef
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.decorators import method_decorator
@@ -37,20 +37,39 @@ class SearchView(SearchForm.ViewMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         search_form = context['search_form']
         stores = []
+        queryset = Store.objects.annotate(
+            is_member=Exists(
+                Group.members.through.objects.filter(
+                    group__store_id=OuterRef('pk'),
+                    user=self.request.user,
+                )
+            )
+        )
+
+        filter_groups_only = [
+            Q(
+                groups_only=False
+            ) | Q(
+                is_member=True
+            )
+        ]
 
         if search_form.is_valid():
-            stores_byname = Store.objects.filter(
+            stores_byname = queryset.filter(
+                *filter_groups_only,
                 name__icontains=search_form.data['address'],
-                enabled=True
+                enabled=True,
             )
             stores = list(stores_byname)
 
             if hasattr(search_form, 'latitude'):
-                stores_nearby = Store.objects.nearby(
+                stores_nearby = queryset.filter(
+                    *filter_groups_only
+                ).nearby(
                     latitude=search_form.latitude,
                     longitude=search_form.longitude,
-                    proximity=10
-                )
+                    proximity=10,
+                ).distinct()
 
                 stores += list(stores_nearby)
 
@@ -68,7 +87,8 @@ class SearchView(SearchForm.ViewMixin, TemplateView):
                     ).replace('.', ',')
 
         if not stores:
-            stores = Store.objects.filter(
+            stores = queryset.filter(
+                *filter_groups_only,
                 enabled=True
             ).annotate(
                 hearts_count=Count('hearts')

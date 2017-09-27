@@ -173,12 +173,18 @@ class StoreViewSet(TargettedViewSet,
                     store=OuterRef('pk'),
                     user=self.request.user
                 )
+            ),
+            is_member=Exists(
+                Group.members.through.objects.filter(
+                    group__store_id=OuterRef('pk'),
+                    user=self.request.user,
+                )
             )
         ).filter(
             Q(
                 groups_only=False
             ) | Q(
-                groups__members__in=[self.request.user]
+                is_member=True
             )
         )
 

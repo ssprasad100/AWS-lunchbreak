@@ -155,6 +155,7 @@ class GroupTestCase(BaseGroupTestCase):
 
     def test_hide_groups_only(self):
         """Hide stores with `group_only` if the user does not belong to any of its groups."""
+        self.group.members.add(self.other_user)
 
         # Store.groups_only = False
         # User in group = False
@@ -164,7 +165,10 @@ class GroupTestCase(BaseGroupTestCase):
         self.store.save()
 
         response = self.request_stores()
-        self.assertTrue(self.store.id in [store['id'] for store in response.data])
+        self.assertEquals(
+            [store['id'] for store in response.data].count(self.store.id),
+            1
+        )
 
         # Store.groups_only = True
         # User in group = False
@@ -174,6 +178,10 @@ class GroupTestCase(BaseGroupTestCase):
 
         response = self.request_stores()
         self.assertFalse(self.store.id in [store['id'] for store in response.data])
+        self.assertEquals(
+            [store['id'] for store in response.data].count(self.store.id),
+            0
+        )
 
         # Store.groups_only = False
         # User in group = True
@@ -183,7 +191,10 @@ class GroupTestCase(BaseGroupTestCase):
         self.store.save()
 
         response = self.request_stores()
-        self.assertTrue(self.store.id in [store['id'] for store in response.data])
+        self.assertEquals(
+            [store['id'] for store in response.data].count(self.store.id),
+            1
+        )
 
         # Store.groups_only = True
         # User in group = True
@@ -192,7 +203,10 @@ class GroupTestCase(BaseGroupTestCase):
         self.store.save()
 
         response = self.request_stores()
-        self.assertTrue(self.store.id in [store['id'] for store in response.data])
+        self.assertEquals(
+            [store['id'] for store in response.data].count(self.store.id),
+            1
+        )
 
     def request_stores(self, **kwargs):
         url = reverse('customers:store-list')
