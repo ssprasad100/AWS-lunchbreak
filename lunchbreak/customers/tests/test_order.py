@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse
 from django_gocardless.exceptions import MerchantAccessError
 from django_gocardless.models import Merchant as GoCardlessMerchant
 from django_gocardless.models import RedirectFlow
-from lunch.exceptions import LinkingError, NoDeliveryToAddress
+from lunch.exceptions import GroupsOnly, LinkingError, NoDeliveryToAddress
 from lunch.models import Food
 from payconiq.models import Transaction
 from payconiq.views import WebhookView
@@ -21,7 +21,8 @@ from ..config import (ORDER_STATUS_COMPLETED, ORDER_STATUS_DENIED,
                       ORDER_STATUS_WAITING, PAYMENT_METHOD_CASH,
                       PAYMENT_METHOD_GOCARDLESS, PAYMENT_METHOD_PAYCONIQ)
 from ..exceptions import CashDisabled
-from ..models import Address, ConfirmedOrder, Order, OrderedFood, PaymentLink
+from ..models import (Address, ConfirmedOrder, Group, Order, OrderedFood,
+                      PaymentLink)
 
 
 class OrderTestCase(CustomersTestCase):
@@ -487,3 +488,106 @@ class OrderTestCase(CustomersTestCase):
         mock_staff_notify.reset_mock()
         self.assertTrue(mock_user_notify.called)
         mock_user_notify.reset_mock()
+
+    @mock.patch('payconiq.views.WebhookView.is_valid')
+    @mock.patch('payconiq.models.Transaction.start')
+    @mock.patch('customers.models.User.notify')
+    @mock.patch('lunch.models.Store.is_open')
+    @mock.patch('googlemaps.Client.timezone')
+    @mock.patch('googlemaps.Client.geocode')
+    def test_groups_only(self, mock_geocode, mock_timezone,
+                         mock_is_open, mock_notify, mock_transaction, mock_is_valid):
+        """Test whether a store with `groups_only = True` only accepts group orders."""
+        group = Group.objects.create(
+            name='Test Group',
+            store=self.store,
+            email='andreas@cloock.be',
+            deadline=self.midday.time()
+        )
+        self.store.groups_only = True
+        self.store.save()
+
+        content = {
+            'receipt': self.midday.add(days=1).isoformat(),
+            'store': self.store.id,
+            'payment_method': PAYMENT_METHOD_CASH,
+            'orderedfood': [
+                {
+                    'original': self.food.id,
+                    'total': self.food.cost,
+                    'amount': self.food.amount
+                }
+            ],
+            'group': group.pk,
+        }
+
+        # Group order = True
+        # Belongs to group = False
+        # Store.groups_only = True
+        # Result = False
+        response, order = self.place_order(content)
+        self.assertIsNone(order)
+        self.assertEqualException(response, LinkingError)
+
+        # Group order = True
+        # Belongs to group = True
+        # Store.groups_only = True
+        # Result = True
+        group.members.add(self.user)
+        response, order = self.place_order(content)
+        self.assertIsNotNone(order)
+
+        # Group order = True
+        # Belongs to group = True
+        # Store.groups_only = False
+        # Result = True
+        self.store.groups_only = False
+        self.store.save()
+        response, order = self.place_order(content)
+        self.assertIsNotNone(order)
+
+        # Group order = True
+        # Belongs to group = False
+        # Store.groups_only = False
+        # Result = False
+        group.members.remove(self.user)
+        response, order = self.place_order(content)
+        self.assertIsNone(order)
+        self.assertEqualException(response, LinkingError)
+
+        # Group order = False
+        # Belongs to group = False
+        # Store.groups_only = True
+        # Result = False
+        del content['group']
+        self.store.groups_only = True
+        self.store.save()
+        response, order = self.place_order(content)
+        self.assertIsNone(order)
+        self.assertEqualException(response, GroupsOnly)
+
+        # Group order = False
+        # Belongs to group = True
+        # Store.groups_only = True
+        # Result = False
+        group.members.add(self.user)
+        response, order = self.place_order(content)
+        self.assertIsNone(order)
+        self.assertEqualException(response, GroupsOnly)
+
+        # Group order = False
+        # Belongs to group = True
+        # Store.groups_only = False
+        # Result = True
+        self.store.groups_only = False
+        self.store.save()
+        response, order = self.place_order(content)
+        self.assertIsNotNone(order)
+
+        # Group order = False
+        # Belongs to group = False
+        # Store.groups_only = False
+        # Result = True
+        group.members.remove(self.user)
+        response, order = self.place_order(content)
+        self.assertIsNotNone(order)

@@ -8,6 +8,7 @@ INVALID_LINKING = 605
 UNSUPPORTED_API_VERSION = 606
 INVALID_FOODTYPE_AMOUNT = 607
 NO_DELIVERY_TO_ADDRESS = 608
+GROUPS_ONLY = 609
 
 
 class AddressNotFound(LunchbreakException):
@@ -50,3 +51,9 @@ class NoDeliveryToAddress(LunchbreakException):
     status_code = status.HTTP_400_BAD_REQUEST
     default_code = NO_DELIVERY_TO_ADDRESS
     default_detail = 'Winkel levert niet aan opgegeven adres.'
+
+
+class GroupsOnly(LunchbreakException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_code = GROUPS_ONLY
+    default_detail = 'Enkel groepen kunnen bij deze winkel bestellen.'

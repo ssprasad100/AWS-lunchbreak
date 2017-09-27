@@ -11,7 +11,7 @@ from django_gocardless.config import CURRENCY_EUR, PAYMENT_STATUS_PAID_OUT
 from django_gocardless.exceptions import (DjangoGoCardlessException,
                                           MerchantAccessError)
 from django_gocardless.models import Payment
-from lunch.exceptions import LinkingError, NoDeliveryToAddress
+from lunch.exceptions import GroupsOnly, LinkingError, NoDeliveryToAddress
 from lunch.utils import timezone_for_store
 from Lunchbreak.exceptions import LunchbreakException
 from Lunchbreak.fields import (MoneyField, RoundingDecimalField,
@@ -356,6 +356,8 @@ class Order(StatusSignalModel, AbstractOrder):
                 raise LinkingError(
                     _('Je kan enkel bestellen bij groepen waartoe je behoort.')
                 )
+        elif self.store.groups_only:
+            raise GroupsOnly()
 
     def create_payment(self):
         if self.payment_gocardless:
