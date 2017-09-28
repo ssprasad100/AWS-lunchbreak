@@ -496,7 +496,8 @@ class OrderTestCase(CustomersTestCase):
     @mock.patch('googlemaps.Client.timezone')
     @mock.patch('googlemaps.Client.geocode')
     @mock.patch('customers.tasks.send_group_created_emails.apply_async')
-    def test_groups_only(self, mock_email, mock_geocode, mock_timezone,
+    @mock.patch('customers.tasks.send_group_order_email.apply_async')
+    def test_groups_only(self, mock_created, mock_order_email, mock_geocode, mock_timezone,
                          mock_is_open, mock_notify, mock_transaction, mock_is_valid):
         """Test whether a store with `groups_only = True` only accepts group orders."""
         group = Group.objects.create(
