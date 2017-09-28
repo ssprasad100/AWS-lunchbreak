@@ -356,7 +356,7 @@ class Order(StatusSignalModel, AbstractOrder):
                 raise LinkingError(
                     _('Je kan enkel bestellen bij groepen waartoe je behoort.')
                 )
-        elif self.store.groups_only:
+        elif self.pk is None and self.store.groups_only:
             raise GroupsOnly()
 
     def create_payment(self):
