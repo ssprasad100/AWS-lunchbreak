@@ -179,7 +179,7 @@ class Deployer:
 
         build_args = {
             'version': version,
-            'certificate_type': 'production' if is_production else 'development'
+            'certificate_type': 'production' if is_production or is_staging else 'development'
         }
 
         # Build the image and tag it with all of the names

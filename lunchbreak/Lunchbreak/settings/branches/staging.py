@@ -19,9 +19,6 @@ REDIRECTED_HOSTS = {
     'www.staging.lunchbreakapp.be': 'www.staging.lunchbreak.io',
 }
 
-APNS_HOST = 'gateway.sandbox.push.apple.com'
-APNS_FEEDBACK_HOST = 'feedback.sandbox.push.apple.com'
-
 RAVEN_ENVIRONMENT = 'staging'
 
 PAYCONIQ_WEBHOOK_DOMAIN = 'api.staging.lunchbreak.io'
