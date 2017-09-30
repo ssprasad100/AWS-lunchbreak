@@ -5,6 +5,7 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.translation import ugettext as _
+from Lunchbreak.exceptions import LunchbreakException
 from Lunchbreak.models import StatusSignalModel
 from payconiq import Transaction as PayconiqTransaction
 from payconiq import get_webhook_domain
@@ -109,6 +110,7 @@ class Transaction(StatusSignalModel):
     )
     remote_id = models.CharField(
         unique=True,
+        blank=False,
         max_length=24,
         verbose_name=_('payconiq id'),
         help_text=_('ID in Payconiq systeem.')
@@ -172,21 +174,25 @@ class Transaction(StatusSignalModel):
 
     @classmethod
     def start(cls, amount, merchant, currency=EUR):
-        transaction = cls.objects.create(
+        transaction = cls(
             amount=amount,
             currency=currency,
             merchant=merchant
         )
-        try:
-            remote_id = PayconiqTransaction.start(
-                amount=amount,
-                merchant_token=merchant.access_token,
-                currency=currency,
-                webhook_url=transaction.webhook_url
+        remote_id = PayconiqTransaction.start(
+            amount=amount,
+            merchant_token=merchant.access_token,
+            currency=currency,
+            webhook_url=transaction.webhook_url
+        )
+        if not remote_id:
+            raise LunchbreakException(
+                'Could not create Payconiq transaction.'
             )
-            transaction.remote_id = remote_id
-            transaction.save()
-            return transaction
-        except Exception:
-            transaction.delete()
-            raise
+        transaction.remote_id = remote_id
+        transaction.save()
+        return transaction
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)

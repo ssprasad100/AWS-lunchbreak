@@ -3,6 +3,8 @@ import requests
 
 from .exceptions import PayconiqError
 
+requests.adapters.DEFAULT_RETRIES = 5
+
 
 class Transaction:
 
