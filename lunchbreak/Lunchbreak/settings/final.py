@@ -1,4 +1,4 @@
-port logging
+import logging
 import os
 
 from django_jinja.builtins import DEFAULT_EXTENSIONS
