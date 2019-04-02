@@ -89,7 +89,6 @@ with lcd('lunchbreak'):
             'OPBEAT_SECRET_TOKEN_PRODUCTION' if is_production else 'OPBEAT_SECRET_TOKEN_STAGING'
         )
 
-
 def test():
     """Run tox tests."""
     local('tox')
@@ -255,7 +254,7 @@ class Deployer:
             sudo('resolvconf -u')
 
             # Certificate requirements
-            sudo('apt-get install apt-transport-https ca-certificates -y')
+            sudo('yum install apt-transport-https ca-certificates -y')
 
             # Add Docker certificates and repository
             sudo('apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D')
@@ -265,10 +264,10 @@ class Deployer:
             sudo('echo "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list')
             sudo('wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -')
 
-            sudo('apt-get update')
-            sudo('apt-get -o Dpkg::Options::="--force-confnew" upgrade -y')
-            sudo('apt-get purge lxc-docker')
-            sudo('apt-get install linux-image-extra-$(uname -r) linux-image-extra-virtual -y')
+            sudo('yum update')
+            sudo('yum -o Dpkg::Options::="--force-confnew" upgrade -y')
+            sudo('yum purge lxc-docker')
+            sudo('yum install linux-image-extra-$(uname -r) linux-image-extra-virtual -y')
 
             # Docker config
             sudo('mkdir -p /etc/docker/')
@@ -277,7 +276,7 @@ class Deployer:
                 remote_path='/etc/docker/daemon.json',
                 use_sudo=True
             )
-            sudo('apt-get -o Dpkg::Options::="--force-confnew" install docker-engine -y')
+            sudo('yum -o Dpkg::Options::="--force-confnew" install docker-engine -y')
 
             # Disable docker service iptables before starting
             sudo('mkdir -p /etc/systemd/system/docker.service.d')
@@ -293,23 +292,23 @@ class Deployer:
                 sudo('docker network create -d bridge --subnet 192.168.0.0/24 --gateway 192.168.0.1 host_network')
 
             # Docker compose installation
-            sudo('apt-get install python-pip -y')
+            sudo('yum install python-pip -y')
             sudo('pip install --no-input docker-compose')
 
             # PostgreSQL installation
-            sudo('sudo apt-get install postgresql-9.6')
+            sudo('sudo yum install postgresql-9.6')
             sudo('sudo systemctl enable postgresql')
             sudo('sudo systemctl start postgresql')
 
             # MySQL installation
             sudo('debconf-set-selections <<< "mysql-server-5.7 mysql-server/root_password password ditiseenzeerlangwachtwoorddatveranderdzalzijn"')
             sudo('debconf-set-selections <<< "mysql-server-5.7 mysql-server/root_password_again password ditiseenzeerlangwachtwoorddatveranderdzalzijn"')
-            sudo('apt-get -y install mysql-server-5.7')
+            sudo('yum -y install mysql-server-5.7')
             sudo('sudo systemctl enable mysql')
             sudo('sudo systemctl start mysql')
 
             # Fail2Ban
-            sudo('apt-get install fail2ban -y')
+            sudo('yum install fail2ban -y')
 
             self._setup_ufw()
             self._setup_fail2ban()
