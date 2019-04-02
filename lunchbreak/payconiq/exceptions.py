@@ -1,7 +1,7 @@
 import inspect
 import json
 import sys
-from json.decoder import JSONDecodeError
+# from json.decoder import JSONDecodeError
 
 
 class PayconiqError(Exception):
@@ -62,7 +62,8 @@ class PayconiqError(Exception):
 
         try:
             kwargs['json'] = response.json()
-        except JSONDecodeError:
+        except ValueError:
+            print "N'est pas JSON"
             pass
 
         subclasses = cls._subclasses()
