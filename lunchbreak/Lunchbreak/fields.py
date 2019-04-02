@@ -10,7 +10,7 @@ from rest_framework import serializers
 
 class RoundingDecimalField(models.DecimalField):
 
-    def __init__(self, *args, **kwargs, rounding=None):
+    def __init__(self, *args, **kwargs, rounding=0):
         super().__init__(*args, **kwargs)
         self.rounding = rounding
 
