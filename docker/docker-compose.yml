@@ -13,8 +13,8 @@ services:
     container_name: nginx
     restart: always
     ports:
-      - 81:81
-      - 1443:1443
+      - 80:80
+      - 443:443
     volumes:
       - /etc/nginx/conf.d
       - /etc/nginx/vhost.d
