@@ -3,7 +3,8 @@ from decimal import Decimal
 from django.conf import settings
 from django.db import models
 from django.utils.functional import curry
-from django.utils.translation import ugettext_lazy as _rom pendulum import Pendulum
+from django.utils.translation import ugettext_lazy as _
+from pendulum import Pendulum
 from rest_framework import serializers
 
 
