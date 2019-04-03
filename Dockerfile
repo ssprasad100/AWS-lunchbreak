@@ -1,7 +1,7 @@
 FROM python:3.5
 ENV PYTHONUNBUFFERED 1
 
-MAINTAINER Andreas Backx
+#MAINTAINER Andreas Backx
 
 RUN mkdir /code
 WORKDIR /code
@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y \
     libpcre3 \
     libpcre3-dev \
 && rm -rf /var/lib/apt/lists/* \
-&& pip install uwsgi
+RUN pip install uwsgi
 
 # Arguments
 ARG version

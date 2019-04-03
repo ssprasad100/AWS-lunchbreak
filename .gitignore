@@ -1,8 +1,10 @@
 lunchbreak/frontend/static/css
 lunchbreak/frontend/static/CACHE
 lunchbreak/Lunchbreak/settings/local.py
+lunchbreak/requirements-dev.txt
+lunchbreak/requirements-dev2.txt
 .vscode/
-
+src
 # Secrets
 secret.sls
 docker/nginx/certs
@@ -111,6 +113,7 @@ pip-delete-this-directory.txt
 # Unit test / coverage reports
 htmlcov/
 .tox/
+
 .coverage
 .coverage.*
 .cache

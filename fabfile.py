@@ -1,27 +1,28 @@
 import getpass
 import json
 import os
-
+import sys 
 import requests
 from fabric.api import env, lcd, local, run, sudo
 from fabric.context_managers import cd, hide, quiet, settings
 from fabric.contrib import django
 from fabric.contrib.files import exists
 from fabric.operations import put
-from pendulum import Pendulum
+import pendulum
 
 django.project('Lunchbreak')
 django.settings_module('lunchbreak.Lunchbreak.settings')
-started_at = Pendulum.now()
+started_at = pendulum.now()
 
 # Host
 HOST = os.environ.get('LUNCHBREAK_HOST')
-HOST = '137.74.42.120'
+HOST = '127.0.0.1'
 if not HOST:
     HOST = input('Host: ')
 
 # Fabric environment
 env.hosts = [HOST]
+
 env.user = 'root'
 env.shell = '/bin/bash -c -l'
 
@@ -35,6 +36,8 @@ with hide('running', 'output'):
                 capture=True
             )
         )
+        
+        # sys.exit(git_tag)
     git_commit = os.environ.get(
         'TRAVIS_COMMIT',
         local(
@@ -88,6 +91,7 @@ with lcd('lunchbreak'):
         OPBEAT_SECRET_TOKEN = os.environ.get(
             'OPBEAT_SECRET_TOKEN_PRODUCTION' if is_production else 'OPBEAT_SECRET_TOKEN_STAGING'
         )
+
 
 def test():
     """Run tox tests."""
@@ -254,7 +258,7 @@ class Deployer:
             sudo('resolvconf -u')
 
             # Certificate requirements
-            sudo('yum install apt-transport-https ca-certificates -y')
+            sudo('apt-get install apt-transport-https ca-certificates -y')
 
             # Add Docker certificates and repository
             sudo('apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D')
@@ -264,10 +268,10 @@ class Deployer:
             sudo('echo "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list')
             sudo('wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -')
 
-            sudo('yum update')
-            sudo('yum -o Dpkg::Options::="--force-confnew" upgrade -y')
-            sudo('yum purge lxc-docker')
-            sudo('yum install linux-image-extra-$(uname -r) linux-image-extra-virtual -y')
+            sudo('apt-get update')
+            sudo('apt-get -o Dpkg::Options::="--force-confnew" upgrade -y')
+            sudo('apt-get purge lxc-docker')
+            sudo('apt-get install linux-image-extra-$(uname -r) linux-image-extra-virtual -y')
 
             # Docker config
             sudo('mkdir -p /etc/docker/')
@@ -276,7 +280,7 @@ class Deployer:
                 remote_path='/etc/docker/daemon.json',
                 use_sudo=True
             )
-            sudo('yum -o Dpkg::Options::="--force-confnew" install docker-engine -y')
+            sudo('apt-get -o Dpkg::Options::="--force-confnew" install docker-engine -y')
 
             # Disable docker service iptables before starting
             sudo('mkdir -p /etc/systemd/system/docker.service.d')
@@ -292,23 +296,23 @@ class Deployer:
                 sudo('docker network create -d bridge --subnet 192.168.0.0/24 --gateway 192.168.0.1 host_network')
 
             # Docker compose installation
-            sudo('yum install python-pip -y')
+            sudo('apt-get install python-pip -y')
             sudo('pip install --no-input docker-compose')
 
             # PostgreSQL installation
-            sudo('sudo yum install postgresql-9.6')
+            sudo('sudo apt-get install postgresql-9.6')
             sudo('sudo systemctl enable postgresql')
             sudo('sudo systemctl start postgresql')
 
             # MySQL installation
             sudo('debconf-set-selections <<< "mysql-server-5.7 mysql-server/root_password password ditiseenzeerlangwachtwoorddatveranderdzalzijn"')
             sudo('debconf-set-selections <<< "mysql-server-5.7 mysql-server/root_password_again password ditiseenzeerlangwachtwoorddatveranderdzalzijn"')
-            sudo('yum -y install mysql-server-5.7')
+            sudo('apt-get -y install mysql-server-5.7')
             sudo('sudo systemctl enable mysql')
             sudo('sudo systemctl start mysql')
 
             # Fail2Ban
-            sudo('yum install fail2ban -y')
+            sudo('apt-get install fail2ban -y')
 
             self._setup_ufw()
             self._setup_fail2ban()
